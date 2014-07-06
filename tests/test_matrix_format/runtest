@@ -1,0 +1,27 @@
+# LVB
+# (c) Copyright 2003-2012 by Daniel Barker.
+# (c) Copyright 2013, 2013 by Daniel Barker and Maximilian Strobl.
+# Permission is granted to copy and use this program provided that no fee is
+# charged for it and provided that this copyright notice is not removed.
+
+# Check a matrix of the correct (PHYLIP 3.6) filename, but the
+# incorrect (LVB 1.0) format, causes an error.
+
+# run LVB
+$lvb = $ENV{LVB_EXECUTABLE};
+$output = `"$lvb" <./std.in`;
+$status = $?;
+
+# check output
+if ($output =~ /assertion/i)
+{
+    print "test failed: assertion failure\n";
+}
+elsif (($output =~ "FATAL ERROR") && ($status != 0))
+{
+    print "test passed\n";
+}
+else
+{
+    print "test failed\n";
+}
