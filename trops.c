@@ -22,8 +22,6 @@ typedef	struct	/* object set derived from a cladogram */
 static void cr_bpnc(const Branch *const barray, const long branch);
 static void cr_chaf(const Branch *const barray, const long destination, 
  const long newchild);
-static void cr_nbo(const Branch *const barray, const long obj);
-static void cr_tbo(const Branch *const barray, const long obj);
 static void cr_uxe(FILE *const stream, const char *const msg);
 static void fillsets(Objset *const sstruct, const Branch *const tree,
  const long root);
@@ -34,7 +32,7 @@ static long makesets(const Branch *const tree_1, const long root_1,
  const Branch *const tree_2, const long root_2);
 static int objnocmp(const void *o1, const void *o2);
 static int osetcmp(const void *oset1, const void *oset2);
-static void randleaf(Branch *const barray,
+static long *randleaf(Branch *const barray,
  const Lvb_bool *const leafmask, const long objs);
 static void realgetobjs(const Branch *const barray, const long root,
  long *const objarr, long *const cnt);
@@ -44,6 +42,7 @@ static long setstcmp(Objset *const oset_1, Objset *const oset_2,
 static void sort(Objset *const oset, const long nels);
 static void ssarralloc(Objset *nobjset, const long nsets,
  const long setsize);
+static void tree_make_canonical(Branch *const barray, long *objnos);
 static void ur_print(FILE *const stream, const Branch *const barray,
  const long root);
 
@@ -57,7 +56,6 @@ void nodeclear(Branch *const barray, const long brnch)
 /* Initialize all scalars in branch brnch to UNSET or zero as appropriate,
  * and mark it "dirty" */
 {
-    barray[brnch].object = UNSET;
     barray[brnch].left = UNSET;
     barray[brnch].right = UNSET;
     barray[brnch].parent = UNSET;
@@ -108,11 +106,12 @@ static void make_dirty_below(Branch *tree, long dirty_node)
  * root lies outside the LVB tree data structure so cannot be marked
  * dirty, but will always be dirty after any rearrangement */
 {
-    long dirty_parent;	/* parent of current dirty node */
+    extern Dataptr matrix;	/* data matrix */
+    long dirty_parent;		/* parent of current dirty node */
 
+    lvb_assert(dirty_node >= matrix->n);	/* not leaf/root */
     dirty_parent = tree[dirty_node].parent;
     lvb_assert(dirty_parent != UNSET);
-    lvb_assert(tree[dirty_node].object == UNSET);	/* not leaf/root */
     do {
 	tree[dirty_node].sset[0] = 0U;	/* "dirty" */
 	dirty_parent = tree[dirty_node].parent;
@@ -147,11 +146,12 @@ void mutate_deterministic(Branch *const desttree,
  * right node if right is LVB_TRUE, otherwise the left node; N.B. code
  * is largely copied from mutate_nni() */
 {
+    extern Dataptr matrix;	/* data matrix */
     Branch *tree;
     long u, v, a, b, c;
 
     lvb_assert(p != root);
-    lvb_assert(sourcetree[p].object == UNSET);
+    lvb_assert(p >= matrix->n);
 
     /* for ease of reading, make alias of desttree, tree */
     tree = desttree;
@@ -211,10 +211,8 @@ void mutate_nni(Branch *const desttree, const Branch *const sourcetree,
     treecopy(tree, sourcetree);
 
     /* get a random internal branch */
-    do
-    {
-	p = randpint(nbranches - 1);
-    } while ((p == root) || (tree[p].object != UNSET));
+    p = randpint(nbranches - matrix->n - 1);
+    p += matrix->n;
 
     u = p;
     v = tree[u].parent;
@@ -388,8 +386,7 @@ void mutate_spr(Branch *const desttree, const Branch *const sourcetree,
 
 } /* end mutate_spr() */
 
-static long lvb_reroot(Branch *const barray, const long oldroot,
- const long newroot)
+long lvb_reroot(Branch *const barray, const long oldroot, const long newroot)
 /* Change the root of the tree in barray from oldroot to newroot, which
  * must not be the same. Mark all internal nodes (everything but the leaves
  * and root) as "dirty". Return oldroot. */
@@ -404,7 +401,7 @@ static long lvb_reroot(Branch *const barray, const long oldroot,
 						 * parent of i */
 
     /* check new root is a leaf but not the current root */
-    lvb_assert(barray[newroot].object != UNSET);
+    lvb_assert(newroot < matrix->n);
     lvb_assert(newroot != oldroot);
 
     /* create record of parents as they are now */
@@ -444,13 +441,8 @@ static long lvb_reroot(Branch *const barray, const long oldroot,
     barray[oldroot].left = UNSET;
     barray[oldroot].right = UNSET;
 
-    for (current = 0; current < nbranches; current++)
-    {
-	if (barray[current].object == UNSET)
-	{
-	    barray[current].sset[0] = 0U;
-	}
-    }
+    for (current = matrix->n; current < nbranches; current++)
+	barray[current].sset[0] = 0U;
 
     return oldroot;
 
@@ -461,72 +453,19 @@ long arbreroot(Branch *const tree, const long oldroot)
  * Mark all nodes other than the leaves and root "dirty".
  * Return the number of the new root. */
 {
-    long newroot = 0;	/* new root */
+    extern Dataptr matrix;	/* data matrix */
+    long newroot;		/* new root */
 
     /* find a leaf that is not the current root */
-    while ((tree[newroot].object == UNSET) || (newroot == oldroot))
-	newroot++;
+
+    do {
+	newroot = randpint(matrix->n - 1);
+    } while (newroot == oldroot);
 
     lvb_reroot(tree, oldroot, newroot);
     return newroot;
 
 } /* end arbreroot() */
-
-long objreroot(Branch *const barray, const long oldroot,
- const long newrobj)
-/* change the root of the tree in barray from oldroot to the branch
- * associated with object newrobj; mark all nodes other than the root and
- * leaves "dirty"; return the number of the new root */
-{
-    long i;				/* loop counter */
-    long newroot = UNSET;		/* new root */
-    Lvb_bool foundroot = LVB_FALSE;	/* have found new root obj. */
-    extern Dataptr matrix;		/* data matrix */
-    long nbranches = brcnt(matrix->n);	/* branches in tree */
-
-    for (i = 0; i < nbranches; i++)
-    {
-	if (barray[i].object == newrobj)
-	{
-	    if (foundroot == LVB_TRUE)
-		cr_tbo(barray, newrobj);
-	    newroot = i;
-	    foundroot = LVB_TRUE;
-	}
-    }
-    if (newroot == UNSET)
-	cr_nbo(barray, newrobj);
-    else if (newroot != oldroot)
-	lvb_reroot(barray, oldroot, newroot);
-
-    for (i = 0; i < nbranches; i++)
-    {
-	if (barray[i].object == UNSET)
-	{
-	    barray[i].sset[0] = 0U;	/* "dirty" */
-	}
-    }
-
-    return newroot;
-
-} /* end objreroot() */
-
-static void cr_nbo(const Branch *const barray, const long obj) 
-/* crash because no branches of tree in barray have proposed root
- * object obj as their object */
-{
-    crash("internal error: in tree array %p, no branch is associated\n"
-     "with proposed root object %ld", (const void *) barray, obj);
-
-} /* end cr_nbo() */
-
-static void cr_tbo(const Branch *const barray, const long obj)
-/* crash because two branches of tree in barray have object obj */
-{
-    crash("internal error in tree array %p, 2 branch records claim\n"
-     "object %ld", (const void *) barray, obj);
-	
-} /* end cr_tbo() */
 
 static long getsister(const Branch *const barray, const long branch)
 /* return number of sister of branch branch in tree in barray, or UNSET if
@@ -548,23 +487,6 @@ static long getsister(const Branch *const barray, const long branch)
     }
 
 } /* end getsister() */
-
-long getroot(const Branch *const barray)
-/* return index of root branch in tree in barray */
-{
-    long i;			/* loop counter */
-    extern Dataptr matrix;	/* data matrix */
-    long nbranches = brcnt(matrix->n);	/* branches in tree */
-
-    for (i = 0; i < nbranches; i++)
-    {
-	if ((barray[i].parent == UNSET) && (barray[i].object != UNSET))
-	    return i;
-    }
-    crash("internal error in tree array %p of %ld branches:\n"
-     "there is no root branch", (const void *) barray, nbranches);
-    return 0;	/* NEVER reached but it shuts up compilers */
-} /* end getroot() */
 
 long childadd(Branch *const tree, const long destination,
  const long newchild)
@@ -642,13 +564,111 @@ void randtree(Branch *const barray)
  * in this random tree are marked as "dirty" */
 {
     Lvb_bool *leafmask;		/* LVB_TRUE where branch in array is a leaf */
+    long *objnos;		/* element i is obj associated with branch i */
     extern Dataptr matrix;	/* data matrix */
 
     treeclear(barray);
     leafmask = randtopology(barray, matrix->n);
-    randleaf(barray, leafmask, matrix->n);
+    objnos = randleaf(barray, leafmask, matrix->n);
+    tree_make_canonical(barray, objnos);
 
 } /* end randtree() */
+
+static void wherever_was_now_say(Branch *const barray, long was, long now)
+{
+    extern Dataptr matrix;		/* data matrix */
+    long nbranches = brcnt(matrix->n);	/* branches in tree */
+    long branchno;			/* loop counter */
+
+    for (branchno = 0; branchno < nbranches; branchno++)
+    {
+	if(barray[branchno].parent == was)
+	    barray[branchno].parent = now;
+	if(barray[branchno].left == was)
+	    barray[branchno].left = now;
+	if(barray[branchno].right == was)
+	    barray[branchno].right = now;
+    }
+
+} /* end wherever_was_now_say() */
+
+static void tree_make_canonical(Branch *const barray, long *objnos)
+/* ensure that objects 0, 1, 2, ... n-1 are associated with branches 0, 1, 2,
+ * ... n-1, respectively; objnos indicates for each branch the currently
+ * assigned object or UNSET for internal branches */
+{
+    extern Dataptr matrix;		/* data matrix */
+    long i;				/* loop counter */
+    long nbranches = brcnt(matrix->n);	/* number of branches */
+    long obj_no;			/* current object number */
+    long impossible_1 = nbranches;	/* an out-of-range branch index */
+    long impossible_2 = nbranches + 1;	/* an out-of-range branch index */
+    long root = UNSET;			/* root branch index */
+    Branch tmp_1, tmp_2;		/* temporary branches for swapping */
+    unsigned char *ss0_start =
+     (unsigned char *) barray[0].sset;	/* start of state set memory */
+    Lvb_bool swap_made;			/* flag to indicate swap made */
+    long tmp;				/* for swapping */
+
+    do {
+	swap_made = LVB_FALSE;
+	for (i = 0; i < nbranches; i++) {
+	    obj_no = objnos[i];
+	    if ((obj_no != UNSET) && (obj_no != i)) {
+		tmp_1 = barray[obj_no];
+		wherever_was_now_say(barray,  obj_no, impossible_1);
+		tmp_2 = barray[i];
+		wherever_was_now_say(barray, i, impossible_2);
+		if (tmp_1.parent == i)
+		    tmp_1.parent = impossible_2;
+		if (tmp_1.left == i)
+		    tmp_1.left = impossible_2;
+		if (tmp_1.right == i)
+		    tmp_1.right = impossible_2;
+		if (tmp_2.parent == obj_no)
+		    tmp_2.parent = impossible_1;
+		if (tmp_2.left == obj_no)
+		    tmp_2.left = impossible_1;
+		if (tmp_2.right == obj_no)
+		    tmp_2.right = impossible_1;
+		barray[i] = tmp_1;
+		barray[obj_no] = tmp_2;
+		wherever_was_now_say(barray, impossible_1, i);
+		wherever_was_now_say(barray, impossible_2, obj_no);
+		tmp = objnos[i];
+		objnos[i] = objnos[obj_no];
+		objnos[obj_no] = tmp;
+		swap_made = LVB_TRUE;
+	    }
+	}
+    } while (swap_made == LVB_TRUE);
+
+    /* patch up assignment of sset memory to prevent trouble in treecopy() */
+    for (i = 0; i < nbranches; i++)
+    {
+	barray[i].sset = ss0_start + i * matrix->m;
+    }
+
+    for (i = 0; i < matrix->n; i++) {
+	if (barray[i].parent == UNSET)
+	{
+	    lvb_assert(root == UNSET);
+	    root = i;
+	}
+    }
+    if (root != 0) {
+	lvb_reroot(barray, root, 0);
+    }
+
+    /* check things didn't go haywire */
+    for (i = 0; i < matrix->n; i++) {
+	lvb_assert(objnos[i] == i);
+    }
+    for (i =  matrix->n; i < nbranches; i++) {
+	lvb_assert(objnos[i] == UNSET);
+    }
+
+} /* end tree_make_canonical() */
 
 Branch *treealloc(long nbranches, long m)
 /* Return array of nbranches branches with scalars all UNSET, and all
@@ -664,16 +684,14 @@ Branch *treealloc(long nbranches, long m)
     unsigned char *barray_uchar_star;	/* tree as unsigned char */
     unsigned char *ss0_start;		/* start of first stateset */
     long i;				/* loop counter */
-    long bytes;				/* required allocation */
 
     lvb_assert(nbranches >= MIN_BRANCHES);
     lvb_assert(nbranches <= MAX_BRANCHES);
 
-    bytes = tree_bytes(matrix);
-
     barray = alloc(tree_bytes(matrix), "tree with statesets");
     barray_uchar_star = (unsigned char *) barray;
     ss0_start = barray_uchar_star + nbranches * sizeof(Branch);
+
     for (i = 0; i < nbranches; i++)
     {
 	barray[i].sset = ss0_start + i * matrix->m;
@@ -687,7 +705,7 @@ Branch *treealloc(long nbranches, long m)
 static Lvb_bool *randtopology(Branch *const barray, const long nobjs)
 /* fill barray with tree of random topology, where barray[0] is root;
  * return static array where element i is LVB_TRUE if barray[i] is a
- * leaf, or, LVB_FALSE if it is not; this array will be overwritten in
+ * leaf or LVB_FALSE if it is not; this array will be overwritten in
  * subsequent calls */
 {
     long i;		/* loop counter */
@@ -739,18 +757,22 @@ static Lvb_bool *randtopology(Branch *const barray, const long nobjs)
 
 } /* end randtopology() */
 
-static void randleaf(Branch *const barray,
- const Lvb_bool *const leafmask, const long objs)
+static long *randleaf(Branch *const barray, const Lvb_bool *const leafmask,
+    const long objs)
 /* randomly assign objects numbered 0 to objs - 1 to leaves of tree in
  * barray; leaves in barray must be indicated by corresponding
- * LVB_TRUEs in leafmask */
+ * LVB_TRUEs in leafmask; returns static array of object numbers, where
+ * elements 0..nbranches give the object associated with branches 0..nbranches
+ * respectively (UNSET for internal branches); this array will be overwritten
+ * in subsequent calls */
 {
     long assigned = 0;	/* for safety: should == objs at end */
-    long candidate;	/* random object */
-    long i;		/* loop counter */
+    long candidate;			/* random object */
+    long i;				/* loop counter */
     long nbranches = brcnt(objs);	/* branches in tree */
     static Lvb_bool used[MAX_N];	/* element i LVB_TRUE if object
     					 * i has leaf */
+    static long objnos[MAX_BRANCHES];	/* object associated with branches */
     extern Dataptr matrix;		/* data matrix */
 
     lvb_assert(objs < MAX_N);
@@ -759,6 +781,12 @@ static void randleaf(Branch *const barray,
     /* clear 'used' array */
     for (i = 0; i < objs; i++)
 	used[i] = LVB_FALSE;
+
+    /* clear object nos array, defaulting to internal branch, i.e. UNSET */
+    for (i = 0; i < nbranches; i++)
+    {
+	objnos[i] = UNSET;
+    }
 
     /* assign an object to every leaf */
     for (i = 0; i < nbranches; i++)
@@ -770,13 +798,15 @@ static void randleaf(Branch *const barray,
 		candidate = randpint(objs - 1);
 	    } while(used[candidate] == LVB_TRUE);
 	    /* assign object to leaf */
-	    barray[i].object = candidate;
+	    objnos[i] = candidate;
 	    used[candidate] = LVB_TRUE;
 	    assigned++;
 	}
     }
 
     lvb_assert(assigned == objs);
+
+    return objnos;
 
 } /* end randleaf() */
 
@@ -803,33 +833,31 @@ void treeswap(Branch **const tree1, long *const root1,
 void treedump(FILE *const stream, const Branch *const tree)
 /* send tree as table of integers to file pointed to by stream */
 {
-    long i;				/* loop counter */
-    long j;				/* loop counter */
-    long obj;				/* obj. assocated with current branch */
-    extern Dataptr matrix;		/* data matrix */
-    long nbranches = brcnt(matrix->n);	/* branches in tree */
+    long i;                             /* loop counter */
+    long j;                             /* loop counter */
+    extern Dataptr matrix;              /* data matrix */
+    long nbranches = brcnt(matrix->n);  /* branches in tree */
 
     fprintf(stream,
-	"Branch\tParent\tLeft\tRight\tObject\tChanges\tDirty\tSset_arr\tSsets\n");
+        "Branch\tParent\tLeft\tRight\tChanges\tDirty\tSset_arr\tSsets\n");
     for (i = 0; i < nbranches; i++)
     {
-	obj = tree[i].object;
-	fprintf(stream, "%ld\t%ld\t%ld\t%ld\t%ld\t%ld", i, tree[i].parent,
-         tree[i].left, tree[i].right, obj, tree[i].changes);
-	if (tree[i].sset[0] == 0U)
-	    fprintf(stream, "\tyes");
-	else
-	    fprintf(stream, "\tno");
-	fprintf(stream, "\t%p\t", tree[i].sset);
-	for (j = 0; j < matrix->m; j++)
-	{
-	    fprintf(stream, "%u ", (unsigned) tree[i].sset[j]);
-	}
-	fprintf(stream, "\n");
+        fprintf(stream, "%ld\t%ld\t%ld\t%ld\t%ld", i, tree[i].parent,
+         tree[i].left, tree[i].right, tree[i].changes);
+        if (tree[i].sset[0] == 0U)
+            fprintf(stream, "\tyes");
+        else
+            fprintf(stream, "\tno");
+        fprintf(stream, "\t%p", tree[i].sset);
+        for (j = 0; j < matrix->m; j++)
+        {
+            fprintf(stream, "\t0%o", (unsigned) tree[i].sset[j]);
+        }
+        fprintf(stream, "\n");
     }
     fprintf(stream, "\n");
     if(ferror(stream) != 0)
-	cr_uxe(stream, "dumping tree");
+        cr_uxe(stream, "dumping tree");
 
 } /* end treedump() */
 
@@ -859,13 +887,14 @@ static void ur_print(FILE *const stream, const Branch *const barray,
 /* send tree in barray, of root root, to file pointed to by stream in
  * unrooted form */
 {
+    extern Dataptr matrix;			/* data matrix */
     long obj;					/* current object */
     static Lvb_bool doneabsroot = LVB_FALSE;	/* have output root */
     static Lvb_bool usecomma;			/* output clade sep. */
     extern Dataptr matrix;			/* data matrix */
     char *tmp_title;				/* temporary string */
 
-    obj = barray[root].object;
+    obj = root;
 
     if (doneabsroot == LVB_FALSE)	/* print whole tree */
     {
@@ -897,7 +926,7 @@ static void ur_print(FILE *const stream, const Branch *const barray,
     {
 	if (usecomma == LVB_TRUE)
 	    fprintf(stream, "%s", CLADESEP);
-	if (barray[root].object != UNSET)	/* leaf */
+	if (root < matrix->n)	/* leaf */
 	{
 	    tmp_title = salloc(strlen(matrix->rowtitle[obj]), "temp. title");
 	    strcpy(tmp_title, matrix->rowtitle[obj]);
@@ -942,7 +971,10 @@ long treecmp(const Branch *const tree_1, const long root_1,
     lvb_assert((prev_m == matrix->m) && (prev_n == matrix->n));
 
     treecopy(copy_2, tree_2);
-    root_2 = objreroot(copy_2, root_2, tree_1[root_1].object);
+    lvb_assert(root_1 < matrix->n);
+    if(root_1 != root_2)
+	lvb_reroot(copy_2, root_2, root_1);
+    root_2 = root_1;
 
     nsets = makesets(tree_1, root_1, copy_2, root_2);
 
@@ -1084,6 +1116,7 @@ static void fillsets(Objset *const sstruct, const Branch *const tree,
  * descended from but not including root and not including sets of one
  * object */
 {
+    extern Dataptr matrix;	/* data matrix */
     static long i = UNSET;	/* current set being filled */
 
     if (i == UNSET)	/* not a recursive call */
@@ -1091,9 +1124,9 @@ static void fillsets(Objset *const sstruct, const Branch *const tree,
 	i = 0;
 
 	/* avoid generating sets for true root and leaves */
-	if (tree[tree[root].left].object == UNSET)	/* interior */
+	if (tree[root].left >= matrix->n)	/* interior */
 	    fillsets(sstruct, tree, tree[root].left);
-	if (tree[tree[root].right].object == UNSET)	/* interior */
+	if (tree[root].right >= matrix->n)	/* interior */
 	    fillsets(sstruct, tree, tree[root].right);
 
 	i = UNSET;	/* clean up for next non-recursive call */
@@ -1131,9 +1164,11 @@ static void realgetobjs(const Branch *const barray, const long root,
  * written to objarr); this function should not be called from anywhere
  * except getobjs(), which is a safer interface */
 {
-    if (barray[root].object != UNSET)
+    extern Dataptr matrix;	/* data matrix */
+
+    if (root < matrix->n)
     {
-	objarr[*cnt] = barray[root].object;
+	objarr[*cnt] = root;
 	++(*cnt);
     }
     else
@@ -1165,20 +1200,16 @@ static int objnocmp(const void *o1, const void *o2)
 
 void ss_init(Branch *tree, unsigned char **enc_mat, long nbranches, long m)
 /* copy m states from enc_mat to the stateset arrays for the leaves in tree;
- * the nth entry in enc_mat is assumed to be the encoded state sets for object
- * no. n in the tree; non-leaf branches in the tree are marked "dirty"; the
- * root branch struct is marked "clean" since it is also a terminal */
+ *  * the nth entry in enc_mat is assumed to be the encoded state sets for object
+ *   * no. n in the tree; non-leaf branches in the tree are marked "dirty"; the
+ *    * root branch struct is marked "clean" since it is also a terminal */
 {
-    long i;		/* loop counter */
-    long object;	/* current branch's object number */
+    extern Dataptr matrix;      /* data matrix */
+    long i;                     /* loop counter */
 
-    for (i = 0; i < nbranches; i++)
-    {
-	object = tree[i].object;
-	if (object == UNSET)
-	    tree[i].sset[0] = 0U;
-	else
-	    memcpy(tree[i].sset, enc_mat[object], m);
-    }
+    for (i = 0; i < matrix->n; i++)
+        memcpy(tree[i].sset, enc_mat[i], m);
+    for (i = matrix->n; i < nbranches; i++)
+            tree[i].sset[0] = 0U;
 
 } /* end ss_init() */

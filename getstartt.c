@@ -8,9 +8,8 @@
 
 #include "lvb.h"
 
-double get_initial_t(const Branch *const inittree, long root,
- unsigned char **bmat, long m, long n, const long *weights,
- Lvb_bool log_progress)
+double get_initial_t(const Branch *const inittree, long root, long m, long n,
+ const long *weights, Lvb_bool log_progress)
 /* Determine the starting temperature for the annealing search 
  * by finding the temperature T at which 65% of proposed 
  * positive transitions (changes in the tree structure which increase
@@ -33,7 +32,6 @@ double get_initial_t(const Branch *const inittree, long root,
     long prev_len = UNSET;	/* length of previous tree */
     long lendash;		/* length of proposed new tree */
     long lenmin;		/* minimum length for any tree */
-    long t_n = 0;		/* ordinal number of current temperature */
     double pacc;		/* prob. of accepting new config. */
     double r_lenmin;		/* minimum length for any tree */
     long rootdash;		/* root of new configuration */
@@ -46,7 +44,6 @@ double get_initial_t(const Branch *const inittree, long root,
     int acc_pos_trans = 0;        /* Number of accepted positve transitions */
     double increment_size = 0.00001; /* Step size by which the temperature is increased */
     int prop_pos_trans = 0;       /* Number of proposed positve transitions */
-    float r_0 = 0.65;              /* Desired ratio of accepted to proposed positive transitions*/
     double r_acc_to_prop = 0;   /* Ratio of accepted to proposed positve transitions */
     int sample_size = 100;                /* Sample size used to estimate the ratio */
     
@@ -69,7 +66,6 @@ double get_initial_t(const Branch *const inittree, long root,
 
     while (r_acc_to_prop <= 0.65)
     {
-
 		/* Collect a sample of sample_size permutations at the current temperature 
 		* and compute the ratio of proposed vs accepted worse changes*/
 		for (iter = 0; iter <= sample_size; iter++)

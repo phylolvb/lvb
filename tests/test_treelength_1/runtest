@@ -4,9 +4,6 @@
 # Permission is granted to copy and use this program provided that no fee is
 # charged for it and provided that this copyright notice is not removed.
 
-# Check a matrix with less than the mininum number of bases causes a
-# fatal error, but not an assertion failure.
-
 # run LVB
 $lvb = $ENV{LVB_EXECUTABLE};
 $output = `"$lvb" <./std.in`;

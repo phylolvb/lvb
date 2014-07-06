@@ -95,13 +95,13 @@ static long getsoln(Params rcstruct, const long *weight_arr, long *iter_p,
     Branch *user_tree_ptr = NULL;	/* user-specified initial tree */
     static unsigned char *enc_mat[MAX_N] = { NULL };	/* encoded data mat. */
 
-	/* NOTE: These variables and their values are "dummies" and are no longer used in the
-	 * current version of LVB. However, in order to keep the formatting of the output
-	 * compatible with that of previous versions of LVB these variables will continue to be
-	 * used and written to the summary files.
-	 */
-    long cyc = 0;				/* current cycle number */
-    long start = 0;			/* current random (re)start number */
+    /* NOTE: These variables and their values are "dummies" and are no longer
+     * used in the current version of LVB. However, in order to keep the
+     * formatting of the output compatible with that of previous versions of
+     * LVB these variables will continue to be used and written to the summary
+     * files.  */
+    long cyc = 0;	/* current cycle number */
+    long start = 0;	/* current random (re)start number */
  
     /* dynamic "local" heap memory */
     tree = treealloc(brcnt(matrix->n), matrix->m);
@@ -120,7 +120,8 @@ static long getsoln(Params rcstruct, const long *weight_arr, long *iter_p,
 
     if (rcstruct.verbose == LVB_TRUE) {
 		sumfp = clnopen(SUMFNAM, "w");
-		fprintf(sumfp, "StartNo\tCycleNo\tCycInit\tCycBest\tCycTrees\n");
+		fprintf(sumfp,
+		 "StartNo\tCycleNo\tCycInit\tCycBest\tCycTrees\n");
     }
     else
     {
@@ -131,9 +132,8 @@ static long getsoln(Params rcstruct, const long *weight_arr, long *iter_p,
     randtree(tree);	/* initialise required variables */
     ss_init(tree, enc_mat, brcnt(matrix->n), matrix->m);
     initroot = 0;
-    t0 = get_initial_t(tree, initroot, enc_mat, matrix->m, matrix->n,
-	weight_arr, log_progress);
-    
+    t0 = get_initial_t(tree, initroot, matrix->m, matrix->n, weight_arr,
+     log_progress);
 
     randtree(tree);	/* begin from scratch */
     ss_init(tree, enc_mat, brcnt(matrix->n), matrix->m);
@@ -156,7 +156,7 @@ static long getsoln(Params rcstruct, const long *weight_arr, long *iter_p,
 
     /* find solution(s) */
     treelength = anneal(&bstack_overall, tree, initroot, t0, maxaccept,
-	maxpropose, maxfail, stdout, enc_mat, matrix->m, matrix->n, weight_arr,
+	maxpropose, maxfail, stdout, matrix->m, matrix->n, weight_arr,
 	iter_p, cooling_schedule, log_progress);
     treestack_pop(tree, &initroot, &bstack_overall);
     treestack_push(&bstack_overall, tree, initroot);

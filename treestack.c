@@ -304,7 +304,9 @@ long treestack_print(Treestack *sp, FILE *const outfp, Lvb_bool onerandom)
     for (i = lower; i < upper; i++)
     {
         treecopy(barray, sp->stack[i].tree);
-	root = objreroot(barray, sp->stack[i].root, d_obj1);
+	if (sp->stack[i].root != d_obj1)
+	    lvb_reroot(barray, sp->stack[i].root, d_obj1);
+	root = d_obj1;
 	lvb_treeprint(outfp, barray, root);
     }
     if (fflush(outfp) != 0)

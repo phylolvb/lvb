@@ -30,7 +30,7 @@ long deterministic_hillclimb(Treestack *bstackp, const Branch *const inittree,
  * and will be updated on return */
 {
     extern Dataptr matrix;		/* data matrix */
-    long nbranches = brcnt(matrix->n);	/* count of branches in tree */
+    long nbranches = brcnt(n);		/* count of branches in tree */
     long i;				/* loop counter */
     long j;				/* loop counter */
     long todo_cnt = 0;			/* count of internal branches */
@@ -47,23 +47,17 @@ long deterministic_hillclimb(Treestack *bstackp, const Branch *const inittree,
      LVB_FALSE, LVB_TRUE };
 
     /* "local" dynamic heap memory */
-    x = treealloc(brcnt(matrix->n), matrix->m);
-    xdash = treealloc(brcnt(matrix->n), matrix->m);
+    x = treealloc(nbranches, matrix->m);
+    xdash = treealloc(nbranches, matrix->m);
 
     treecopy(x, inittree);      /* current configuration */
     len = getplen(x, root, m, n, weights);
     prev_len = len;
 
     /* identify internal branches */
-    for (i = 0; i < nbranches; i++)
-    {
-	if (x[i].object == UNSET)
-	{
-	    todo[todo_cnt] = i;
-	    todo_cnt++;
-	}
-    }
-    lvb_assert(todo_cnt == nbranches - matrix->n);
+    for (i = n; i < nbranches; i++)
+	todo[todo_cnt++] = i;
+    lvb_assert(todo_cnt == nbranches - n);
 
     do {
 	newtree = LVB_FALSE;
@@ -108,7 +102,7 @@ long deterministic_hillclimb(Treestack *bstackp, const Branch *const inittree,
 
 long anneal(Treestack *bstackp, const Branch *const inittree, long root,
  const double t0, const long maxaccept, const long maxpropose,
- const long maxfail, FILE *const lenfp, unsigned char **bmat, long m, long n,
+ const long maxfail, FILE *const lenfp, long m, long n,
  const long *weights, long *current_iter, const int cooling_schedule, Lvb_bool log_progress)
 /* seek parsimonious tree from initial tree in inittree (of root root)
  * with initial temperature t0, and subsequent temperatures obtained by

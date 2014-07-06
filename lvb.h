@@ -16,6 +16,7 @@
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -23,9 +24,9 @@
 #include "mymaths.h"
 
 /* the program */
-#define PROGNAM "lvb"				/* program file name */
-#define LVB_VERSION "3.0"			/* version of program */
-#define LVB_SUBVERSION "(23 March 2014)"	/* version details e.g. date */
+#define PROGNAM "lvb"			/* program file name */
+#define LVB_VERSION "3.1"		/* version of program */
+#define LVB_SUBVERSION "(2 June 2014)"	/* version details e.g. date */
 
 /* verboseness level (0 = nonverbose, 1 = verbose */
 #define VERBOSE_OUTPUT 0
@@ -42,7 +43,7 @@
 #define LVB_INPUTSTRING_SIZE 2000	/* max. bytes for interactive input */
 #define UNSET (-1)			/* value of integral vars when unset */
 #define STAT_LOG_INTERVAL 50000	/* min. interval for progress log */
-#define REROOT_INTERVAL 100		/* change root every ... updates */
+#define REROOT_INTERVAL 1000		/* change root every ... updates */
 
 /* limits that could be changed but, if increased enormously, might lead to
  * some trouble at some point */
@@ -60,7 +61,7 @@
 
 /* limits that could be changed but are likely to be OK */
 #define MAX_BOOTSTRAPS 1000000	/* max. bootstrap replicates */
-#define FROZEN_T 0.0001		/* do not consider system frozen unless temp < this */
+#define FROZEN_T 0.0001		/* consider system frozen if temp < FROZEN_T */
 
 /* unchangeable types */
 typedef enum { LVB_FALSE, LVB_TRUE } Lvb_bool;	/* boolean type */
@@ -80,7 +81,6 @@ typedef struct
     long parent;		/* parent branch number, UNSET in root */
     long left;			/* index of first child in tree array */
     long right;			/* index of second child in tree array */
-    long object;		/* object number if leaf, otherwise UNSET */
     long changes;		/* changes associated with this branch */
     unsigned char *sset;	/* statesets for all sites */
 
@@ -136,7 +136,7 @@ extern long chars;	/* defined in dnapars.c */
 /* LVB global functions */
 void *alloc(const size_t, const char *const);
 long anneal(Treestack *, const Branch *const, long, const double,
- const long, const long, const long, FILE *const, unsigned char **, long, long,
+ const long, const long, const long, FILE *const, long, long,
  const long *, long *, const int, Lvb_bool);
 long arbreroot(Branch *const, const long);
 long brcnt(long);
@@ -154,7 +154,8 @@ void dnapars_wrapper(void);
 char *f2str(FILE *const);
 Lvb_bool file_exists(const char *const);
 void get_bootstrap_weights(long *, long, long);
-double get_initial_t(const Branch *const, long, unsigned char **, long, long, const long *, Lvb_bool);
+double get_initial_t(const Branch *const, long, long, long, const long *,
+ Lvb_bool);
 long getminlen(const Dataptr);
 void getparam(Params *);
 long getplen(Branch *, const long, const long, const long, const long *);
@@ -164,6 +165,7 @@ long getroot(const Branch *const);
 void lvb_assertion_fail(const char *, const char *, int);
 void lvb_initialize(void);
 Dataptr lvb_matrin(const char *);
+long lvb_reroot(Branch *const barray, const long oldroot, const long newroot);
 void lvb_treeprint (FILE *const, const Branch *const, const long);
 Dataptr matalloc(const long);
 void matchange(Dataptr, const Params, const Lvb_bool);
