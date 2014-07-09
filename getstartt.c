@@ -8,8 +8,8 @@
 
 #include "lvb.h"
 
-double get_initial_t(const Branch *const inittree, long root, long m, long n,
- const long *weights, Lvb_bool log_progress)
+double get_initial_t(Dataptr matrix, const Branch *const inittree, long root, long m, long n,
+		const long *weights, Lvb_bool log_progress)
 /* Determine the starting temperature for the annealing search 
  * by finding the temperature T at which 65% of proposed 
  * positive transitions (changes in the tree structure which increase
@@ -38,7 +38,6 @@ double get_initial_t(const Branch *const inittree, long root, long m, long n,
     double t = LVB_EPS;		/* current temperature */
     Branch *x;			/* current configuration */
     Branch *xdash;		/* proposed new configuration */
-    extern Dataptr matrix;	/* data matrix */
 
     /* Variables specific to the get_initial_temperature() procedure*/
     int acc_pos_trans = 0;        /* Number of accepted positve transitions */
@@ -47,22 +46,19 @@ double get_initial_t(const Branch *const inittree, long root, long m, long n,
     double r_acc_to_prop = 0;   /* Ratio of accepted to proposed positve transitions */
     int sample_size = 100;                /* Sample size used to estimate the ratio */
     
-
     /* Create "local" dynamic heap memory and initialise tree 
      * structures like in anneal() */
-    x = treealloc(brcnt(matrix->n), matrix->m);
-    xdash = treealloc(brcnt(matrix->n), matrix->m);
+    x = treealloc(matrix);
+    xdash = treealloc(matrix);
 
-    treecopy(x, inittree);	/* current configuration */
+    treecopy(matrix, x, inittree);	/* current configuration */
     len = getplen(x, root, m, n, weights);
     
     lenmin = getminlen(matrix);
     r_lenmin = (double) lenmin;
     
     /* Log progress to standard output if chosen*/
-    if (log_progress)
-        printf("\nDetermining the Starting Temperature ...\n");
-
+    if (log_progress) printf("\nDetermining the Starting Temperature ...\n");
 
     while (r_acc_to_prop <= 0.65)
     {
@@ -74,22 +70,14 @@ double get_initial_t(const Branch *const inittree, long root, long m, long n,
 			prev_len = len;
 
 			/* occasionally re-root, to prevent influence from root position */
-			if ((iter % REROOT_INTERVAL) == 0)
-				root = arbreroot(x, root);
+			if ((iter % REROOT_INTERVAL) == 0) root = arbreroot(matrix, x, root);
 
 			lvb_assert(t > DBL_EPSILON);
 
 			/* mutation: alternate between the two mutation functions */
-			if (iter % 2)
-			{
-				rootdash = root;
-				mutate_spr(xdash, x, root);	/* global change */
-			}
-			else
-			{
-				rootdash = root;
-				mutate_nni(xdash, x, root);	/* local change */
-			}
+			rootdash = root;
+			if (iter & 0x01) mutate_nni(matrix, xdash, x, root);	/* local change */
+			else mutate_spr(matrix, xdash, x, root);	/* global change */
 
 			lendash = getplen(xdash, rootdash, m, n, weights);
 			lvb_assert (lendash >= 1L);
@@ -107,13 +95,10 @@ double get_initial_t(const Branch *const inittree, long root, long m, long n,
 				len = lendash;
 				treeswap(&x, &root, &xdash, &rootdash);
 			}	
-			else
-			{
-
+			else {
 				prop_pos_trans++; /* Another positive transition has been generated*/
 
-				if (-deltah < t * log_wrapper(LVB_EPS))
-				{
+				if (-deltah < t * log_wrapper(LVB_EPS)) {
 					pacc = 0.0;
 					/* Call uni() even though its not required. It
 					* would have been called in LVB 1.0A, so this

@@ -16,7 +16,7 @@ static void check_stdout(void)
     if (fflush(stdout) == EOF)
         crash("write error on standard output");	/* may not work! */
     if (ferror(stdout))
-	crash("file error on standard output");		/* may not work! */
+    	crash("file error on standard output");		/* may not work! */
 }	/* end check_stdout() */
 
 static void smessg(long start, long cycle)
@@ -32,30 +32,20 @@ static void writeinf(Params prms)
 {
     printf("\n");
 
-    /* configurable details */
-    printf("format               = ");
-    if (prms.interleaved == LVB_TRUE)
-	printf("INTERLEAVED\n");
-    else if (prms.interleaved == LVB_FALSE)
-	printf("SEQUENTIAL\n");
-    else
-	lvb_assert(0);
     printf("treatment of '-'     = ");
-    if (prms.fifthstate == LVB_TRUE)
-	printf("FIFTH STATE\n");
-    else
-	printf("UNKNOWN\n");
+    if (prms.fifthstate == LVB_TRUE) printf("FIFTH STATE\n");
+    else printf("UNKNOWN\n");
+
     printf("cooling schedule     = ");
-    if(prms.cooling_schedule == 0)
-	printf("GEOMETRIC\n");
-    else
-	printf("LINEAR\n");
+    if(prms.cooling_schedule == 0) printf("GEOMETRIC\n");
+    else printf("LINEAR\n");
+
     printf("seed                 = %d\n", prms.seed);
     printf("bootstrap replicates = %ld\n", prms.bootstraps);
 
 } /* end writeinf() */
 
-static void logtree1(const Branch *const barray, const long start, const long cycle, long root)
+static void logtree1(Dataptr matrix, const Branch *const barray, const long start, const long cycle, long root)
 /* log initial tree for cycle cycle of start start (in barray) to outfp */
 {
     static char outfnam[LVB_FNAMSIZE]; 	/* current file name */
@@ -67,18 +57,16 @@ static void logtree1(const Branch *const barray, const long start, const long cy
 
     /* create tree file */
     outfp = clnopen(outfnam, "w");
-    lvb_treeprint(outfp, barray, root);
+    lvb_treeprint(matrix, outfp, barray, root);
     clnclose(outfp, outfnam);
 
 } /* end logtree1() */
 
-static long getsoln(Params rcstruct, const long *weight_arr, long *iter_p,
- Lvb_bool log_progress)
+static long getsoln(Dataptr matrix, Params rcstruct, const long *weight_arr, long *iter_p, Lvb_bool log_progress)
 /* get and output solution(s) according to parameters in rcstruct;
  * return length of shortest tree(s) found, using weights in weight_arr */
 {
     int cooling_schedule = rcstruct.cooling_schedule; /* cooling schedule */
-    extern Dataptr matrix;		/* data matrix */
     static char fnam[LVB_FNAMSIZE];	/* current file name */
     long fnamlen;			/* length of current file name */
     long i;				/* loop counter */
@@ -104,7 +92,7 @@ static long getsoln(Params rcstruct, const long *weight_arr, long *iter_p,
     long start = 0;	/* current random (re)start number */
  
     /* dynamic "local" heap memory */
-    tree = treealloc(brcnt(matrix->n), matrix->m);
+    tree = treealloc(matrix);
 
     /* Allocation of the initial encoded matrix is non-contiguous because
      * this matrix isn't used much, so any performance penalty won't matter. */
@@ -120,78 +108,66 @@ static long getsoln(Params rcstruct, const long *weight_arr, long *iter_p,
 
     if (rcstruct.verbose == LVB_TRUE) {
 		sumfp = clnopen(SUMFNAM, "w");
-		fprintf(sumfp,
-		 "StartNo\tCycleNo\tCycInit\tCycBest\tCycTrees\n");
+		fprintf(sumfp, "StartNo\tCycleNo\tCycInit\tCycBest\tCycTrees\n");
     }
-    else
-    {
+    else{
         sumfp = NULL;
     }
 	
     /* determine starting temperature */
-    randtree(tree);	/* initialise required variables */
-    ss_init(tree, enc_mat, brcnt(matrix->n), matrix->m);
+    randtree(matrix, tree);	/* initialise required variables */
+    ss_init(matrix, tree, enc_mat, brcnt(matrix->n), matrix->m);
     initroot = 0;
-    t0 = get_initial_t(tree, initroot, matrix->m, matrix->n, weight_arr,
-     log_progress);
+    t0 = get_initial_t(matrix, tree, initroot, matrix->m, matrix->n, weight_arr, log_progress);
 
-    randtree(tree);	/* begin from scratch */
-    ss_init(tree, enc_mat, brcnt(matrix->n), matrix->m);
+    randtree(matrix, tree);	/* begin from scratch */
+    ss_init(matrix, tree, enc_mat, brcnt(matrix->n), matrix->m);
     initroot = 0;
 
-    if (rcstruct.verbose)
-	smessg(start, cyc);
-    check_stdout();
+    if (rcstruct.verbose) smessg(start, cyc);
+    	check_stdout();
 
     /* start cycles's entry in sum file
      * NOTE: There are no cycles anymore in the current version
      * of LVB. The code bellow is purely to keep the output consistent
      * with that of previous versions.  */
-    if(rcstruct.verbose == LVB_TRUE)
-    {
-		fprintf(sumfp, "%ld\t%ld\t%ld\t", start, cyc, getplen(tree,
-			initroot,matrix->m, matrix->n, weight_arr));
-		logtree1(tree, start, cyc, initroot);
+    if(rcstruct.verbose == LVB_TRUE) {
+		fprintf(sumfp, "%ld\t%ld\t%ld\t", start, cyc, getplen(tree, initroot,matrix->m, matrix->n, weight_arr));
+		logtree1(matrix, tree, start, cyc, initroot);
     }
 
     /* find solution(s) */
-    treelength = anneal(&bstack_overall, tree, initroot, t0, maxaccept,
-	maxpropose, maxfail, stdout, matrix->m, matrix->n, weight_arr,
-	iter_p, cooling_schedule, log_progress);
-    treestack_pop(tree, &initroot, &bstack_overall);
-    treestack_push(&bstack_overall, tree, initroot);
-    treelength = deterministic_hillclimb(&bstack_overall, tree,
-	initroot, stdout, matrix->m, matrix->n, weight_arr, iter_p,
-	log_progress);
+    treelength = anneal(matrix, &bstack_overall, tree, initroot, t0, maxaccept, maxpropose, maxfail,
+    		stdout, weight_arr, iter_p, cooling_schedule, log_progress);
+    treestack_pop(matrix, tree, &initroot, &bstack_overall);
+    treestack_push(matrix, &bstack_overall, tree, initroot);
+    treelength = deterministic_hillclimb(matrix, &bstack_overall, tree, initroot, stdout,
+    		weight_arr, iter_p, log_progress);
 
 	/* log this cycle's solution and its details 
 	 * NOTE: There are no cycles anymore in the current version
      * of LVB. The code bellow is purely to keep the output consistent
      * with that of previous versions. */
-    if (rcstruct.verbose == LVB_TRUE)
-    {
-	fnamlen = sprintf(fnam, "%s_start%ld_cycle%ld", RESFNAM, start, cyc);
-	lvb_assert(fnamlen < LVB_FNAMSIZE);	/* really too late */
-	resfp = clnopen(fnam, "w");
-	treec = treestack_print(&bstack_overall, resfp, LVB_FALSE);
-	clnclose(resfp, fnam);
-	fprintf(sumfp, "%ld\t%ld\n", treelength, treec);
+    if (rcstruct.verbose == LVB_TRUE){
+		fnamlen = sprintf(fnam, "%s_start%ld_cycle%ld", RESFNAM, start, cyc);
+		lvb_assert(fnamlen < LVB_FNAMSIZE);	/* really too late */
+		resfp = clnopen(fnam, "w");
+		treec = treestack_print(matrix, &bstack_overall, resfp, LVB_FALSE);
+		clnclose(resfp, fnam);
+		fprintf(sumfp, "%ld\t%ld\n", treelength, treec);
 
-	/* won't use length summary file until end of next cycle */
-	fflush(sumfp);
-	if (ferror(sumfp))
-	{
-	    crash("write error on file %s", SUMFNAM);
-	}
+		/* won't use length summary file until end of next cycle */
+		fflush(sumfp);
+		if (ferror(sumfp)){
+			crash("write error on file %s", SUMFNAM);
+		}
     }
 
 
-    if (rcstruct.verbose == LVB_TRUE)
-    	printf("Ending start %ld cycle %ld\n", start, cyc);
+    if (rcstruct.verbose == LVB_TRUE) printf("Ending start %ld cycle %ld\n", start, cyc);
     check_stdout();
 
-    if (rcstruct.verbose == LVB_TRUE)
-    	clnclose(sumfp, SUMFNAM);
+    if (rcstruct.verbose == LVB_TRUE) clnclose(sumfp, SUMFNAM);
 
     /* "local" dynamic heap memory */
     free(tree);
@@ -214,10 +190,10 @@ static void logstim(void)
 
 int main(void)
 {
-    extern Dataptr matrix;	/* data matrix */
+    Dataptr matrix;	/* data matrix */
     int val;			/* return value */
     Params rcstruct;		/* configurable parameters */
-    long i;			/* loop counter */
+    long i, x;			/* loop counter */
     long m;			/* sites per sequence */
     long n;			/* sequences in the data matrix */
     long iter;			/* iterations of annealing algorithm */
@@ -235,25 +211,23 @@ int main(void)
 
     /* entitle standard output */
     printf("\n* This is %s version %s %s *\n"
-	"* written by Daniel Barker and Maximilian Strobl *\n", PROGNAM,
-	LVB_VERSION, LVB_SUBVERSION);
-    printf("\n");
+    		"* written by Daniel Barker and Maximilian Strobl *\n\n", PROGNAM,
+    		LVB_VERSION, LVB_SUBVERSION);
     printf("Download and support:\n");
-    printf("http://eggg.st-andrews.ac.uk/lvb\n");
-    printf("\n");
+    printf("http://eggg.st-andrews.ac.uk/lvb\n\n");
     printf("Literature reference:\n");
-    printf("Barker, D. 2004. LVB: Parsimony and simulated annealing in the "
-	"search for\n"
-	"phylogenetic trees. Bioinformatics, 20, 274-275.\n");
-    printf("\n");
+    printf("Barker, D. 2004. LVB: Parsimony and simulated annealing in the search for\n"
+    		"phylogenetic trees. Bioinformatics, 20, 274-275.\n\n");
 
     lvb_initialize();
 
     getparam(&rcstruct);
-    phylip_mat_dims_in(&n, &m);
+
+    phylip_mat_dims_in(rcstruct.p_file_name, &n, &m);
     logstim();
 
-    matrix = phylip_dna_matrin(rcstruct.interleaved);
+    matrix = malloc(sizeof(DataStructure));
+    phylip_dna_matrin(rcstruct.p_file_name, matrix);
     lvb_assert((matrix->m == m) && (matrix->n == n));
 
     /* "file-local" dynamic heap memory: set up best tree stacks */
@@ -263,77 +237,61 @@ int main(void)
     m_including_constcols = matrix->m;
     matchange(matrix, rcstruct, rcstruct.verbose);	/* cut columns */
 
-    if (rcstruct.verbose == LVB_TRUE)
-    {
-	printf("getminlen: %ld\n\n", getminlen(matrix));
+    if (rcstruct.verbose == LVB_TRUE) {
+    	printf("getminlen: %ld\n\n", getminlen(matrix));
     }
     rinit(rcstruct.seed);
-    if (rcstruct.bootstraps > 0)
-    {
-	log_progress = LVB_FALSE;
-	printf("\nReplicate:      Rearrangements: Trees output:   Length:\n");
+    if (rcstruct.bootstraps > 0) {
+    	log_progress = LVB_FALSE;
+    	printf("\nReplicate:      Rearrangements: Trees output:   Length:\n");
     }
-    else
-	log_progress = LVB_TRUE;
+    else log_progress = LVB_TRUE;
+
     outtreefp = clnopen(OUTTREEFNAM, "w");
-    do
-    {
-	iter = 0;
-	if (rcstruct.bootstraps > 0)
-	{
-	    get_bootstrap_weights(weight_arr, matrix->m,
-		m_including_constcols - matrix->m);
-	}
-	else
-	{
-	    for (i = 0; i < matrix->m; i++)
-		weight_arr[i] = 1;
-	}
+    do{
+		iter = 0;
+		if (rcstruct.bootstraps > 0){
+			get_bootstrap_weights(weight_arr, matrix->m, m_including_constcols - matrix->m);
+		}
+		else{
+			for (i = 0; i < matrix->m; i++) weight_arr[i] = 1;
+		}
+		final_length = getsoln(matrix, rcstruct, weight_arr, &iter, log_progress);
+		if (rcstruct.bootstraps > 0) trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_TRUE);
+		else trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_FALSE);
 
-	final_length = getsoln(rcstruct, weight_arr, &iter, log_progress);
-	if (rcstruct.bootstraps > 0)
-	    trees_output = treestack_print(&bstack_overall, outtreefp,
-		LVB_TRUE);
-	else
-	    trees_output = treestack_print(&bstack_overall, outtreefp,
-		LVB_FALSE);
-	trees_output_total += trees_output;
-	treestack_clear(&bstack_overall);
-	replicate_no++;
-	if (rcstruct.bootstraps > 0)
-	{
-	    printf("%-16ld%-16ld%-16ld%ld\n", replicate_no, iter, trees_output,
-		final_length);
-	    total_iter += (double) iter;
-	} else
-	    printf("\nRearrangements tried: %ld\n", iter);
-    } while (replicate_no < rcstruct.bootstraps);
-    clnclose(outtreefp, OUTTREEFNAM);
+		trees_output_total += trees_output;
+		treestack_clear(&bstack_overall);
+		replicate_no++;
+		if (rcstruct.bootstraps > 0) {
+			printf("%-16ld%-16ld%-16ld%ld\n", replicate_no, iter, trees_output,
+			final_length);
+			total_iter += (double) iter;
+		}
+		else  printf("\nRearrangements tried: %ld\n", iter);
+	} while (replicate_no < rcstruct.bootstraps);
 
-    printf("\n");
+	clnclose(outtreefp, OUTTREEFNAM);
 
-    if (rcstruct.bootstraps > 0)
-	printf("Total rearrangements tried across all replicates: %g\n\n",
-	 total_iter);
-
-    if ((trees_output_total == 1L) && (rcstruct.bootstraps == 0))
-    {
-	printf("1 most parsimonious tree of length %ld written to file "
-	    "'%s'\n", final_length, OUTTREEFNAM);
-    }
-    else
-    {
+	printf("\n");
 	if (rcstruct.bootstraps > 0)
-	{
-	    lvb_assert(trees_output_total == rcstruct.bootstraps);
-	    printf("%ld trees written to file '%s'\n", trees_output_total,
-		OUTTREEFNAM);
+		printf("Total rearrangements tried across all replicates: %g\n\n", total_iter);
+
+	if ((trees_output_total == 1L) && (rcstruct.bootstraps == 0)) {
+	printf("1 most parsimonious tree of length %ld written to file '%s'\n", final_length, OUTTREEFNAM);
 	}
-	else
-	{
-	    printf("%ld equally parsimonious trees of length %ld written to "
-         "file '%s'\n", trees_output_total, final_length, OUTTREEFNAM);
-	}
+	else {
+		if (rcstruct.bootstraps > 0)
+		{
+			lvb_assert(trees_output_total == rcstruct.bootstraps);
+			printf("%ld trees written to file '%s'\n", trees_output_total,
+			OUTTREEFNAM);
+		}
+		else
+		{
+			printf("%ld equally parsimonious trees of length %ld written to "
+			 "file '%s'\n", trees_output_total, final_length, OUTTREEFNAM);
+		}
     }
 
     rowfree(matrix);

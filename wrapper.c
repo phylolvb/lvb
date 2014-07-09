@@ -15,8 +15,10 @@ wrapper.c - LVB to PHYLIP interface
 **********/
 
 #include "lvb.h"
-#include "../PHYLIP_FOR_LVB/src/phylip.h"
-#include "../PHYLIP_FOR_LVB/src/seq.h"
+
+void read_file(char *file_name, DataStructure *p_lvbmat);
+void phylip_mat_dims_in_external(char *file_name, long *species_ptr, long *sites_ptr);
+
 
 /**********
 
@@ -53,65 +55,17 @@ structure containing the data matrix.
 
 **********/
 
-Dataptr phylip_dna_matrin(Lvb_bool ileaved)
+void phylip_dna_matrin(char *p_file_name, Dataptr lvbmat)
 {
-    long i;		/* loop counter */
-    long j;		/* loop counter */
-    Dataptr lvbmat;	/* return value */
-
-    /* indicate to PHYLIP whether the matrix is in interleaved or
-     * sequential format */
-    interleaved = ileaved;
-
-    /* read the matrix and associated information in to PHYLIP's
-     * globals spp, chars, y and nayme */
-    dnapars_wrapper();
+	read_file(p_file_name, lvbmat);
 
     /* check number of sequences is in range for LVB */
-    if (spp < MIN_N)
-	crash("The data matrix must have at least %ld sequences.",
-	 MIN_N);
-    if (spp > MAX_N)
-	crash("The data matrix must have no more than %ld sequences.",
-	 MAX_N);
-
+    if (lvbmat->n < MIN_N) crash("The data matrix must have at least %ld sequences.", MIN_N);
+    else if (lvbmat->n > MAX_N) crash("The data matrix must have no more than %ld sequences.", MAX_N);
     /* check number of sites is in range for LVB */
-    else if (chars < MIN_M)
-	crash("The data matrix must have at least %ld sites.", MIN_N);
-    else if (chars > MAX_M)
-	crash("The data matrix must have no more than %ld sites.",
-	 MAX_M);
+    else if (lvbmat->m < MIN_M) crash("The data matrix must have at least %ld sites.", MIN_N);
+    else if (lvbmat->m > MAX_M) crash("The data matrix must have no more than %ld sites.", MAX_M);
 
-    /* transfer copies of PHYLIP data to LVB data structure */
-
-    lvbmat = matalloc(spp);
-
-    /* we want null-terminated strings, so we cannot simply point to
-     * the same, non-null-terminated arrays as are found in PHYLIP's
-     * data structures */
-    for (i = 0; i < spp; i++)
-    {
-        lvbmat->rowtitle[i] = salloc(nmlngth, "sequence names");
-        lvbmat->row[i] = salloc(chars, "sequences");
-    }
-    for (i = 0; i < spp; i++)
-    {
-        for (j = 0; j < nmlngth; j++)
-	    lvbmat->rowtitle[i][j] = nayme[i][j];
-	lvbmat->rowtitle[i][nmlngth] = '\0';
-    }
-    for (i = 0; i < spp; i++)
-    {
-        for (j = 0; j < chars; j++)
-	    lvbmat->row[i][j] = y[i][j];
-	lvbmat->row[i][chars] = '\0';
-    }
-
-    /* scalars */
-    lvbmat->m = chars;
-    lvbmat->n = spp;
-
-    return lvbmat;
 } /* end phylip_dna_matrin() */
 
 /**********
@@ -153,16 +107,7 @@ open.
 
 **********/
 
-void phylip_mat_dims_in(long *species_ptr, long *sites_ptr)
-{
-    FILE *old_infile;		/* temp. holder for global's value */
-    long nonodes_dummy; 	/* required by inputnumbers */
-    const long n_dummy = 1;	/* required by inputnumbers */
+void phylip_mat_dims_in(char *p_file_name, long *species_ptr, long *sites_ptr){
 
-    old_infile = infile;	/* preserve original value */
-    infile = clnopen(INFILE, "r");	/* assign to PHYLIP global */
-    inputnumbers(species_ptr, sites_ptr, &nonodes_dummy, n_dummy);
-    clnclose(infile, INFILE);
-    infile = old_infile;	/* restore value */
-
-} /* end phylip_mat_dimsin() */
+	phylip_mat_dims_in_external(p_file_name, species_ptr, sites_ptr);
+}

@@ -131,79 +131,55 @@ C<mat>C<->E<gt>C<row>[I<i>][I<j>], where I<i> is in the interval
 
 **********/
 
-void dna_makebin(const Dataptr mat, Lvb_bool fifthstate,
- unsigned char **enc_mat)
+void dna_makebin(const Dataptr mat, Lvb_bool fifthstate, unsigned char **enc_mat)
 {
     long i;			/* loop counter */
     long j;			/* loop counter */
     char base;			/* current base as text character */
     unsigned char sset = 0U;	/* binary-encoded state set */
 
-    for (i = 0; i < mat->n; i++)
-    {
-        for (j = 0; j < mat->m; j++)
-	{
-	    base = mat->row[i][j];
+    for (i = 0; i < mat->n; i++){
+        for (j = 0; j < mat->m; j++) {
+			base = mat->row[i][j];
 
-	    /* unambiguous bases */
-	    if (base == 'A')
-	    	sset = A_BIT;
-	    else if (base == 'C')
-	        sset = C_BIT;
-	    else if (base == 'G')
-	        sset = G_BIT;
-	    else if (base == 'T')
-	    	sset = T_BIT;
-	    else if (base == 'U')	/* treat the same as 'U' */
-	        sset = T_BIT;
+			/* unambiguous bases */
+			if (base == 'A') sset = A_BIT;
+			else if (base == 'C') sset = C_BIT;
+			else if (base == 'G') sset = G_BIT;
+			else if (base == 'T') sset = T_BIT;
+			else if (base == 'U')	/* treat the same as 'U' */
+				sset = T_BIT;
 
-	    /* ambiguous bases */
-	    else if (base == 'Y')
-	        sset = C_BIT | T_BIT;
-	    else if (base == 'R')
-		sset = A_BIT | G_BIT;
-	    else if (base == 'W')
-	    	sset = A_BIT | T_BIT;
-	    else if (base == 'S')
-	    	sset = C_BIT | G_BIT;
-	    else if (base == 'K')
-	    	sset = T_BIT | G_BIT;
-	    else if (base == 'M')
-	    	sset = C_BIT | A_BIT;
-	    else if (base == 'B')
-	    	sset = C_BIT | G_BIT | T_BIT;
-	    else if (base == 'D')
-	    	sset = A_BIT | G_BIT | T_BIT;
-	    else if (base == 'H')
-	    	sset = A_BIT | C_BIT | T_BIT;
-    	    else if (base == 'V')
-	    	sset = A_BIT | C_BIT | G_BIT;
-	    else if (base == 'N')
-	    	sset = A_BIT | C_BIT | G_BIT | T_BIT;
-	    else if (base == 'X')
-	    	sset = A_BIT | C_BIT | G_BIT | T_BIT;
+			/* ambiguous bases */
+			else if (base == 'Y') sset = C_BIT | T_BIT;
+			else if (base == 'R') sset = A_BIT | G_BIT;
+			else if (base == 'W') sset = A_BIT | T_BIT;
+			else if (base == 'S') sset = C_BIT | G_BIT;
+			else if (base == 'K') sset = T_BIT | G_BIT;
+			else if (base == 'M') sset = C_BIT | A_BIT;
+			else if (base == 'B') sset = C_BIT | G_BIT | T_BIT;
+			else if (base == 'D') sset = A_BIT | G_BIT | T_BIT;
+			else if (base == 'H') sset = A_BIT | C_BIT | T_BIT;
+			else if (base == 'V') sset = A_BIT | C_BIT | G_BIT;
+			else if (base == 'N') sset = A_BIT | C_BIT | G_BIT | T_BIT;
+			else if (base == 'X') sset = A_BIT | C_BIT | G_BIT | T_BIT;
 
-	    /* total ambiguity */
-	    else if (base == '?')
-	    	sset = A_BIT | C_BIT | G_BIT | T_BIT | O_BIT;
+			/* total ambiguity */
+			else if (base == '?') sset = A_BIT | C_BIT | G_BIT | T_BIT | O_BIT;
 
-	    /* deletion */
-	    else if (base == 'O')
-	    	sset = O_BIT;
-	    else if (base == '-')
-            {
-		if (fifthstate == LVB_TRUE)
-		{
-		    sset = O_BIT;
-                }
-                else
-                {
-		    sset = A_BIT | C_BIT | G_BIT | T_BIT | O_BIT;
+			/* deletion */
+			else if (base == 'O') sset = O_BIT;
+			else if (base == '-') {
+				if (fifthstate == LVB_TRUE) {
+					sset = O_BIT;
+				}
+				else {
+					sset = A_BIT | C_BIT | G_BIT | T_BIT | O_BIT;
+				}
+			}
+			lvb_assert(sset != 0U);
+			enc_mat[i][j] = sset;
 		}
-	    }
-	    lvb_assert(sset != 0U);
-	    enc_mat[i][j] = sset;
-	}
     }
 } /* end dna_makebin() */
 
@@ -239,18 +215,16 @@ Dataptr matalloc(const long n)
     mat = alloc(sizeof(struct data), "matrix structure");
 
     /* array for row title strings */
-    mat->rowtitle = (char **) alloc((size_t) (n + 1) * sizeof(char *),
-     "pointers to row title strings");
+    mat->rowtitle = (char **) alloc((size_t) (n + 1) * sizeof(char *), "pointers to row title strings");
 
     /* array for row strings */
-    l_row = (char **) alloc((size_t) (n + 1) * sizeof(char *),
-     "pointers to row strings");
+    l_row = (char **) alloc((size_t) (n + 1) * sizeof(char *), "pointers to row strings");
 
     /* initialize unallocated pointers to NULL */
     for (i = 0; i <= n; ++i)
     {
-	mat->rowtitle[i] = NULL;
-	l_row[i] = NULL;
+    	mat->rowtitle[i] = NULL;
+    	l_row[i] = NULL;
     }
 
     /* initialize scalars to zero */
@@ -344,7 +318,7 @@ void matchange(Dataptr matrix, const Params rcstruct, const Lvb_bool verbose)
 
     /* initialize all elements to LVB_FALSE ('don't ignore') */
     for (k = 0; k < matrix->m; k++)
-	togo[k] = LVB_FALSE;
+    	togo[k] = LVB_FALSE;
 
     constchar(matrix, togo, verbose, scratch);	/* compuslory cut */
 

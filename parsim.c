@@ -8,8 +8,7 @@
 
 #include "lvb.h"
 
-long getplen(Branch *barray, const long root, const long m, const long n,
- const long *weights)
+long getplen(Branch *barray, const long root, const long m, const long n, const long *weights)
 {
     long branch;			/* current branch number */
     const long branch_cnt = brcnt(n);	/* branch count */
@@ -29,66 +28,55 @@ long getplen(Branch *barray, const long root, const long m, const long n,
     lvb_assert((m >= MIN_M) && (m <= MAX_M));
     lvb_assert((root >= 0) && (root < branch_cnt));
 
-    for (i = n; i < branch_cnt; i++)
-    {
-	if (barray[i].sset[0] == 0U)
-	    todo_arr[todo_cnt++] = i;
+    for (i = n; i < branch_cnt; i++) {
+    	if (barray[i].sset[0] == 0U) todo_arr[todo_cnt++] = i;
     }
 
     /* calculate state sets and changes where not already known */
-    while (done < todo_cnt)
-    {
-	for (i = 0; i < todo_cnt; i++)
-	{
-	    branch = todo_arr[i];
-	    if (barray[branch].sset[0] == 0U)	/* "dirty" */
-	    {
-		left = barray[branch].left;
-		right = barray[branch].right;
-		if ((barray[left].sset[0] != 0U)
-		 && (barray[right].sset[0] != 0U))
-		{
-		    barray[branch].changes = 0;
-		    for (k = 0; k < m; k++)
-		    {
- 			left_ss = barray[left].sset[k];
-			right_ss = barray[right].sset[k];
-			current_ss = left_ss & right_ss;
-			if (current_ss == 0U)
+    while (done < todo_cnt) {
+		for (i = 0; i < todo_cnt; i++) {
+			branch = todo_arr[i];
+			if (barray[branch].sset[0] == 0U)	/* "dirty" */
 			{
-			    current_ss = left_ss | right_ss;
-			    barray[branch].changes += weights[k];
+				left = barray[branch].left;
+				right = barray[branch].right;
+				if ((barray[left].sset[0] != 0U) && (barray[right].sset[0] != 0U))
+				{
+					barray[branch].changes = 0;
+					for (k = 0; k < m; k++){
+						left_ss = barray[left].sset[k];
+						right_ss = barray[right].sset[k];
+						current_ss = left_ss & right_ss;
+						if (current_ss == 0U){
+							current_ss = left_ss | right_ss;
+							barray[branch].changes += weights[k];
+						}
+						barray[branch].sset[k] = current_ss;
+					}
+					done++;
+				}
 			}
-			barray[branch].sset[k] = current_ss;
-		    }
-		    done++;
 		}
-	    }
-	}
     }
 
     /* count changes across tree */
-    for (i = n; i < branch_cnt; i++)
-	changes += barray[i].changes;
-    
+    for (i = n; i < branch_cnt; i++) changes += barray[i].changes;
+
     /* root: add length for root branch structure, and also for true root which
      * lies outside the LVB tree data structure; all without altering the
      * "root" struct statesets (since these represent actual data for the
      * leaf) */
     left = barray[root].left;
     right = barray[root].right;
-    for (k = 0; k < m; k++)
-    {
-	left_ss = barray[left].sset[k];
-	right_ss = barray[right].sset[k];
-	current_ss = left_ss & right_ss;
-	if (current_ss == 0U)
-	{
-	    current_ss = left_ss | right_ss;
-	    changes += weights[k];
-	}
-	if ((current_ss & barray[root].sset[k]) == 0U)
-	    changes += weights[k];
+    for (k = 0; k < m; k++) {
+		left_ss = barray[left].sset[k];
+		right_ss = barray[right].sset[k];
+		current_ss = left_ss & right_ss;
+		if (current_ss == 0U){
+			current_ss = left_ss | right_ss;
+			changes += weights[k];
+		}
+		if ((current_ss & barray[root].sset[k]) == 0U) changes += weights[k];
     }
 
     lvb_assert(changes > 0);

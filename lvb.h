@@ -73,7 +73,7 @@ typedef struct data
     long m;		/* number of columns */
     long n;		/* number of rows */
     char **rowtitle;	/* array of row title strings */ 
-} *Dataptr;
+} *Dataptr, DataStructure;
 
 /* branch of tree */
 typedef struct
@@ -92,6 +92,7 @@ typedef struct
     Branch *tree;	/* pointer to first branch in tree array */
     long root;		/* root of tree */
 } Treestack_element;
+
 typedef struct
 {
     long size;			/* number of trees currently allocated for */
@@ -105,9 +106,9 @@ typedef struct
     int seed;			/* seed for random number generator */
     long verbose;		/* verboseness level */
     long bootstraps;		/* number of bootstrap replicates */
-    Lvb_bool interleaved;	/* LVB_TRUE if matrix is interleaved */
     Lvb_bool fifthstate;	/* if LVB_TRUE, '-' is 'O'; otherwise is '?' */
     int cooling_schedule;   /* cooling schedule: 0 is geometric, 1 is linear */
+    char *p_file_name;
 } Params;
 
 /* simulated annealing parameters */
@@ -127,18 +128,16 @@ typedef struct
 
 /* assert-like macro, differing in that it writes to standard output,
  * calls crash() not abort(), and works whether or not NDEBUG is defined */
-#define lvb_assert(test) \
- ((void) ((test) || (lvb_assertion_fail(#test, __FILE__, __LINE__), 0)))
+#define lvb_assert(test) ((void) ((test) || (lvb_assertion_fail(#test, __FILE__, __LINE__), 0)))
 
 /* PHYLIP global data */
 extern long chars;	/* defined in dnapars.c */
 
 /* LVB global functions */
 void *alloc(const size_t, const char *const);
-long anneal(Treestack *, const Branch *const, long, const double,
- const long, const long, const long, FILE *const, long, long,
- const long *, long *, const int, Lvb_bool);
-long arbreroot(Branch *const, const long);
+long anneal(Dataptr, Treestack *, const Branch *const, long, const double,
+ const long, const long, const long, FILE *const, const long *, long *, const int, Lvb_bool);
+long arbreroot(Dataptr, Branch *const, const long);
 long brcnt(long);
 long childadd(Branch *const, const long, const long);
 long cistrcmp(const char *const, const char *const);
@@ -147,15 +146,15 @@ void clnclose(FILE *const, const char *const);
 FILE *clnopen(const char *const, const char *const);
 void clnremove(const char *const);
 void crash(const char *const, ...);
-long deterministic_hillclimb(Treestack *, const Branch *const, long,
-    FILE * const, long, long, const long *, long *, Lvb_bool);
+void defaults_params(Params *const prms);
+long deterministic_hillclimb(Dataptr, Treestack *, const Branch *const, long,
+    FILE * const, const long *, long *, Lvb_bool);
 void dna_makebin(const Dataptr, Lvb_bool, unsigned char **);
 void dnapars_wrapper(void);
 char *f2str(FILE *const);
 Lvb_bool file_exists(const char *const);
 void get_bootstrap_weights(long *, long, long);
-double get_initial_t(const Branch *const, long, long, long, const long *,
- Lvb_bool);
+double get_initial_t(Dataptr, const Branch *const, long, long, long, const long *, Lvb_bool);
 long getminlen(const Dataptr);
 void getparam(Params *);
 long getplen(Branch *, const long, const long, const long, const long *);
@@ -165,42 +164,42 @@ long getroot(const Branch *const);
 void lvb_assertion_fail(const char *, const char *, int);
 void lvb_initialize(void);
 Dataptr lvb_matrin(const char *);
-long lvb_reroot(Branch *const barray, const long oldroot, const long newroot);
-void lvb_treeprint (FILE *const, const Branch *const, const long);
+long lvb_reroot(Dataptr, Branch *const barray, const long oldroot, const long newroot);
+void lvb_treeprint (Dataptr, FILE *const, const Branch *const, const long);
 Dataptr matalloc(const long);
 void matchange(Dataptr, const Params, const Lvb_bool);
 Dataptr matrin(const char *const);
-void mutate_deterministic(Branch *const, const Branch *const, long, long,
-    Lvb_bool);
-void mutate_spr(Branch *const, const Branch *const, long);
-void mutate_nni(Branch *const, const Branch *const, long);
+void mutate_deterministic(Dataptr, Branch *const, const Branch *const, long, long, Lvb_bool);
+void mutate_spr(Dataptr, Branch *const, const Branch *const, long);
+void mutate_nni(Dataptr, Branch *const, const Branch *const, long);
 char *nextnonwspc(const char *);
 void nodeclear(Branch *const, const long);
 long objreroot(Branch *const, const long, const long);
 void params_change(Params *);
-Dataptr phylip_dna_matrin(Lvb_bool);
-void phylip_mat_dims_in(long *, long *);
-void randtree(Branch *const);
+void phylip_dna_matrin(char *, Dataptr);
+void phylip_mat_dims_in(char *, long *, long *);
+void randtree(Dataptr, Branch *const);
 long randpint(const long);
 void rowfree(Dataptr);
 char *salloc(const long, const char *const);
 void scream(const char *const, ...);
-void ss_init(Branch *, unsigned char **, long, long);
+void ss_init(Dataptr, Branch *, unsigned char **, long, long);
 char *supper(char *const s);
-Branch *treealloc(long, long);
-void treeclear(Branch *const);
-void treecopy(Branch *const, const Branch *const);
-long treecmp(const Branch *const, const long, const Branch *const, long);
-void treedump(FILE *const, const Branch *const);
+Branch *treealloc(Dataptr);
+void treeclear(Dataptr, Branch *const);
+void treecopy(Dataptr, Branch *const, const Branch *const);
+long treecmp(Dataptr, const Branch *const, const long, const Branch *const, long);
+void treedump(Dataptr, FILE *const, const Branch *const);
 void treestack_clear(Treestack *);
 long treestack_cnt(Treestack);
-long treestack_dump(Treestack *, FILE *const);
+long treestack_dump(Dataptr, Treestack *, FILE *const);
 void treestack_free(Treestack *);
 Treestack treestack_new(void);
-long treestack_transfer(Treestack *, Treestack *);
-long treestack_pop(Branch *, long *, Treestack *);
-long treestack_print(Treestack *, FILE *const, Lvb_bool);
-long treestack_push(Treestack *, const Branch *const, const long);
+long treestack_transfer(Dataptr, Treestack *, Treestack *);
+long treestack_pop(Dataptr, Branch *, long *, Treestack *);
+long treestack_print(Dataptr, Treestack *, FILE *const, Lvb_bool);
+long treestack_push(Dataptr, Treestack *, const Branch *const, const long);
 void treeswap(Branch **const, long *const, Branch **const, long *const);
+
 
 #endif /* LVB_LVB_H */

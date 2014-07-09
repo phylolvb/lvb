@@ -38,20 +38,21 @@ static void read_line(char *buffer)
 
 } /* end read_line() */
 
-static void defaults(Params *const prms)
+void defaults_params(Params *const prms)
 /* set seed in *prms to unacceptable value, and other parameters to their
- * defaults from lvb.h */
+ * defaults_params from lvb.h */
 {
-    prms->interleaved = -1;	/* nonsensical value */
     prms->bootstraps = 0;	/* sensible default */
 
     /* meaningful value that is not user-configurable */
-     prms->verbose = VERBOSE_OUTPUT;
+    prms->verbose = VERBOSE_OUTPUT;
 
     /* default value that will usually be used */
     prms->seed = get_default_seed();
 
-} /* end defaults() */
+    prms->p_file_name = "infile";
+
+} /* end defaults_params() */
 
 static void user_adjust(Params *prms)
 /* Interact with the user and set the parameters they want */
@@ -60,23 +61,25 @@ static void user_adjust(Params *prms)
     long lval;		/* input integer */
 
     /* matrix format */
-    printf("The data matrix must be in a file named 'infile', in PHYLIP 3.6 "
-     "format.\n"
-     "Are the aligned sequences INTERLEAVED or SEQUENTIAL?\n");
-    do
-    {
-        printf("Enter I for INTERLEAVED or S for SEQUENTIAL:\n");
-	read_line(buffer);
-    } while ((cistrcmp(buffer, "S\n") != 0) && (cistrcmp(buffer, "I\n") != 0));
-    switch (toupper(buffer[0]))
-    {
-    case 'I':
-	prms->interleaved = LVB_TRUE;
-        break;
-    case 'S':
-	prms->interleaved = LVB_FALSE;
-        break;
-    }
+  /*
+//    printf("The data matrix must be in a file named 'infile', in PHYLIP 3.6 "
+//     "format.\n"
+//     "Are the aligned sequences INTERLEAVED or SEQUENTIAL?\n");
+//    do
+//    {
+//        printf("Enter I for INTERLEAVED or S for SEQUENTIAL:\n");
+//	read_line(buffer);
+//    } while ((cistrcmp(buffer, "S\n") != 0) && (cistrcmp(buffer, "I\n") != 0));
+//    switch (toupper(buffer[0]))
+//    {
+//    case 'I':
+//	prms->interleaved = LVB_TRUE;
+//        break;
+//    case 'S':
+//	prms->interleaved = LVB_FALSE;
+//        break;
+//    }
+    prms->interleaved = LVB_FALSE;*/
     
     /* treatment of gaps */
     printf("\nPlease choose treatment of gaps represented by '-' in the data "
@@ -164,7 +167,7 @@ void getparam(Params *prms)
 /* Get configuration parameters. This function fills *prms with
  * run-time configuration parameters */
 {
-    defaults(prms);
+	defaults_params(prms);
     user_adjust(prms);
 
 } /* end getparam() */

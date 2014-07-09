@@ -31,7 +31,10 @@
 # Directories
 TEST_DIR = ./tests
 DOCS_PROG_DIR = ./docs_programmer
-PHYLIP_SRC_DIR = ../PHYLIP_FOR_LVB/src
+LVB_READ_FILE_DIR = ./LVB_READ_FILES/src
+
+### define a c++ compiler to your platform 
+G++ = g++
 
 # Compiler options
 CFLAGS += -DLVB	 	# Must be present
@@ -75,11 +78,10 @@ LVB_LIB_OBJS = admin.$(OBJ) \
                solve.$(OBJ) \
                sops.$(OBJ) \
                trops.$(OBJ) \
-               wrapper.$(OBJ) \
-               $(PHYLIP_SRC_DIR)/cons.$(OBJ) \
-               $(PHYLIP_SRC_DIR)/dnapars.$(OBJ) \
-               $(PHYLIP_SRC_DIR)/phylip.$(OBJ) \
-               $(PHYLIP_SRC_DIR)/seq.$(OBJ)
+               wrapper.$(OBJ)
+
+LVB_READ_FILE_OBJS = 	$(LVB_READ_FILE_DIR)/CReadFiles.$(OBJ) \
+			$(LVB_READ_FILE_DIR)/ReadFile.$(OBJ)
 
 LVB_LIB_OBJS_OUTPUT = $(LVB_LIB_OBJS)
 
@@ -133,9 +135,9 @@ $(LVB_MANUAL) : lvb_manual.odt
 	soffice --headless --convert-to pdf:writer_pdf_Export lvb_manual.odt
 
 LVB_PROG : $(LVB_LIB) $(LVB_PROG_OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $(LVB_PROG) $(LVB_PROG_OBJS) $(LIBS) $(LM)
+	$(G++) $(CFLAGS) $(LDFLAGS) -o $(LVB_PROG) $(LVB_PROG_OBJS) $(LVB_READ_FILE_OBJS) $(LIBS) $(LM)
 
-$(LVB_LIB) : $(LVB_LIB_OBJS)
+$(LVB_LIB) : $(LVB_LIB_OBJS) $(LVB_READ_FILE_OBJS) 
 	ar rv $@ $(LVB_LIB_OBJS_OUTPUT)
 	$(RANLIB) $(LVB_LIB)
 
@@ -154,6 +156,7 @@ clean : FORCE
 	rm -f $(LVB_PROG) \
 	$(LVB_LIB) \
 	$(LVB_LIB_OBJS) \
+	$(LVB_READ_FILE_OBJS) \
 	$(LVB_PROG_OBJS) \
 	$(DOCS)
 

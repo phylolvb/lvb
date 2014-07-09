@@ -20,17 +20,16 @@ static void lenlog(FILE *lengthfp, long iteration, long length, double temperatu
 
 } /* end lenlog() */
 
-long deterministic_hillclimb(Treestack *bstackp, const Branch *const inittree,
- long root, FILE * const lenfp, long m, long n, const long *weights,
- long *current_iter, Lvb_bool log_progress)
+long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *const inittree,
+		long root, FILE * const lenfp, const long *weights,
+		long *current_iter, Lvb_bool log_progress)
 /* perform a deterministic hill-climbing optimization on the tree in inittree,
  * using NNI on all internal branches until no changes are accepted; return the
  * length of the best tree found; current_iter should give the iteration number
  * at the start of this call and will be used in any statistics sent to lenfp,
  * and will be updated on return */
 {
-    extern Dataptr matrix;		/* data matrix */
-    long nbranches = brcnt(n);		/* count of branches in tree */
+    long nbranches = brcnt(matrix->n);		/* count of branches in tree */
     long i;				/* loop counter */
     long j;				/* loop counter */
     long todo_cnt = 0;			/* count of internal branches */
@@ -44,53 +43,46 @@ long deterministic_hillclimb(Treestack *bstackp, const Branch *const inittree,
     Branch *xdash;			/* proposed new configuration */
     static long todo[MAX_BRANCHES];	/* array of internal branch numbers */
     static Lvb_bool leftright[] = {	/* to loop through left and right */
-     LVB_FALSE, LVB_TRUE };
+    				LVB_FALSE, LVB_TRUE };
 
     /* "local" dynamic heap memory */
-    x = treealloc(nbranches, matrix->m);
-    xdash = treealloc(nbranches, matrix->m);
+    x = treealloc(matrix);
+    xdash = treealloc(matrix);
 
-    treecopy(x, inittree);      /* current configuration */
-    len = getplen(x, root, m, n, weights);
+    treecopy(matrix, x, inittree);      /* current configuration */
+    len = getplen(x, root, matrix->m, matrix->n, weights);
     prev_len = len;
 
     /* identify internal branches */
-    for (i = n; i < nbranches; i++)
-	todo[todo_cnt++] = i;
-    lvb_assert(todo_cnt == nbranches - n);
+    for (i = matrix->n; i < nbranches; i++) todo[todo_cnt++] = i;
+    lvb_assert(todo_cnt == nbranches - matrix->n);
 
     do {
-	newtree = LVB_FALSE;
-	for (i = 0; i < todo_cnt; i++)
-	{
-	    for (j = 0; j < 2; j++)
-	    {
-		mutate_deterministic(xdash, x, root, todo[i], leftright[j]);
-		lendash = getplen(xdash, rootdash, m, n, weights);
-		lvb_assert (lendash >= 1L);
-		deltalen = lendash - len;
-		if (deltalen <= 0)
-		{
-		    if (deltalen < 0)  /* very best so far */
-		    {
-			treestack_clear(bstackp);
-			len = lendash;
-		    }
-		    if (treestack_push(bstackp, xdash, rootdash) == 1)
-		    {
-			newtree = LVB_TRUE;
-			treeswap(&x, &root, &xdash, &rootdash);
-		    }
+		newtree = LVB_FALSE;
+		for (i = 0; i < todo_cnt; i++) {
+			for (j = 0; j < 2; j++) {
+				mutate_deterministic(matrix, xdash, x, root, todo[i], leftright[j]);
+				lendash = getplen(xdash, rootdash, matrix->m, matrix->n, weights);
+				lvb_assert (lendash >= 1L);
+				deltalen = lendash - len;
+				if (deltalen <= 0) {
+					if (deltalen < 0)  /* very best so far */
+					{
+						treestack_clear(bstackp);
+						len = lendash;
+					}
+					if (treestack_push(matrix, bstackp, xdash, rootdash) == 1) {
+						newtree = LVB_TRUE;
+						treeswap(&x, &root, &xdash, &rootdash);
+					}
+				}
+				if ((log_progress == LVB_TRUE) && ((len != prev_len) || ((*current_iter % STAT_LOG_INTERVAL) == 0))) {
+					lenlog(lenfp, *current_iter, len, 0);
+				}
+				prev_len = len;
+				*current_iter += 1;
+			}
 		}
-		if ((log_progress == LVB_TRUE) && ((len != prev_len)
-		 || ((*current_iter % STAT_LOG_INTERVAL) == 0)))
-		{
-		    lenlog(lenfp, *current_iter, len, 0);
-		}
-		prev_len = len;
-		*current_iter += 1;
-	    }
-	}
     } while (newtree == LVB_TRUE);
 
     /* free "local" dynamic heap memory */
@@ -100,10 +92,10 @@ long deterministic_hillclimb(Treestack *bstackp, const Branch *const inittree,
     return len;
 }
 
-long anneal(Treestack *bstackp, const Branch *const inittree, long root,
- const double t0, const long maxaccept, const long maxpropose,
- const long maxfail, FILE *const lenfp, long m, long n,
- const long *weights, long *current_iter, const int cooling_schedule, Lvb_bool log_progress)
+long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, long root,
+		const double t0, const long maxaccept, const long maxpropose,
+		const long maxfail, FILE *const lenfp, const long *weights, long *current_iter,
+		const int cooling_schedule, Lvb_bool log_progress)
 /* seek parsimonious tree from initial tree in inittree (of root root)
  * with initial temperature t0, and subsequent temperatures obtained by
  * multiplying the current temperature by (t1 / t0) ** n * t0 where n is
@@ -141,189 +133,171 @@ long anneal(Treestack *bstackp, const Branch *const inittree, long root,
     double grad_linear = 3.64 * LVB_EPS; /* gradient of the linear schedule */
     Branch *x;			/* current configuration */
     Branch *xdash;		/* proposed new configuration */
-    extern Dataptr matrix;	/* data matrix */
 
     /* "local" dynamic heap memory */
-    x = treealloc(brcnt(matrix->n), matrix->m);
-    xdash = treealloc(brcnt(matrix->n), matrix->m);
+    x = treealloc(matrix);
+    xdash = treealloc(matrix);
 
-    treecopy(x, inittree);	/* current configuration */
-    len = getplen(x, root, m, n, weights);
+    treecopy(matrix, x, inittree);	/* current configuration */
+    len = getplen(x, root, matrix->m, matrix->n, weights);
     dect = LVB_FALSE;		/* made LVB_TRUE as necessary at end of loop */
 
-
-    lvb_assert( ((float) t >= (float) LVB_EPS) 
-    	&& (t <= 1.0) && (grad_geom >= LVB_EPS) 
-    	&& (grad_linear >= LVB_EPS));
+    lvb_assert( ((float) t >= (float) LVB_EPS) && (t <= 1.0) && (grad_geom >= LVB_EPS) && (grad_linear >= LVB_EPS));
 
     lenbest = len;
-    treestack_push(bstackp, inittree, root);	/* init. tree initially best */
-    if ((log_progress == LVB_TRUE) && (*current_iter == 0))
-    {
+    treestack_push(matrix, bstackp, inittree, root);	/* init. tree initially best */
+    if ((log_progress == LVB_TRUE) && (*current_iter == 0)) {
         fprintf(lenfp, "\nTemperature:   Rearrangement: Length:\n");
     }
 
     lenmin = getminlen(matrix);
     r_lenmin = (double) lenmin;
 
-    while (1)
-    {
-        if ((log_progress == LVB_TRUE) 
-        	&& ((*current_iter % STAT_LOG_INTERVAL) == 0))
-        {
-	    lenlog(lenfp, *current_iter, len, t);
+    while (1) {
+        if ((log_progress == LVB_TRUE) && ((*current_iter % STAT_LOG_INTERVAL) == 0)) {
+        	lenlog(lenfp, *current_iter, len, t);
         }
-	prev_len = len;
-	*current_iter += 1;
+        /*lenlog(lenfp, *current_iter, len, t);*/
 
-	/* occasionally re-root, to prevent influence from root position */
-	if ((*current_iter % REROOT_INTERVAL) == 0)
-	    root = arbreroot(x, root);
-
-	lvb_assert(t > DBL_EPSILON);
-	newtree = LVB_FALSE;
-	probaccd = LVB_FALSE;
-
-	/* mutation: alternate between the two mutation functions */
-	if (iter % 2)
-	{
-	    rootdash = root;
-	    mutate_spr(xdash, x, root);	/* global change */
-	}
-	else
-	{
-	    rootdash = root;
-	    mutate_nni(xdash, x, root);	/* local change */
-	}
-
-	lendash = getplen(xdash, rootdash, m, n, weights);
-	lvb_assert (lendash >= 1L);
-	deltalen = lendash - len;
-	deltah = (r_lenmin / (double) len) - (r_lenmin / (double) lendash);
-	if (deltah > 1.0)	/* getminlen() problem with ambiguous sites */
-	    deltah = 1.0;
-	if (deltalen <= 0)	/* accept the change */
-	{
-	    if (lendash <= lenbest)	/* store tree if new */
-	    {
-		if (lendash < lenbest)	/* very best so far */
-		treestack_clear(bstackp);	/* discard old bests */
-		if (treestack_push(bstackp, xdash, rootdash) == 1)
-		newtree = LVB_TRUE;	/* new */
-	    }
-	    /* update current tree and its stats */
-	    prev_len = len;
-	    len = lendash;
-	    treeswap(&x, &root, &xdash, &rootdash);
-
-	    if (lendash < lenbest)	/* very best so far */
-		lenbest = lendash;
-	}
-	else	/* poss. accept change for the worse */
-	{
-	    /* Mathematically,
-	     *     Pacc = e ** (-1/T * deltaH)
-	     *     therefore ln Pacc = -1/T * deltaH
-	     *
-	     * Computationally, if Pacc is going to be small, we
-	     * can assume Pacc is 0 without actually working it
-	     * out.
-	     * i.e.,
-	     *     if ln Pacc < ln eps, let Pacc = 0
-	     * substituting,
-	     *     if -deltaH / T < ln eps, let Pacc = 0
-	     * rearranging,
-	     *     if -deltaH < T * ln eps, let Pacc = 0
-	     * This lets us work out whether Pacc will be very
-	     * close to zero without dividing anything by T. This
-	     * should prevent overflow. Since T is no less
-	     * than eps and ln eps is going to have greater
-	     * magnitude than eps, underflow when calculating
-	     * T * ln eps is not possible. */
-	    if (-deltah < t * log_wrapper(LVB_EPS))
-	    {
-		pacc = 0.0;
-		/* Call uni() even though its not required. It
-		 * would have been called in LVB 1.0A, so this
-		 * helps make results identical to results with
-		 * that version. */
-		(void) uni();
-	    }
-	    else	/* possibly accept the change */
-	    {
-		pacc = exp_wrapper(-deltah/t);
-		if (uni() < pacc)	/* do accept the change */
-		{
-		    probaccd = LVB_TRUE;
-		    treeswap(&x, &root, &xdash, &rootdash);
-		}
-	    }
-	    if (probaccd == LVB_TRUE)
-	    {
 		prev_len = len;
-		len = lendash;
-	    }
-	}
-	proposed++;
-	if (newtree == LVB_TRUE)
-	    accepted++;
+		*current_iter += 1;
 
-	/* decide whether to reduce temperature */
-	if (accepted >= maxaccept)	/* enough new trees */
-	{
-	    failedcnt = 0;  /* this temperature a 'success' */
-	    dect = LVB_TRUE;
-	}
-	else if (proposed >= maxpropose)	/* enough proposals */
-	{
-	    failedcnt++;
-	    if (failedcnt >= maxfail && t < FROZEN_T)	/* system frozen */
-	    {
-	    	/* Preliminary experiments yielded that the freezing
-	    	 * criterion used in previous versions of LVB is not
-	    	 * suitable for the new version and regularly results
-	    	 * in premature termination of the search. An easy fix
-	    	 * is to only apply the freezing criterion in the 
-	    	 * temperature ranges of previous versions of LVB 
-	    	 * (LVB_EPS < t < 10^-4). Future work will look at optimising
-	    	 * maxpropose, maxaccept and maxfail directly. */
-	    	break; /* end of cooling */
-	    }
-	    else	/* system not frozen, so further decrease temp. */
-		dect = LVB_TRUE;
-	}
+		/* occasionally re-root, to prevent influence from root position */
+		if ((*current_iter % REROOT_INTERVAL) == 0)
+			root = arbreroot(matrix, x, root);
 
-	if (dect == LVB_TRUE)
-	{
-	    t_n++;	/* originally n is 0 */
+		lvb_assert(t > DBL_EPSILON);
+		newtree = LVB_FALSE;
+		probaccd = LVB_FALSE;
 
-		if (cooling_schedule == 0)  /* Geometric cooling */
+		/* mutation: alternate between the two mutation functions */
+		rootdash = root;
+		if (iter & 0x01) mutate_nni(matrix, xdash, x, root);	/* local change */
+		else mutate_spr(matrix, xdash, x, root);	/* global change */
+
+		lendash = getplen(xdash, rootdash, matrix->m, matrix->n, weights);
+		lvb_assert (lendash >= 1L);
+		deltalen = lendash - len;
+		deltah = (r_lenmin / (double) len) - (r_lenmin / (double) lendash);
+		if (deltah > 1.0) deltah = 1.0; /* getminlen() problem with ambiguous sites */
+
+		if (deltalen <= 0)	/* accept the change */
 		{
-			/* Ensure t doesn't go out of bound */
-			ln_t = ((double) t_n) * log_wrapper(grad_geom) + log_wrapper(t0);
-			if (ln_t < log_wrapper(LVB_EPS))
-			    t = LVB_EPS;
-			else   /* decrease the temperature */ 
-			    t = pow_wrapper(grad_geom, (double) t_n) * t0;
+			if (lendash <= lenbest)	/* store tree if new */
+			{
+				/*printf("%ld\n", *current_iter);*/
+				if (lendash < lenbest) treestack_clear(bstackp);	/* discard old bests */
+				if (treestack_push(matrix, bstackp, xdash, rootdash) == 1)
+					newtree = LVB_TRUE;	/* new */
+			}
+			/* update current tree and its stats */
+			prev_len = len;
+			len = lendash;
+			treeswap(&x, &root, &xdash, &rootdash);
+
+			/* very best so far */
+			if (lendash < lenbest) lenbest = lendash;
 		}
-		else /* Linear cooling */
+		else	/* poss. accept change for the worse */
 		{
-			t = t0 - grad_linear * t_n;
-			/* Make sure t doesn't go out of bounce */
-			if (t < DBL_EPSILON || t <= LVB_EPS)
-				t = LVB_EPS;				
+			/* Mathematically,
+			 *     Pacc = e ** (-1/T * deltaH)
+			 *     therefore ln Pacc = -1/T * deltaH
+			 *
+			 * Computationally, if Pacc is going to be small, we
+			 * can assume Pacc is 0 without actually working it
+			 * out.
+			 * i.e.,
+			 *     if ln Pacc < ln eps, let Pacc = 0
+			 * substituting,
+			 *     if -deltaH / T < ln eps, let Pacc = 0
+			 * rearranging,
+			 *     if -deltaH < T * ln eps, let Pacc = 0
+			 * This lets us work out whether Pacc will be very
+			 * close to zero without dividing anything by T. This
+			 * should prevent overflow. Since T is no less
+			 * than eps and ln eps is going to have greater
+			 * magnitude than eps, underflow when calculating
+			 * T * ln eps is not possible. */
+			if (-deltah < t * log_wrapper(LVB_EPS))
+			{
+				pacc = 0.0;
+				/* Call uni() even though its not required. It
+				 * would have been called in LVB 1.0A, so this
+				 * helps make results identical to results with
+				 * that version. */
+				(void) uni();
+			}
+			else	/* possibly accept the change */
+			{
+				pacc = exp_wrapper(-deltah/t);
+				if (uni() < pacc)	/* do accept the change */
+				{
+					probaccd = LVB_TRUE;
+					treeswap(&x, &root, &xdash, &rootdash);
+				}
+			}
+			if (probaccd == LVB_TRUE){
+				prev_len = len;
+				len = lendash;
+			}
 		}
-	    proposed = 0;
-	    accepted = 0;
-	    dect = LVB_FALSE;
-	}
-	iter++;
+		proposed++;
+		if (newtree == LVB_TRUE)
+			accepted++;
+
+		/* decide whether to reduce temperature */
+		if (accepted >= maxaccept)	/* enough new trees */
+		{
+			failedcnt = 0;  /* this temperature a 'success' */
+			dect = LVB_TRUE;
+		}
+		else if (proposed >= maxpropose)	/* enough proposals */
+		{
+			failedcnt++;
+			if (failedcnt >= maxfail && t < FROZEN_T)	/* system frozen */
+			{
+				/* Preliminary experiments yielded that the freezing
+				 * criterion used in previous versions of LVB is not
+				 * suitable for the new version and regularly results
+				 * in premature termination of the search. An easy fix
+				 * is to only apply the freezing criterion in the
+				 * temperature ranges of previous versions of LVB
+				 * (LVB_EPS < t < 10^-4). Future work will look at optimising
+				 * maxpropose, maxaccept and maxfail directly. */
+				break; /* end of cooling */
+			}
+			else	/* system not frozen, so further decrease temp. */
+			dect = LVB_TRUE;
+		}
+
+		if (dect == LVB_TRUE)
+		{
+			t_n++;	/* originally n is 0 */
+
+			if (cooling_schedule == 0)  /* Geometric cooling */
+			{
+				/* Ensure t doesn't go out of bound */
+				ln_t = ((double) t_n) * log_wrapper(grad_geom) + log_wrapper(t0);
+				if (ln_t < log_wrapper(LVB_EPS)) t = LVB_EPS;
+				else t = pow_wrapper(grad_geom, (double) t_n) * t0; /* decrease the temperature */
+			}
+			else /* Linear cooling */
+			{
+				t = t0 - grad_linear * t_n;
+				/* Make sure t doesn't go out of bounce */
+				if (t < DBL_EPSILON || t <= LVB_EPS) t = LVB_EPS;
+			}
+			proposed = 0;
+			accepted = 0;
+			dect = LVB_FALSE;
+		}
+		iter++;
     }
 
     /* free "local" dynamic heap memory */
     free(x);
     free(xdash);
-
     return lenbest;
 
 } /* end anneal() */

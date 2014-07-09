@@ -21,10 +21,9 @@ topologies.
 
 #include "lvb.h"
 
-static void upsize(Treestack *sp)
+static void upsize(Dataptr matrix, Treestack *sp)
 /* increase allocation for tree stack *sp */
 {
-    extern Dataptr matrix;	/* data matrix */
     long i;	/* loop counter */
 
     sp->size++;
@@ -32,35 +31,33 @@ static void upsize(Treestack *sp)
     /* allocate for stack itself */
     if (sp->stack == NULL)	/* 1st call, stack does not exist */
     {
-        sp->stack = alloc(sp->size * sizeof(Treestack_element),
-          "initial best tree stack");
+        sp->stack = alloc(sp->size * sizeof(Treestack_element), "initial best tree stack");
         sp->next = 0;
         lvb_assert(sp->size == 1);	/* was incremented above */
     }
-    else
-    {
+    else {
         sp->stack = realloc(sp->stack, sp->size * sizeof(Treestack_element));
         if (sp->stack == NULL)
             crash("out of memory: cannot increase allocation for\n"
-             "best tree stack to %ld elements", sp->size);
+            		"best tree stack to %ld elements", sp->size);
     }
 
+    /* MIGUEL */
     /* allocate space within stack */
-    for (i = sp->next; i < sp->size; i++)
-    {
-	sp->stack[i].tree = treealloc(brcnt(matrix->n), matrix->m);
-	sp->stack[i].root = -1;
+    for (i = sp->next; i < sp->size; i++){
+    	/* sp->stack[i].tree = treealloc(matrix->n); */
+    	sp->stack[i].tree = treealloc(matrix);
+    	sp->stack[i].root = -1;
     }
  
 } /* end upsize() */
 
-static void dopush(Treestack *sp, const Branch *const barray, const long root)
+static void dopush(Dataptr matrix, Treestack *sp, const Branch *const barray, const long root)
 /* push tree in barray (of root root) on to stack *sp */
 {
     lvb_assert(sp->next <= sp->size);
-    if (sp->next == sp->size)
-        upsize(sp);
-    treecopy(sp->stack[sp->next].tree, barray);
+    if (sp->next == sp->size) upsize(matrix, sp);
+    treecopy(matrix, sp->stack[sp->next].tree, barray);
     sp->stack[sp->next].root = root;
     sp->next++;
  
@@ -189,7 +186,7 @@ Returns 1 if the tree was pushed, or 0 if not.
 
 **********/
 
-long treestack_push(Treestack *sp, const Branch *const barray, const long root)
+long treestack_push(Dataptr matrix, Treestack *sp, const Branch *const barray, const long root)
 {
     long i;			/* loop counter */
     Branch *stacktree = NULL;	/* current tree on stack */
@@ -197,16 +194,14 @@ long treestack_push(Treestack *sp, const Branch *const barray, const long root)
 
     /* return before push if not a new topology */
     /* check backwards as similar trees may be discovered together */
-    for (i = sp->next - 1; i >= 0; i--)
-    {
+    for (i = sp->next - 1; i >= 0; i--) {
         stacktree = sp->stack[i].tree;
         stackroot = sp->stack[i].root;
-	if (treecmp(stacktree, stackroot, barray, root) == 0)
-            return 0;
+        if (treecmp(matrix, stacktree, stackroot, barray, root) == 0) return 0;
     }
 
     /* topology is new so must be pushed */
-    dopush(sp, barray, root);
+    dopush(matrix, sp, barray, root);
     return 1;
 
 } /* end treestack_push() */
@@ -258,20 +253,18 @@ Returns 1 if a tree was popped, or 0 if the stack was empty.
 
 **********/
 
-long treestack_pop(Branch *barray, long *root, Treestack *sp)
+long treestack_pop(Dataptr matrix, Branch *barray, long *root, Treestack *sp)
 {
     long val;	/* return value */
 
-    if (sp->next >= 1)
-    {
+    if (sp->next >= 1){
         sp->next--;
-        treecopy(barray, sp->stack[sp->next].tree);
+        treecopy(matrix, barray, sp->stack[sp->next].tree);
         *root = sp->stack[sp->next].root;
 
         val = 1;
     }
-    else
-    {
+    else{
         val = 0;
     }
 
@@ -279,9 +272,8 @@ long treestack_pop(Branch *barray, long *root, Treestack *sp)
 
 } /* end treestack_pop() */
 
-long treestack_print(Treestack *sp, FILE *const outfp, Lvb_bool onerandom)
+long treestack_print(Dataptr matrix, Treestack *sp, FILE *const outfp, Lvb_bool onerandom)
 {
-    extern Dataptr matrix;	/* data matrix */
     const long d_obj1 = 0L;	/* 1st obj. for output trees */
     long root;			/* root of current tree */
     long i;			/* loop counter */
@@ -290,27 +282,25 @@ long treestack_print(Treestack *sp, FILE *const outfp, Lvb_bool onerandom)
     Branch *barray;		/* current unpacked tree */
 
     /* "local" dynamic heap memory */
-    barray = treealloc(brcnt(matrix->n), matrix->m);
+    barray = treealloc(matrix);
 
     if (onerandom == LVB_TRUE)	/* choose one random tree to print */
     {
-	lower = randpint(sp->next - 1);
-	upper = lower + 1;
+		lower = randpint(sp->next - 1);
+		upper = lower + 1;
     } else {
-	lower = 0;
-	upper = sp->next;
+		lower = 0;
+		upper = sp->next;
     }
 
-    for (i = lower; i < upper; i++)
-    {
-        treecopy(barray, sp->stack[i].tree);
-	if (sp->stack[i].root != d_obj1)
-	    lvb_reroot(barray, sp->stack[i].root, d_obj1);
-	root = d_obj1;
-	lvb_treeprint(outfp, barray, root);
+    for (i = lower; i < upper; i++) {
+        treecopy(matrix, barray, sp->stack[i].tree);
+        if (sp->stack[i].root != d_obj1) lvb_reroot(matrix, barray, sp->stack[i].root, d_obj1);
+        root = d_obj1;
+        lvb_treeprint(matrix, outfp, barray, root);
     }
     if (fflush(outfp) != 0)
-	crash("file write error when writing best trees");
+    	crash("file write error when writing best trees");
 
     /* deallocate "local" dynamic heap memory */
     free(barray);
@@ -361,25 +351,23 @@ Returns the number of trees dumped.
 
 **********/
 
-long treestack_dump(Treestack *sp, FILE *const outfp)
+long treestack_dump(Dataptr matrix, Treestack *sp, FILE *const outfp)
 /* pop all trees on stack *sp and dump them to file outfp;
  * first branch (number 0); return number of trees dumped */
 {
-    extern Dataptr matrix;	/* data matrix */
     long cnt = 0;		/* tree count */
     long root;			/* number of root branch */
     Branch *barray;		/* current unpacked tree */
 
     /* "local" dynamic heap memory */
-    barray = treealloc(brcnt(matrix->n), matrix->m);
+    barray = treealloc(matrix);
 
-    while ((treestack_pop(barray, &root, sp)) != 0)
-    {
-	treedump(outfp, barray);
-	cnt++;
+    while ((treestack_pop(matrix, barray, &root, sp)) != 0){
+		treedump(matrix, outfp, barray);
+		cnt++;
     }
-    if (fflush(outfp) != 0)
-	crash("file write error when dumping best trees");
+
+    if (fflush(outfp) != 0) crash("file write error when dumping best trees");
 
     /* free "local" dynamic heap memory */
     free(barray);
@@ -520,23 +508,19 @@ are not transferred).
 
 **********/
 
-long treestack_transfer(Treestack *destp, Treestack *sourcep)
+long treestack_transfer(Dataptr matrix, Treestack *destp, Treestack *sourcep)
 {
-    extern Dataptr matrix;	/* data matrix */
     Branch *barray;		/* current tree, in transit */
     long root;			/* number of root branch */
     long pushed = 0;		/* number of trees transferred */
 
     /* "local" dynamic heap memory */
-    barray = treealloc(brcnt(matrix->n), matrix->m);
-
-    while (treestack_pop(barray, &root, sourcep) == 1)
-    {
-        pushed += treestack_push(destp, barray, root);
+    barray = treealloc(matrix);
+    while (treestack_pop(matrix, barray, &root, sourcep) == 1) {
+        pushed += treestack_push(matrix, destp, barray, root);
     }
 
     /* free "local" dynamic heap memory */
     free(barray);
-
     return pushed;
 }
