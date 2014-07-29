@@ -51,7 +51,7 @@ EXE =			# UNIX
 OBJ = o			# UNIX
 LIB_EXT = a		# UNIX
 
-%.obj : %.c
+%.OBJ : %.c
 	$(CC) $(CFLAGS) $<
 
 # LVB library
@@ -138,7 +138,7 @@ LVB_PROG : $(LVB_LIB) $(LVB_PROG_OBJS)
 	$(G++) $(CFLAGS) $(LDFLAGS) -o $(LVB_PROG) $(LVB_PROG_OBJS) $(LVB_READ_FILE_OBJS) $(LIBS) $(LM)
 
 $(LVB_LIB) : $(LVB_LIB_OBJS) $(LVB_READ_FILE_OBJS) 
-	ar rv $@ $(LVB_LIB_OBJS_OUTPUT)
+	ar rv $@ $(LVB_LIB_OBJS_OUTPUT) 
 	$(RANLIB) $(LVB_LIB)
 
 # If the main test script has changed, we should run the tests
@@ -146,7 +146,7 @@ $(TEST_MANUAL) : $(TEST_DIR)/go
 	pod2html $< >$@
 
 test : FORCE
-	cd tests ; env LVB_EXECUTABLE="`pwd`/../$(LVB_PROG)" LVB_LIBRARY="`pwd`/../$(LVB_LIB)" LVB_OTHERLIBS="$(LM)" LVB_HEADER_PATH=".." CC="$(CC)" CFLAGS="$(CFLAGS)" ./go ; cd ..
+	cd tests ; env LVB_EXECUTABLE="`pwd`/../$(LVB_PROG)" LVB_LIBRARY="`pwd`/../$(LVB_LIB)" LVB_OTHERLIBS="$(LM)" LVB_HEADER_PATH=".." GPLUSPLUS="$(G++)" CC="$(CC)" CFLAGS="$(CFLAGS)" ./go; cd ..;
 
 tests : test	# allow 'make tests' as synonym for 'make test'
 

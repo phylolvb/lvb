@@ -22,14 +22,12 @@
 #include <time.h>
 #include "myuni.h"
 #include "mymaths.h"
+#include "DataStructure.h"
 
 /* the program */
 #define PROGNAM "lvb"			/* program file name */
 #define LVB_VERSION "3.1"		/* version of program */
 #define LVB_SUBVERSION "(2 June 2014)"	/* version details e.g. date */
-
-/* verboseness level (0 = nonverbose, 1 = verbose */
-#define VERBOSE_OUTPUT 0
 
 /* DNA bases: bits to set in statesets */
 #define A_BIT (1U << 0)
@@ -66,14 +64,8 @@
 /* unchangeable types */
 typedef enum { LVB_FALSE, LVB_TRUE } Lvb_bool;	/* boolean type */
 
-/* matrix and associated information */
-typedef struct data
-{
-    char **row;		/* array of row strings */
-    long m;		/* number of columns */
-    long n;		/* number of rows */
-    char **rowtitle;	/* array of row title strings */ 
-} *Dataptr, DataStructure;
+/* verboseness level (0 = nonverbose, 1 = verbose */
+#define VERBOSE_OUTPUT LVB_FALSE
 
 /* branch of tree */
 typedef struct
@@ -108,7 +100,9 @@ typedef struct
     long bootstraps;		/* number of bootstrap replicates */
     Lvb_bool fifthstate;	/* if LVB_TRUE, '-' is 'O'; otherwise is '?' */
     int cooling_schedule;   /* cooling schedule: 0 is geometric, 1 is linear */
-    char *p_file_name;
+    char *p_file_name;		/* input file name */
+    int n_file_format;		/* number of file format, must be FORMAT_PHYLIP, FORMAT_FASTA, FORMAT_NEXUS, FORMAT_MSF, FORMAT_CLUSTAL*/
+    char *p_file_name_out;	/* output file name */
 } Params;
 
 /* simulated annealing parameters */
@@ -126,6 +120,13 @@ typedef struct
 #define SUMFNAM "sum"		/* summary of trees per run file name */
 #define TREE1FNAM "ini"		/* cycle's initial tree file name prefix */
 
+
+#define FORMAT_PHYLIP 		0
+#define FORMAT_FASTA 		1
+#define FORMAT_NEXUS 		2
+#define FORMAT_MSF 			3
+#define FORMAT_CLUSTAL 		4
+
 /* assert-like macro, differing in that it writes to standard output,
  * calls crash() not abort(), and works whether or not NDEBUG is defined */
 #define lvb_assert(test) ((void) ((test) || (lvb_assertion_fail(#test, __FILE__, __LINE__), 0)))
@@ -138,7 +139,6 @@ void *alloc(const size_t, const char *const);
 long anneal(Dataptr, Treestack *, const Branch *const, long, const double,
  const long, const long, const long, FILE *const, const long *, long *, const int, Lvb_bool);
 long arbreroot(Dataptr, Branch *const, const long);
-long brcnt(long);
 long childadd(Branch *const, const long, const long);
 long cistrcmp(const char *const, const char *const);
 Lvb_bool cleanup(void);
@@ -154,10 +154,10 @@ void dnapars_wrapper(void);
 char *f2str(FILE *const);
 Lvb_bool file_exists(const char *const);
 void get_bootstrap_weights(long *, long, long);
-double get_initial_t(Dataptr, const Branch *const, long, long, long, const long *, Lvb_bool);
+double get_initial_t(Dataptr, const Branch *const, long, const long *, Lvb_bool);
 long getminlen(const Dataptr);
 void getparam(Params *);
-long getplen(Branch *, const long, const long, const long, const long *);
+long getplen(Dataptr, Branch *, const long, const long *);
 double get_predicted_length(double, double, long, long, long, long);
 double get_predicted_trees(double, double, long, long, long, long);
 long getroot(const Branch *const);
@@ -166,8 +166,7 @@ void lvb_initialize(void);
 Dataptr lvb_matrin(const char *);
 long lvb_reroot(Dataptr, Branch *const barray, const long oldroot, const long newroot);
 void lvb_treeprint (Dataptr, FILE *const, const Branch *const, const long);
-Dataptr matalloc(const long);
-void matchange(Dataptr, const Params, const Lvb_bool);
+void matchange(Dataptr, const Params);
 Dataptr matrin(const char *const);
 void mutate_deterministic(Dataptr, Branch *const, const Branch *const, long, long, Lvb_bool);
 void mutate_spr(Dataptr, Branch *const, const Branch *const, long);
@@ -176,14 +175,14 @@ char *nextnonwspc(const char *);
 void nodeclear(Branch *const, const long);
 long objreroot(Branch *const, const long, const long);
 void params_change(Params *);
-void phylip_dna_matrin(char *, Dataptr);
-void phylip_mat_dims_in(char *, long *, long *);
+void phylip_dna_matrin(char *, int, Dataptr);
+void phylip_mat_dims_in(char *, int, long *, long *, int *);
 void randtree(Dataptr, Branch *const);
 long randpint(const long);
 void rowfree(Dataptr);
 char *salloc(const long, const char *const);
 void scream(const char *const, ...);
-void ss_init(Dataptr, Branch *, unsigned char **, long, long);
+void ss_init(Dataptr, Branch *, unsigned char **);
 char *supper(char *const s);
 Branch *treealloc(Dataptr);
 void treeclear(Dataptr, Branch *const);

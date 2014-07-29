@@ -81,7 +81,7 @@ static long getsoln(Dataptr matrix, Params rcstruct, const long *weight_arr, lon
     FILE *resfp;			/* results file */
     Branch *tree;			/* initial tree */
     Branch *user_tree_ptr = NULL;	/* user-specified initial tree */
-    static unsigned char *enc_mat[MAX_N] = { NULL };	/* encoded data mat. */
+    unsigned char *enc_mat[MAX_N] = { NULL };	/* encoded data mat. */
 
     /* NOTE: These variables and their values are "dummies" and are no longer
      * used in the current version of LVB. However, in order to keep the
@@ -116,12 +116,12 @@ static long getsoln(Dataptr matrix, Params rcstruct, const long *weight_arr, lon
 	
     /* determine starting temperature */
     randtree(matrix, tree);	/* initialise required variables */
-    ss_init(matrix, tree, enc_mat, brcnt(matrix->n), matrix->m);
+    ss_init(matrix, tree, enc_mat);
     initroot = 0;
-    t0 = get_initial_t(matrix, tree, initroot, matrix->m, matrix->n, weight_arr, log_progress);
+    t0 = get_initial_t(matrix, tree, initroot, weight_arr, log_progress);
 
     randtree(matrix, tree);	/* begin from scratch */
-    ss_init(matrix, tree, enc_mat, brcnt(matrix->n), matrix->m);
+    ss_init(matrix, tree, enc_mat);
     initroot = 0;
 
     if (rcstruct.verbose) smessg(start, cyc);
@@ -132,7 +132,7 @@ static long getsoln(Dataptr matrix, Params rcstruct, const long *weight_arr, lon
      * of LVB. The code bellow is purely to keep the output consistent
      * with that of previous versions.  */
     if(rcstruct.verbose == LVB_TRUE) {
-		fprintf(sumfp, "%ld\t%ld\t%ld\t", start, cyc, getplen(tree, initroot,matrix->m, matrix->n, weight_arr));
+		fprintf(sumfp, "%ld\t%ld\t%ld\t", start, cyc, getplen(matrix, tree, initroot, weight_arr));
 		logtree1(matrix, tree, start, cyc, initroot);
     }
 
@@ -193,16 +193,13 @@ int main(void)
     Dataptr matrix;	/* data matrix */
     int val;			/* return value */
     Params rcstruct;		/* configurable parameters */
-    long i, x;			/* loop counter */
-    long m;			/* sites per sequence */
-    long n;			/* sequences in the data matrix */
+    long i;			/* loop counter */
     long iter;			/* iterations of annealing algorithm */
     long replicate_no = 0L;	/* current bootstrap replicate number */
     long trees_output_total = 0L;	/* number of trees output, overall */
     long trees_output;		/* number of trees output for current rep. */
     double total_iter = 0.0;	/* total iterations across all replicates */
     long final_length;		/* length of shortest tree(s) found */
-    long m_including_constcols;	/* site count before constant sites removed */
     FILE *outtreefp;		/* best trees found overall */
     static long weight_arr[MAX_M];	/* weights for sites */
     Lvb_bool log_progress;	/* whether or not to log anneal search */
@@ -220,22 +217,17 @@ int main(void)
     		"phylogenetic trees. Bioinformatics, 20, 274-275.\n\n");
 
     lvb_initialize();
-
     getparam(&rcstruct);
-
-    phylip_mat_dims_in(rcstruct.p_file_name, &n, &m);
     logstim();
 
     matrix = malloc(sizeof(DataStructure));
-    phylip_dna_matrin(rcstruct.p_file_name, matrix);
-    lvb_assert((matrix->m == m) && (matrix->n == n));
+    phylip_dna_matrin(rcstruct.p_file_name, rcstruct.n_file_format, matrix);
 
     /* "file-local" dynamic heap memory: set up best tree stacks */
     bstack_overall = treestack_new();
 
     writeinf(rcstruct);
-    m_including_constcols = matrix->m;
-    matchange(matrix, rcstruct, rcstruct.verbose);	/* cut columns */
+    matchange(matrix, rcstruct);	/* cut columns */
 
     if (rcstruct.verbose == LVB_TRUE) {
     	printf("getminlen: %ld\n\n", getminlen(matrix));
@@ -251,7 +243,7 @@ int main(void)
     do{
 		iter = 0;
 		if (rcstruct.bootstraps > 0){
-			get_bootstrap_weights(weight_arr, matrix->m, m_including_constcols - matrix->m);
+			get_bootstrap_weights(weight_arr, matrix->m, matrix->original_m - matrix->m);
 		}
 		else{
 			for (i = 0; i < matrix->m; i++) weight_arr[i] = 1;
@@ -299,10 +291,8 @@ int main(void)
     /* "file-local" dynamic heap memory */
     treestack_free(&bstack_overall);
 
-    if (cleanup() == LVB_TRUE)
-	val = EXIT_FAILURE;
-    else
-	val = EXIT_SUCCESS;
+    if (cleanup() == LVB_TRUE) val = EXIT_FAILURE;
+    else val = EXIT_SUCCESS;
 
     return val;
 

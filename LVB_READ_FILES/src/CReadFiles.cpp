@@ -20,8 +20,9 @@ CReadFiles::CReadFiles() {
 	/// src/phylip.h:#define nmlngth         10   /* number of characters in species name    */
 	/// src/phylip.h:#define MAXNCH          20   /* must be greater than or equal to nmlngth */
 	n_nmlngth_phylip_names = 10;
-	sz_phylip_accept_chars = "ABCDEFGHIKLMNPQRSTVWXYZ*?-";
-
+	sz_phylip_accept_chars = "ABCDEFGHIKLMNPQRSTVWXYZabcdefghiklmnpqrstvwxyz*?-";
+	sz_accept_chars = "ACGTUYRWSKMBDHVNX?O-";
+	n_max_length_name_seq = 0;
 	b_debug = false;		/// print some messages
 }
 
@@ -39,7 +40,7 @@ bool CReadFiles::is_file_exist(std::string file_name)
 
 int CReadFiles::exit_error(int ierr, std::string sz_error)
 {
-	if (ierr == 1) cout << "Error: " << sz_error << endl;
+	if (ierr == 1) cout << "FATAL ERROR: " << sz_error << endl;
 	else cout << "Warning: " << sz_error << endl;
 
 	/* Exit if necessary */
@@ -273,6 +274,10 @@ void CReadFiles::read_phylip()
 				}
 				lst_names_seq.push_back(trim(sz_line.substr(0, n_nmlngth_phylip_names)));
 				lst_sequences.push_back(sz_line.substr(n_nmlngth_phylip_names, (int) sz_line.length() -  n_nmlngth_phylip_names));
+				if ((int) lst_names_seq.size() > n_seqs){
+					error = "There are more sequences than the predict ones. Please, check the file.";
+					exit_error(1 , error);
+				}
 				n_count_line += 1;
 			}
 			else{
@@ -304,6 +309,7 @@ void CReadFiles::read_phylip()
 	for(int i = 0; i < (int) lst_sequences.size(); i++){
 		lst_sequences[i] = clean_phylip_dna_sequence(lst_sequences[i]);
 		if ((int) lst_sequences[i].size() != n_length_seq){
+			cout << lst_sequences[i] << endl;
 			error = "This sequence " + lst_names_seq[i] + " has a different length " + to_string_((int) lst_sequences[i].size()) + " from the one read in the header: " + to_string_(n_length_seq);
 			exit_error(1 , error);
 		}
@@ -398,7 +404,7 @@ bool CReadFiles::is_phylip_line_sequential(int &n_total_lines){
 		if (sz_line.empty() && n_total_lines == n_seqs) return false;
 	}
 
-	if ((n_total_lines % n_seqs) == 0 && n_total_lines > n_seqs) return true;
+	if (n_seqs > 0 && n_length_seq > 0 && (n_total_lines % n_seqs) == 0 && n_total_lines > n_seqs) return true;
 	return false;
 }
 
@@ -569,7 +575,7 @@ void CReadFiles::clean_data(){
 }
 
 
-void CReadFiles::read_file(std::string sz_file_name_temp){
+void CReadFiles::read_file(std::string sz_file_name_temp, int n_file_type){
 
 	std::string error;
 	int filetype = 0;
@@ -578,28 +584,25 @@ void CReadFiles::read_file(std::string sz_file_name_temp){
 	//// setup initial data...
 	clean_data();
 
-	if (sz_extension.compare("aln") == 0) {               // Clustal format
+	if (n_file_type == CReadFiles::FORMAT_CLUSTAL) {               // Clustal format
 		filetype=1;
 		read_clustal(filetype);
 	}
-	else if (sz_extension.compare("msf") == 0) {          // MSF format
+	else if (n_file_type == CReadFiles::FORMAT_MSF) {          // MSF format
 		filetype=2;
 		read_clustal(filetype);
 	}
-	else if (sz_extension.compare("phy") == 0 || sz_only_file_name.compare("infile") == 0) {          // Phylip format
+	else if (n_file_type == CReadFiles::FORMAT_PHYLIP) {          // Phylip format
 		read_phylip();
 	}
-	else if (sz_extension.compare("ph") == 0) {          // Phylip format
-		read_phylip();
-	}
-	else if (sz_extension.compare("fas") == 0) {          // Fasta format
+	else if (n_file_type == CReadFiles::FORMAT_FASTA) {          // Fasta format
 		read_fasta();
 	}
-	else if (sz_extension.compare("nex") == 0) {          // nexus format
+	else if (n_file_type == CReadFiles::FORMAT_NEXUS) {          // nexus format
 		read_nexus();
 	}
 	else {
-		error = "Unrecognised file extension: " + sz_extension;
+		error = "Unrecognized file..." + sz_file_name;
 		exit_error(1 , error);
 	}
 
@@ -623,7 +626,7 @@ void CReadFiles::read_file(std::string sz_file_name_temp){
 
 	/// get the max length of size name
 	n_max_length_name_seq = 0;
-	for (unsigned int i = 1; i < lst_sequences.size(); i++){
+	for (unsigned int i = 1; i < lst_names_seq.size(); i++){
 		if ((int) lst_names_seq[i].length() > n_max_length_name_seq) n_max_length_name_seq = (int) lst_names_seq[i].length();
 	}
 
@@ -637,6 +640,26 @@ void CReadFiles::read_file(std::string sz_file_name_temp){
 			exit_error(0 , error);
 		}
 	}
+
+	/// check the chars available to read
+	unsigned int n_max_seq = get_length_sequences();
+	for (unsigned int i = 0; i < lst_sequences.size(); i++){
+		std::transform(lst_sequences[i].begin(), lst_sequences[i].end(), lst_sequences[i].begin(), ::toupper);	// make ti upper case
+		for(unsigned int x = 0; x < n_max_seq; x++){
+			if (sz_accept_chars.find(get_char_sequences(i, x)) == string::npos){
+				std::string a = "This char is not allowed (";
+				a += get_char_sequences(i, x);
+				a += ")\nThe char is in this line: ";
+				a += lst_names_seq[i].c_str();
+				a += ": ";
+				a += lst_sequences[i].c_str();
+				a += "\n";
+				exit_error(1 , a.c_str());
+			}
+		}
+
+	}
+
 	if (b_debug) cout << "Read: " << lst_names_seq.size() << " sequences with size " << lst_sequences.size() << endl;
 }
 

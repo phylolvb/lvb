@@ -47,17 +47,12 @@ double uni(void)
 
 	lvb_assert(rinit_called != LVB_FALSE);	/* added - DB */
 	luni = uni_u[uni_ui] - uni_u[uni_uj];
-	if (luni < 0.0)
-		luni += 1.0;
+	if (luni < 0.0) luni += 1.0;
 	uni_u[uni_ui] = luni;
-	if (--uni_ui == 0)
-		uni_ui = 97;
-	if (--uni_uj == 0)
-		uni_uj = 97;
-	if ((uni_c -= uni_cd) < 0.0)
-		uni_c += uni_cm;
-	if ((luni -= uni_c) < 0.0)
-		luni += 1.0;
+	if (--uni_ui == 0) uni_ui = 97;
+	if (--uni_uj == 0) uni_uj = 97;
+	if ((uni_c -= uni_cd) < 0.0) uni_c += uni_cm;
+	if ((luni -= uni_c) < 0.0) luni += 1.0;
 	return (double) luni;
 }
 

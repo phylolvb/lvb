@@ -24,6 +24,14 @@ using namespace std;
 class CReadFiles {
 
 public:
+	static const int FORMAT_PHYLIP = 0;
+	static const int FORMAT_FASTA = 1;
+	static const int FORMAT_NEXUS = 2;
+	static const int FORMAT_MSF = 3;
+	static const int FORMAT_CLUSTAL = 4;
+
+
+public:
 	/// this is because some compilers has a problem with to_string method
 	template < typename T > std::string to_string_( const T& n )
 	{
@@ -39,16 +47,16 @@ public:
 	static bool is_file_exist(std::string file_name);
 
 	void save_file(std::string sz_file_name_temp);
-	void read_file(std::string file_name_out);
-	int get_length_sequences() {
+	void read_file(std::string file_name_out, int n_file_type);
+	unsigned int get_length_sequences() {
 		if ((int) lst_sequences.size() > 0) return lst_sequences[0].length();
 		return 0;
 	}
 	int get_number_seqs() { return (int) lst_names_seq.size(); }
 	int get_max_length_seq_name(){ return n_max_length_name_seq; }
 	int get_length_seq_name(int n_seq) { return (int) lst_names_seq[n_seq].length(); }
-	char get_char_seq_name(int n_seq, int n_pos_char) { return lst_names_seq[n_seq][n_pos_char]; }
-	char get_char_sequences(int n_seq, int n_pos_char) { return lst_sequences[n_seq][n_pos_char]; }
+	char get_char_seq_name(int n_seq, int n_pos_char) { return (char) lst_names_seq[n_seq].at(n_pos_char); }
+	char get_char_sequences(int n_seq, int n_pos_char) { return (char) lst_sequences[n_seq].at(n_pos_char); }
 
 /// data structure
 private:
@@ -57,6 +65,7 @@ private:
 	std::string sz_extension;						/// extension of the file
 	std::string sz_file_name;					/// file name possible all path
 	std::string sz_only_file_name;				/// only yhe file name
+	std::string sz_accept_chars;				// chars to pass on filter
 	int n_max_length_name_seq;
 
 	void clean_data();

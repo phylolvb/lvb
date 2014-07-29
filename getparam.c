@@ -31,9 +31,8 @@ static void read_line(char *buffer)
  * LVB_INPUTSTRING_SIZE. The buffer must have at least this allocation. */
 {
     fgets(buffer, LVB_INPUTSTRING_SIZE, stdin);
-    if (feof(stdin))
-    {
-	crash("end-of-file on standard input");
+    if (feof(stdin)){
+    	crash("end-of-file on standard input");
     }
 
 } /* end read_line() */
@@ -51,6 +50,8 @@ void defaults_params(Params *const prms)
     prms->seed = get_default_seed();
 
     prms->p_file_name = "infile";
+    prms->n_file_format = FORMAT_PHYLIP;
+
 
 } /* end defaults_params() */
 
@@ -85,19 +86,17 @@ static void user_adjust(Params *prms)
     printf("\nPlease choose treatment of gaps represented by '-' in the data "
          "matrix.\n"
          "These should usually be treated as UNKNOWN.\n");
-    do
-    {
+    do{
         printf("Enter U for UNKNOWN or F for FIFTH STATE:\n");
         read_line(buffer);
     } while ((cistrcmp(buffer, "U\n") != 0) && (cistrcmp(buffer, "F\n") != 0));
-    switch (toupper(buffer[0]))
-    {
-    case 'U':
-	prms->fifthstate = LVB_FALSE;
-	break;
-    case 'F':
-	prms->fifthstate = LVB_TRUE;
-	break;
+    switch (toupper(buffer[0])){
+		case 'U':
+			prms->fifthstate = LVB_FALSE;
+			break;
+		case 'F':
+			prms->fifthstate = LVB_TRUE;
+			break;
     }
 
     /* cooling schedule */
@@ -107,8 +106,7 @@ static void user_adjust(Params *prms)
      "but may produce lower quality results. The LINEAR schedule may\n"
      "produce higher quality results, at the cost of increased runtime.\n"
      "Currently, the DEFAULT is the GEOMETRIC schedule.\n");
-    do
-    {
+    do{
         printf("Enter G for GEOMETRIC or L for LINEAR\n"
             "or press RETURN for default:\n");
         read_line(buffer);
@@ -120,12 +118,12 @@ static void user_adjust(Params *prms)
     } while ((cistrcmp(buffer, "G\n") != 0) && (cistrcmp(buffer, "L\n") != 0));
     switch (toupper(buffer[0]))
     {
-    case 'G':
-	prms->cooling_schedule = 0;
-	break;
-    case 'L':
-	prms->cooling_schedule = 1;
-	break;
+		case 'G':
+			prms->cooling_schedule = 0;
+			break;
+		case 'L':
+			prms->cooling_schedule = 1;
+			break;
     }
 
     /* seed */

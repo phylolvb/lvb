@@ -12,7 +12,7 @@
 
 static const char *name_expected[6] =
 {
-    "Archaeopt ",
+    "Archaeopt",
     "Hesperorni",
     "Baluchithe",
     "B. virgini",
@@ -40,7 +40,7 @@ static void check(Dataptr matrix)
     for (i = 0; i < 6; i++)
     {
         lvb_assert(strlen(matrix->row[i]) == 13);
-        lvb_assert(strlen(matrix->rowtitle[i]) == 10);
+ 	lvb_assert(strlen(matrix->rowtitle[i]) == strlen(name_expected[i]));
 	lvb_assert(strcmp(matrix->row[i], sequence_expected[i]) == 0);
 	lvb_assert(strcmp(matrix->rowtitle[i], name_expected[i]) == 0);
     }
@@ -51,12 +51,22 @@ int main(void)
     Dataptr matrix1;	/* data matrix as input (interleaved) */
     Dataptr matrix2;	/* data matrix as input (sequential) */
 
+    Params rcstruct;		/* configurable parameters */
+    rcstruct.p_file_name = "infile";
+    rcstruct.n_file_format = FORMAT_PHYLIP;
+
     lvb_initialize();
-    matrix1 = phylip_dna_matrin(LVB_TRUE);
+
+    matrix1 = malloc(sizeof(DataStructure));
+    phylip_dna_matrin(rcstruct.p_file_name, rcstruct.n_file_format, matrix1);
     check(matrix1);
-    matrix2 = phylip_dna_matrin(LVB_FALSE);
+
+    matrix2 = malloc(sizeof(DataStructure));
+    phylip_dna_matrin(rcstruct.p_file_name, rcstruct.n_file_format, matrix2);
     check(matrix2);
 
+    rowfree(matrix1);
+    rowfree(matrix2);
     printf("test passed\n");
     return 0;
 }

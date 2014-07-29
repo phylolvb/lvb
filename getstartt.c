@@ -8,7 +8,7 @@
 
 #include "lvb.h"
 
-double get_initial_t(Dataptr matrix, const Branch *const inittree, long root, long m, long n,
+double get_initial_t(Dataptr matrix, const Branch *const inittree, long root,
 		const long *weights, Lvb_bool log_progress)
 /* Determine the starting temperature for the annealing search 
  * by finding the temperature T at which 65% of proposed 
@@ -52,7 +52,7 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, long root, lo
     xdash = treealloc(matrix);
 
     treecopy(matrix, x, inittree);	/* current configuration */
-    len = getplen(x, root, m, n, weights);
+    len = getplen(matrix, x, root, weights);
     
     lenmin = getminlen(matrix);
     r_lenmin = (double) lenmin;
@@ -79,7 +79,7 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, long root, lo
 			if (iter & 0x01) mutate_nni(matrix, xdash, x, root);	/* local change */
 			else mutate_spr(matrix, xdash, x, root);	/* global change */
 
-			lendash = getplen(xdash, rootdash, m, n, weights);
+			lendash = getplen(matrix, xdash, rootdash, weights);
 			lvb_assert (lendash >= 1L);
 			deltalen = lendash - len;
 			deltah = (r_lenmin / (double) len) - (r_lenmin / (double) lendash);

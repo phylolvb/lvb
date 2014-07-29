@@ -10,15 +10,21 @@ $output = `"$lvb" <./std.in`;
 $status = $?;
 
 # check output
-if ($output =~ /assertion/i)
+if ($status == 0)
 {
-    print "test failed: assertion failure\n";
-}
-elsif (($output =~ /FATAL ERROR: File doesn't exist/) && ($status != 0))
-{
-    print "test passed\n";
+    if ($output =~
+	/1 most parsimonious tree of length 4 written to file \'outtree\'/)
+    {
+	print "test passed\n";
+    }
+    else
+    {
+	print "test failed\n";
+    }
 }
 else
 {
     print "test failed\n";
 }
+
+unlink "outtree";

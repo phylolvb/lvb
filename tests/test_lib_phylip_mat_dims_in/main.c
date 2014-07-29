@@ -16,15 +16,20 @@ int main(void)
 {
     long m;				/* sites */
     long n;				/* sequences */
+    int max_length_name;		/* mas name length */
     Lvb_bool success = LVB_FALSE;	/* test passed */
+    Params rcstruct;		/* configurable parameters */
 
     lvb_initialize();
 
-    phylip_mat_dims_in(&n, &m);
+    rcstruct.p_file_name = "infile";
+    rcstruct.n_file_format = FORMAT_PHYLIP;
+
+    phylip_mat_dims_in(rcstruct.p_file_name, rcstruct.n_file_format, &n, &m, &max_length_name);
     if ((n == EXPECTED_N) && (m == EXPECTED_M))
     {
     	/* try it again and check it still works */
-	phylip_mat_dims_in(&n, &m);
+	phylip_mat_dims_in(rcstruct.p_file_name, rcstruct.n_file_format, &n, &m, &max_length_name);
 	if ((n == EXPECTED_N) && (m == EXPECTED_M))
 	    success = LVB_TRUE;
     }

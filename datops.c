@@ -16,11 +16,8 @@ datops.c - data matrix operations
 
 #include "lvb.h"
 
-static void constchar(const Dataptr matrix, Lvb_bool *const togo,
- const Lvb_bool verbose, Lvb_bool *scratch);
-static long cutcols(Dataptr matrix, const Lvb_bool *const tocut);
-static void cutmsg(const Lvb_bool *const togo, const long m,
- const char *const msg);
+static long constchar(const Dataptr matrix, Lvb_bool *const togo, const Lvb_bool verbose);
+static void cutcols(Dataptr matrix, const Lvb_bool *const tocut, long n_columns_to_change);
 static void logcut(const Lvb_bool *const cut, const long m);
 
 static char *getstatev(const Dataptr matrix, const long k)
@@ -39,15 +36,12 @@ static char *getstatev(const Dataptr matrix, const long k)
     statec = 0;
 
     /* update record of states for column k */
-    for (i = 0; i < matrix->n; ++i)
-    {
-	if (strchr(statev, (int) matrix->row[i][k]) == NULL)	/* new state */
-	{
-	    statev[statec++] = matrix->row[i][k];
-	    if (statec > MAXSTATES)
-		 return NULL;
-	    statev[statec] = '\0';	/* for strchr() */
-	}
+    for (i = 0; i < matrix->n; ++i){
+		if (strchr(statev, (int) matrix->row[i][k]) == NULL){	/* new state */
+			statev[statec++] = matrix->row[i][k];
+			if (statec > MAXSTATES) return NULL;
+			statev[statec] = '\0';	/* for strchr() */
+		}
     }
 	
     return statev;
@@ -62,13 +56,10 @@ long getminlen(const Dataptr matrix)
     char *statev;	/* list of states in current character */
     long k;		/* loop counter */
 
-    for (k = 0; k < matrix->m; ++k)
-    {
-	statev = getstatev(matrix, k);
-	if (statev == NULL)
-	    minlen += MAXSTATES;
-	else
-	    minlen += strlen(statev) - 1;
+    for (k = 0; k < matrix->m; ++k) {
+    	statev = getstatev(matrix, k);
+    	if (statev == NULL) minlen += MAXSTATES;
+    	else minlen += strlen(statev) - 1;
     }
     return minlen;
 
@@ -190,55 +181,16 @@ void rowfree(Dataptr matrix)
 {
     long i;	/* loop counter */
 
-    if (matrix->row != NULL)
-    {
-	for(i = 0; i < matrix->n; ++i)
-	    free(matrix->row[i]);
-	free(matrix->row);
-	matrix->row = NULL;
+    if (matrix->row != NULL) {
+    	for(i = 0; i < matrix->n; ++i) free(matrix->row[i]);
+    	free(matrix->row);
+    	matrix->row = NULL;
     }
 
 } /* end rowfree() */
 
-Dataptr matalloc(const long n)
-/* return pointer to new matrix, with n pointers to rows and row titles;
- * the strings in these arrays, and the array of state counts, are not
- * allocated for and are initialized to NULL;
- * one may free the memory for matrix struct itself and arrays of pointers
- & using the standard library function free(). */
-{
-    long i;		/* loop counter */
-    Dataptr mat;	/* new data matrix */
-    char **l_row;	/* new array of rows */
 
-    /* matrix struct itself */
-    mat = alloc(sizeof(struct data), "matrix structure");
-
-    /* array for row title strings */
-    mat->rowtitle = (char **) alloc((size_t) (n + 1) * sizeof(char *), "pointers to row title strings");
-
-    /* array for row strings */
-    l_row = (char **) alloc((size_t) (n + 1) * sizeof(char *), "pointers to row strings");
-
-    /* initialize unallocated pointers to NULL */
-    for (i = 0; i <= n; ++i)
-    {
-    	mat->rowtitle[i] = NULL;
-    	l_row[i] = NULL;
-    }
-
-    /* initialize scalars to zero */
-    mat->m = 0;
-    mat->n = 0;
-
-    mat->row = l_row;	/* now can be freed e.g. by rowfree() */
-
-    return mat;
-
-} /* end matalloc() */
-
-static void constchar(const Dataptr matrix, Lvb_bool *const togo,
- const Lvb_bool verbose, Lvb_bool *scratch)
+static long constchar(const Dataptr matrix, Lvb_bool *const togo, const Lvb_bool verbose)
 /* Make sure matrix->m-element array togo is LVB_TRUE where matrix column
  * contains only one character state;
  * log details of new columns to ignore if verbose is LVB_TRUE.
@@ -248,65 +200,33 @@ static void constchar(const Dataptr matrix, Lvb_bool *const togo,
 {
     long k;		/* loop counter */
     long i;		/* loop counter */
-    Lvb_bool *isconst = scratch;	/* LVB_TRUE where col. is constant */
-
-    /* local array of columns to go */
-    /* initialize all elements to LVB_TRUE ('ignore') */
-    for (k = 0; k < matrix->m; k++)
-	isconst[k] = LVB_TRUE;
+    long n_columns = 0;
 
     /* discover variable columns */
-    for (i = 1; i < matrix->n; ++i)
-    {
-	for (k = 0; k < matrix->m; ++k)
-	{
-	    if (matrix->row[i][k] != matrix->row[0][k])
-		isconst[k] = LVB_FALSE;
-	}
+    for (k = 0; k < matrix->m; ++k){
+    	for (i = 1; i < matrix->n; ++i){
+			if (matrix->row[i][k] != matrix->row[0][k]){
+				togo[k] = LVB_TRUE;
+				n_columns += 1;
+				break;
+			}
+		}
     }
 
-    /* update togo, for caller */
-    for (k = 0; k < matrix->m; ++k)
-    {
-	if (isconst[k] == LVB_TRUE)
-	    togo[k] = LVB_TRUE;
+    if (verbose == LVB_TRUE){
+    	printf("Ignoring constant columns\n");
+    	if (n_columns == 0) printf("... none found.\n");
+    	else logcut(togo, matrix->m);
     }
-
-    if (verbose == LVB_TRUE)
-	cutmsg(isconst, matrix->m, "Ignoring constant columns");
-
+    return n_columns;
 } /* end constchar() */
 
-static void cutmsg(const Lvb_bool *const togo, const long m,
- const char *const msg)
-/* log message that columns for which the m-element array togo is LVB_TRUE will
- * be ignored */
-{
-    long cutcnt = 0;	/* number of columns being ignored */
-    long k;		/* loop counter */
-
-    printf("%s\n", msg);
-    for (k = 0; k < m; ++k)
-    {
-	if (togo[k] == LVB_TRUE)
-	    ++cutcnt;
-    }
-    if (cutcnt == 0)
-	printf("... none found.\n");
-    else
-	logcut(togo, m);
-
-} /* end cutmsg() */
-
-void matchange(Dataptr matrix, const Params rcstruct, const Lvb_bool verbose)
+void matchange(Dataptr matrix, const Params rcstruct)
 /* change and remove columns in matrix, partly in response to rcstruct,
  * verbosely or not according to value of verbose */
 {
-    static Lvb_bool *togo;	/* LVB_TRUE where column must go */
-    static Lvb_bool *scratch;	/* scratch space for called fns */
-    long k;			/* loop counter */
-    long colsgone;		/* columns cut */
-
+    Lvb_bool *togo;	/* LVB_TRUE where column must go */
+    int n_columns_to_change = 0;
     /* Allocate memory: this will be free'd just before we return.
      * Dynamic allocation is used because otherwise, each of the
      * arrays would have to have MAX_M elements. That would either
@@ -314,93 +234,64 @@ void matchange(Dataptr matrix, const Params rcstruct, const Lvb_bool verbose)
      * address space. */
 
     togo = alloc(matrix->m * sizeof(Lvb_bool), "'togo' array");
-    scratch = alloc(matrix->m * sizeof(Lvb_bool), "matchange() scratch");
 
     /* initialize all elements to LVB_FALSE ('don't ignore') */
-    for (k = 0; k < matrix->m; k++)
-    	togo[k] = LVB_FALSE;
+    memset(togo, LVB_FALSE, matrix->m);
 
-    constchar(matrix, togo, verbose, scratch);	/* compuslory cut */
+    n_columns_to_change = constchar(matrix, togo, rcstruct.verbose);	/* compuslory cut */
 
     /* N.B. a function to mark autapomorphic characters for cutting
      * could be called at this point. The effect would be more noticable
      * with unrealistically small test matrices than with real data */
 
     /* cut the cols as indicated, and crash verbosely if too few remain */
-    colsgone = cutcols(matrix, togo);	/* make changes to matrix */
+    if (n_columns_to_change != matrix->m) cutcols(matrix, togo, n_columns_to_change);	/* make changes to matrix */
     if (matrix->m < MIN_M)
-	crash("after constant columns are ignored, data matrix has\n"
-	 "%ld columns, which is less than LVB's lower limit of\n"
-	 "%ld columns.\n",
-	  matrix->m, MIN_M);
-    else
-    {
-	if (verbose == LVB_TRUE)
-	    printf("A total of %ld columns will be ignored\n",
-	     colsgone);
+    	crash("after constant columns are ignored, data matrix has\n"
+    			"%ld columns, which is less than LVB's lower limit of\n"
+    			"%ld columns.\n", matrix->m, MIN_M);
+    else{
+    	if (rcstruct.verbose == LVB_TRUE) printf("A total of %ld columns will be ignored\n", matrix->original_m - matrix->m);
     }
 
     /* free "local" dynamic heap memory */
     free(togo);
-    free(scratch);
 
 } /* end matchange() */
 
-static long cutcols(Dataptr matrix, const Lvb_bool *const tocut)
+static void cutcols(Dataptr matrix, const Lvb_bool *const tocut, long n_columns_to_change)
 /* remove columns in matrix for which the corresponding element of
 matrix->m-element array tocut is LVB_TRUE, and update matrix->m;
 return the number of columns cut */
 {
     char **newrow;			/* rows of reduced matrix */
     long i;				/* loop counter */
-    long newm;				/* new number of columns */
-    const long oldm = matrix->m;	/* old number of columns */
     long k;				/* loop counter */
     long newk;				/* current column of reduced matrix */
 
-    /* count columns that will not be cut */
-    newm = 0;
-    for (k = 0; k < matrix->m; ++k)
-    {
-	if (tocut[k] == LVB_FALSE)
-	    ++newm;
-    }
-
-    /* make no change if keeping all columns */
-    if (newm == matrix->m)
-	return 0;
-
     /* memory for new matrix row array */
-    newrow = alloc((size_t) (matrix->n + 1) * sizeof(char *),
-     "pointers to new row strings");
-    for (i = 0; i < matrix->n; ++i)
-	newrow[i] = salloc(newm, "new row strings");
-    newrow[matrix->n] = NULL;
+    newrow = (char **) malloc(matrix->n * sizeof(char *));
+    for (i = 0; i < matrix->n; ++i) newrow[i] =  (char*) malloc(sizeof(char) * (n_columns_to_change + 1));
 
     newk = 0;
-    for (k = 0; k < matrix->m; ++k)	/* for every column */
-    {
-	if (tocut[k] == LVB_FALSE)	/* keep this column */
-	{
-	    for (i = 0; i < matrix->n; ++i)	/* fill for ea. row */
-		newrow[i][newk] = matrix->row[i][k];
-	    ++newk;	/* fill next row next time */
-	}
+    for (k = 0; k < matrix->m; ++k){	/* for every column */
+		if (tocut[k] == LVB_TRUE){	/* keep this column */
+			for (i = 0; i < matrix->n; ++i)	/* fill for ea. row */
+				newrow[i][newk] = matrix->row[i][k];
+			++newk;	/* fill next row next time */
+		}
     }
 
     /* trap impossible condition */
-    lvb_assert(newk == newm);
+    lvb_assert(newk == n_columns_to_change);
 
     /* terminate new row strings */
-    for (i = 0; i < matrix->n; ++i)
-	newrow[i][newk] = '\0';
+    for (i = 0; i < matrix->n; ++i) newrow[i][newk] = '\0';
 
     /* update matrix structure */
     rowfree(matrix);
     matrix->row = newrow;
-    matrix->m = newm;
-
-    return (oldm - newm);
+    matrix->m = n_columns_to_change;
 
 } /* end cutcols() */
 
@@ -413,20 +304,14 @@ void get_bootstrap_weights(long *weight_arr, long m, long extras)
  * included. */
 {
     long samples = 0;	/* size of the sample so far */
-    long i;		/* loop counter */
     long site;		/* number of current site to add to sample */
 
-    for (i = 0; i < m; i++)
-	weight_arr[i] = 0;
+    memset(weight_arr, 0, m);
 
-    while (samples < (m + extras))
-    {
-	site = randpint(m + extras - 1);
-	if (site < m)
-	{
-	    weight_arr[site] += 1;
-	}
-	samples++;
+    while (samples < (m + extras)){
+    	site = randpint(m + extras - 1);
+    	if (site < m) weight_arr[site] += 1;
+    	samples++;
     }
 
 } /* end get_bootstrap_weights() */
@@ -443,24 +328,20 @@ static void logcut(const Lvb_bool *const cut, const long m)
     printf("... will ignore column numbers:\n");
 
     /* give formatted list of columns to go */
-    for (k = 0; k < m; ++k)
-    {
-	if (cut[k] == LVB_TRUE)
-	{
-	    printf("%ld", k + 1L);
-	    ++noperln;
-	    if (noperln == max_noperln)	/* end line */
-	    {
-		noperln = 0;
-		printf("\n");
-		newline = LVB_TRUE;
-	    }
-	    else	/* just put some space on this line */
-	    {
-		printf("\t");
-		newline = LVB_FALSE;
-	    }
-	}
+    for (k = 0; k < m; ++k){
+		if (cut[k] == LVB_FALSE){
+			printf("%ld", k + 1L);
+			++noperln;
+			if (noperln == max_noperln){	/* end line */
+				noperln = 0;
+				printf("\n");
+				newline = LVB_TRUE;
+			}
+			else{	/* just put some space on this line */
+				printf("\t");
+				newline = LVB_FALSE;
+			}
+		}
     }
     if (newline == LVB_FALSE)
 	printf("\n");

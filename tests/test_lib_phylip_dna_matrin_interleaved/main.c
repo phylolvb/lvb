@@ -11,11 +11,11 @@
 
 static const char *name_expected[5] =
 {
-    "Turkey    ",
+    "Turkey",
     "Salmo gair",
     "H. Sapiens",
-    "Chimp     ",
-    "Gorilla   "
+    "Chimp",
+    "Gorilla"
 };
 
 static const char *sequence_expected[5] =
@@ -33,18 +33,25 @@ int main(void)
     long i;		/* loop counter */
 
     lvb_initialize();
-    matrix = phylip_dna_matrin(LVB_TRUE);
+    Params rcstruct;		/* configurable parameters */
+    rcstruct.p_file_name = "infile";
+    rcstruct.n_file_format = FORMAT_PHYLIP;
+
+    lvb_initialize();
+    matrix = malloc(sizeof(DataStructure));
+    phylip_dna_matrin(rcstruct.p_file_name, rcstruct.n_file_format, matrix);
     lvb_assert(matrix->m == 42);
     lvb_assert(matrix->n == 5);
 
     for (i = 0; i < 5; i++)
     {
         lvb_assert(strlen(matrix->row[i]) == 42);
-        lvb_assert(strlen(matrix->rowtitle[i]) == 10);
+        lvb_assert(strlen(matrix->rowtitle[i]) == strlen(name_expected[i]));
 	lvb_assert(strcmp(matrix->row[i], sequence_expected[i]) == 0);
 	lvb_assert(strcmp(matrix->rowtitle[i], name_expected[i]) == 0);
     }
 
+    rowfree(matrix);
     printf("test passed\n");
     return 0;
 }
