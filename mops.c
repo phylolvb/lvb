@@ -86,3 +86,15 @@ void *alloc(const size_t bytes, const char *const msg)
     return p;
 
 }	/* end alloc() */
+
+void alloc_memory_to_getplen(Dataptr matrix, long **p_todo_arr, long **p_todo_arr_sum_changes, int **p_runs){
+	*p_todo_arr = (long *) alloc(matrix->n_threads_try_combination * (matrix->nbranches - matrix->n) * sizeof(long), "alloc to count runs");
+    *p_todo_arr_sum_changes = (long *) alloc(matrix->n_threads_try_combination * matrix->n_threads_getplen * (1 + matrix->nbranches - matrix->n) * sizeof(long), "alloc to count runs");
+	*p_runs = (int *) alloc(matrix->n_threads_try_combination * matrix->n_threads_getplen * (matrix->nbranches - matrix->n) * sizeof(int), "alloc to count runs");
+}
+
+void free_memory_to_getplen(long **p_todo_arr, long **p_todo_arr_sum_changes, int **p_runs){
+	free(*p_todo_arr);
+	free(*p_todo_arr_sum_changes);
+	free(*p_runs);
+}

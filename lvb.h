@@ -29,6 +29,8 @@
 #define LVB_VERSION "3.1"		/* version of program */
 #define LVB_SUBVERSION "(2 June 2014)"	/* version details e.g. date */
 
+#define COMPILE_OPEN_MP			/* only one active each time */
+
 /* DNA bases: bits to set in statesets */
 #define A_BIT (1U << 0)
 #define C_BIT (1U << 1)
@@ -64,9 +66,6 @@
 /* unchangeable types */
 typedef enum { LVB_FALSE, LVB_TRUE } Lvb_bool;	/* boolean type */
 
-/* verboseness level (0 = nonverbose, 1 = verbose */
-#define VERBOSE_OUTPUT LVB_FALSE
-
 /* branch of tree */
 typedef struct
 {
@@ -75,7 +74,6 @@ typedef struct
     long right;			/* index of second child in tree array */
     long changes;		/* changes associated with this branch */
     unsigned char *sset;	/* statesets for all sites */
-
 } Branch;
 
 /* tree stacks */
@@ -100,9 +98,10 @@ typedef struct
     long bootstraps;		/* number of bootstrap replicates */
     Lvb_bool fifthstate;	/* if LVB_TRUE, '-' is 'O'; otherwise is '?' */
     int cooling_schedule;   /* cooling schedule: 0 is geometric, 1 is linear */
-    char *p_file_name;		/* input file name */
+    char file_name_in[LVB_FNAMSIZE];		/* input file name */
     int n_file_format;		/* number of file format, must be FORMAT_PHYLIP, FORMAT_FASTA, FORMAT_NEXUS, FORMAT_MSF, FORMAT_CLUSTAL*/
-    char *p_file_name_out;	/* output file name */
+    char file_name_out[LVB_FNAMSIZE];	/* output file name */
+    int n_processors_available;	/* number of processors available */
 } Params;
 
 /* simulated annealing parameters */
@@ -156,8 +155,12 @@ Lvb_bool file_exists(const char *const);
 void get_bootstrap_weights(long *, long, long);
 double get_initial_t(Dataptr, const Branch *const, long, const long *, Lvb_bool);
 long getminlen(const Dataptr);
-void getparam(Params *);
-long getplen(Dataptr, Branch *, const long, const long *);
+void getparam(Params *, int argc, char **argv);
+void read_parameters(Params *prms, int argc, char **argv);
+long getplen(Dataptr, Branch *, const long, const long *, long *p_todo_arr, long *p_todo_arr_sum_changes,
+		int *p_runs, int n_index_threading);
+void alloc_memory_to_getplen(Dataptr matrix, long **p_todo_arr, long **p_todo_arr_sum_changes, int **p_runs);
+void free_memory_to_getplen(long **p_todo_arr, long **p_todo_arr_sum_changes, int **p_runs);
 double get_predicted_length(double, double, long, long, long, long);
 double get_predicted_trees(double, double, long, long, long, long);
 long getroot(const Branch *const);
@@ -180,7 +183,6 @@ void phylip_mat_dims_in(char *, int, long *, long *, int *);
 void randtree(Dataptr, Branch *const);
 long randpint(const long);
 void rowfree(Dataptr);
-char *salloc(const long, const char *const);
 void scream(const char *const, ...);
 void ss_init(Dataptr, Branch *, unsigned char **);
 char *supper(char *const s);

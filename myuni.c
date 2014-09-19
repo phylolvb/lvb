@@ -36,10 +36,16 @@ static void rstart(int i, int j, int k, int l);
  *	Global variables for rstart & uni
  */
 
+/*const int NUMBER_UNI_AVAILABLE = 10000;
+const int NUMBER_UNI_BUFFER = 2000;
+static double uni_values[NUMBER_UNI_AVAILABLE + NUMBER_UNI_BUFFER];*/
 static double uni_u[98];	/* Was U(97) in Fortran version */
-static double uni_c, uni_cd, uni_cm;
+static double uni_c;
+const double uni_cd = 7654321.0 / 16777216.0;
+const double uni_cm = 16777213.0 / 16777216.0;
 static int uni_ui, uni_uj;
 static Lvb_bool rinit_called = LVB_FALSE;	/* added - DB */
+
 
 double uni(void)
 {
@@ -77,8 +83,6 @@ static void rstart(int i, int j, int k, int l)
 		uni_u[ii] = s;
 	}
 	uni_c  = 362436.0   / 16777216.0;
-	uni_cd = 7654321.0  / 16777216.0;
-	uni_cm = 16777213.0 / 16777216.0;
 	uni_ui = 97;	/*  There is a bug in the original Fortran version */
 	uni_uj = 33;	/*  of UNI -- i and j should be SAVEd in UNI()     */
 }
@@ -109,12 +113,10 @@ void rinit(int ijkl)
 	rinit_called = LVB_TRUE;
 
 	/* check double type is suitable */
-	if (DBL_MANT_DIG < 24)	/* too small */
-		crash("FP type unsuitable for uni() random no. generator\n");
+	if (DBL_MANT_DIG < 24) crash("FP type unsuitable for uni() random no. generator\n"); /* too small */
 
 	/* check ijkl is within range */
-	if( (ijkl < 0) || (ijkl > 900000000) )
-		crash("rinit: ijkl = %d -- out of range\n\n", ijkl);
+	if( (ijkl < 0) || (ijkl > 900000000) ) crash("rinit: ijkl = %d -- out of range\n\n", ijkl);
 
 /*        printf("rinit: seed_ijkl = %d\n", ijkl); */
 
@@ -133,24 +135,15 @@ void rinit(int ijkl)
 	k = ((kl/169) % 178) + 1;
 	l = kl % 169;
 
-	if( (i <= 0) || (i > 178) )
-		crash("rinit: i = %d -- out of range\n\n", i);
-
-	if( (j <= 0) || (j > 178) )
-		crash("rinit: j = %d -- out of range\n\n", j);
-
-	if( (k <= 0) || (k > 178) )
-		crash("rinit: k = %d -- out of range\n\n", k);
-
-	if( (l < 0) || (l > 168) )
-		crash("rinit: l = %d -- out of range\n\n", l);
-
-	if (i == 1 && j == 1 && k == 1)
-                crash("rinit: 1 1 1 not allowed for 1st 3 seeds\n\n");
+	if( (i <= 0) || (i > 178) ) crash("rinit: i = %d -- out of range\n\n", i);
+	if( (j <= 0) || (j > 178) ) crash("rinit: j = %d -- out of range\n\n", j);
+	if( (k <= 0) || (k > 178) ) crash("rinit: k = %d -- out of range\n\n", k);
+	if( (l < 0) || (l > 168) ) crash("rinit: l = %d -- out of range\n\n", l);
+	if (i == 1 && j == 1 && k == 1) crash("rinit: 1 1 1 not allowed for 1st 3 seeds\n\n");
 
 /*        printf("rinit: initialising RNG via rstart(%d, %d, %d, %d)\n",
 				i, j, k, l); */
 
-        rstart(i, j, k, l);
+	rstart(i, j, k, l);
 
 }

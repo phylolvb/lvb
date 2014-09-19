@@ -345,7 +345,7 @@ long lvb_reroot(Dataptr matrix, Branch *const barray, const long oldroot, const 
 
     /* create record of parents as they are now */
     for (current = 0; current < matrix->nbranches; current++)
-	oldparent[current] = barray[current].parent;
+    	oldparent[current] = barray[current].parent;
 
     current = newroot;
     previous = UNSET;
@@ -792,7 +792,7 @@ static void ur_print(Dataptr matrix, FILE *const stream, const Branch *const bar
     if (doneabsroot == LVB_FALSE)	/* print whole tree */
     {
 		/* start tree */
-		tmp_title = salloc(strlen(matrix->rowtitle[obj]), "temp. title");
+		tmp_title = alloc(strlen(matrix->rowtitle[obj]), "temp. title");
 		strcpy(tmp_title, matrix->rowtitle[obj]);
 		while(tmp_title[strlen(tmp_title) - 1] == ' '){
 			tmp_title[strlen(tmp_title) - 1] = '\0';
@@ -819,11 +819,10 @@ static void ur_print(Dataptr matrix, FILE *const stream, const Branch *const bar
 		if (usecomma == LVB_TRUE) fprintf(stream, "%s", CLADESEP);
 		if (root < matrix->n)	/* leaf */
 		{
-			tmp_title = salloc(strlen(matrix->rowtitle[obj]), "temp. title");
+			tmp_title = alloc(strlen(matrix->rowtitle[obj]), "temp. title");
 			strcpy(tmp_title, matrix->rowtitle[obj]);
-			while(tmp_title[strlen(tmp_title) - 1] == ' ')
-			{
-			tmp_title[strlen(tmp_title) - 1] = '\0';
+			while(tmp_title[strlen(tmp_title) - 1] == ' '){
+				tmp_title[strlen(tmp_title) - 1] = '\0';
 			}
 			fprintf(stream, "%s", tmp_title);
 			free(tmp_title);	/* VERY LOCAL dynamic heap memory */

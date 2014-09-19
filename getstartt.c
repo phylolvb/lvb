@@ -45,14 +45,17 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, long root,
     int prop_pos_trans = 0;       /* Number of proposed positve transitions */
     double r_acc_to_prop = 0;   /* Ratio of accepted to proposed positve transitions */
     int sample_size = 100;                /* Sample size used to estimate the ratio */
-    
+    long *p_todo_arr; /* [MAX_BRANCHES + 1];	 list of "dirty" branch nos */
+    long *p_todo_arr_sum_changes; /*used in openMP, to sum the partial changes */
+    int *p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */
     /* Create "local" dynamic heap memory and initialise tree 
      * structures like in anneal() */
     x = treealloc(matrix);
     xdash = treealloc(matrix);
 
     treecopy(matrix, x, inittree);	/* current configuration */
-    len = getplen(matrix, x, root, weights);
+    alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
+    len = getplen(matrix, x, root, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs, 0);
     
     lenmin = getminlen(matrix);
     r_lenmin = (double) lenmin;
@@ -79,7 +82,7 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, long root,
 			if (iter & 0x01) mutate_nni(matrix, xdash, x, root);	/* local change */
 			else mutate_spr(matrix, xdash, x, root);	/* global change */
 
-			lendash = getplen(matrix, xdash, rootdash, weights);
+			lendash = getplen(matrix, xdash, rootdash, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs, 0);
 			lvb_assert (lendash >= 1L);
 			deltalen = lendash - len;
 			deltah = (r_lenmin / (double) len) - (r_lenmin / (double) lendash);
@@ -135,6 +138,7 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, long root,
     }
     
     /* free "local" dynamic heap memory */
+    free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
     free(x);
     free(xdash);
     

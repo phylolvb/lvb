@@ -42,8 +42,28 @@ static void writeinf(Params prms)
 
     printf("seed                 = %d\n", prms.seed);
     printf("bootstrap replicates = %ld\n", prms.bootstraps);
+    printf("input file name      = %s\n", prms.file_name_in);
+    printf("output file name     = %s\n", prms.file_name_out);
+    if (prms.n_file_format == FORMAT_PHYLIP) printf("format input file    = phylip\n");
+    else if (prms.n_file_format == FORMAT_FASTA) printf("format input file    = fasta\n");
+    else if (prms.n_file_format == FORMAT_NEXUS) printf("format input file    = nexus\n");
+    else if (prms.n_file_format == FORMAT_MSF) printf("format input file    = msf\n");
+    else if (prms.n_file_format == FORMAT_CLUSTAL) printf("format input file    = clustal\n");
+    else{
+    	fprintf (stderr, "Error, input format file not recognized\n");
+    	abort();
+    }
+    printf("bootstrap replicates = %ld\n", prms.bootstraps);
+    printf("threads              = %d\n", prms.n_processors_available);
 
 } /* end writeinf() */
+
+
+#define FORMAT_PHYLIP 		0
+#define FORMAT_FASTA 		1
+#define FORMAT_NEXUS 		2
+#define FORMAT_MSF 			3
+#define FORMAT_CLUSTAL 		4
 
 static void logtree1(Dataptr matrix, const Branch *const barray, const long start, const long cycle, long root)
 /* log initial tree for cycle cycle of start start (in barray) to outfp */
@@ -82,6 +102,9 @@ static long getsoln(Dataptr matrix, Params rcstruct, const long *weight_arr, lon
     Branch *tree;			/* initial tree */
     Branch *user_tree_ptr = NULL;	/* user-specified initial tree */
     unsigned char *enc_mat[MAX_N] = { NULL };	/* encoded data mat. */
+    long *p_todo_arr; /* [MAX_BRANCHES + 1];	 list of "dirty" branch nos */
+    long *p_todo_arr_sum_changes; /*used in openMP, to sum the partial changes */
+    int *p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */
 
     /* NOTE: These variables and their values are "dummies" and are no longer
      * used in the current version of LVB. However, in order to keep the
@@ -132,7 +155,9 @@ static long getsoln(Dataptr matrix, Params rcstruct, const long *weight_arr, lon
      * of LVB. The code bellow is purely to keep the output consistent
      * with that of previous versions.  */
     if(rcstruct.verbose == LVB_TRUE) {
-		fprintf(sumfp, "%ld\t%ld\t%ld\t", start, cyc, getplen(matrix, tree, initroot, weight_arr));
+        alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
+		fprintf(sumfp, "%ld\t%ld\t%ld\t", start, cyc, getplen(matrix, tree, initroot, weight_arr, p_todo_arr, p_todo_arr_sum_changes, p_runs, 0));
+		free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
 		logtree1(matrix, tree, start, cyc, initroot);
     }
 
@@ -178,6 +203,14 @@ static long getsoln(Dataptr matrix, Params rcstruct, const long *weight_arr, lon
 
 } /* end getsoln() */
 
+
+/* set the number of processors to use */
+void calc_distribution_processors(Dataptr matrix, Params rcstruct){
+	matrix->n_threads_getplen = rcstruct.n_processors_available;
+	matrix->n_threads_try_combination = rcstruct.n_processors_available;
+	matrix->n_slice_size_getplen = matrix->m / matrix->n_threads_getplen;
+}
+
 static void logstim(void)
 /* log start time with message */
 {
@@ -188,7 +221,7 @@ static void logstim(void)
 
 } /* end logstim() */
 
-int main(void)
+int main(int argc, char **argv)
 {
     Dataptr matrix;	/* data matrix */
     int val;			/* return value */
@@ -217,17 +250,18 @@ int main(void)
     		"phylogenetic trees. Bioinformatics, 20, 274-275.\n\n");
 
     lvb_initialize();
-    getparam(&rcstruct);
+    getparam(&rcstruct, argc, argv);
     logstim();
 
-    matrix = malloc(sizeof(DataStructure));
-    phylip_dna_matrin(rcstruct.p_file_name, rcstruct.n_file_format, matrix);
+    matrix = alloc(sizeof(DataStructure), "alloc data structure");
+    phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix);
 
     /* "file-local" dynamic heap memory: set up best tree stacks */
     bstack_overall = treestack_new();
 
     writeinf(rcstruct);
     matchange(matrix, rcstruct);	/* cut columns */
+    calc_distribution_processors(matrix, rcstruct);
 
     if (rcstruct.verbose == LVB_TRUE) {
     	printf("getminlen: %ld\n\n", getminlen(matrix));
@@ -256,8 +290,7 @@ int main(void)
 		treestack_clear(&bstack_overall);
 		replicate_no++;
 		if (rcstruct.bootstraps > 0) {
-			printf("%-16ld%-16ld%-16ld%ld\n", replicate_no, iter, trees_output,
-			final_length);
+			printf("%-16ld%-16ld%-16ld%ld\n", replicate_no, iter, trees_output, final_length);
 			total_iter += (double) iter;
 		}
 		else  printf("\nRearrangements tried: %ld\n", iter);
@@ -273,14 +306,12 @@ int main(void)
 	printf("1 most parsimonious tree of length %ld written to file '%s'\n", final_length, OUTTREEFNAM);
 	}
 	else {
-		if (rcstruct.bootstraps > 0)
-		{
+		if (rcstruct.bootstraps > 0){
 			lvb_assert(trees_output_total == rcstruct.bootstraps);
 			printf("%ld trees written to file '%s'\n", trees_output_total,
 			OUTTREEFNAM);
 		}
-		else
-		{
+		else{
 			printf("%ld equally parsimonious trees of length %ld written to "
 			 "file '%s'\n", trees_output_total, final_length, OUTTREEFNAM);
 		}

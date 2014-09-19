@@ -41,15 +41,18 @@ long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *c
     Branch *p_current_tree;				/* current configuration */
     Branch *p_proposed_tree;			/* proposed new configuration */
     static long todo[MAX_BRANCHES];	/* array of internal branch numbers */
-    static Lvb_bool leftright[] = {	/* to loop through left and right */
-    				LVB_FALSE, LVB_TRUE };
+    static Lvb_bool leftright[] = {	LVB_FALSE, LVB_TRUE }; /* to loop through left and right */
+    long *p_todo_arr; /* [MAX_BRANCHES + 1];	 list of "dirty" branch nos */
+    long *p_todo_arr_sum_changes; /*used in openMP, to sum the partial changes */
+    int *p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */
 
     /* "local" dynamic heap memory */
     p_current_tree = treealloc(matrix);
     p_proposed_tree = treealloc(matrix);
 
     treecopy(matrix, p_current_tree, inittree);      /* current configuration */
-    len = getplen(matrix, p_current_tree, root, weights);
+    alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
+    len = getplen(matrix, p_current_tree, root, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs, 0);
     prev_len = len;
 
     /* identify internal branches */
@@ -61,7 +64,7 @@ long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *c
 		for (i = 0; i < todo_cnt; i++) {
 			for (j = 0; j < 2; j++) {
 				mutate_deterministic(matrix, p_proposed_tree, p_current_tree, root, todo[i], leftright[j]);
-				lendash = getplen(matrix, p_proposed_tree, rootdash, weights);
+				lendash = getplen(matrix, p_proposed_tree, rootdash, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs, 0);
 				lvb_assert (lendash >= 1L);
 				deltalen = lendash - len;
 				if (deltalen <= 0) {
@@ -85,6 +88,7 @@ long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *c
     } while (newtree == LVB_TRUE);
 
     /* free "local" dynamic heap memory */
+    free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
     free(p_current_tree);
     free(p_proposed_tree);
 
@@ -132,13 +136,23 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, lo
     double grad_linear = 3.64 * LVB_EPS; /* gradient of the linear schedule */
     Branch *p_current_tree;			/* current configuration */
     Branch *p_proposed_tree;		/* proposed new configuration */
+    long *p_todo_arr; /* [MAX_BRANCHES + 1];	 list of "dirty" branch nos */
+    long *p_todo_arr_sum_changes; /*used in openMP, to sum the partial changes */
+    int *p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */
 
     /* "local" dynamic heap memory */
     p_current_tree = treealloc(matrix);
+
+#ifdef COMPILE_OPEN_MP
     p_proposed_tree = treealloc(matrix);
+#else
+    p_proposed_tree = treealloc(matrix);
+#endif
 
     treecopy(matrix, p_current_tree, inittree);	/* current configuration */
-    len = getplen(matrix, p_current_tree, root, weights);
+
+    alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
+    len = getplen(matrix, p_current_tree, root, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs, 0);
     dect = LVB_FALSE;		/* made LVB_TRUE as necessary at end of loop */
 
     lvb_assert( ((float) t >= (float) LVB_EPS) && (t <= 1.0) && (grad_geom >= LVB_EPS) && (grad_linear >= LVB_EPS));
@@ -174,7 +188,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, lo
 		if (iter & 0x01) mutate_nni(matrix, p_proposed_tree, p_current_tree, root);	/* local change */
 		else mutate_spr(matrix, p_proposed_tree, p_current_tree, root);	/* global change */
 
-		lendash = getplen(matrix, p_proposed_tree, rootdash, weights);
+		lendash = getplen(matrix, p_proposed_tree, rootdash, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs, 0);
 		lvb_assert (lendash >= 1L);
 		deltalen = lendash - len;
 		deltah = (r_lenmin / (double) len) - (r_lenmin / (double) lendash);
@@ -296,6 +310,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, lo
     }
 
     /* free "local" dynamic heap memory */
+    free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
     free(p_current_tree);
     free(p_proposed_tree);
     return lenbest;

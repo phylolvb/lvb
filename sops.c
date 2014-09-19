@@ -128,56 +128,6 @@ char *nextnonwspc(const char *string)
 
 } /* end nextnonwspc() */
 
-/**********
-
-=head1 salloc - STRING ALLOCATION
-
-=head2 SYNOPSIS
-
-    char *salloc(long len, const char *msg);
-
-=head2 DESCRIPTION
-
-Allocates dynamic heap memory for a string. One may later free this
-memory using the standard library function C<free()>. The new memory is
-not initialized.
-
-=head2 PARAMETERS
-
-=head3 INPUT
-
-=over 4
-
-=item len
-
-Length of the string for which memory is being allocated, excluding the
-terminating C<'\0'>. C<len> must be positive or zero.
-
-=item msg
-
-Pointer to the first character of a string describing the object being
-allocated for. On failure, C<salloc()> will crash with message 'out of
-memory: cannot allocate for ' followed by this string.
-
-=back
-
-=head2 RETURN
-
-Pointer to the first character of the newly-allocated memory.
-
-=cut
-
-**********/
-
-char *salloc(const long len, const char *const msg)
-{
-    char *s;	/* new space */
-
-    lvb_assert(len >= 0);
-    s = alloc(len + 1, msg);
-    return s;
-	
-} /* end salloc() */
 
 /**********
 

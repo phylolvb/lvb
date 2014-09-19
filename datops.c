@@ -131,6 +131,7 @@ void dna_makebin(const Dataptr mat, Lvb_bool fifthstate, unsigned char **enc_mat
 
     for (i = 0; i < mat->n; i++){
         for (j = 0; j < mat->m; j++) {
+        	sset = 0U;
 			base = mat->row[i][j];
 
 			/* unambiguous bases */
@@ -236,7 +237,7 @@ void matchange(Dataptr matrix, const Params rcstruct)
     togo = alloc(matrix->m * sizeof(Lvb_bool), "'togo' array");
 
     /* initialize all elements to LVB_FALSE ('don't ignore') */
-    memset(togo, LVB_FALSE, matrix->m);
+    for(n_columns_to_change = 0; n_columns_to_change < matrix->m; n_columns_to_change ++) *(togo + n_columns_to_change) = LVB_FALSE;
 
     n_columns_to_change = constchar(matrix, togo, rcstruct.verbose);	/* compuslory cut */
 
@@ -270,8 +271,8 @@ return the number of columns cut */
     long newk;				/* current column of reduced matrix */
 
     /* memory for new matrix row array */
-    newrow = (char **) malloc(matrix->n * sizeof(char *));
-    for (i = 0; i < matrix->n; ++i) newrow[i] =  (char*) malloc(sizeof(char) * (n_columns_to_change + 1));
+    newrow = alloc((size_t) matrix->n * sizeof(char *), "pointers to new row strings");
+    for (i = 0; i < matrix->n; ++i) newrow[i] =  (char*) alloc(sizeof(char) * (n_columns_to_change + 1), "new row strings");
 
     newk = 0;
     for (k = 0; k < matrix->m; ++k){	/* for every column */
@@ -306,7 +307,7 @@ void get_bootstrap_weights(long *weight_arr, long m, long extras)
     long samples = 0;	/* size of the sample so far */
     long site;		/* number of current site to add to sample */
 
-    memset(weight_arr, 0, m);
+    memset(weight_arr, 0, m * sizeof(long));
 
     while (samples < (m + extras)){
     	site = randpint(m + extras - 1);
