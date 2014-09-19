@@ -127,11 +127,11 @@ void dna_makebin(const Dataptr mat, Lvb_bool fifthstate, unsigned char **enc_mat
     long i;			/* loop counter */
     long j;			/* loop counter */
     char base;			/* current base as text character */
-    unsigned char sset = 0U;	/* binary-encoded state set */
+    unsigned char sset;		/* binary-encoded state set */
 
     for (i = 0; i < mat->n; i++){
         for (j = 0; j < mat->m; j++) {
-        	sset = 0U;
+			sset = 0U;
 			base = mat->row[i][j];
 
 			/* unambiguous bases */

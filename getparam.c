@@ -58,7 +58,7 @@ void print_formats_available(){
 
 }
 
-// "dcbvsi:o:f:p"
+/* "dcbvsi:o:f:p" */
 void usage(char *p_file_name){
 	printf("Usage: lvb [dcbvsiofp]\n");
 	printf("lvb seeks parsimonious trees from an aligned nucleotide data matrix.\n"
@@ -106,15 +106,15 @@ void read_parameters(Params *prms, int argc, char **argv){
 					usage(argv[0]);
 					abort();
 				}
-				if (strcmp(optarg, "u") == 0 || strcmp(optarg, "U") == 0) prms->fifthstate = LVB_FALSE; // dash in alignments is UNKNOWN
-				else if (strcmp(optarg, "f") == 0 || strcmp(optarg, "F") == 0) prms->fifthstate = LVB_TRUE; // dash in alignments is UNKNOWN
+				if (strcmp(optarg, "u") == 0 || strcmp(optarg, "U") == 0) prms->fifthstate = LVB_FALSE; /* dash in alignments is UNKNOWN */
+				else if (strcmp(optarg, "f") == 0 || strcmp(optarg, "F") == 0) prms->fifthstate = LVB_TRUE; /* dash in alignments is UNKNOWN */
 				else{
 					fprintf (stderr, "Option -%c requires an argument -d [u|f].\n", optopt);
 					print_formats_available();
 					abort();
 				}
 				break;
-			case 'c':	// cooling schedule
+			case 'c':	/* cooling schedule */
 				if (optarg == NULL){
 					fprintf (stderr, "Option -%c requires an argument -c [g|l]\n", optopt);
 					usage(argv[0]);
@@ -127,7 +127,7 @@ void read_parameters(Params *prms, int argc, char **argv){
 					abort();
 				}
 				break;
-			case 'b':	// bootstrap
+			case 'b':	/* bootstrap */
 				if (optarg == NULL){
 					fprintf (stderr, "Option -%c requires an argument -b <int>\n", optopt);
 					usage(argv[0]);
@@ -135,10 +135,10 @@ void read_parameters(Params *prms, int argc, char **argv){
 				}
 				prms->bootstraps = atoi(optarg);
 				break;
-			case 'v':	// verbose
+			case 'v':	/* verbose */
 				prms->verbose = LVB_TRUE;
 				break;
-			case 's':	// seed
+			case 's':	/* seed */
 				if (optarg == NULL){
 					fprintf (stderr, "Option -%c requires an argument -s <int>\n", optopt);
 					usage(argv[0]);
@@ -146,7 +146,7 @@ void read_parameters(Params *prms, int argc, char **argv){
 				}
 				prms->seed = atoi(optarg);
 				break;
-			case 'i':	// file name in
+			case 'i':	/* file name in */
 				if (optarg == NULL){
 					fprintf (stderr, "Option -%c requires an argument -i <file name>\n", optopt);
 					usage(argv[0]);
@@ -158,7 +158,7 @@ void read_parameters(Params *prms, int argc, char **argv){
 				}
 				strcpy(prms->file_name_in, optarg);
 				break;
-			case 'o':	// file name out
+			case 'o':	/* file name out */
 				if (optarg == NULL){
 					fprintf (stderr, "Option -%c requires an argument -o <file name>\n", optopt);
 					usage(argv[0]);
@@ -170,7 +170,7 @@ void read_parameters(Params *prms, int argc, char **argv){
 				}
 				strcpy(prms->file_name_out, optarg);
 				break;
-			case 'f':	// format
+			case 'f':	/* format */
 				if (optarg == NULL){
 					fprintf (stderr, "Option -%c requires an argument -f [phylip|fasta|nexus|msf|clustal]\n", optopt);
 					usage(argv[0]);
