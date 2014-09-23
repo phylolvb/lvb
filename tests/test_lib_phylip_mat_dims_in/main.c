@@ -22,14 +22,15 @@ int main(void)
 
     lvb_initialize();
 
-    rcstruct.p_file_name = "infile";
+//    rcstruct.file_name_in = "infile";
+    strcpy(rcstruct.file_name_in, "infile");
     rcstruct.n_file_format = FORMAT_PHYLIP;
 
-    phylip_mat_dims_in(rcstruct.p_file_name, rcstruct.n_file_format, &n, &m, &max_length_name);
+    phylip_mat_dims_in(rcstruct.file_name_in, rcstruct.n_file_format, &n, &m, &max_length_name);
     if ((n == EXPECTED_N) && (m == EXPECTED_M))
     {
     	/* try it again and check it still works */
-	phylip_mat_dims_in(rcstruct.p_file_name, rcstruct.n_file_format, &n, &m, &max_length_name);
+	phylip_mat_dims_in(rcstruct.file_name_in, rcstruct.n_file_format, &n, &m, &max_length_name);
 	if ((n == EXPECTED_N) && (m == EXPECTED_M))
 	    success = LVB_TRUE;
     }

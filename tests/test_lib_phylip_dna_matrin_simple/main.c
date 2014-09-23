@@ -52,17 +52,17 @@ int main(void)
     Dataptr matrix2;	/* data matrix as input (sequential) */
 
     Params rcstruct;		/* configurable parameters */
-    rcstruct.p_file_name = "infile";
+    strcpy(rcstruct.file_name_in, "infile");
     rcstruct.n_file_format = FORMAT_PHYLIP;
 
     lvb_initialize();
 
     matrix1 = malloc(sizeof(DataStructure));
-    phylip_dna_matrin(rcstruct.p_file_name, rcstruct.n_file_format, matrix1);
+    phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix1);
     check(matrix1);
 
     matrix2 = malloc(sizeof(DataStructure));
-    phylip_dna_matrin(rcstruct.p_file_name, rcstruct.n_file_format, matrix2);
+    phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix2);
     check(matrix2);
 
     rowfree(matrix1);

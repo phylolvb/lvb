@@ -6,19 +6,25 @@
 
 # run LVB
 $lvb = $ENV{LVB_EXECUTABLE};
-$output = `"$lvb"`;
+$output = `"$lvb" -p 2`;
 $status = $?;
 
 # check output
-if ($output =~ /assertion/i)
+if ($status == 0)
 {
-    print "test failed: assertion failure\n";
-}
-elsif (($output =~ /FATAL ERROR: File doesn't exist/) && ($status != 0))
-{
-    print "test passed\n";
+    if (($output =~ /\s0\s+2\s+\n/)
+	and ($output =~ / equally parsimonious trees of length 2 written to file \'outtree\'\n/))
+    {
+	print "test passed\n";
+    }
+    else
+    {
+	print "test failed\n";
+    }
 }
 else
 {
     print "test failed\n";
 }
+
+unlink "outtree";

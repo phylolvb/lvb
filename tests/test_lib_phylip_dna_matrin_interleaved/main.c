@@ -34,12 +34,12 @@ int main(void)
 
     lvb_initialize();
     Params rcstruct;		/* configurable parameters */
-    rcstruct.p_file_name = "infile";
+    strcpy(rcstruct.file_name_in, "infile");
     rcstruct.n_file_format = FORMAT_PHYLIP;
 
     lvb_initialize();
     matrix = malloc(sizeof(DataStructure));
-    phylip_dna_matrin(rcstruct.p_file_name, rcstruct.n_file_format, matrix);
+    phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix);
     lvb_assert(matrix->m == 42);
     lvb_assert(matrix->n == 5);
 

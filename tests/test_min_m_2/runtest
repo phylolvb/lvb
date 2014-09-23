@@ -9,7 +9,7 @@
 
 # run LVB
 $lvb = $ENV{LVB_EXECUTABLE};
-$output = `"$lvb" <./std.in`;
+$output = `"$lvb"`;
 $status = $?;
 
 # check output

@@ -4,19 +4,27 @@
 # Permission is granted to copy and use this program provided that no fee is
 # charged for it and provided that this copyright notice is not removed.
 
-# Negative test for pow_wrapper().
-
-# run testprog.exe
-$output = `./testprog.exe`;
+# run LVB
+$lvb = $ENV{LVB_EXECUTABLE};
+$output = `"$lvb" -p 2`;
 $status = $?;
 
 # check output
-if (($output =~ /FATAL ERROR: internal error detected in function pow_wrapper/)
- && ($status != 0))
+if ($status == 0)
 {
-    print "test passed\n";
+    if ($output =~
+	/1 most parsimonious tree of length 1006 written to file \'outtree\'/)
+    {
+	print "test passed\n";
+    }
+    else
+    {
+	print "test failed\n";
+    }
 }
 else
 {
     print "test failed\n";
 }
+
+unlink "outtree";

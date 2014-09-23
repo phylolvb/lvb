@@ -20,7 +20,7 @@ int main(void)
 
     lvb_initialize();
 
-    copy = salloc(strlen(s), "copy of the string");
+    copy = alloc(strlen(s), "copy of the string");
     strcpy(copy, s);
     value = supper(s);
     lvb_assert(value == s);
