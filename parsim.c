@@ -36,12 +36,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lvb.h"
 
-long getplen(Dataptr matrix, Branch *barray, const long root, const long *weights, long *p_todo_arr,
-		long *p_todo_arr_sum_changes, int *p_runs, int n_index_threading)
+long getplen(Dataptr matrix, Branch *barray,
+		const long root, const long *weights, long *p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs)
 {
-    unsigned left_ss;			/* left state set */
-    unsigned current_ss;		/* current state set */
-    unsigned right_ss;			/* right state set */
+	unsigned current_ss;		/* current state set */
 
     long branch;			/* current branch number */
     long changes = 0;			/* tree length (number of changes) */
@@ -54,10 +52,10 @@ long getplen(Dataptr matrix, Branch *barray, const long root, const long *weight
     long todo_cnt = 0;			/* count of branches "to do" */
     long l_end = 0;
    /* lvb_assert((matrix->n >= MIN_N) && (matrix->n <= MAX_N));*/
-   /* lvb_assert((matrix->m >= MIN_M) && (matrix->m <= MAX_M)); */
+   /* lvb_assert((n_size_species >= MIN_M) && (n_size_species <= MAX_M)); */
     lvb_assert((root >= 0) && (root < matrix->nbranches));
 
-//#define PRINT_PRINTF	// print extra information
+#define PRINT_PRINTF	// print extra information
 
     /* calculate state sets and changes where not already known */
 #ifdef COMPILE_OPEN_MP
@@ -83,12 +81,12 @@ long getplen(Dataptr matrix, Branch *barray, const long root, const long *weight
 
     omp_set_dynamic(0);	  /* disable dinamic threathing */
 	#pragma omp parallel num_threads(matrix->n_threads_getplen) private(done, l_end, k, i, left, right, branch, n_changes_temp, current_ss)
-    {
-    	done = 0;
-    	l_end = matrix->n_slice_size_getplen * (omp_get_thread_num() + 1);
-    	if (matrix->n_threads_getplen == (omp_get_thread_num() + 1)) l_end += matrix->m - (matrix->n_slice_size_getplen * matrix->n_threads_getplen);
+	{
+		done = 0;
+		l_end = matrix->n_slice_size_getplen * (omp_get_thread_num() + 1);
+		if (matrix->n_threads_getplen == (omp_get_thread_num() + 1)) l_end += matrix->m - (matrix->n_slice_size_getplen * matrix->n_threads_getplen);
 #ifdef	PRINT_PRINTF
-    	printf("1 : Thread# %d: begin = %d    l_end: %d\n", omp_get_thread_num(), matrix->n_slice_size_getplen * omp_get_thread_num(), l_end);
+		printf("1 : Thread# %d: begin = %d    l_end: %d\n", omp_get_thread_num(), matrix->n_slice_size_getplen * omp_get_thread_num(), l_end);
 #endif
 		while (done < todo_cnt) {
 			for (i = 0; i < todo_cnt; i++) {
@@ -159,6 +157,9 @@ long getplen(Dataptr matrix, Branch *barray, const long root, const long *weight
 
 #else
 
+	unsigned left_ss;			/* left state set */
+	unsigned right_ss;			/* right state set */
+
     for (i = matrix->n; i < matrix->nbranches; i++) {
 		if (barray[i].sset[0] == 0U){
 			*(p_todo_arr + todo_cnt++) = i;
@@ -169,6 +170,7 @@ long getplen(Dataptr matrix, Branch *barray, const long root, const long *weight
 		}
 	}
 
+    int n_size_columns = matrix->m;
     while (done < todo_cnt) {
 		for (i = 0; i < todo_cnt; i++) {
 			branch = *(p_todo_arr + i);
@@ -178,7 +180,7 @@ long getplen(Dataptr matrix, Branch *barray, const long root, const long *weight
 				right = barray[branch].right;
 				if ((barray[left].sset[0] != 0U) && (barray[right].sset[0] != 0U))
 				{
-					for (k = 0;k < matrix->m; k++){
+					for (k = 0;k < n_size_columns; k++){
 						left_ss = barray[left].sset[k];
 						right_ss = barray[right].sset[k];
 						current_ss = left_ss & right_ss;
@@ -203,7 +205,7 @@ long getplen(Dataptr matrix, Branch *barray, const long root, const long *weight
         * leaf) */
 	left = barray[root].left;
 	right = barray[root].right;
-	for (k = 0; k < matrix->m; k++) {
+	for (k = 0; k < n_size_columns; k++) {
 		left_ss = barray[left].sset[k];
 		right_ss = barray[right].sset[k];
 		current_ss = left_ss & right_ss;

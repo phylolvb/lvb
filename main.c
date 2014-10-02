@@ -169,7 +169,8 @@ static long getsoln(Dataptr matrix, Params rcstruct, const long *weight_arr, lon
     randtree(matrix, tree);	/* initialise required variables */
     ss_init(matrix, tree, enc_mat);
     initroot = 0;
-    t0 = get_initial_t(matrix, tree, initroot, weight_arr, log_progress);
+//    t0 = get_initial_t(matrix, tree, initroot, weight_arr, log_progress);
+    t0 = 0.18540001000004463;
 
     randtree(matrix, tree);	/* begin from scratch */
     ss_init(matrix, tree, enc_mat);
@@ -184,7 +185,7 @@ static long getsoln(Dataptr matrix, Params rcstruct, const long *weight_arr, lon
      * with that of previous versions.  */
     if(rcstruct.verbose == LVB_TRUE) {
         alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-		fprintf(sumfp, "%ld\t%ld\t%ld\t", start, cyc, getplen(matrix, tree, initroot, weight_arr, p_todo_arr, p_todo_arr_sum_changes, p_runs, 0));
+		fprintf(sumfp, "%ld\t%ld\t%ld\t", start, cyc, getplen(matrix, tree, initroot, weight_arr, p_todo_arr, p_todo_arr_sum_changes, p_runs));
 		free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
 		logtree1(matrix, tree, start, cyc, initroot);
     }
@@ -235,7 +236,6 @@ static long getsoln(Dataptr matrix, Params rcstruct, const long *weight_arr, lon
 /* set the number of processors to use */
 void calc_distribution_processors(Dataptr matrix, Params rcstruct){
 	matrix->n_threads_getplen = rcstruct.n_processors_available;
-	matrix->n_threads_try_combination = rcstruct.n_processors_available;
 	matrix->n_slice_size_getplen = matrix->m / matrix->n_threads_getplen;
 }
 
@@ -365,7 +365,7 @@ int main(int argc, char **argv)
 		printf("Total rearrangements tried across all replicates: %g\n\n", total_iter);
 
 	if ((trees_output_total == 1L) && (rcstruct.bootstraps == 0)) {
-	printf("1 most parsimonious tree of length %ld written to file '%s'\n", final_length, OUTTREEFNAM);
+		printf("1 most parsimonious tree of length %ld written to file '%s'\n", final_length, OUTTREEFNAM);
 	}
 	else {
 		if (rcstruct.bootstraps > 0){

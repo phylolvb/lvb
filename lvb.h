@@ -185,8 +185,7 @@ double get_initial_t(Dataptr, const Branch *const, long, const long *, Lvb_bool)
 long getminlen(const Dataptr);
 void getparam(Params *, int argc, char **argv);
 void read_parameters(Params *prms, int argc, char **argv);
-long getplen(Dataptr, Branch *, const long, const long *, long *p_todo_arr, long *p_todo_arr_sum_changes,
-		int *p_runs, int n_index_threading);
+long getplen(Dataptr, Branch *, const long, const long *, long *p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs);
 void alloc_memory_to_getplen(Dataptr matrix, long **p_todo_arr, long **p_todo_arr_sum_changes, int **p_runs);
 void free_memory_to_getplen(long **p_todo_arr, long **p_todo_arr_sum_changes, int **p_runs);
 double get_predicted_length(double, double, long, long, long, long);

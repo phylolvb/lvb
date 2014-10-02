@@ -114,15 +114,12 @@ static void make_dirty_below(Dataptr matrix, Branch *tree, long dirty_node)
  * root lies outside the LVB tree data structure so cannot be marked
  * dirty, but will always be dirty after any rearrangement */
 {
-    long dirty_parent;		/* parent of current dirty node */
 
     lvb_assert(dirty_node >= matrix->n);	/* not leaf/root */
-    dirty_parent = tree[dirty_node].parent;
-    lvb_assert(dirty_parent != UNSET);
+    lvb_assert(tree[dirty_node].parent != UNSET);
     do {
 		tree[dirty_node].sset[0] = 0U;	/* "dirty" */
-		dirty_parent = tree[dirty_node].parent;
-        dirty_node = dirty_parent;
+		dirty_node = tree[dirty_node].parent;
     } while (tree[dirty_node].parent != UNSET);
 
 } /* end make_dirty_below() */
@@ -196,17 +193,14 @@ void mutate_nni(Dataptr matrix, Branch *const desttree, const Branch *const sour
  * the same in mutate_deterministic() */
 {
     Branch *tree;
-    long p, u, v, a, b, c;
+    long u, v, a, b, c;
 
     /* for ease of reading, make alias of desttree, tree */
     tree = desttree;
     treecopy(matrix, tree, sourcetree);
 
     /* get a random internal branch */
-    p = randpint(matrix->nbranches - matrix->n - 1);
-    p += matrix->n;
-
-    u = p;
+    u = randpint(matrix->nbranches - matrix->n - 1) + matrix->n;
     v = tree[u].parent;
     a = tree[u].left;
     b = tree[u].right;

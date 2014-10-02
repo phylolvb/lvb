@@ -83,7 +83,7 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, long root,
 
     treecopy(matrix, x, inittree);	/* current configuration */
     alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-    len = getplen(matrix, x, root, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs, 0);
+    len = getplen(matrix, x, root, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs);
     
     lenmin = getminlen(matrix);
     r_lenmin = (double) lenmin;
@@ -110,7 +110,7 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, long root,
 			if (iter & 0x01) mutate_nni(matrix, xdash, x, root);	/* local change */
 			else mutate_spr(matrix, xdash, x, root);	/* global change */
 
-			lendash = getplen(matrix, xdash, rootdash, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs, 0);
+			lendash = getplen(matrix, xdash, rootdash, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 			lvb_assert (lendash >= 1L);
 			deltalen = lendash - len;
 			deltah = (r_lenmin / (double) len) - (r_lenmin / (double) lendash);
