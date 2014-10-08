@@ -43,6 +43,7 @@ using namespace std;
 
 extern "C" void read_file(char *file_name, int n_file_type, Dataptr p_lvbmat);
 extern "C" void phylip_mat_dims_in_external(char *file_name, int n_file_type, long *species_ptr, long *sites_ptr, int *max_length_name);
+extern "C" void read_parameters(Params *prms, int argc, char **argv);
 
 
 void read_file(char *file_name, int n_file_type, DataStructure *p_lvbmat);

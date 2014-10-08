@@ -44,7 +44,7 @@ datops.c - data matrix operations
 
 #include "lvb.h"
 
-static long constchar(const Dataptr matrix, Lvb_bool *const togo, const Lvb_bool verbose);
+static long constchar(Dataptr restrict matrix, Lvb_bool *const togo, const Lvb_bool verbose);
 static void cutcols(Dataptr matrix, const Lvb_bool *const tocut, long n_columns_to_change);
 static void logcut(const Lvb_bool *const cut, const long m);
 
@@ -65,7 +65,7 @@ static char *getstatev(const Dataptr matrix, const long k)
 
     /* update record of states for column k */
     for (i = 0; i < matrix->n; ++i){
-		if (strchr(statev, (int) matrix->row[i][k]) == NULL){	/* new state */
+		if (strchr(statev, (uint32_t) matrix->row[i][k]) == NULL){	/* new state */
 			statev[statec++] = matrix->row[i][k];
 			if (statec > MAXSTATES) return NULL;
 			statev[statec] = '\0';	/* for strchr() */
@@ -150,58 +150,94 @@ C<mat>C<->E<gt>C<row>[I<i>][I<j>], where I<i> is in the interval
 
 **********/
 
-void dna_makebin(const Dataptr mat, Lvb_bool fifthstate, unsigned char **enc_mat)
+void dna_makebin(const Dataptr mat, uint32_t **enc_mat)
+/* convert matrix from string form to binary-encoded form, in which each
+ * biological character occupies half a byte; the matrix is padded with
+ * ambiguous data as required to ensure all bytes are initialised, but padding
+ * will not contribute to tree length - allowing the optimization of White and
+ * Holland (2011) */
 {
-    long i;			/* loop counter */
-    long j;			/* loop counter */
-    char base;			/* current base as text character */
-    unsigned char sset;		/* binary-encoded state set */
+    long i;		/* loop counter */
+    long j;		/* loop counter */
+    long k;		/* loop counter */
+    long mat_offset;	/* current position within matrix row */
+    char base;		/* current base as text character */
+    uint32_t sset = 0U;	/* binary-encoded single state set */
+    uint32_t enc_ssets;	/* set of four binary-encoded state sets */
+    long nwords = mat->m / 8 + (mat->m % 8 != 0);	/* per state set row */
 
-    for (i = 0; i < mat->n; i++){
-        for (j = 0; j < mat->m; j++) {
-			sset = 0U;
-			base = mat->row[i][j];
+    for (i = 0; i < mat->n; i++)
+    {
+        for (j = 0; j < nwords; j++)
+		{
+			enc_ssets = 0U;
+			for (k = 0; k < 8; k++)
+			{
+				mat_offset = 8 * j + k;
+				if (mat_offset >= mat->m)	/* padding required */
+					base = 'N';
+				else
+					base = mat->row[i][8 * j + k];	/* observed base required */
 
-			/* unambiguous bases */
-			if (base == 'A') sset = A_BIT;
-			else if (base == 'C') sset = C_BIT;
-			else if (base == 'G') sset = G_BIT;
-			else if (base == 'T') sset = T_BIT;
-			else if (base == 'U')	/* treat the same as 'U' */
-				sset = T_BIT;
+				/* unambiguous bases */
+				if (base == 'A')
+					sset = A_BIT;
+				else if (base == 'C')
+					sset = C_BIT;
+				else if (base == 'G')
+					sset = G_BIT;
+				else if (base == 'T')
+					sset = T_BIT;
+				else if (base == 'U')	/* treat the same as 'U' */
+					sset = T_BIT;
 
-			/* ambiguous bases */
-			else if (base == 'Y') sset = C_BIT | T_BIT;
-			else if (base == 'R') sset = A_BIT | G_BIT;
-			else if (base == 'W') sset = A_BIT | T_BIT;
-			else if (base == 'S') sset = C_BIT | G_BIT;
-			else if (base == 'K') sset = T_BIT | G_BIT;
-			else if (base == 'M') sset = C_BIT | A_BIT;
-			else if (base == 'B') sset = C_BIT | G_BIT | T_BIT;
-			else if (base == 'D') sset = A_BIT | G_BIT | T_BIT;
-			else if (base == 'H') sset = A_BIT | C_BIT | T_BIT;
-			else if (base == 'V') sset = A_BIT | C_BIT | G_BIT;
-			else if (base == 'N') sset = A_BIT | C_BIT | G_BIT | T_BIT;
-			else if (base == 'X') sset = A_BIT | C_BIT | G_BIT | T_BIT;
+				/* ambiguous bases */
+				else if (base == 'Y')
+					sset = C_BIT | T_BIT;
+				else if (base == 'R')
+					sset = A_BIT | G_BIT;
+				else if (base == 'W')
+					sset = A_BIT | T_BIT;
+				else if (base == 'S')
+					sset = C_BIT | G_BIT;
+				else if (base == 'K')
+					sset = T_BIT | G_BIT;
+				else if (base == 'M')
+					sset = C_BIT | A_BIT;
+				else if (base == 'B')
+					sset = C_BIT | G_BIT | T_BIT;
+				else if (base == 'D')
+					sset = A_BIT | G_BIT | T_BIT;
+				else if (base == 'H')
+					sset = A_BIT | C_BIT | T_BIT;
+				else if (base == 'V')
+					sset = A_BIT | C_BIT | G_BIT;
+				else if (base == 'N')
+					sset = A_BIT | C_BIT | G_BIT | T_BIT;
+				else if (base == 'X')
+					sset = A_BIT | C_BIT | G_BIT | T_BIT;
 
-			/* total ambiguity */
-			else if (base == '?') sset = A_BIT | C_BIT | G_BIT | T_BIT | O_BIT;
+				/* total ambiguity or deletion - now always the same as 'N' */
+				else if ((base == '?') || (base == '-'))
+					sset = A_BIT | C_BIT | G_BIT | T_BIT;
 
-			/* deletion */
-			else if (base == 'O') sset = O_BIT;
-			else if (base == '-') {
-				if (fifthstate == LVB_TRUE) {
-					sset = O_BIT;
+				/* all other bases are not allowed */
+				else
+				{
+					fprintf(stderr, "bad base symbol in data matrix: ");
+					fputc(base, stderr);
+					fputc('\n', stderr);
+					crash("cannot read data matrix");
 				}
-				else {
-					sset = A_BIT | C_BIT | G_BIT | T_BIT | O_BIT;
-				}
+
+				lvb_assert(sset != 0U);
+				enc_ssets |= sset << (k << NIBBLE_WIDTH_BITS);
 			}
-			lvb_assert(sset != 0U);
-			enc_mat[i][j] = sset;
+			enc_mat[i][j] = enc_ssets;
 		}
     }
 } /* end dna_makebin() */
+
 
 void rowfree(Dataptr matrix)
 /* free memory used for row strings and array of row strings in matrix,
@@ -219,7 +255,7 @@ void rowfree(Dataptr matrix)
 } /* end rowfree() */
 
 
-static long constchar(const Dataptr matrix, Lvb_bool *const togo, const Lvb_bool verbose)
+static long constchar(Dataptr restrict matrix, Lvb_bool *const togo, const Lvb_bool verbose)
 /* Make sure matrix->m-element array togo is LVB_TRUE where matrix column
  * contains only one character state;
  * log details of new columns to ignore if verbose is LVB_TRUE.
@@ -255,7 +291,7 @@ void matchange(Dataptr matrix, const Params rcstruct)
  * verbosely or not according to value of verbose */
 {
     Lvb_bool *togo;	/* LVB_TRUE where column must go */
-    int n_columns_to_change = 0;
+    long n_columns_to_change = 0;
     /* Allocate memory: this will be free'd just before we return.
      * Dynamic allocation is used because otherwise, each of the
      * arrays would have to have MAX_M elements. That would either
@@ -274,7 +310,13 @@ void matchange(Dataptr matrix, const Params rcstruct)
      * with unrealistically small test matrices than with real data */
 
     /* cut the cols as indicated, and crash verbosely if too few remain */
-    if (n_columns_to_change != matrix->m) cutcols(matrix, togo, n_columns_to_change);	/* make changes to matrix */
+    if (n_columns_to_change != matrix->m){
+    	cutcols(matrix, togo, n_columns_to_change);	/* make changes to matrix */
+    }
+    else{
+        matrix->bytes = bytes_per_row(matrix->m);
+        matrix->nwords = words_per_row(matrix->m);
+    }
     if (matrix->m < MIN_M)
     	crash("after constant columns are ignored, data matrix has\n"
     			"%ld columns, which is less than LVB's lower limit of\n"
@@ -298,14 +340,16 @@ return the number of columns cut */
     long k;				/* loop counter */
     long newk;				/* current column of reduced matrix */
 
+    long uun = matrix->n;
+    long uum = matrix->m;
     /* memory for new matrix row array */
-    newrow = alloc((size_t) matrix->n * sizeof(char *), "pointers to new row strings");
-    for (i = 0; i < matrix->n; ++i) newrow[i] =  (char*) alloc(sizeof(char) * (n_columns_to_change + 1), "new row strings");
+    newrow = alloc((size_t) uun * sizeof(char *), "pointers to new row strings");
+    for (i = 0; i < uun; ++i) newrow[i] =  (char*) alloc(sizeof(char) * (n_columns_to_change + 1), "new row strings");
 
     newk = 0;
-    for (k = 0; k < matrix->m; ++k){	/* for every column */
+    for (k = 0; k < uum; ++k){	/* for every column */
 		if (tocut[k] == LVB_TRUE){	/* keep this column */
-			for (i = 0; i < matrix->n; ++i)	/* fill for ea. row */
+			for (i = 0; i < uun; ++i)	/* fill for ea. row */
 				newrow[i][newk] = matrix->row[i][k];
 			++newk;	/* fill next row next time */
 		}
@@ -315,13 +359,14 @@ return the number of columns cut */
     lvb_assert(newk == n_columns_to_change);
 
     /* terminate new row strings */
-    for (i = 0; i < matrix->n; ++i) newrow[i][newk] = '\0';
+    for (i = 0; i < uun; ++i) newrow[i][newk] = '\0';
 
     /* update matrix structure */
     rowfree(matrix);
     matrix->row = newrow;
     matrix->m = n_columns_to_change;
-
+    matrix->bytes = bytes_per_row(matrix->m);
+    matrix->nwords = words_per_row(matrix->m);
 } /* end cutcols() */
 
 void get_bootstrap_weights(long *weight_arr, long m, long extras)
@@ -379,3 +424,49 @@ static void logcut(const Lvb_bool *const cut, const long m)
 	crash("write error on standard output"); /* FIXME: helpful? */
 
 } /* end logcut() */
+
+
+void uint32_dump(FILE *stream, uint32_t u)
+/* output a uint32 in binary format */
+{
+	const long bits = 32;	/* bits to output */
+	long i;			/* loop counter */
+    uint32_t mask;		/* to obtain current bit */
+    uint32_t output_as_int;
+    static char buffer[34];
+
+    for (i = 0; i < bits; i++){
+    	mask = 1U << i;
+    	output_as_int = mask & u;
+    	if(output_as_int) buffer[31 - i] = '1';
+    	else buffer[31 - i] = '0';
+    }
+	buffer[32] = '\n';
+	buffer[33] = '\0';
+	fputs(buffer, stream);
+}
+
+
+long words_per_row(const long m)
+/* return the number of 32-bit words required to hold an encoded row of the
+ * data matrix for m state sets, assuming half a byte per state set rounded up
+ * to the nearest 32-bit word, which allows for the optimization of White and
+ * Holland (2011, Bioinformatics 27:1359-1367, specifically Section 2.10) */
+{
+    long words;		/* 32-bit words required */
+
+    words = m / 8;
+    if (m % 8) words += 1;
+    return words;
+}
+
+
+
+long bytes_per_row(const long m)
+/* return the number of 8-bit bytes required to hold an encoded row of the
+ * data matrix for m state sets, assuming half a byte per state set rounded up
+ * to the nearest 32-bit word - which allows for the optimization of White and
+ * Holland (2011, Bioinformatics 27:1359-1367, specifically Section 2.10) */
+{
+	return words_per_row(m) * sizeof(uint32_t);
+}

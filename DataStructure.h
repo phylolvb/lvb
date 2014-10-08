@@ -32,6 +32,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
+#define FORMAT_PHYLIP 		0
+#define FORMAT_FASTA 		1
+#define FORMAT_NEXUS 		2
+#define FORMAT_MSF 			3
+#define FORMAT_CLUSTAL 		4
+
+typedef enum { LVB_FALSE, LVB_TRUE } Lvb_bool;	/* boolean type */
+#define LVB_FNAMSIZE 2000		/* maximum bytes for file names */
+
+#define MAX_BOOTSTRAPS 1000000	/* max. bootstrap replicates */
+
 /* matrix and associated information */
 typedef struct data
 {
@@ -41,7 +52,23 @@ typedef struct data
     long original_m;	/* number of columns read from matrix*/
     long n;				/* number of rows */
     long nbranches; 	/* number of possible braches */
+    long bytes;
+    long nwords;
     int n_threads_getplen;  /* number of possible threads in getplen function */
     int n_slice_size_getplen;  /* slice size in getplen function, usually m/n_threads_getplen  */
 } *Dataptr, DataStructure;
 
+/* unchangeable types */
+
+/* user- or programmer-configurable parameters */
+typedef struct
+{
+    int seed;			/* seed for random number generator */
+    long verbose;		/* verboseness level */
+    long bootstraps;		/* number of bootstrap replicates */
+    int cooling_schedule;   /* cooling schedule: 0 is geometric, 1 is linear */
+    char file_name_in[LVB_FNAMSIZE];		/* input file name */
+    int n_file_format;		/* number of file format, must be FORMAT_PHYLIP, FORMAT_FASTA, FORMAT_NEXUS, FORMAT_MSF, FORMAT_CLUSTAL*/
+    char file_name_out[LVB_FNAMSIZE];	/* output file name */
+    int n_processors_available;	/* number of processors available */
+} Params;

@@ -68,8 +68,8 @@ CFLAGS += -DLVB	 	# Must be present
 CFLAGS += -O2 -Wall # -ansi	# Assumes GNU C compiler
 #CFLAGS += -fprofile-arcs -ftest-coverage -ansi
 #CFLAGS += -g -std=c99
-#CFLAGS += -O3 -std=c99 -ftree-loop-distribution -fvariable-expansion-in-unroller -ftree-vectorizer-verbose=6 -msse2
-CFLAGS += -fopenmp
+#CFLAGS += -O3 -std=c99 -fopenmp -ftree-loop-distribution -fvariable-expansion-in-unroller -ftree-vectorizer-verbose=6 -msse2
+CFLAGS += -O3 -std=c99 -fopenmp -msse2
 
 # System-dependent macros - OK for Linux and UNIX-like systems, for others will
 # require change

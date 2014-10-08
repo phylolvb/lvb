@@ -60,10 +60,6 @@ static void writeinf(Params prms)
 {
     printf("\n");
 
-    printf("treatment of '-'     = ");
-    if (prms.fifthstate == LVB_TRUE) printf("FIFTH STATE\n");
-    else printf("UNKNOWN\n");
-
     printf("cooling schedule     = ");
     if(prms.cooling_schedule == 0) printf("GEOMETRIC\n");
     else printf("LINEAR\n");
@@ -110,11 +106,10 @@ static void logtree1(Dataptr matrix, const Branch *const barray, const long star
 
 } /* end logtree1() */
 
-static long getsoln(Dataptr matrix, Params rcstruct, const long *weight_arr, long *iter_p, Lvb_bool log_progress)
+static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight_arr, long *iter_p, Lvb_bool log_progress)
 /* get and output solution(s) according to parameters in rcstruct;
  * return length of shortest tree(s) found, using weights in weight_arr */
 {
-    int cooling_schedule = rcstruct.cooling_schedule; /* cooling schedule */
     static char fnam[LVB_FNAMSIZE];	/* current file name */
     long fnamlen;			/* length of current file name */
     long i;				/* loop counter */
@@ -129,7 +124,7 @@ static long getsoln(Dataptr matrix, Params rcstruct, const long *weight_arr, lon
     FILE *resfp;			/* results file */
     Branch *tree;			/* initial tree */
     Branch *user_tree_ptr = NULL;	/* user-specified initial tree */
-    unsigned char *enc_mat[MAX_N] = { NULL };	/* encoded data mat. */
+    uint32_t *enc_mat[MAX_N] = { NULL };	/* encoded data mat. */
     long *p_todo_arr; /* [MAX_BRANCHES + 1];	 list of "dirty" branch nos */
     long *p_todo_arr_sum_changes; /*used in openMP, to sum the partial changes */
     int *p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */
@@ -148,9 +143,9 @@ static long getsoln(Dataptr matrix, Params rcstruct, const long *weight_arr, lon
     /* Allocation of the initial encoded matrix is non-contiguous because
      * this matrix isn't used much, so any performance penalty won't matter. */
     for (i = 0; i < matrix->n; i++)
-        enc_mat[i] = alloc(matrix->m * sizeof(unsigned char), "state sets");
+        enc_mat[i] = alloc(matrix->bytes, "state sets");
     
-    dna_makebin(matrix, rcstruct.fifthstate, enc_mat);
+    dna_makebin(matrix, enc_mat);
 
     /* open and entitle statistics file shared by all cycles
      * NOTE: There are no cycles anymore in the current version
@@ -169,8 +164,8 @@ static long getsoln(Dataptr matrix, Params rcstruct, const long *weight_arr, lon
     randtree(matrix, tree);	/* initialise required variables */
     ss_init(matrix, tree, enc_mat);
     initroot = 0;
-//    t0 = get_initial_t(matrix, tree, initroot, weight_arr, log_progress);
-    t0 = 0.18540001000004463;
+    t0 = get_initial_t(matrix, tree, initroot, weight_arr, log_progress);
+//    t0 = 0.18540001000004463;
 
     randtree(matrix, tree);	/* begin from scratch */
     ss_init(matrix, tree, enc_mat);
@@ -192,7 +187,7 @@ static long getsoln(Dataptr matrix, Params rcstruct, const long *weight_arr, lon
 
     /* find solution(s) */
     treelength = anneal(matrix, &bstack_overall, tree, initroot, t0, maxaccept, maxpropose, maxfail,
-    		stdout, weight_arr, iter_p, cooling_schedule, log_progress);
+    		stdout, weight_arr, iter_p, rcstruct.cooling_schedule, log_progress);
     treestack_pop(matrix, tree, &initroot, &bstack_overall);
     treestack_push(matrix, &bstack_overall, tree, initroot);
     treelength = deterministic_hillclimb(matrix, &bstack_overall, tree, initroot, stdout,

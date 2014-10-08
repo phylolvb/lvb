@@ -57,7 +57,6 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, long root,
     long deltalen;		/* change in length with new tree */
     long iter;		/* iteration of mutate/evaluate loop */
     long len;			/* length of current tree */
-    long prev_len = UNSET;	/* length of previous tree */
     long lendash;		/* length of proposed new tree */
     long lenmin;		/* minimum length for any tree */
     double pacc;		/* prob. of accepting new config. */
@@ -76,6 +75,8 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, long root,
     long *p_todo_arr; /* [MAX_BRANCHES + 1];	 list of "dirty" branch nos */
     long *p_todo_arr_sum_changes; /*used in openMP, to sum the partial changes */
     int *p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */
+    const double log_wrapper_LVB_EPS = log_wrapper(LVB_EPS);
+
     /* Create "local" dynamic heap memory and initialise tree 
      * structures like in anneal() */
     x = treealloc(matrix);
@@ -88,6 +89,7 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, long root,
     lenmin = getminlen(matrix);
     r_lenmin = (double) lenmin;
     
+
     /* Log progress to standard output if chosen*/
     if (log_progress) printf("\nDetermining the Starting Temperature ...\n");
 
@@ -98,7 +100,6 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, long root,
 		for (iter = 0; iter <= sample_size; iter++)
 		{
 			/* Create an alternative tree topology (adopted from anneal()) */
-			prev_len = len;
 
 			/* occasionally re-root, to prevent influence from root position */
 			if ((iter % REROOT_INTERVAL) == 0) root = arbreroot(matrix, x, root);
@@ -122,14 +123,13 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, long root,
 			if (deltalen <= 0)	/* accept the change */
 			{
 				/* update current tree and its stats */
-				prev_len = len;
 				len = lendash;
 				treeswap(&x, &root, &xdash, &rootdash);
 			}	
 			else {
 				prop_pos_trans++; /* Another positive transition has been generated*/
 
-				if (-deltah < t * log_wrapper(LVB_EPS)) {
+				if (-deltah < t * log_wrapper_LVB_EPS) {
 					pacc = 0.0;
 					/* Call uni() even though its not required. It
 					* would have been called in LVB 1.0A, so this
@@ -142,7 +142,6 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, long root,
 					pacc = exp_wrapper(-deltah/t);
 					if (uni() < pacc)	/* do accept the change */
 					{
-						prev_len = len;
 						len = lendash;
 						treeswap(&x, &root, &xdash, &rootdash);
 						acc_pos_trans++;  /* The change has been accepted */

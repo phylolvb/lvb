@@ -32,12 +32,20 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ********** parsim.c - tree length calculation ********** */
+/**********
+
+=head1 NAME
+
+parsim.c - tree evaluation
+
+=cut
+
+**********/
 
 #include "lvb.h"
 
-long getplen(Dataptr matrix, Branch *barray,
-		const long root, const long *weights, long *p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs)
+long getplen(Dataptr restrict matrix, Branch *barray,
+		const long root, const long *restrict weights, long *p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs)
 {
 	unsigned current_ss;		/* current state set */
 
@@ -45,17 +53,13 @@ long getplen(Dataptr matrix, Branch *barray,
     long changes = 0;			/* tree length (number of changes) */
     long n_changes_temp;	/* temp variable to count the changes */
     long done = 0;			/* count of branches "done" */
-    long i;				/* loop counter */
-    long k;				/* current character number */
+	long i;					/* loop counter */
+	long k;					/* current character number */
     long left;				/* current left child number */
     long right;				/* current right child number */
     long todo_cnt = 0;			/* count of branches "to do" */
     long l_end = 0;
-   /* lvb_assert((matrix->n >= MIN_N) && (matrix->n <= MAX_N));*/
-   /* lvb_assert((n_size_species >= MIN_M) && (n_size_species <= MAX_M)); */
-    lvb_assert((root >= 0) && (root < matrix->nbranches));
-
-#define PRINT_PRINTF	// print extra information
+//#define PRINT_PRINTF	// print extra information
 
     /* calculate state sets and changes where not already known */
 #ifdef COMPILE_OPEN_MP
@@ -126,7 +130,7 @@ long getplen(Dataptr matrix, Branch *barray,
 			}
 		}
 
-		/* count the changes to the roor one */
+		/* count the changes to the root one */
 		n_changes_temp = 0;
 		left = barray[root].left;
 		right = barray[root].right;
@@ -157,12 +161,19 @@ long getplen(Dataptr matrix, Branch *barray,
 
 #else
 
-	unsigned left_ss;			/* left state set */
-	unsigned right_ss;			/* right state set */
+	long ch;					/* partial changes */
+	long j;						/* loop counter */
+	uint32_t not_u;				/* complement of u */
+	uint32_t shifted;			/* ~u, shifted in partial len calcs */
+	uint32_t u;					/* for s. set and length calcs */
+	uint32_t x;					/* batch of 8 left state sets */
+	uint32_t y;					/* batch of 8 right state sets */
+	uint32_t z;
 
     for (i = matrix->n; i < matrix->nbranches; i++) {
 		if (barray[i].sset[0] == 0U){
 			*(p_todo_arr + todo_cnt++) = i;
+//			printf("touch:%d   left:%d  right:%d\n", i, barray[i].left, barray[i].right);
 			barray[i].changes = 0;
 		}
 		else{
@@ -170,25 +181,38 @@ long getplen(Dataptr matrix, Branch *barray,
 		}
 	}
 
-    int n_size_columns = matrix->m;
+//    printf("start\n");
     while (done < todo_cnt) {
 		for (i = 0; i < todo_cnt; i++) {
 			branch = *(p_todo_arr + i);
+//			printf("touch:%d\n", branch);
 			if (barray[branch].sset[0] == 0U)	/* "dirty" */
 			{
 				left = barray[branch].left;
 				right = barray[branch].right;
-				if ((barray[left].sset[0] != 0U) && (barray[right].sset[0] != 0U))
+//				printf("touch:%d   left:%d  right:%d\n", branch, left, right);
+				if (barray[left].sset[0] && barray[right].sset[0])
 				{
-					for (k = 0;k < n_size_columns; k++){
-						left_ss = barray[left].sset[k];
-						right_ss = barray[right].sset[k];
-						current_ss = left_ss & right_ss;
-						if (current_ss == 0U){
-							current_ss = left_ss | right_ss;
-							barray[branch].changes += weights[k];
+					uint32_t *restrict l_ssets = barray[left].sset;
+					uint32_t *restrict r_ssets = barray[right].sset;
+					for (j = 0; j < matrix->nwords; j++){
+						x = l_ssets[j];
+						y = r_ssets[j];
+						u = ((((x & y & 0x77777777U) + 0x77777777U) | (x & y)) & 0x88888888U) >> 3;
+						z = (x & y) | ((x | y) & ((u + 0x77777777U) ^ 0x88888888U));
+						not_u = ~u;
+						ch = 0;
+						for (k = 0; k < 8; k++){
+							/*shifted = not_u >> k * NIBBLE_WIDTH;
+							ch += (shifted & 1U) ? (weights[j * 8 + k]) : 0;*/
+							shifted = not_u >> (k << NIBBLE_WIDTH_BITS);
+							ch += (shifted & 1U) ? (weights[(j >> 3) + k]) : 0;
 						}
-						barray[branch].sset[k] = current_ss;
+//						printf("before branch:8  pos:0  memory:%1x   pos:%d    branch:7  memory:0x%1x\n", barray[8].sset[0], j, barray[branch].sset[j]);
+						barray[branch].sset[j] = z;
+//						printf("before branch:8  pos:0  memory:%1x   pos:%d   branch:7  memory:0x%1x\n", barray[8].sset[0], j, barray[branch].sset[j]);
+						barray[branch].changes += ch;
+						changes += ch;
 					}
 					done++;
 				}
@@ -196,24 +220,38 @@ long getplen(Dataptr matrix, Branch *barray,
 		}
 	}
 
-    /* count changes across tree */
-    for (i = 0; i < todo_cnt; i++) changes += barray[*(p_todo_arr + i)].changes;
-
     /* root: add length for root branch structure, and also for true root which
         * lies outside the LVB tree data structure; all without altering the
         * "root" struct statesets (since these represent actual data for the
         * leaf) */
 	left = barray[root].left;
 	right = barray[root].right;
-	for (k = 0; k < n_size_columns; k++) {
-		left_ss = barray[left].sset[k];
-		right_ss = barray[right].sset[k];
-		current_ss = left_ss & right_ss;
-		if (current_ss == 0U){
-			current_ss = left_ss | right_ss;
-			changes += weights[k];
+	for (j = 0; j < matrix->nwords; j++){
+		x = barray[left].sset[j];
+		y = barray[right].sset[j];
+		u = ((((x & y & 0x77777777U) + 0x77777777U) | (x & y)) & 0x88888888U) >> 3;
+		z = (x & y) | ((x | y) & ((u + 0x77777777U) ^ 0x88888888U));
+		not_u = ~u;
+
+		for (k = 0; k < 8; k++){
+			shifted = not_u >> (k << NIBBLE_WIDTH_BITS);
+			changes += (shifted & 1U) ? (weights[(j >> 3) + k]) : 0;
+			/*shifted = not_u >> k * NIBBLE_WIDTH;
+			changes += (shifted & 1U) * (weights[j * 8 + k]);*/
 		}
-		if ((current_ss & barray[root].sset[k]) == 0U) changes += weights[k];
+
+		x = z;
+		y = barray[root].sset[j];
+		u = ((((x & y & 0x77777777U) + 0x77777777U) | (x & y)) & 0x88888888U) >> 3;
+		z = (x & y) | ((x | y) & ((u + 0x77777777U) ^ 0x88888888U));
+		not_u = ~u;
+
+		for (k = 0; k < 8; k++) {
+			shifted = not_u >> (k << NIBBLE_WIDTH_BITS);
+			changes += (shifted & 1U) ? (weights[(j >> 3) + k]) : 0;
+			/*shifted = not_u >> k * NIBBLE_WIDTH;
+			changes += (shifted & 1U) ? (weights[j * 8 + k]) : 0;*/
+		}
 	}
 
 #endif
@@ -222,7 +260,7 @@ long getplen(Dataptr matrix, Branch *barray,
 #ifdef	PRINT_PRINTF
     printf("changes: %d    finish\n", changes);
 #endif
-//    abort();
+ //   exit(1);
     return changes;
 
 } /* end getplen() */

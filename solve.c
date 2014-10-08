@@ -331,8 +331,8 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, lo
 		iter++;
     }
 
-    printf("\nn_temp_new_tree:%d\nn_temp_tree_swap:%d\nn_temp_possible_tree:%d\nn_temp_possible_tree_swaped:%d\ndect True:%d\n",
-    		n_temp_new_tree, n_temp_tree_swap, n_temp_possible_tree, n_temp_possible_tree_swaped, t_n);
+/*    printf("\nn_temp_new_tree:%d\nn_temp_tree_swap:%d\nn_temp_possible_tree:%d\nn_temp_possible_tree_swaped:%d\ndect True:%d\n",
+    		n_temp_new_tree, n_temp_tree_swap, n_temp_possible_tree, n_temp_possible_tree_swaped, t_n);*/
 
     /* free "local" dynamic heap memory */
     free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
