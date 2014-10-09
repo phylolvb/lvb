@@ -83,12 +83,6 @@ static void writeinf(Params prms)
 } /* end writeinf() */
 
 
-#define FORMAT_PHYLIP 		0
-#define FORMAT_FASTA 		1
-#define FORMAT_NEXUS 		2
-#define FORMAT_MSF 			3
-#define FORMAT_CLUSTAL 		4
-
 static void logtree1(Dataptr matrix, const Branch *const barray, const long start, const long cycle, long root)
 /* log initial tree for cycle cycle of start start (in barray) to outfp */
 {
@@ -226,7 +220,6 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
     return treelength;
 
 } /* end getsoln() */
-
 
 /* set the number of processors to use */
 void calc_distribution_processors(Dataptr matrix, Params rcstruct){

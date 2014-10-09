@@ -57,17 +57,19 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define LVB_VERSION "IN DEVELOPMENT"	/* version of program */
 #define LVB_SUBVERSION "(2014)"		/* version details e.g. date */
 
-#define COMPILE_OPEN_MP			/* only one active each time */
+//#define COMPILE_OPEN_MP			/* only one active each time */
 
 /* DNA bases: bits to set in statesets */
 #define A_BIT (1U << 0)
 #define C_BIT (1U << 1)
 #define G_BIT (1U << 2)
 #define T_BIT (1U << 3)
-#define O_BIT (1U << 4)
+
+#define NIBBLE_MASK 		017			/* space for one stateset, all bits set to 1 */
+#define NIBBLE_WIDTH 		4			/* width of nibble in bits */
+#define NIBBLE_WIDTH_BITS	2			/* bitwise multiply the NIBBLE_WIDTH */
 
 /* values some people may feel the dangerous urge to change */
-#define LVB_FNAMSIZE 2000		/* maximum bytes for file names */
 #define LVB_INPUTSTRING_SIZE 2000	/* max. bytes for interactive input */
 #define UNSET (-1)			/* value of integral vars when unset */
 #define STAT_LOG_INTERVAL 50000	/* min. interval for progress log */
@@ -88,11 +90,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define MAXSTATES 5		/* max. "true" states in data matrix */
 
 /* limits that could be changed but are likely to be OK */
-#define MAX_BOOTSTRAPS 1000000	/* max. bootstrap replicates */
 #define FROZEN_T 0.0001		/* consider system frozen if temp < FROZEN_T */
 
-/* unchangeable types */
-typedef enum { LVB_FALSE, LVB_TRUE } Lvb_bool;	/* boolean type */
 
 /* branch of tree */
 typedef struct
@@ -101,7 +100,7 @@ typedef struct
     long left;			/* index of first child in tree array */
     long right;			/* index of second child in tree array */
     long changes;		/* changes associated with this branch */
-    unsigned char *sset;	/* statesets for all sites */
+    uint32_t *sset;	/* statesets for all sites */
 } Branch;
 
 /* tree stacks */
@@ -118,19 +117,6 @@ typedef struct
     Treestack_element *stack;	/* pointer to first element in stack */
 } Treestack;
 
-/* user- or programmer-configurable parameters */
-typedef struct
-{
-    int seed;			/* seed for random number generator */
-    long verbose;		/* verboseness level */
-    long bootstraps;		/* number of bootstrap replicates */
-    Lvb_bool fifthstate;	/* if LVB_TRUE, '-' is 'O'; otherwise is '?' */
-    int cooling_schedule;   /* cooling schedule: 0 is geometric, 1 is linear */
-    char file_name_in[LVB_FNAMSIZE];		/* input file name */
-    int n_file_format;		/* number of file format, must be FORMAT_PHYLIP, FORMAT_FASTA, FORMAT_NEXUS, FORMAT_MSF, FORMAT_CLUSTAL*/
-    char file_name_out[LVB_FNAMSIZE];	/* output file name */
-    int n_processors_available;	/* number of processors available */
-} Params;
 
 /* simulated annealing parameters */
 #define MAXACCEPT_SLOW 5L	/* maxaccept for "slow" searches */
@@ -148,24 +134,19 @@ typedef struct
 #define TREE1FNAM "ini"		/* cycle's initial tree file name prefix */
 
 
-#define FORMAT_PHYLIP 		0
-#define FORMAT_FASTA 		1
-#define FORMAT_NEXUS 		2
-#define FORMAT_MSF 			3
-#define FORMAT_CLUSTAL 		4
-
 /* assert-like macro, differing in that it writes to standard output,
  * calls crash() not abort(), and works whether or not NDEBUG is defined */
 #define lvb_assert(test) ((void) ((test) || (lvb_assertion_fail(#test, __FILE__, __LINE__), 0)))
 
 /* PHYLIP global data */
-extern long chars;	/* defined in dnapars.c */
+//extern long chars;	/* defined in dnapars.c */
 
 /* LVB global functions */
 void *alloc(const size_t, const char *const);
-long anneal(Dataptr, Treestack *, const Branch *const, long, const double,
+long anneal(Dataptr restrict, Treestack *, const Branch *const, long, const double,
  const long, const long, const long, FILE *const, const long *, long *, const int, Lvb_bool);
 long arbreroot(Dataptr, Branch *const, const long);
+long bytes_per_row(const long);
 long childadd(Branch *const, const long, const long);
 long cistrcmp(const char *const, const char *const);
 Lvb_bool cleanup(void);
@@ -176,7 +157,7 @@ void crash(const char *const, ...);
 void defaults_params(Params *const prms);
 long deterministic_hillclimb(Dataptr, Treestack *, const Branch *const, long,
     FILE * const, const long *, long *, Lvb_bool);
-void dna_makebin(const Dataptr, Lvb_bool, unsigned char **);
+void dna_makebin(const Dataptr, uint32_t **);
 void dnapars_wrapper(void);
 char *f2str(FILE *const);
 Lvb_bool file_exists(const char *const);
@@ -184,8 +165,7 @@ void get_bootstrap_weights(long *, long, long);
 double get_initial_t(Dataptr, const Branch *const, long, const long *, Lvb_bool);
 long getminlen(const Dataptr);
 void getparam(Params *, int argc, char **argv);
-void read_parameters(Params *prms, int argc, char **argv);
-long getplen(Dataptr, Branch *, const long, const long *, long *p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs);
+long getplen(Dataptr restrict, Branch *, const long, const long *restrict, long *p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs);
 void alloc_memory_to_getplen(Dataptr matrix, long **p_todo_arr, long **p_todo_arr_sum_changes, int **p_runs);
 void free_memory_to_getplen(long **p_todo_arr, long **p_todo_arr_sum_changes, int **p_runs);
 double get_predicted_length(double, double, long, long, long, long);
@@ -194,13 +174,13 @@ long getroot(const Branch *const);
 void lvb_assertion_fail(const char *, const char *, int);
 void lvb_initialize(void);
 Dataptr lvb_matrin(const char *);
-long lvb_reroot(Dataptr, Branch *const barray, const long oldroot, const long newroot);
+long lvb_reroot(Dataptr restrict, Branch *const barray, const long oldroot, const long newroot);
 void lvb_treeprint (Dataptr, FILE *const, const Branch *const, const long);
 void matchange(Dataptr, const Params);
 Dataptr matrin(const char *const);
-void mutate_deterministic(Dataptr, Branch *const, const Branch *const, long, long, Lvb_bool);
-void mutate_spr(Dataptr, Branch *const, const Branch *const, long);
-void mutate_nni(Dataptr, Branch *const, const Branch *const, long);
+void mutate_deterministic(Dataptr restrict, Branch *const, const Branch *const, long, long, Lvb_bool);
+void mutate_spr(Dataptr restrict, Branch *const, const Branch *const, long);
+void mutate_nni(Dataptr restrict, Branch *const, const Branch *const, long);
 char *nextnonwspc(const char *);
 void nodeclear(Branch *const, const long);
 long objreroot(Branch *const, const long, const long);
@@ -211,11 +191,11 @@ void randtree(Dataptr, Branch *const);
 long randpint(const long);
 void rowfree(Dataptr);
 void scream(const char *const, ...);
-void ss_init(Dataptr, Branch *, unsigned char **);
+void ss_init(Dataptr, Branch *, uint32_t **);
 char *supper(char *const s);
-Branch *treealloc(Dataptr);
+Branch *treealloc(Dataptr restrict);
 void treeclear(Dataptr, Branch *const);
-void treecopy(Dataptr, Branch *const, const Branch *const);
+void treecopy(Dataptr restrict, Branch *const, const Branch *const);
 long treecmp(Dataptr, const Branch *const, const long, const Branch *const, long);
 void treedump(Dataptr, FILE *const, const Branch *const);
 void treestack_clear(Treestack *);
@@ -228,6 +208,7 @@ long treestack_pop(Dataptr, Branch *, long *, Treestack *);
 long treestack_print(Dataptr, Treestack *, FILE *const, Lvb_bool);
 long treestack_push(Dataptr, Treestack *, const Branch *const, const long);
 void treeswap(Branch **const, long *const, Branch **const, long *const);
-
+void uint32_dump(FILE *, uint32_t);
+long words_per_row(const long);
 
 #endif /* LVB_LVB_H */
