@@ -36,22 +36,11 @@ $lvb = $ENV{LVB_EXECUTABLE};
 $output = `"$lvb"`;
 $status = $?;
 
-# check output
-if ($status == 0)
+if (($status != 0) and ($output =~ /FATAL ERROR: cannot read data matrix/))
 {
-    if (($output =~ /\s0\s+2\s+\n/)
-	and ($output =~ / equally parsimonious trees of length 2 written to file \'outtree\'\n/))
-    {
-	print "test passed\n";
-    }
-    else
-    {
-	print "test failed\n";
-    }
+    print "test passed\n";
 }
 else
 {
     print "test failed\n";
 }
-
-unlink "outtree";
