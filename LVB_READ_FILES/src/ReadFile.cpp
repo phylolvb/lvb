@@ -141,8 +141,8 @@ void usage(char *p_file_name){
 			"       default: phylip format\n");
 	printf("    -p (1) Threads available."
 			"       default: only one thread available\n");
-	printf("    -h print this help.");
-	printf("    -? print this help.");
+	printf("    -h print this help.\n");
+	printf("    -? print this help.\n");
 	abort();
 }
 
