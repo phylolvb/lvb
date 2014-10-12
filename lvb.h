@@ -57,7 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define LVB_VERSION "IN DEVELOPMENT"	/* version of program */
 #define LVB_SUBVERSION "(2014)"		/* version details e.g. date */
 
-//#define COMPILE_OPEN_MP			/* only one active each time */
+#define COMPILE_OPEN_MP			/* only one active each time */
 
 /* DNA bases: bits to set in statesets */
 #define A_BIT (1U << 0)
@@ -69,11 +69,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define NIBBLE_WIDTH 		4			/* width of nibble in bits */
 #define NIBBLE_WIDTH_BITS	2			/* bitwise multiply the NIBBLE_WIDTH */
 
+#define MINIMUM_WORDS_PER_SLICE_GETPLEN	4	/* minimum words per slice that run gplen threading */
+
 /* values some people may feel the dangerous urge to change */
 #define LVB_INPUTSTRING_SIZE 2000	/* max. bytes for interactive input */
 #define UNSET (-1)			/* value of integral vars when unset */
 #define STAT_LOG_INTERVAL 50000	/* min. interval for progress log */
 #define REROOT_INTERVAL 1000		/* change root every ... updates */
+
 
 /* limits that could be changed but, if increased enormously, might lead to
  * some trouble at some point */

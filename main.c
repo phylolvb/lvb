@@ -223,9 +223,29 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
 
 /* set the number of processors to use */
 void calc_distribution_processors(Dataptr matrix, Params rcstruct){
-	matrix->n_threads_getplen = rcstruct.n_processors_available;
-	matrix->n_slice_size_getplen = matrix->m / matrix->n_threads_getplen;
+	int n_threads_temp = 0;
+	if (matrix->nwords > 8){
+		do{
+			n_threads_temp ++;
+			matrix->n_slice_size_getplen = matrix->nwords / n_threads_temp;
+		}while (matrix->n_slice_size_getplen > MINIMUM_WORDS_PER_SLICE_GETPLEN && n_threads_temp != rcstruct.n_processors_available);
+
+		if (matrix->n_slice_size_getplen > MINIMUM_WORDS_PER_SLICE_GETPLEN){
+			matrix->n_slice_size_getplen = matrix->nwords / n_threads_temp;
+			matrix->n_threads_getplen = n_threads_temp;
+		}
+		else{
+			matrix->n_threads_getplen = n_threads_temp - 1;
+			matrix->n_slice_size_getplen = matrix->nwords / matrix->n_threads_getplen;
+		}
+	}
+	else{
+		matrix->n_threads_getplen = 1; /* need to pass for 1 thread because the number of words is to low */
+	}
+	printf("\nthreads that will be used  = %d\n", matrix->n_threads_getplen);
+	printf("(because is related with the size of the data)\n");
 }
+
 
 static void logstim(void)
 /* log start time with message */

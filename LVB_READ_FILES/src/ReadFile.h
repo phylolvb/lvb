@@ -36,6 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../../DataStructure.h"
 #include <stdio.h>
 #include <string.h>
+#include <getopt.h>
 using namespace std;
 
 #ifndef READFILE_H_

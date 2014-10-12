@@ -245,6 +245,7 @@ void read_parameters(Params *prms, int argc, char **argv){
 					abort();
 				}
 				prms->n_processors_available = atoi(optarg);
+				if (prms->n_processors_available < 1) prms->n_processors_available = 1;
 				break;
 			case '?':
 			case 'h':
