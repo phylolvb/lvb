@@ -69,7 +69,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define NIBBLE_WIDTH 		4			/* width of nibble in bits */
 #define NIBBLE_WIDTH_BITS	2			/* bitwise multiply the NIBBLE_WIDTH */
 
-#define MINIMUM_WORDS_PER_SLICE_GETPLEN	4	/* minimum words per slice that run gplen threading */
+#define MINIMUM_WORDS_PER_SLICE_GETPLEN						65	/* minimum words per slice that run gplen threading */
+#define MINIMUM_SIZE_NUMBER_WORDS_TO_ACTIVATE_THREADING		140 /* need to have thsi size to activate the threading */
 
 /* values some people may feel the dangerous urge to change */
 #define LVB_INPUTSTRING_SIZE 2000	/* max. bytes for interactive input */
@@ -146,8 +147,8 @@ typedef struct
 
 /* LVB global functions */
 void *alloc(const size_t, const char *const);
-long anneal(Dataptr restrict, Treestack *, const Branch *const, long, const double,
- const long, const long, const long, FILE *const, const long *, long *, const int, Lvb_bool);
+long anneal(Dataptr restrict, Treestack *, const Branch *const, Params rcstruct, long, const double,
+ const long, const long, const long, FILE *const, const long *, long *, Lvb_bool);
 long arbreroot(Dataptr, Branch *const, const long);
 long bytes_per_row(const long);
 long childadd(Branch *const, const long, const long);
@@ -158,17 +159,18 @@ FILE *clnopen(const char *const, const char *const);
 void clnremove(const char *const);
 void crash(const char *const, ...);
 void defaults_params(Params *const prms);
-long deterministic_hillclimb(Dataptr, Treestack *, const Branch *const, long,
-    FILE * const, const long *, long *, Lvb_bool);
+long deterministic_hillclimb(Dataptr, Treestack *, const Branch *const, Params rcstruct,
+	long, FILE * const, const long *, long *, Lvb_bool);
 void dna_makebin(const Dataptr, uint32_t **);
 void dnapars_wrapper(void);
 char *f2str(FILE *const);
 Lvb_bool file_exists(const char *const);
 void get_bootstrap_weights(long *, long, long);
-double get_initial_t(Dataptr, const Branch *const, long, const long *, Lvb_bool);
+double get_initial_t(Dataptr, const Branch *const, Params rcstruct, long, const long *, Lvb_bool);
 long getminlen(const Dataptr);
 void getparam(Params *, int argc, char **argv);
-long getplen(Dataptr restrict, Branch *, const long, const long *restrict, long *p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs);
+long getplen(Dataptr restrict, Branch *, Params rcstruct, const long, const long *restrict, long *restrict p_todo_arr,
+			long *p_todo_arr_sum_changes, int *p_runs);
 void alloc_memory_to_getplen(Dataptr matrix, long **p_todo_arr, long **p_todo_arr_sum_changes, int **p_runs);
 void free_memory_to_getplen(long **p_todo_arr, long **p_todo_arr_sum_changes, int **p_runs);
 double get_predicted_length(double, double, long, long, long, long);

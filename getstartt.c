@@ -36,7 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lvb.h"
 
-double get_initial_t(Dataptr matrix, const Branch *const inittree, long root,
+double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstruct, long root,
 		const long *weights, Lvb_bool log_progress)
 /* Determine the starting temperature for the annealing search 
  * by finding the temperature T at which 65% of proposed 
@@ -84,17 +84,17 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, long root,
 
     treecopy(matrix, x, inittree);	/* current configuration */
     alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-    len = getplen(matrix, x, root, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+    len = getplen(matrix, x, rcstruct, root, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs);
     
     lenmin = getminlen(matrix);
     r_lenmin = (double) lenmin;
     
-
     /* Log progress to standard output if chosen*/
     if (log_progress) printf("\nDetermining the Starting Temperature ...\n");
 
     while (r_acc_to_prop <= 0.65)
     {
+
 		/* Collect a sample of sample_size permutations at the current temperature 
 		* and compute the ratio of proposed vs accepted worse changes*/
 		for (iter = 0; iter <= sample_size; iter++)
@@ -108,10 +108,10 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, long root,
 
 			/* mutation: alternate between the two mutation functions */
 			rootdash = root;
-			if (iter & 0x01) mutate_nni(matrix, xdash, x, root);	/* local change */
-			else mutate_spr(matrix, xdash, x, root);	/* global change */
+			if (iter & 0x01) mutate_spr(matrix, xdash, x, root);	/* global change */
+			else mutate_nni(matrix, xdash, x, root);	/* local change */
 
-			lendash = getplen(matrix, xdash, rootdash, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+			lendash = getplen(matrix, xdash, rcstruct, rootdash, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 			lvb_assert (lendash >= 1L);
 			deltalen = lendash - len;
 			deltah = (r_lenmin / (double) len) - (r_lenmin / (double) lendash);
@@ -156,8 +156,7 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, long root,
 
 		/* Increase t and make sure it stays within range*/      
 		t += increment_size;
-		if (t >= 1 || t <= 0)
-			return 1;
+		if (t >= 1 || t <= 0) return 1;
 
 		/* Reset variables for next temperature */
 		prop_pos_trans = 0;

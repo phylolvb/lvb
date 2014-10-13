@@ -49,7 +49,7 @@ static void lenlog(FILE *lengthfp, long iteration, long length, double temperatu
 } /* end lenlog() */
 
 long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *const inittree,
-		long root, FILE * const lenfp, const long *weights,
+		Params rcstruct, long root, FILE * const lenfp, const long *weights,
 		long *current_iter, Lvb_bool log_progress)
 /* perform a deterministic hill-climbing optimization on the tree in inittree,
  * using NNI on all internal branches until no changes are accepted; return the
@@ -79,7 +79,7 @@ long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *c
 
     treecopy(matrix, p_current_tree, inittree);      /* current configuration */
 	alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-	len = getplen(matrix, p_current_tree, root, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+	len = getplen(matrix, p_current_tree, rcstruct, root, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 
     /* identify internal branches */
     for (i = matrix->n; i < matrix->nbranches; i++) todo[todo_cnt++] = i;
@@ -90,7 +90,7 @@ long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *c
 		for (i = 0; i < todo_cnt; i++) {
 			for (j = 0; j < 2; j++) {
 				mutate_deterministic(matrix, p_proposed_tree, p_current_tree, root, todo[i], leftright[j]);
-				lendash = getplen(matrix, p_proposed_tree, rootdash, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+				lendash = getplen(matrix, p_proposed_tree, rcstruct, rootdash, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 				lvb_assert (lendash >= 1L);
 				deltalen = lendash - len;
 				if (deltalen <= 0) {
@@ -120,10 +120,10 @@ long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *c
     return len;
 }
 
-long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, long root,
-		const double t0, const long maxaccept, const long maxpropose,
+long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Params rcstruct,
+		long root, const double t0, const long maxaccept, const long maxpropose,
 		const long maxfail, FILE *const lenfp, const long *weights, long *current_iter,
-		const int cooling_schedule, Lvb_bool log_progress)
+		Lvb_bool log_progress)
 /* seek parsimonious tree from initial tree in inittree (of root root)
  * with initial temperature t0, and subsequent temperatures obtained by
  * multiplying the current temperature by (t1 / t0) ** n * t0 where n is
@@ -174,7 +174,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, lo
     treecopy(matrix, p_current_tree, inittree);	/* current configuration */
 
     alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-    len = getplen(matrix, p_current_tree, root, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+    len = getplen(matrix, p_current_tree, rcstruct, root, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs);
     dect = LVB_FALSE;		/* made LVB_TRUE as necessary at end of loop */
 
     lvb_assert( ((float) t >= (float) LVB_EPS) && (t <= 1.0) && (grad_geom >= LVB_EPS) && (grad_linear >= LVB_EPS));
@@ -209,10 +209,10 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, lo
 
 		/* mutation: alternate between the two mutation functions */
 		rootdash = root;
-		if (iter & 0x01) mutate_nni(matrix, p_proposed_tree, p_current_tree, root);	/* local change */
-		else mutate_spr(matrix, p_proposed_tree, p_current_tree, root);	/* global change */
+		if (iter & 0x01) mutate_spr(matrix, p_proposed_tree, p_current_tree, root);	/* global change */
+		else mutate_nni(matrix, p_proposed_tree, p_current_tree, root);	/* local change */
 
-		lendash = getplen(matrix, p_proposed_tree, rootdash, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+		lendash = getplen(matrix, p_proposed_tree, rcstruct, rootdash, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 		lvb_assert (lendash >= 1L);
 		deltalen = lendash - len;
 		deltah = (r_lenmin / (double) len) - (r_lenmin / (double) lendash);
@@ -311,7 +311,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, lo
 		{
 			t_n++;	/* originally n is 0 */
 
-			if (cooling_schedule == 0)  /* Geometric cooling */
+			if (rcstruct.cooling_schedule == 0)  /* Geometric cooling */
 			{
 				/* Ensure t doesn't go out of bound */
 				ln_t = ((double) t_n) * log_wrapper_grad_geom + log_wrapper_t0;

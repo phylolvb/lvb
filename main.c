@@ -158,7 +158,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
     randtree(matrix, tree);	/* initialise required variables */
     ss_init(matrix, tree, enc_mat);
     initroot = 0;
-    t0 = get_initial_t(matrix, tree, initroot, weight_arr, log_progress);
+    t0 = get_initial_t(matrix, tree, rcstruct, initroot, weight_arr, log_progress);
 //    t0 = 0.18540001000004463;
 
     randtree(matrix, tree);	/* begin from scratch */
@@ -174,17 +174,17 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
      * with that of previous versions.  */
     if(rcstruct.verbose == LVB_TRUE) {
         alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-		fprintf(sumfp, "%ld\t%ld\t%ld\t", start, cyc, getplen(matrix, tree, initroot, weight_arr, p_todo_arr, p_todo_arr_sum_changes, p_runs));
+		fprintf(sumfp, "%ld\t%ld\t%ld\t", start, cyc, getplen(matrix, tree, rcstruct, initroot, weight_arr, p_todo_arr, p_todo_arr_sum_changes, p_runs));
 		free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
 		logtree1(matrix, tree, start, cyc, initroot);
     }
 
     /* find solution(s) */
-    treelength = anneal(matrix, &bstack_overall, tree, initroot, t0, maxaccept, maxpropose, maxfail,
-    		stdout, weight_arr, iter_p, rcstruct.cooling_schedule, log_progress);
+    treelength = anneal(matrix, &bstack_overall, tree, rcstruct, initroot, t0, maxaccept,
+    		maxpropose, maxfail, stdout, weight_arr, iter_p, log_progress);
     treestack_pop(matrix, tree, &initroot, &bstack_overall);
     treestack_push(matrix, &bstack_overall, tree, initroot);
-    treelength = deterministic_hillclimb(matrix, &bstack_overall, tree, initroot, stdout,
+    treelength = deterministic_hillclimb(matrix, &bstack_overall, tree, rcstruct, initroot, stdout,
     		weight_arr, iter_p, log_progress);
 
 	/* log this cycle's solution and its details 
@@ -224,7 +224,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
 /* set the number of processors to use */
 void calc_distribution_processors(Dataptr matrix, Params rcstruct){
 	int n_threads_temp = 0;
-	if (matrix->nwords > 8){
+	if (matrix->nwords > MINIMUM_SIZE_NUMBER_WORDS_TO_ACTIVATE_THREADING){
 		do{
 			n_threads_temp ++;
 			matrix->n_slice_size_getplen = matrix->nwords / n_threads_temp;

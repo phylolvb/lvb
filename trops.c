@@ -120,7 +120,7 @@ static void make_dirty_below(Dataptr restrict matrix, Branch *tree, long dirty_n
     lvb_assert(dirty_node >= matrix->n);	/* not leaf/root */
     lvb_assert(tree[dirty_node].parent != UNSET);
     do {
-		tree[dirty_node].sset[0] = 0U;	/* "dirty" */
+		tree[dirty_node].sset[0] = 0U;	/* " make dirty" */
 		dirty_node = tree[dirty_node].parent;
     } while (tree[dirty_node].parent != UNSET);
 

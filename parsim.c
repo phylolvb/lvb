@@ -44,11 +44,10 @@ parsim.c - tree evaluation
 
 #include "lvb.h"
 
-long getplen(Dataptr restrict matrix, Branch *barray,
-		const long root, const long *restrict weights, long *p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs)
+long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct,
+		const long root, const long *restrict weights, long *restrict p_todo_arr,
+		long *p_todo_arr_sum_changes, int *p_runs)
 {
-	unsigned current_ss;		/* current state set */
-
     long branch;			/* current branch number */
     long changes = 0;			/* tree length (number of changes) */
     long n_changes_temp;	/* temp variable to count the changes */
@@ -59,6 +58,8 @@ long getplen(Dataptr restrict matrix, Branch *barray,
     long right;				/* current right child number */
     long todo_cnt = 0;			/* count of branches "to do" */
     long l_end = 0;
+
+
 //#define PRINT_PRINTF	// print extra information
 
     /* calculate state sets and changes where not already known */
@@ -86,15 +87,15 @@ long getplen(Dataptr restrict matrix, Branch *barray,
 		}
 
 		omp_set_dynamic(0);	  /* disable dinamic threathing */
-		#pragma omp parallel num_threads(matrix->n_threads_getplen) private(done, l_end, k, i, left, right, branch, n_changes_temp, current_ss)
+		#pragma omp parallel num_threads(matrix->n_threads_getplen) private(done, l_end, k, i, left, right, branch, n_changes_temp)
 		{
 			long j;						/* loop counter */
+			long ch;					/* partial changes */
 			uint32_t not_u;				/* complement of u */
 			uint32_t shifted;			/* ~u, shifted in partial len calcs */
 			uint32_t u;					/* for s. set and length calcs */
 			uint32_t x;					/* batch of 8 left state sets */
 			uint32_t y;					/* batch of 8 right state sets */
-			uint32_t z;
 
 			done = 0;
 			l_end = matrix->n_slice_size_getplen * (omp_get_thread_num() + 1);
@@ -129,22 +130,23 @@ long getplen(Dataptr restrict matrix, Branch *barray,
 							for (j = matrix->n_slice_size_getplen * omp_get_thread_num(); j < l_end; j++){
 								x = l_ssets[j];
 								y = r_ssets[j];
-								u = ((((x & y & 0x77777777U) + 0x77777777U) | (x & y)) & 0x88888888U) >> 3;
-								z = (x & y) | ((x | y) & ((u + 0x77777777U) ^ 0x88888888U));
-								not_u = ~u;
-								for (k = 0; k < 8; k++){
-									shifted = not_u >> (k << NIBBLE_WIDTH_BITS);
-									n_changes_temp += (shifted & 1U) ? (weights[(j >> 3) + k]) : 0;
+
+								/* because bootstrap change the weights of the positions it is necessary to look one by one */
+								u = ((((x & y & 0x77777777U) + 0x77777777U) | (x & y)) & 0x88888888U);
+								ch = 8 - __builtin_popcount(u);
+								u >>= 3;
+								if (rcstruct.bootstraps > 0 && ch > 0){
+									not_u = ~u;
+									for (k = 0; k < 8; k++){
+										shifted = not_u >> (k << NIBBLE_WIDTH_BITS);
+										n_changes_temp += (shifted & 1U) ? (weights[(j >> 3) + k]) : 0;
+									}
 								}
-								barray[branch].sset[j] = z;
+								else{
+									n_changes_temp += ch;
+								}
+								barray[branch].sset[j] = (x & y) | ((x | y) & ((u + 0x77777777U) ^ 0x88888888U));;
 							}
-				/*			for (k = matrix->n_slice_size_getplen * omp_get_thread_num();k < l_end; k++){
-								barray[branch].sset[k] = barray[left].sset[k] & barray[right].sset[k];
-								if (barray[branch].sset[k] == 0U){
-									barray[branch].sset[k] = barray[left].sset[k] | barray[right].sset[k];
-									n_changes_temp += weights[k];
-								}
-							}*/
 							*(p_todo_arr_sum_changes + (i * matrix->n_threads_getplen) + omp_get_thread_num()) = n_changes_temp;
 							done++;
 							*(p_runs + ((branch - matrix->n) * matrix->n_threads_getplen) + omp_get_thread_num()) = 1;
@@ -160,35 +162,41 @@ long getplen(Dataptr restrict matrix, Branch *barray,
 			for (j = matrix->n_slice_size_getplen * omp_get_thread_num(); j < l_end; j++){
 				x = barray[left].sset[j];
 				y = barray[right].sset[j];
-				u = ((((x & y & 0x77777777U) + 0x77777777U) | (x & y)) & 0x88888888U) >> 3;
-				z = (x & y) | ((x | y) & ((u + 0x77777777U) ^ 0x88888888U));
-				not_u = ~u;
 
-				for (k = 0; k < 8; k++){
-					shifted = not_u >> (k << NIBBLE_WIDTH_BITS);
-					n_changes_temp += (shifted & 1U) ? (weights[(j >> 3) + k]) : 0;
+				/* because bootstrap change the weights of the positions it is necessary to look one by one */
+				u = ((((x & y & 0x77777777U) + 0x77777777U) | (x & y)) & 0x88888888U);
+				ch = 8 - __builtin_popcount(u);
+				u >>= 3;
+				if (rcstruct.bootstraps > 0 && ch > 0){
+					not_u = ~u;
+					for (k = 0; k < 8; k++){
+						shifted = not_u >> (k << NIBBLE_WIDTH_BITS);
+						n_changes_temp += (shifted & 1U) ? (weights[(j >> 3) + k]) : 0;
+					}
+				}
+				else{
+					n_changes_temp += ch;
 				}
 
-				x = z;
+				x = (x & y) | ((x | y) & ((u + 0x77777777U) ^ 0x88888888U));
 				y = barray[root].sset[j];
-				u = ((((x & y & 0x77777777U) + 0x77777777U) | (x & y)) & 0x88888888U) >> 3;
-				z = (x & y) | ((x | y) & ((u + 0x77777777U) ^ 0x88888888U));
-				not_u = ~u;
 
-				for (k = 0; k < 8; k++) {
-					shifted = not_u >> (k << NIBBLE_WIDTH_BITS);
-					n_changes_temp += (shifted & 1U) ? (weights[(j >> 3) + k]) : 0;
+				/* because bootstrap change the weights of the positions it is necessary to look one by one */
+				u = ((((x & y & 0x77777777U) + 0x77777777U) | (x & y)) & 0x88888888U);
+				ch = 8 - __builtin_popcount(u);
+				u >>= 3;
+				if (rcstruct.bootstraps > 0 && ch > 0){
+					not_u = ~u;
+
+					for (k = 0; k < 8; k++) {
+						shifted = not_u >> (k << NIBBLE_WIDTH_BITS);
+						n_changes_temp += (shifted & 1U) ? (weights[(j >> 3) + k]) : 0;
+					}
+				}
+				else{
+					n_changes_temp += ch;
 				}
 			}
-
-/*			for (k = matrix->n_slice_size_getplen * omp_get_thread_num();k < l_end; k++) {
-				current_ss = barray[left].sset[k] & barray[right].sset[k];
-				if (current_ss == 0U){
-					current_ss = barray[left].sset[k] | barray[right].sset[k];
-					n_changes_temp += weights[k];
-				}
-				if ((current_ss & barray[root].sset[k]) == 0U) n_changes_temp += weights[k];
-			}*/
 			*(p_todo_arr_sum_changes + (todo_cnt * matrix->n_threads_getplen) + omp_get_thread_num()) = n_changes_temp;
 		}
 
@@ -216,10 +224,12 @@ long getplen(Dataptr restrict matrix, Branch *barray,
 		uint32_t u;					/* for s. set and length calcs */
 		uint32_t x;					/* batch of 8 left state sets */
 		uint32_t y;					/* batch of 8 right state sets */
-		uint32_t z;
 
 		for (i = matrix->n; i < matrix->nbranches; i++) {
 			if (barray[i].sset[0] == 0U){
+#ifdef	PRINT_PRINTF
+			printf("touch: %d   left:%d  right:%d\n", i, barray[i].left, barray[i].right);
+#endif
 				*(p_todo_arr + todo_cnt++) = i;
 				barray[i].changes = 0;
 			}
@@ -242,15 +252,23 @@ long getplen(Dataptr restrict matrix, Branch *barray,
 						for (j = 0; j < matrix->nwords; j++){
 							x = l_ssets[j];
 							y = r_ssets[j];
-							u = ((((x & y & 0x77777777U) + 0x77777777U) | (x & y)) & 0x88888888U) >> 3;
-							z = (x & y) | ((x | y) & ((u + 0x77777777U) ^ 0x88888888U));
-							not_u = ~u;
-							ch = 0;
-							for (k = 0; k < 8; k++){
-								shifted = not_u >> (k << NIBBLE_WIDTH_BITS);
-								ch += (shifted & 1U) ? (weights[(j >> 3) + k]) : 0;
+#ifdef	PRINT_PRINTF
+	printf("       branch: %d   left = %d\n", branch, left);
+	printf("       branch: %d   right = %d\n", branch, right);
+#endif
+							/* because bootstrap change the weights of the positions it is necessary to look one by one */
+							u = ((((x & y & 0x77777777U) + 0x77777777U) | (x & y)) & 0x88888888U);
+							ch = 8 - __builtin_popcount(u);
+							u >>= 3;
+							if (rcstruct.bootstraps != 0 && ch > 0){
+								not_u = ~u;
+								ch = 0;
+								for (k = 0; k < 8; k++){
+									shifted = not_u >> (k << NIBBLE_WIDTH_BITS);
+									ch += (shifted & 1U) ? (weights[(j >> 3) + k]) : 0;
+								}
 							}
-							barray[branch].sset[j] = z;
+							barray[branch].sset[j] = (x & y) | ((x | y) & ((u + 0x77777777U) ^ 0x88888888U));
 							barray[branch].changes += ch;
 							changes += ch;
 						}
@@ -269,31 +287,45 @@ long getplen(Dataptr restrict matrix, Branch *barray,
 		for (j = 0; j < matrix->nwords; j++){
 			x = barray[left].sset[j];
 			y = barray[right].sset[j];
-			u = ((((x & y & 0x77777777U) + 0x77777777U) | (x & y)) & 0x88888888U) >> 3;
-			z = (x & y) | ((x | y) & ((u + 0x77777777U) ^ 0x88888888U));
-			not_u = ~u;
 
-			for (k = 0; k < 8; k++){
-				shifted = not_u >> (k << NIBBLE_WIDTH_BITS);
-				changes += (shifted & 1U) ? (weights[(j >> 3) + k]) : 0;
+			/* because bootstrap change the weights of the positions it is necessary to look one by one */
+			u = ((((x & y & 0x77777777U) + 0x77777777U) | (x & y)) & 0x88888888U);
+			ch = 8 - __builtin_popcount(u);
+			u >>= 3;
+			if (rcstruct.bootstraps != 0 && ch > 0){
+				not_u = ~u;
+				for (k = 0; k < 8; k++){
+					shifted = not_u >> (k << NIBBLE_WIDTH_BITS);
+					changes += (shifted & 1U) ? (weights[(j >> 3) + k]) : 0;
+				}
+			}
+			else{
+				changes += ch;
 			}
 
-			x = z;
+			x = (x & y) | ((x | y) & ((u + 0x77777777U) ^ 0x88888888U));
 			y = barray[root].sset[j];
-			u = ((((x & y & 0x77777777U) + 0x77777777U) | (x & y)) & 0x88888888U) >> 3;
-			z = (x & y) | ((x | y) & ((u + 0x77777777U) ^ 0x88888888U));
-			not_u = ~u;
 
-			for (k = 0; k < 8; k++) {
-				shifted = not_u >> (k << NIBBLE_WIDTH_BITS);
-				changes += (shifted & 1U) ? (weights[(j >> 3) + k]) : 0;
+			/* because bootstrap change the weights of the positions it is necessary to look one by one */
+			u = ((((x & y & 0x77777777U) + 0x77777777U) | (x & y)) & 0x88888888U);
+			ch = 8 - __builtin_popcount(u);
+			u >>= 3;
+			if (rcstruct.bootstraps != 0 && ch > 0){
+				not_u = ~u;
+				for (k = 0; k < 8; k++) {
+					shifted = not_u >> (k << NIBBLE_WIDTH_BITS);
+					changes += (shifted & 1U) ? (weights[(j >> 3) + k]) : 0;
+				}
+			}
+			else{
+				changes += ch;
 			}
 		}
     }
 
     lvb_assert(changes > 0);
 #ifdef	PRINT_PRINTF
-    printf("changes: %d    finish\n", changes);
+    printf("changes: %d\n", changes);
 #endif
  //   exit(1);
     return changes;
