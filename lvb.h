@@ -57,7 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define LVB_VERSION "IN DEVELOPMENT"	/* version of program */
 #define LVB_SUBVERSION "(2014)"		/* version details e.g. date */
 
-#define COMPILE_OPEN_MP			/* only one active each time */
+#define COMPILE_64_BITS				/* the default is 32 bits */
 
 /* DNA bases: bits to set in statesets */
 #define A_BIT (1U << 0)
@@ -69,8 +69,25 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define NIBBLE_WIDTH 		4			/* width of nibble in bits */
 #define NIBBLE_WIDTH_BITS	2			/* bitwise multiply the NIBBLE_WIDTH */
 
-#define MINIMUM_WORDS_PER_SLICE_GETPLEN						65	/* minimum words per slice that run gplen threading */
-#define MINIMUM_SIZE_NUMBER_WORDS_TO_ACTIVATE_THREADING		140 /* need to have thsi size to activate the threading */
+#ifdef COMPILE_64_BITS
+	typedef uint64_t Lvb_bit_lentgh;								/* define 64 bits */
+	#define NUMBER_OF_BITS										64
+	#define LENGTH_WORD											16	/* length of number packed bases */
+	#define LENGTH_WORD_BITS_MULTIPLY							4	/* multiply of number packed bases */
+	#define MINIMUM_WORDS_PER_SLICE_GETPLEN						30  /* minimum words per slice that run gplen threading */
+	#define MINIMUM_SIZE_NUMBER_WORDS_TO_ACTIVATE_THREADING		60 /* need to have this size to activate the threading */
+	#define MASK_SEVEN											0x7777777777777777U
+	#define MASK_EIGHT											0x8888888888888888U
+#else		/* default 32 bits */
+	typedef uint32_t Lvb_bit_lentgh;								/* define 32 bits */
+	#define NUMBER_OF_BITS										32
+	#define LENGTH_WORD											8	/* length of number packed bases */
+	#define LENGTH_WORD_BITS_MULTIPLY							3	/* multiply of number packed bases */
+	#define MINIMUM_WORDS_PER_SLICE_GETPLEN						30	/* minimum words per slice that run gplen threading */
+	#define MINIMUM_SIZE_NUMBER_WORDS_TO_ACTIVATE_THREADING		60 /* need to have this size to activate the threading */
+	#define MASK_SEVEN											0x77777777U
+	#define MASK_EIGHT											0x88888888U
+#endif
 
 /* values some people may feel the dangerous urge to change */
 #define LVB_INPUTSTRING_SIZE 2000	/* max. bytes for interactive input */
@@ -104,7 +121,7 @@ typedef struct
     long left;			/* index of first child in tree array */
     long right;			/* index of second child in tree array */
     long changes;		/* changes associated with this branch */
-    uint32_t *sset;	/* statesets for all sites */
+    Lvb_bit_lentgh *sset;	/* statesets for all sites */
 } Branch;
 
 /* tree stacks */
@@ -161,7 +178,7 @@ void crash(const char *const, ...);
 void defaults_params(Params *const prms);
 long deterministic_hillclimb(Dataptr, Treestack *, const Branch *const, Params rcstruct,
 	long, FILE * const, const long *, long *, Lvb_bool);
-void dna_makebin(const Dataptr, uint32_t **);
+void dna_makebin(Dataptr restrict, Lvb_bit_lentgh **);
 void dnapars_wrapper(void);
 char *f2str(FILE *const);
 Lvb_bool file_exists(const char *const);
@@ -196,13 +213,14 @@ void randtree(Dataptr, Branch *const);
 long randpint(const long);
 void rowfree(Dataptr);
 void scream(const char *const, ...);
-void ss_init(Dataptr, Branch *, uint32_t **);
+void ss_init(Dataptr, Branch *, Lvb_bit_lentgh **);
 char *supper(char *const s);
 Branch *treealloc(Dataptr restrict);
 void treeclear(Dataptr, Branch *const);
 void treecopy(Dataptr restrict, Branch *const, const Branch *const);
 long treecmp(Dataptr, const Branch *const, const long, const Branch *const, long);
 void treedump(Dataptr, FILE *const, const Branch *const);
+void treedump_screen(Dataptr matrix, const Branch *const tree);
 void treestack_clear(Treestack *);
 long treestack_cnt(Treestack);
 long treestack_dump(Dataptr, Treestack *, FILE *const);
@@ -213,7 +231,7 @@ long treestack_pop(Dataptr, Branch *, long *, Treestack *);
 long treestack_print(Dataptr, Treestack *, FILE *const, Lvb_bool);
 long treestack_push(Dataptr, Treestack *, const Branch *const, const long);
 void treeswap(Branch **const, long *const, Branch **const, long *const);
-void uint32_dump(FILE *, uint32_t);
+void uint32_dump(FILE *, Lvb_bit_lentgh);
 long words_per_row(const long);
 
 #endif /* LVB_LVB_H */

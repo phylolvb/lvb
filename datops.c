@@ -65,7 +65,7 @@ static char *getstatev(const Dataptr matrix, const long k)
 
     /* update record of states for column k */
     for (i = 0; i < matrix->n; ++i){
-		if (strchr(statev, (uint32_t) matrix->row[i][k]) == NULL){	/* new state */
+		if (strchr(statev, (Lvb_bit_lentgh) matrix->row[i][k]) == NULL){	/* new state */
 			statev[statec++] = matrix->row[i][k];
 			if (statec > MAXSTATES) return NULL;
 			statev[statec] = '\0';	/* for strchr() */
@@ -150,7 +150,7 @@ C<mat>C<->E<gt>C<row>[I<i>][I<j>], where I<i> is in the interval
 
 **********/
 
-void dna_makebin(const Dataptr mat, uint32_t **enc_mat)
+void dna_makebin(Dataptr restrict mat, Lvb_bit_lentgh **enc_mat)
 /* convert matrix from string form to binary-encoded form, in which each
  * biological character occupies half a byte; the matrix is padded with
  * ambiguous data as required to ensure all bytes are initialised, but padding
@@ -162,22 +162,21 @@ void dna_makebin(const Dataptr mat, uint32_t **enc_mat)
     long k;		/* loop counter */
     long mat_offset;	/* current position within matrix row */
     char base;		/* current base as text character */
-    uint32_t sset = 0U;	/* binary-encoded single state set */
-    uint32_t enc_ssets;	/* set of four binary-encoded state sets */
-    long nwords = mat->m / 8 + (mat->m % 8 != 0);	/* per state set row */
+    Lvb_bit_lentgh sset = 0U;	/* binary-encoded single state set */
+    Lvb_bit_lentgh enc_ssets;	/* set of four binary-encoded state sets */
 
     for (i = 0; i < mat->n; i++)
     {
-        for (j = 0; j < nwords; j++)
+        for (j = 0; j < mat->nwords; j++)
 		{
 			enc_ssets = 0U;
-			for (k = 0; k < 8; k++)
+			for (k = 0; k < LENGTH_WORD; k++)
 			{
-				mat_offset = 8 * j + k;
+				mat_offset = (j << LENGTH_WORD_BITS_MULTIPLY) + k;
 				if (mat_offset >= mat->m)	/* padding required */
 					base = 'N';
 				else
-					base = mat->row[i][8 * j + k];	/* observed base required */
+					base = mat->row[i][(j << LENGTH_WORD_BITS_MULTIPLY) + k];	/* observed base required */
 
 				/* unambiguous bases */
 				if (base == 'A')
@@ -426,23 +425,22 @@ static void logcut(const Lvb_bool *const cut, const long m)
 } /* end logcut() */
 
 
-void uint32_dump(FILE *stream, uint32_t u)
+void uint32_dump(FILE *stream, Lvb_bit_lentgh u)
 /* output a uint32 in binary format */
 {
-	const long bits = 32;	/* bits to output */
 	long i;			/* loop counter */
-    uint32_t mask;		/* to obtain current bit */
-    uint32_t output_as_int;
-    static char buffer[34];
+	Lvb_bit_lentgh mask;		/* to obtain current bit */
+	Lvb_bit_lentgh output_as_int;
+    static char buffer[NUMBER_OF_BITS + 2];
 
-    for (i = 0; i < bits; i++){
+    for (i = 0; i < NUMBER_OF_BITS; i++){
     	mask = 1U << i;
     	output_as_int = mask & u;
-    	if(output_as_int) buffer[31 - i] = '1';
-    	else buffer[31 - i] = '0';
+    	if(output_as_int) buffer[NUMBER_OF_BITS -1 - i] = '1';
+    	else buffer[NUMBER_OF_BITS -1 - i] = '0';
     }
-	buffer[32] = '\n';
-	buffer[33] = '\0';
+	buffer[NUMBER_OF_BITS] = '\n';
+	buffer[NUMBER_OF_BITS+1] = '\0';
 	fputs(buffer, stream);
 }
 
@@ -455,8 +453,8 @@ long words_per_row(const long m)
 {
     long words;		/* 32-bit words required */
 
-    words = m / 8;
-    if (m % 8) words += 1;
+    words = m >> LENGTH_WORD_BITS_MULTIPLY;
+    if (m % LENGTH_WORD) words += 1;
     return words;
 }
 
@@ -468,5 +466,5 @@ long bytes_per_row(const long m)
  * to the nearest 32-bit word - which allows for the optimization of White and
  * Holland (2011, Bioinformatics 27:1359-1367, specifically Section 2.10) */
 {
-	return words_per_row(m) * sizeof(uint32_t);
+	return words_per_row(m) * sizeof(Lvb_bit_lentgh);
 }

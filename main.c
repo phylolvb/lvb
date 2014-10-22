@@ -118,7 +118,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
     FILE *resfp;			/* results file */
     Branch *tree;			/* initial tree */
     Branch *user_tree_ptr = NULL;	/* user-specified initial tree */
-    uint32_t *enc_mat[MAX_N] = { NULL };	/* encoded data mat. */
+    Lvb_bit_lentgh *enc_mat[MAX_N] = { NULL };	/* encoded data mat. */
     long *p_todo_arr; /* [MAX_BRANCHES + 1];	 list of "dirty" branch nos */
     long *p_todo_arr_sum_changes; /*used in openMP, to sum the partial changes */
     int *p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */

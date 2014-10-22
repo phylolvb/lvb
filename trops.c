@@ -482,7 +482,7 @@ static void cr_bpnc(const Branch *const barray, const long branch)
 Branch *const mvBranch(long nbranches, Branch *const dest, const Branch *const src)
 {
 	long i;
-	uint32_t *tmp_sset;
+	Lvb_bit_lentgh *tmp_sset;
 	for(i = 0; i < nbranches; i++){
 		tmp_sset = dest[i].sset;
 		dest[i] = src[i];
@@ -499,7 +499,7 @@ void treecopy(Dataptr restrict matrix, Branch *const dest, const Branch *const s
  * treealloc() is changed */
 {
     long i;				/* loop counter */
-    uint32_t *tmp_sset;		/* temporary variable used in copy */
+    Lvb_bit_lentgh *tmp_sset;		/* temporary variable used in copy */
     unsigned char *src_statesets_all;	/* start of source's statesets */
     unsigned char *dest_statesets_all;	/* start of dest's statesets */
 
@@ -589,7 +589,7 @@ static void tree_make_canonical(Dataptr matrix, Branch *const barray, long *objn
 
     /* patch up assignment of sset memory to prevent trouble in treecopy() */
     for (i = 0; i < nbranches; i++){
-    	barray[i].sset = (uint32_t *) (ss0_start + i * matrix->bytes);
+    	barray[i].sset = (Lvb_bit_lentgh *) (ss0_start + i * matrix->bytes);
     }
 
     for (i = 0; i < n_lines; i++) {
@@ -638,11 +638,11 @@ Branch *treealloc(Dataptr restrict matrix)
     ss0_start = barray_uchar_star + matrix->nbranches * sizeof(Branch);
 
     /* crash if state set memory is misaligned for uint32_t */
-    lvb_assert(((intptr_t) ss0_start % 4) == 0);
-    lvb_assert((matrix->bytes % 4) == 0);
+    lvb_assert(((intptr_t) ss0_start % NIBBLE_WIDTH) == 0);
+    lvb_assert((matrix->bytes % NIBBLE_WIDTH) == 0);
 
     for (i = 0; i < matrix->nbranches; i++){
-    	barray[i].sset = (uint32_t *) (ss0_start + i * matrix->bytes);
+    	barray[i].sset = (Lvb_bit_lentgh *) (ss0_start + i * matrix->bytes);
     	*barray[i].sset = 0U;  /* make durty */
     }
 
@@ -789,6 +789,22 @@ void treedump(Dataptr matrix, FILE *const stream, const Branch *const tree)
     fprintf(stream, "\n");
     if(ferror(stream) != 0)
 	cr_uxe(stream, "dumping tree");
+
+} /* end treedump() */
+
+void treedump_screen(Dataptr matrix, const Branch *const tree)
+/* send tree as table of integers to file pointed to by stream */
+{
+    long i;				/* loop counter */
+    long j;				/* loop counter */
+
+    printf("Branch\tParent\tLeft\tRight\tChanges\tDirty\n");
+    for (i = 0; i < matrix->nbranches; i++) {
+    	printf("%ld\t%ld\t%ld\t%ld\t%ld", i, tree[i].parent, tree[i].left, tree[i].right, tree[i].changes);
+    	if (tree[i].sset[0] == 0U) printf("\tyes\n");
+    	else printf("\tno\n");
+    }
+    printf("\n");
 
 } /* end treedump() */
 
@@ -1103,7 +1119,7 @@ static int objnocmp(const void *o1, const void *o2)
 
 } /* end objnocmp() */
 
-void ss_init(Dataptr matrix, Branch *tree, uint32_t **enc_mat)
+void ss_init(Dataptr matrix, Branch *tree, Lvb_bit_lentgh **enc_mat)
 /* copy m states from enc_mat to the stateset arrays for the leaves in tree,
  * including padding at the end; the nth entry in enc_mat is assumed to be the
  * encoded state sets for object number n in the tree; non-leaf branches in the
