@@ -529,7 +529,10 @@ void treecopy(Dataptr restrict matrix, Branch *const dest, const Branch *const s
 		memcpy(dest_statesets_all, src_statesets_all, matrix->nbranches * matrix->bytes);
     }else{
     	/* only the scalars */
-		for (i = 0; i < matrix->nbranches; i++) dest[i] = src[i];
+		for (i = 0; i < matrix->nbranches; i++){
+			dest[i] = src[i];
+			dest[i].sset = NULL;
+		}
     }
 
 } /* end treecopy() */
@@ -788,7 +791,7 @@ void treeswap(Branch **const tree1, long *const root1,
 
 } /* end treeswap() */
 
-void treedump(Dataptr matrix, FILE *const stream, const Branch *const tree)
+void treedump(Dataptr matrix, FILE *const stream, const Branch *const tree, Lvb_bool b_with_sset)
 /* send tree as table of integers to file pointed to by stream */
 {
     long i;				/* loop counter */
@@ -799,9 +802,14 @@ void treedump(Dataptr matrix, FILE *const stream, const Branch *const tree)
     	fprintf(stream, "%ld\t%ld\t%ld\t%ld\t%ld", i, tree[i].parent, tree[i].left, tree[i].right, tree[i].changes);
     	if (tree[i].sset[0] == 0U) fprintf(stream, "\tyes");
     	else fprintf(stream, "\tno");
-    	fprintf(stream, "\t%p", (void *) tree[i].sset);
-    	for (j = 0; j < matrix->nwords; j++){
-    		fprintf(stream, "\t0%o", (unsigned) tree[i].sset[j]);
+    	if (b_with_sset){
+			fprintf(stream, "\t%p", (void *) tree[i].sset);
+			for (j = 0; j < matrix->nwords; j++){
+				fprintf(stream, "\t0%o", (unsigned) tree[i].sset[j]);
+			}
+    	}
+    	else{
+    		fprintf(stream, "\tversion without sset");
     	}
     	fprintf(stream, "\n");
     }
@@ -925,15 +933,15 @@ long treecmp(Dataptr matrix, const Branch *const tree_1, const long root_1,
 
     /* allocate "local" static heap memory - static - do not free! */
     if (copy_2 == NULL) {
-		copy_2 = treealloc(matrix, LVB_FALSE); /* MIGUEL */
+		copy_2 = treealloc(matrix, LVB_FALSE);
 		prev_m = uggm;
 		prev_n = uggn;
     }
     lvb_assert((prev_m == uggm) && (prev_n == uggn));
 
-    treecopy(matrix, copy_2, tree_2, LVB_FALSE); /* MIGUEL */
+    treecopy(matrix, copy_2, tree_2, LVB_FALSE);
     lvb_assert(root_1 < uggn);
-    if(root_1 != root_2) lvb_reroot(matrix, copy_2, root_2, root_1, LVB_FALSE); /* MIGUEL */
+    if(root_1 != root_2) lvb_reroot(matrix, copy_2, root_2, root_1, LVB_FALSE);
 
     root_2 = root_1;
     nsets = makesets(matrix, tree_1, root_1, copy_2, root_2);

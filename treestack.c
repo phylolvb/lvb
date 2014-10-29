@@ -287,7 +287,7 @@ long treestack_pop(Dataptr matrix, Branch *barray, long *root, Treestack *sp)
 
     if (sp->next >= 1){
         sp->next--;
-        treecopy(matrix, barray, sp->stack[sp->next].tree, LVB_FALSE); /* MIGUEL */
+        treecopy(matrix, barray, sp->stack[sp->next].tree, LVB_FALSE);
         *root = sp->stack[sp->next].root;
 
         val = 1;
@@ -310,7 +310,7 @@ long treestack_print(Dataptr matrix, Treestack *sp, FILE *const outfp, Lvb_bool 
     Branch *barray;		/* current unpacked tree */
 
     /* "local" dynamic heap memory */
-    barray = treealloc(matrix, LVB_FALSE); /* MIGUEL */
+    barray = treealloc(matrix, LVB_FALSE);
 
     if (onerandom == LVB_TRUE)	/* choose one random tree to print */
     {
@@ -322,8 +322,8 @@ long treestack_print(Dataptr matrix, Treestack *sp, FILE *const outfp, Lvb_bool 
     }
 
     for (i = lower; i < upper; i++) {
-        treecopy(matrix, barray, sp->stack[i].tree, LVB_FALSE); /* MIGUEL */
-        if (sp->stack[i].root != d_obj1) lvb_reroot(matrix, barray, sp->stack[i].root, d_obj1, LVB_FALSE); /* MIGUEL */
+        treecopy(matrix, barray, sp->stack[i].tree, LVB_FALSE);
+        if (sp->stack[i].root != d_obj1) lvb_reroot(matrix, barray, sp->stack[i].root, d_obj1, LVB_FALSE);
         root = d_obj1;
         lvb_treeprint(matrix, outfp, barray, root);
     }
@@ -388,10 +388,10 @@ long treestack_dump(Dataptr matrix, Treestack *sp, FILE *const outfp)
     Branch *barray;		/* current unpacked tree */
 
     /* "local" dynamic heap memory */
-    barray = treealloc(matrix, LVB_FALSE); /* MIGUEL */
+    barray = treealloc(matrix, LVB_FALSE);
 
     while ((treestack_pop(matrix, barray, &root, sp)) != 0){
-		treedump(matrix, outfp, barray);
+		treedump(matrix, outfp, barray, LVB_FALSE);
 		cnt++;
     }
 
@@ -542,7 +542,7 @@ long treestack_transfer(Dataptr matrix, Treestack *destp, Treestack *sourcep)
     long pushed = 0;		/* number of trees transferred */
 
     /* "local" dynamic heap memory */
-    barray = treealloc(matrix, LVB_FALSE); /* MIGUEL */
+    barray = treealloc(matrix, LVB_FALSE);
     while (treestack_pop(matrix, barray, &root, sourcep) == 1) {
         pushed += treestack_push(matrix, destp, barray, root);
     }

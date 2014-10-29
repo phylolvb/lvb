@@ -222,7 +222,7 @@ long tree_bytes_whitout_sset(Dataptr restrict matrix);
 void treeclear(Dataptr, Branch *const);
 void treecopy(Dataptr restrict, Branch *const, const Branch *const, Lvb_bool b_with_sset);
 long treecmp(Dataptr, const Branch *const, const long, const Branch *const, long);
-void treedump(Dataptr, FILE *const, const Branch *const);
+void treedump(Dataptr, FILE *const, const Branch *const, Lvb_bool b_with_sset);
 void treedump_screen(Dataptr matrix, const Branch *const tree);
 void treestack_clear(Treestack *);
 long treestack_cnt(Treestack);
