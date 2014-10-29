@@ -315,6 +315,8 @@ void matchange(Dataptr matrix, const Params rcstruct)
     else{
         matrix->bytes = bytes_per_row(matrix->m);
         matrix->nwords = words_per_row(matrix->m);
+        matrix->tree_bytes = tree_bytes(matrix);
+        matrix->tree_bytes_whitout_sset = tree_bytes_whitout_sset(matrix);
     }
     if (matrix->m < MIN_M)
     	crash("after constant columns are ignored, data matrix has\n"
@@ -366,7 +368,10 @@ return the number of columns cut */
     matrix->m = n_columns_to_change;
     matrix->bytes = bytes_per_row(matrix->m);
     matrix->nwords = words_per_row(matrix->m);
+    matrix->tree_bytes = tree_bytes(matrix);
+    matrix->tree_bytes_whitout_sset = tree_bytes_whitout_sset(matrix);
 } /* end cutcols() */
+
 
 void get_bootstrap_weights(long *weight_arr, long m, long extras)
 /* Fill first m elements of array whose first element is pointed to by

@@ -41,9 +41,8 @@ static void lenlog(FILE *lengthfp, long iteration, long length, double temperatu
  * crash verbosely on write error */
 {
     fprintf(lengthfp, "%-15.8f%-15ld%-15ld\n", temperature, iteration, length); 
-    if (ferror(lengthfp))
-    {
-	crash("file error when logging search progress");
+    if (ferror(lengthfp)){
+    	crash("file error when logging search progress");
     }
 
 } /* end lenlog() */
@@ -74,10 +73,10 @@ long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *c
     int *p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */
 
     /* "local" dynamic heap memory */
-    p_current_tree = treealloc(matrix);
-    p_proposed_tree = treealloc(matrix);
+    p_current_tree = treealloc(matrix, LVB_TRUE);
+    p_proposed_tree = treealloc(matrix, LVB_TRUE);
 
-    treecopy(matrix, p_current_tree, inittree);      /* current configuration */
+    treecopy(matrix, p_current_tree, inittree, LVB_TRUE);      /* current configuration */
 	alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
 	len = getplen(matrix, p_current_tree, rcstruct, root, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 
@@ -168,10 +167,10 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
     const double log_wrapper_t0 =  log_wrapper(t0);
     /* REND variables that could calculate immediately */
 
-    p_proposed_tree = treealloc(matrix);
-    p_current_tree = treealloc(matrix);
+    p_proposed_tree = treealloc(matrix, LVB_TRUE);
+    p_current_tree = treealloc(matrix, LVB_TRUE);
 
-    treecopy(matrix, p_current_tree, inittree);	/* current configuration */
+    treecopy(matrix, p_current_tree, inittree, LVB_TRUE);	/* current configuration */
 
     alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
     len = getplen(matrix, p_current_tree, rcstruct, root, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs);

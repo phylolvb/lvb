@@ -136,8 +136,7 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct,
 							#if (defined(__GNUC__) && __GNUC__ >= 4 && __GNUC_MINOR__ >= 2)
 								__asm__ ("popcnt %1, %0" : "=r" (ch) : "0" (u));
 							#else
-								ch = __builtin_popcount(u & 0xFFFFFFFFU);
-								ch += __builtin_popcount((u >> 32) & 0xFFFFFFFFU);
+								ch = __builtin_popcountll(u);
 							#endif
 #else
 								ch = __builtin_popcount(u);
@@ -179,8 +178,7 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct,
 			#if (defined(__GNUC__) && __GNUC__ >= 4 && __GNUC_MINOR__ >= 2)
 				__asm__ ("popcnt %1, %0" : "=r" (ch) : "0" (u));
 			#else
-				ch = __builtin_popcount(u & 0xFFFFFFFFU);
-				ch += __builtin_popcount((u >> 32) & 0xFFFFFFFFU);
+				ch = __builtin_popcountll(u);
 			#endif
 #else
 				ch = __builtin_popcount(u);
@@ -209,8 +207,7 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct,
 			#if (defined(__GNUC__) && __GNUC__ >= 4 && __GNUC_MINOR__ >= 2)
 				__asm__ ("popcnt %1, %0" : "=r" (ch) : "0" (u));
 			#else
-				ch = __builtin_popcount(u & 0xFFFFFFFFU);
-				ch += __builtin_popcount((u >> 32) & 0xFFFFFFFFU);
+				ch = __builtin_popcountll(u);
 			#endif
 #else
 				ch = __builtin_popcount(u);
@@ -292,9 +289,9 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct,
 							u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
 #ifdef	PRINT_PRINTF
 	#ifdef COMPILE_64_BITS
-		printf("		u: 0x%016llX    count_bits: %d\n", u, __builtin_popcount(u));
+		printf("		u: 0x%016llX    count_bits: %d\n", u, __builtin_popcountll(u));
 	#else
-		printf("		u: 0x%X    count_bits: %d\n", u, __builtin_popcount(u));
+		printf("		u: 0x%X    count_bits: %d   x&y: 0x%X\n", u, __builtin_popcount(u), x & y);
 	#endif
 #endif
 
@@ -302,8 +299,7 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct,
 						#if (defined(__GNUC__) && __GNUC__ >= 4 && __GNUC_MINOR__ >= 2)
 							__asm__ ("popcnt %1, %0" : "=r" (ch) : "0" (u));
 						#else
-							ch = __builtin_popcount(u & 0xFFFFFFFFU);
-							ch += __builtin_popcount((u >> 32) & 0xFFFFFFFFU);
+							ch = __builtin_popcountll(u);
 						#endif
 #else
 							ch = __builtin_popcount(u);
@@ -353,8 +349,7 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct,
 		#if (defined(__GNUC__) && __GNUC__ >= 4 && __GNUC_MINOR__ >= 2)
 			__asm__ ("popcnt %1, %0" : "=r" (ch) : "0" (u));
 		#else
-			ch = __builtin_popcount(u & 0xFFFFFFFFU);
-			ch += __builtin_popcount((u >> 32) & 0xFFFFFFFFU);
+			ch = __builtin_popcountll(u);
 		#endif
 #else
 			ch = __builtin_popcount(u);
@@ -382,8 +377,7 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct,
 		#if (defined(__GNUC__) && __GNUC__ >= 4 && __GNUC_MINOR__ >= 2)
 			__asm__ ("popcnt %1, %0" : "=r" (ch) : "0" (u));
 		#else
-			ch = __builtin_popcount(u & 0xFFFFFFFFU);
-			ch += __builtin_popcount((u >> 32) & 0xFFFFFFFFU);
+			ch = __builtin_popcountll(u);
 		#endif
 #else
 			ch = __builtin_popcount(u);
@@ -411,3 +405,4 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct,
     return changes;
 
 } /* end getplen() */
+

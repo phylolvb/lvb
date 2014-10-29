@@ -79,10 +79,10 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstru
 
     /* Create "local" dynamic heap memory and initialise tree 
      * structures like in anneal() */
-    x = treealloc(matrix);
-    xdash = treealloc(matrix);
+    x = treealloc(matrix, LVB_TRUE);
+    xdash = treealloc(matrix, LVB_TRUE);
 
-    treecopy(matrix, x, inittree);	/* current configuration */
+    treecopy(matrix, x, inittree, LVB_TRUE);	/* current configuration */
     alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
     len = getplen(matrix, x, rcstruct, root, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs);
     

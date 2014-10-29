@@ -74,7 +74,7 @@ static void upsize(Dataptr matrix, Treestack *sp)
     /* allocate space within stack */
     for (i = sp->next; i < sp->size; i++){
     	/* sp->stack[i].tree = treealloc(matrix->n); */
-    	sp->stack[i].tree = treealloc(matrix);
+    	sp->stack[i].tree = treealloc(matrix, LVB_FALSE); /* MIGUEL */
     	sp->stack[i].root = -1;
     }
  
@@ -85,7 +85,7 @@ static void dopush(Dataptr matrix, Treestack *sp, const Branch *const barray, co
 {
     lvb_assert(sp->next <= sp->size);
     if (sp->next == sp->size) upsize(matrix, sp);
-    treecopy(matrix, sp->stack[sp->next].tree, barray);
+    treecopy(matrix, sp->stack[sp->next].tree, barray, LVB_FALSE); /* MIGUEL */
     sp->stack[sp->next].root = root;
     sp->next++;
  
@@ -287,7 +287,7 @@ long treestack_pop(Dataptr matrix, Branch *barray, long *root, Treestack *sp)
 
     if (sp->next >= 1){
         sp->next--;
-        treecopy(matrix, barray, sp->stack[sp->next].tree);
+        treecopy(matrix, barray, sp->stack[sp->next].tree, LVB_FALSE); /* MIGUEL */
         *root = sp->stack[sp->next].root;
 
         val = 1;
@@ -310,7 +310,7 @@ long treestack_print(Dataptr matrix, Treestack *sp, FILE *const outfp, Lvb_bool 
     Branch *barray;		/* current unpacked tree */
 
     /* "local" dynamic heap memory */
-    barray = treealloc(matrix);
+    barray = treealloc(matrix, LVB_FALSE); /* MIGUEL */
 
     if (onerandom == LVB_TRUE)	/* choose one random tree to print */
     {
@@ -322,8 +322,8 @@ long treestack_print(Dataptr matrix, Treestack *sp, FILE *const outfp, Lvb_bool 
     }
 
     for (i = lower; i < upper; i++) {
-        treecopy(matrix, barray, sp->stack[i].tree);
-        if (sp->stack[i].root != d_obj1) lvb_reroot(matrix, barray, sp->stack[i].root, d_obj1);
+        treecopy(matrix, barray, sp->stack[i].tree, LVB_FALSE); /* MIGUEL */
+        if (sp->stack[i].root != d_obj1) lvb_reroot(matrix, barray, sp->stack[i].root, d_obj1, LVB_FALSE); /* MIGUEL */
         root = d_obj1;
         lvb_treeprint(matrix, outfp, barray, root);
     }
@@ -388,7 +388,7 @@ long treestack_dump(Dataptr matrix, Treestack *sp, FILE *const outfp)
     Branch *barray;		/* current unpacked tree */
 
     /* "local" dynamic heap memory */
-    barray = treealloc(matrix);
+    barray = treealloc(matrix, LVB_FALSE); /* MIGUEL */
 
     while ((treestack_pop(matrix, barray, &root, sp)) != 0){
 		treedump(matrix, outfp, barray);
@@ -442,9 +442,8 @@ void treestack_free(Treestack *sp)
 {
     long i;	/* loop counter */
 
-    for (i = 0; i < sp->size; i++)
-    {
-	free(sp->stack[i].tree);
+    for (i = 0; i < sp->size; i++){
+    	free(sp->stack[i].tree);
         sp->stack[i].tree = NULL;
         sp->stack[i].root = -1;
     }
@@ -543,7 +542,7 @@ long treestack_transfer(Dataptr matrix, Treestack *destp, Treestack *sourcep)
     long pushed = 0;		/* number of trees transferred */
 
     /* "local" dynamic heap memory */
-    barray = treealloc(matrix);
+    barray = treealloc(matrix, LVB_FALSE); /* MIGUEL */
     while (treestack_pop(matrix, barray, &root, sourcep) == 1) {
         pushed += treestack_push(matrix, destp, barray, root);
     }

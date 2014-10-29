@@ -132,7 +132,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
     long start = 0;	/* current random (re)start number */
  
     /* dynamic "local" heap memory */
-    tree = treealloc(matrix);
+    tree = treealloc(matrix, LVB_TRUE);
 
     /* Allocation of the initial encoded matrix is non-contiguous because
      * this matrix isn't used much, so any performance penalty won't matter. */
@@ -388,6 +388,7 @@ int main(int argc, char **argv)
     }
 
     rowfree(matrix);
+    free(matrix);
 
     /* "file-local" dynamic heap memory */
     treestack_free(&bstack_overall);

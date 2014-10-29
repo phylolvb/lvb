@@ -32,6 +32,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
+
 #define FORMAT_PHYLIP 		0
 #define FORMAT_FASTA 		1
 #define FORMAT_NEXUS 		2
@@ -43,6 +44,7 @@ typedef enum { LVB_FALSE, LVB_TRUE } Lvb_bool;	/* boolean type */
 
 #define MAX_BOOTSTRAPS 1000000	/* max. bootstrap replicates */
 
+
 /* matrix and associated information */
 typedef struct data
 {
@@ -53,6 +55,8 @@ typedef struct data
     long n;				/* number of rows */
     long nbranches; 	/* number of possible braches */
     long bytes;
+    long tree_bytes;	/* length the tree in bytes */
+    long tree_bytes_whitout_sset;	/* length the tree in bytes whitout sset */
     long nwords;
     int n_threads_getplen;  /* number of possible threads in getplen function */
     int n_slice_size_getplen;  /* slice size in getplen function, usually m/n_threads_getplen  */

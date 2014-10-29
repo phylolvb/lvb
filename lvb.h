@@ -57,13 +57,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define LVB_VERSION "IN DEVELOPMENT"	/* version of program */
 #define LVB_SUBVERSION "(2014)"		/* version details e.g. date */
 
+/* set if is to compile with 64 or 32 */
 #define COMPILE_64_BITS				/* the default is 32 bits */
 
 /* DNA bases: bits to set in statesets */
-#define A_BIT (1U << 0)
-#define C_BIT (1U << 1)
-#define G_BIT (1U << 2)
-#define T_BIT (1U << 3)
+#define A_BIT 0b0001		/* (1U << 0) */
+#define C_BIT 0b0010		/* (1U << 1) */
+#define G_BIT 0b0100		/* (1U << 2) */
+#define T_BIT 0b1000		/* (1U << 3) */
 
 #define NIBBLE_MASK 		017			/* space for one stateset, all bits set to 1 */
 #define NIBBLE_WIDTH 		4			/* width of nibble in bits */
@@ -196,7 +197,7 @@ long getroot(const Branch *const);
 void lvb_assertion_fail(const char *, const char *, int);
 void lvb_initialize(void);
 Dataptr lvb_matrin(const char *);
-long lvb_reroot(Dataptr restrict, Branch *const barray, const long oldroot, const long newroot);
+long lvb_reroot(Dataptr restrict, Branch *const barray, const long oldroot, const long newroot, Lvb_bool b_with_sset);
 void lvb_treeprint (Dataptr, FILE *const, const Branch *const, const long);
 void matchange(Dataptr, const Params);
 Dataptr matrin(const char *const);
@@ -215,9 +216,11 @@ void rowfree(Dataptr);
 void scream(const char *const, ...);
 void ss_init(Dataptr, Branch *, Lvb_bit_lentgh **);
 char *supper(char *const s);
-Branch *treealloc(Dataptr restrict);
+Branch *treealloc(Dataptr restrict, Lvb_bool b_with_sset);
+long tree_bytes(Dataptr restrict matrix);
+long tree_bytes_whitout_sset(Dataptr restrict matrix);
 void treeclear(Dataptr, Branch *const);
-void treecopy(Dataptr restrict, Branch *const, const Branch *const);
+void treecopy(Dataptr restrict, Branch *const, const Branch *const, Lvb_bool b_with_sset);
 long treecmp(Dataptr, const Branch *const, const long, const Branch *const, long);
 void treedump(Dataptr, FILE *const, const Branch *const);
 void treedump_screen(Dataptr matrix, const Branch *const tree);
