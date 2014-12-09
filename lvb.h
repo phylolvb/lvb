@@ -179,7 +179,7 @@ void crash(const char *const, ...);
 void defaults_params(Params *const prms);
 long deterministic_hillclimb(Dataptr, Treestack *, const Branch *const, Params rcstruct,
 	long, FILE * const, const long *, long *, Lvb_bool);
-void dna_makebin(Dataptr restrict, Lvb_bit_lentgh ***);
+void dna_makebin(Dataptr restrict, Lvb_bit_lentgh **);
 void dnapars_wrapper(void);
 char *f2str(FILE *const);
 Lvb_bool file_exists(const char *const);
@@ -214,7 +214,7 @@ void randtree(Dataptr, Branch *const);
 long randpint(const long);
 void rowfree(Dataptr);
 void scream(const char *const, ...);
-void ss_init(Dataptr, Branch *, Lvb_bit_lentgh ***);
+void ss_init(Dataptr, Branch *, Lvb_bit_lentgh **);
 char *supper(char *const s);
 Branch *treealloc(Dataptr restrict, Lvb_bool b_with_sset);
 long tree_bytes(Dataptr restrict matrix);

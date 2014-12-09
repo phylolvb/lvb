@@ -137,9 +137,9 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
      * this matrix isn't used much, so any performance penalty won't matter. */
     enc_mat = (Lvb_bit_lentgh **) malloc((matrix->n) * sizeof(Lvb_bit_lentgh *));
     for (i = 0; i < matrix->n; i++)
-        enc_mat[i] = alloc(matrix->bytes, "state sets");
+    	enc_mat[i] = alloc(matrix->bytes, "state sets");
     
-    dna_makebin(matrix, &enc_mat);
+    dna_makebin(matrix, enc_mat);
 
     /* open and entitle statistics file shared by all cycles
      * NOTE: There are no cycles anymore in the current version
@@ -156,13 +156,13 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
 	
     /* determine starting temperature */
     randtree(matrix, tree);	/* initialise required variables */
-    ss_init(matrix, tree, &enc_mat);
+    ss_init(matrix, tree, enc_mat);
     initroot = 0;
     t0 = get_initial_t(matrix, tree, rcstruct, initroot, weight_arr, log_progress);
 //    t0 = 0.18540001000004463;
 
     randtree(matrix, tree);	/* begin from scratch */
-    ss_init(matrix, tree, &enc_mat);
+    ss_init(matrix, tree, enc_mat);
     initroot = 0;
 
     if (rcstruct.verbose) smessg(start, cyc);
@@ -214,7 +214,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
 
     /* "local" dynamic heap memory */
     free(tree);
-    for (i = 0; i < matrix->n; i++) free(enc_mat[i]);
+	for (i = 0; i < matrix->n; i++) free(enc_mat[i]);
     free(enc_mat);
 
     return treelength;
@@ -270,7 +270,7 @@ int main(int argc, char **argv)
     double total_iter = 0.0;	/* total iterations across all replicates */
     long final_length;		/* length of shortest tree(s) found */
     FILE *outtreefp;		/* best trees found overall */
-    static long weight_arr[MAX_M];	/* weights for sites */
+    long *weight_arr;  		/* weights for sites */
     Lvb_bool log_progress;	/* whether or not to log anneal search */
 
     /* global files */
@@ -345,6 +345,7 @@ int main(int argc, char **argv)
     }
     else log_progress = LVB_TRUE;
 
+    weight_arr = (long*) alloc(sizeof(long) * matrix->m, "alloc data structure");
     outtreefp = clnopen(rcstruct.file_name_out, "w");
     do{
 		iter = 0;
@@ -390,6 +391,7 @@ int main(int argc, char **argv)
 
     rowfree(matrix);
     free(matrix);
+    free(weight_arr);
 
     /* "file-local" dynamic heap memory */
     treestack_free(&bstack_overall);

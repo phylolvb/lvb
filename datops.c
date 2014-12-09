@@ -150,7 +150,7 @@ C<mat>C<->E<gt>C<row>[I<i>][I<j>], where I<i> is in the interval
 
 **********/
 
-void dna_makebin(Dataptr restrict mat, Lvb_bit_lentgh ***enc_mat)
+void dna_makebin(Dataptr restrict mat, Lvb_bit_lentgh **enc_mat)
 /* convert matrix from string form to binary-encoded form, in which each
  * biological character occupies half a byte; the matrix is padded with
  * ambiguous data as required to ensure all bytes are initialised, but padding
@@ -232,7 +232,7 @@ void dna_makebin(Dataptr restrict mat, Lvb_bit_lentgh ***enc_mat)
 				lvb_assert(sset != 0U);
 				enc_ssets |= sset << (k << NIBBLE_WIDTH_BITS);
 			}
-			*(enc_mat)[i][j] = enc_ssets;
+			enc_mat[i][j] = enc_ssets;
 		}
     }
 } /* end dna_makebin() */
@@ -367,7 +367,6 @@ return the number of columns cut */
     for (i = 0; i < uun; ++i) newrow[i][newk] = '\0';
 
     /* update matrix structure */
-    rowfree(matrix);
     matrix->row = newrow;
     matrix->m = n_columns_to_change;
     matrix->bytes = bytes_per_row(matrix->m);
