@@ -1146,7 +1146,7 @@ static int objnocmp(const void *o1, const void *o2)
 
 } /* end objnocmp() */
 
-void ss_init(Dataptr matrix, Branch *tree, Lvb_bit_lentgh **enc_mat)
+void ss_init(Dataptr matrix, Branch *tree, Lvb_bit_lentgh ***enc_mat)
 /* copy m states from enc_mat to the stateset arrays for the leaves in tree,
  * including padding at the end; the nth entry in enc_mat is assumed to be the
  * encoded state sets for object number n in the tree; non-leaf branches in the
@@ -1154,7 +1154,7 @@ void ss_init(Dataptr matrix, Branch *tree, Lvb_bit_lentgh **enc_mat)
  * is also a terminal */
 {
     long i;			/* loop counter */
-    for (i = 0; i < matrix->n; i++) memcpy(tree[i].sset, enc_mat[i], matrix->bytes);
+    for (i = 0; i < matrix->n; i++) memcpy(tree[i].sset, *(enc_mat)[i], matrix->bytes);
     for (i = matrix->n; i < matrix->nbranches; i++) tree[i].sset[0] = 0U;
 
 } /* end ss_init() */

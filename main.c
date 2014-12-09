@@ -117,8 +117,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
     FILE *sumfp;			/* best length file */
     FILE *resfp;			/* results file */
     Branch *tree;			/* initial tree */
-    Branch *user_tree_ptr = NULL;	/* user-specified initial tree */
-    Lvb_bit_lentgh *enc_mat[MAX_N] = { NULL };	/* encoded data mat. */
+    Lvb_bit_lentgh **enc_mat;	/* encoded data mat. */
     long *p_todo_arr; /* [MAX_BRANCHES + 1];	 list of "dirty" branch nos */
     long *p_todo_arr_sum_changes; /*used in openMP, to sum the partial changes */
     int *p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */
@@ -136,10 +135,11 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
 
     /* Allocation of the initial encoded matrix is non-contiguous because
      * this matrix isn't used much, so any performance penalty won't matter. */
+    enc_mat = (Lvb_bit_lentgh **) malloc((matrix->n) * sizeof(Lvb_bit_lentgh *));
     for (i = 0; i < matrix->n; i++)
         enc_mat[i] = alloc(matrix->bytes, "state sets");
     
-    dna_makebin(matrix, enc_mat);
+    dna_makebin(matrix, &enc_mat);
 
     /* open and entitle statistics file shared by all cycles
      * NOTE: There are no cycles anymore in the current version
@@ -156,13 +156,13 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
 	
     /* determine starting temperature */
     randtree(matrix, tree);	/* initialise required variables */
-    ss_init(matrix, tree, enc_mat);
+    ss_init(matrix, tree, &enc_mat);
     initroot = 0;
     t0 = get_initial_t(matrix, tree, rcstruct, initroot, weight_arr, log_progress);
 //    t0 = 0.18540001000004463;
 
     randtree(matrix, tree);	/* begin from scratch */
-    ss_init(matrix, tree, enc_mat);
+    ss_init(matrix, tree, &enc_mat);
     initroot = 0;
 
     if (rcstruct.verbose) smessg(start, cyc);
@@ -214,8 +214,8 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
 
     /* "local" dynamic heap memory */
     free(tree);
-    if (user_tree_ptr != NULL)
-    	free(user_tree_ptr);
+    for (i = 0; i < matrix->n; i++) free(enc_mat[i]);
+    free(enc_mat);
 
     return treelength;
 
@@ -323,10 +323,12 @@ int main(int argc, char **argv)
     getparam(&rcstruct, argc, argv);
     logstim();
 
+    /* read and alloc space to the data structure */
     matrix = alloc(sizeof(DataStructure), "alloc data structure");
     phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix);
 
-    /* "file-local" dynamic heap memory: set up best tree stacks */
+
+    /* "file-local" dynamic heap memory: set up best tree stacks, need to be by thread */
     bstack_overall = treestack_new();
 
     writeinf(rcstruct);
@@ -343,7 +345,7 @@ int main(int argc, char **argv)
     }
     else log_progress = LVB_TRUE;
 
-    outtreefp = clnopen(OUTTREEFNAM, "w");
+    outtreefp = clnopen(rcstruct.file_name_out, "w");
     do{
 		iter = 0;
 		if (rcstruct.bootstraps > 0){
@@ -366,24 +368,23 @@ int main(int argc, char **argv)
 		else  printf("\nRearrangements tried: %ld\n", iter);
 	} while (replicate_no < rcstruct.bootstraps);
 
-	clnclose(outtreefp, OUTTREEFNAM);
+	clnclose(outtreefp, rcstruct.file_name_out);
 
 	printf("\n");
 	if (rcstruct.bootstraps > 0)
 		printf("Total rearrangements tried across all replicates: %g\n\n", total_iter);
 
 	if ((trees_output_total == 1L) && (rcstruct.bootstraps == 0)) {
-		printf("1 most parsimonious tree of length %ld written to file '%s'\n", final_length, OUTTREEFNAM);
+		printf("1 most parsimonious tree of length %ld written to file '%s'\n", final_length, rcstruct.file_name_out);
 	}
 	else {
 		if (rcstruct.bootstraps > 0){
 			lvb_assert(trees_output_total == rcstruct.bootstraps);
-			printf("%ld trees written to file '%s'\n", trees_output_total,
-			OUTTREEFNAM);
+			printf("%ld trees written to file '%s'\n", trees_output_total, rcstruct.file_name_out);
 		}
 		else{
 			printf("%ld equally parsimonious trees of length %ld written to "
-			 "file '%s'\n", trees_output_total, final_length, OUTTREEFNAM);
+			 "file '%s'\n", trees_output_total, final_length, rcstruct.file_name_out);
 		}
     }
 

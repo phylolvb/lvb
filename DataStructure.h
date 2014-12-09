@@ -48,8 +48,8 @@ typedef enum { LVB_FALSE, LVB_TRUE } Lvb_bool;	/* boolean type */
 /* matrix and associated information */
 typedef struct data
 {
-    char **row;			/* array of row strings */
-    char **rowtitle;	/* array of row title strings */
+    int n_threads_getplen;  /* number of possible threads in getplen function */
+    int n_slice_size_getplen;  /* slice size in getplen function, usually m/n_threads_getplen  */
     long m;				/* number of columns */
     long original_m;	/* number of columns read from matrix*/
     long n;				/* number of rows */
@@ -58,8 +58,8 @@ typedef struct data
     long tree_bytes;	/* length the tree in bytes */
     long tree_bytes_whitout_sset;	/* length the tree in bytes whitout sset */
     long nwords;
-    int n_threads_getplen;  /* number of possible threads in getplen function */
-    int n_slice_size_getplen;  /* slice size in getplen function, usually m/n_threads_getplen  */
+    char **row;			/* array of row strings */
+    char **rowtitle;	/* array of row title strings */
 } *Dataptr, DataStructure;
 
 /* unchangeable types */
@@ -68,11 +68,11 @@ typedef struct data
 typedef struct
 {
     int seed;			/* seed for random number generator */
+    int cooling_schedule;   /* cooling schedule: 0 is geometric, 1 is linear */
+    int n_file_format;		/* number of file format, must be FORMAT_PHYLIP, FORMAT_FASTA, FORMAT_NEXUS, FORMAT_MSF, FORMAT_CLUSTAL*/
+    int n_processors_available;	/* number of processors available */
     long verbose;		/* verboseness level */
     long bootstraps;		/* number of bootstrap replicates */
-    int cooling_schedule;   /* cooling schedule: 0 is geometric, 1 is linear */
     char file_name_in[LVB_FNAMSIZE];		/* input file name */
-    int n_file_format;		/* number of file format, must be FORMAT_PHYLIP, FORMAT_FASTA, FORMAT_NEXUS, FORMAT_MSF, FORMAT_CLUSTAL*/
     char file_name_out[LVB_FNAMSIZE];	/* output file name */
-    int n_processors_available;	/* number of processors available */
 } Params;
