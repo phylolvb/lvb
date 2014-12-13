@@ -327,7 +327,6 @@ int main(int argc, char **argv)
     matrix = alloc(sizeof(DataStructure), "alloc data structure");
     phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix);
 
-
     /* "file-local" dynamic heap memory: set up best tree stacks, need to be by thread */
     bstack_overall = treestack_new();
 

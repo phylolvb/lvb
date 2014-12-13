@@ -65,7 +65,7 @@ static char *getstatev(const Dataptr matrix, const long k)
 
     /* update record of states for column k */
     for (i = 0; i < matrix->n; ++i){
-		if (strchr(statev, (Lvb_bit_lentgh) matrix->row[i][k]) == NULL){	/* new state */
+		if (strchr(statev, (int) matrix->row[i][k]) == NULL){	/* new state */
 			statev[statec++] = matrix->row[i][k];
 			if (statec > MAXSTATES) return NULL;
 			statev[statec] = '\0';	/* for strchr() */
