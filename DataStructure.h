@@ -48,31 +48,37 @@ typedef enum { LVB_FALSE, LVB_TRUE } Lvb_bool;	/* boolean type */
 /* matrix and associated information */
 typedef struct data
 {
-    int n_threads_getplen;  /* number of possible threads in getplen function */
-    int n_slice_size_getplen;  /* slice size in getplen function, usually m/n_threads_getplen  */
     long m;				/* number of columns */
     long original_m;	/* number of columns read from matrix*/
     long n;				/* number of rows */
+    long max_length_seq_name; 	/* length of the sequence names */
     long nbranches; 	/* number of possible braches */
     long bytes;
     long tree_bytes;	/* length the tree in bytes */
     long tree_bytes_whitout_sset;	/* length the tree in bytes whitout sset */
     long nwords;
-    char **row;			/* array of row strings */
-    char **rowtitle;	/* array of row title strings */
+    long min_len_tree;			/*  minimum length of any tree based on matrix */
+    int n_threads_getplen;  /* number of possible threads in getplen function */
+    int n_slice_size_getplen;  /* slice size in getplen function, usually m/n_threads_getplen  */
 } *Dataptr, DataStructure;
 
+
+typedef struct seq_data
+{
+	char **row;
+    char **rowtitle;
+}*DataSeqPtr, DataSeqStructure;
 /* unchangeable types */
 
 /* user- or programmer-configurable parameters */
 typedef struct
 {
+    long verbose;		/* verboseness level */
+    long bootstraps;		/* number of bootstrap replicates */
     int seed;			/* seed for random number generator */
     int cooling_schedule;   /* cooling schedule: 0 is geometric, 1 is linear */
     int n_file_format;		/* number of file format, must be FORMAT_PHYLIP, FORMAT_FASTA, FORMAT_NEXUS, FORMAT_MSF, FORMAT_CLUSTAL*/
     int n_processors_available;	/* number of processors available */
-    long verbose;		/* verboseness level */
-    long bootstraps;		/* number of bootstrap replicates */
     char file_name_in[LVB_FNAMSIZE];		/* input file name */
     char file_name_out[LVB_FNAMSIZE];	/* output file name */
 } Params;

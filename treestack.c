@@ -300,7 +300,7 @@ long treestack_pop(Dataptr matrix, Branch *barray, long *root, Treestack *sp)
 
 } /* end treestack_pop() */
 
-long treestack_print(Dataptr matrix, Treestack *sp, FILE *const outfp, Lvb_bool onerandom)
+long treestack_print(Dataptr matrix, DataSeqPtr restrict matrix_seq_data, Treestack *sp, FILE *const outfp, Lvb_bool onerandom)
 {
     const long d_obj1 = 0L;	/* 1st obj. for output trees */
     long root;			/* root of current tree */
@@ -325,7 +325,7 @@ long treestack_print(Dataptr matrix, Treestack *sp, FILE *const outfp, Lvb_bool 
         treecopy(matrix, barray, sp->stack[i].tree, LVB_FALSE);
         if (sp->stack[i].root != d_obj1) lvb_reroot(matrix, barray, sp->stack[i].root, d_obj1, LVB_FALSE);
         root = d_obj1;
-        lvb_treeprint(matrix, outfp, barray, root);
+        lvb_treeprint(matrix, matrix_seq_data, outfp, barray, root);
     }
     if (fflush(outfp) != 0)
     	crash("file write error when writing best trees");

@@ -34,12 +34,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "ReadFile.h"
 
-void read_file(char *file_name, int n_file_type, Dataptr p_lvbmat){
+int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat, DataSeqPtr p_lvbmat_seq){
 
 	CReadFiles readFiles = CReadFiles();
+	int n_error_code;
+
 	/// read file
 	std::string sz_file_name = std::string(file_name);
-	readFiles.read_file(file_name, n_file_type);
+	n_error_code = readFiles.read_file(file_name, n_file_type);
+	if (n_error_code != 0) return n_error_code;
 
     /* scalars */
 	//cout << (long) readFiles.get_length_sequences() << endl;
@@ -47,32 +50,34 @@ void read_file(char *file_name, int n_file_type, Dataptr p_lvbmat){
     p_lvbmat->original_m = p_lvbmat->m;
     p_lvbmat->n = (long) readFiles.get_number_seqs();
     p_lvbmat->nbranches = brcnt(p_lvbmat->n); 		/* possible number of braches */
+    p_lvbmat->max_length_seq_name = readFiles.get_max_length_seq_name();
 
     /* array for row title strings */
-    p_lvbmat->rowtitle = (char **) malloc((p_lvbmat->n) * sizeof(char *));
-    if (p_lvbmat->rowtitle == NULL) readFiles.exit_error(1 , "Fail to allocate memory...");
+    p_lvbmat_seq->rowtitle = (char **) malloc((p_lvbmat->n) * sizeof(char *));
+    if (p_lvbmat_seq->rowtitle == NULL) return readFiles.exit_error(1 , "Fail to allocate memory...");
 
     /* array for row strings */
-    p_lvbmat->row = (char **) malloc((p_lvbmat->n) * sizeof(char *));
-    if (p_lvbmat->row == NULL) readFiles.exit_error(1 , "Fail to allocate memory...");
+    p_lvbmat_seq->row = (char **) malloc((p_lvbmat->n) * sizeof(char *));
+    if (p_lvbmat_seq->row == NULL) return readFiles.exit_error(1 , "Fail to allocate memory...");
 
     /* we want null-terminated strings, so we cannot simply point to
      * the same, non-null-terminated arrays as are found in PHYLIP's
      * data structures */
     for (int i = 0; i < p_lvbmat->n; i++){
-    	p_lvbmat->rowtitle[i] = (char*) malloc(sizeof(char) * (readFiles.get_max_length_seq_name() + 1));
-    	p_lvbmat->row[i] = (char*) malloc(sizeof(char) * (p_lvbmat->m + 1));
+    	p_lvbmat_seq->rowtitle[i] = (char*) malloc(sizeof(char) * (readFiles.get_max_length_seq_name() + 1));
+    	p_lvbmat_seq->row[i] = (char*) malloc(sizeof(char) * (p_lvbmat->m + 1));
     }
     for (int i = 0; i < p_lvbmat->n; i++) {
-        for (int j = 0; j < p_lvbmat->m; j++) p_lvbmat->row[i][j] = readFiles.get_char_sequences(i, j);
-        p_lvbmat->row[i][p_lvbmat->m] = '\0';
+        for (int j = 0; j < p_lvbmat->m; j++) p_lvbmat_seq->row[i][j] = readFiles.get_char_sequences(i, j);
+        p_lvbmat_seq->row[i][p_lvbmat->m] = '\0';
     }
     for (int i = 0; i < p_lvbmat->n; i++) {
-        for (int j = 0; j < readFiles.get_length_seq_name(i); j++) p_lvbmat->rowtitle[i][j] = readFiles.get_char_seq_name(i, j);
-        p_lvbmat->rowtitle[i][readFiles.get_length_seq_name(i)] = '\0';
+        for (int j = 0; j < readFiles.get_length_seq_name(i); j++) p_lvbmat_seq->rowtitle[i][j] = readFiles.get_char_seq_name(i, j);
+        p_lvbmat_seq->rowtitle[i][readFiles.get_length_seq_name(i)] = '\0';
     }
 /*	std::string file_name_out = "/home/mmp/Downloads/file_nexus_nex_out.fas";
 	readFiles.save_file(file_name_out);*/
+    return 0;
 }
 
 
@@ -92,17 +97,17 @@ void phylip_mat_dims_in_external(char *file_name, int n_file_type, long *species
 }
 
 
-void free_lvbmat_structure(DataStructure *p_lvbmat){
+void free_lvbmat_structure(DataSeqStructure *p_lvbmat_seq, int n_size){
 
-	if (p_lvbmat->row != NULL){
-		for(int i = 0; i < p_lvbmat->n; ++i) free(p_lvbmat->row[i]);
-		free(p_lvbmat->row);
-		p_lvbmat->row = NULL;
+	if (p_lvbmat_seq->row != NULL){
+		for(int i = 0; i < n_size; ++i) free(p_lvbmat_seq->row[i]);
+		free(p_lvbmat_seq->row);
+		p_lvbmat_seq->row = NULL;
 	}
-	if (p_lvbmat->rowtitle != NULL){
-		for(int i = 0; i < p_lvbmat->n; ++i) free(p_lvbmat->rowtitle[i]);
-		free(p_lvbmat->rowtitle);
-		p_lvbmat->rowtitle = NULL;
+	if (p_lvbmat_seq->rowtitle != NULL){
+		for(int i = 0; i < n_size; ++i) free(p_lvbmat_seq->rowtitle[i]);
+		free(p_lvbmat_seq->rowtitle);
+		p_lvbmat_seq->rowtitle = NULL;
 	}
 //	free(p_lvbmat);
 //	p_lvbmat = NULL;
@@ -147,7 +152,7 @@ void usage(char *p_file_name){
 }
 
 
-void read_parameters(Params *prms, int argc, char **argv){
+int read_parameters(Params *prms, int argc, char **argv){
 
 	int c;
 	opterr = 0;
@@ -159,20 +164,20 @@ void read_parameters(Params *prms, int argc, char **argv){
 				if (optarg == NULL){
 					fprintf (stderr, "Option -%c requires an argument -c [g|l]\n", optopt);
 					usage(argv[0]);
-					abort();
+					return 1;
 				}
 				if (strcmp(optarg, "g") == 0 || strcmp(optarg, "G") == 0) prms->cooling_schedule = 0;
 				else if (strcmp(optarg, "l") == 0 || strcmp(optarg, "L") == 0) prms->cooling_schedule = 1;
 				else{
 					fprintf (stderr, "Unknown cooling schedule option\nPlease, choose between Geometric (g) or Linear (l).");
-					abort();
+					return 1;
 				}
 				break;
 			case 'b':	/* bootstrap */
 				if (optarg == NULL){
 					fprintf (stderr, "Option -%c requires an argument -b <int>\n", optopt);
 					usage(argv[0]);
-					abort();
+					return 1;
 				}
 				prms->bootstraps = atoi(optarg);
 				break;
@@ -183,7 +188,7 @@ void read_parameters(Params *prms, int argc, char **argv){
 				if (optarg == NULL){
 					fprintf (stderr, "Option -%c requires an argument -s <int>\n", optopt);
 					usage(argv[0]);
-					abort();
+					return 1;
 				}
 				prms->seed = atoi(optarg);
 				break;
@@ -191,11 +196,11 @@ void read_parameters(Params *prms, int argc, char **argv){
 				if (optarg == NULL){
 					fprintf (stderr, "Option -%c requires an argument -i <file name>\n", optopt);
 					usage(argv[0]);
-					abort();
+					return 1;
 				}
 				if (strlen(optarg) > LVB_FNAMSIZE){
 					fprintf (stderr, "Error, the length file name greater than %d\n", LVB_FNAMSIZE);
-					abort();
+					return 1;
 				}
 				strcpy(prms->file_name_in, optarg);
 				break;
@@ -203,11 +208,11 @@ void read_parameters(Params *prms, int argc, char **argv){
 				if (optarg == NULL){
 					fprintf (stderr, "Option -%c requires an argument -o <file name>\n", optopt);
 					usage(argv[0]);
-					abort();
+					return 1;
 				}
 				if (strlen(optarg) > LVB_FNAMSIZE){
 					fprintf (stderr, "Error, the length file name greater than %d\n", LVB_FNAMSIZE);
-					abort();
+					return 1;
 				}
 				strcpy(prms->file_name_out, optarg);
 				break;
@@ -215,7 +220,7 @@ void read_parameters(Params *prms, int argc, char **argv){
 				if (optarg == NULL){
 					fprintf (stderr, "Option -%c requires an argument -f [phylip|fasta|nexus|msf|clustal]\n", optopt);
 					usage(argv[0]);
-					abort();
+					return 1;
 				}
 				if (strcmp(optarg, "phylip") == 0){
 					prms->n_file_format = FORMAT_PHYLIP;
@@ -235,14 +240,14 @@ void read_parameters(Params *prms, int argc, char **argv){
 				else{
 					fprintf (stderr, "Unknown file format.");
 					print_formats_available();
-					abort();
+					return 1;
 				}
 				break;
 			case 'p':
 				if (optarg == NULL){
 					fprintf (stderr, "Option -%c requires an argument -p <file name>\n", optopt);
 					usage(argv[0]);
-					abort();
+					return 1;
 				}
 				prms->n_processors_available = atoi(optarg);
 				if (prms->n_processors_available < 1) prms->n_processors_available = 1;
@@ -253,6 +258,7 @@ void read_parameters(Params *prms, int argc, char **argv){
 	            usage(argv[0]);
 		}
 	}
+	return 0;
 }
 
 

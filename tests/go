@@ -153,7 +153,7 @@ $ENV{LVB_HEADER_PATH}
 -d $ENV{LVB_HEADER_PATH}
  or die "error: no such directory '$ENV{LVB_HEADER_PATH}'";
 
-$ENV{CC} or die "error: CC environment variable is not set";
+##$ENV{CC} or die "error: CC environment variable is not set";
 
 # discover the names and total number of test directories
 if ($ARGV[0] and $ARGV[0] =~ /^--test$/)

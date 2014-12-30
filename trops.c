@@ -47,9 +47,6 @@ typedef	struct	/* object set derived from a cladogram */
 	long cnt;	/* sizes of object sets */
 }	Objset;
 
-static void cr_nbo(const Branch *const barray, const long obj);
-static void cr_tbo(const Branch *const barray, const long obj);
-
 static void cr_bpnc(const Branch *const barray, const long branch);
 static void cr_chaf(const Branch *const barray, const long destination, const long newchild);
 static void cr_uxe(FILE *const stream, const char *const msg);
@@ -71,7 +68,7 @@ static long setstcmp(Objset *const oset_1, Objset *const oset_2, const long nels
 static void sort(Objset *const oset, const long nels);
 static void ssarralloc(Objset *nobjset, const long nsets, const long setsize);
 static void tree_make_canonical(Dataptr, Branch *const barray, long *objnos);
-static void ur_print(Dataptr, FILE *const stream, const Branch *const barray, const long root);
+static void ur_print(Dataptr, DataSeqPtr restrict matrix_seq_data, FILE *const stream, const Branch *const barray, const long root);
 
 /* object sets for tree 1 in comparison */
 static Objset sset_1[MAX_N - 3] = { { NULL, 0 } };
@@ -823,7 +820,6 @@ void treedump_screen(Dataptr matrix, const Branch *const tree)
 /* send tree as table of integers to file pointed to by stream */
 {
     long i;				/* loop counter */
-    long j;				/* loop counter */
 
     printf("Branch\tParent\tLeft\tRight\tChanges\tDirty\n");
     for (i = 0; i < matrix->nbranches; i++) {
@@ -848,14 +844,14 @@ static void cr_uxe(FILE *const stream, const char *const msg)
 
 } /* end cr_uxe */
 
-void lvb_treeprint (Dataptr matrix, FILE *const stream, const Branch *const barray, const long root)
+void lvb_treeprint (Dataptr matrix, DataSeqPtr restrict matrix_seq_data, FILE *const stream, const Branch *const barray, const long root)
 /* print tree in barray (of root root) in bracketed text form to stream stream,
  * in unrooted form */
 {
-    ur_print(matrix, stream, barray, root);
+    ur_print(matrix, matrix_seq_data, stream, barray, root);
 } /* end lvb_treeprint() */
 
-static void ur_print(Dataptr matrix, FILE *const stream, const Branch *const barray, const long root)
+static void ur_print(Dataptr matrix, DataSeqPtr restrict matrix_seq_data, FILE *const stream, const Branch *const barray, const long root)
 /* send tree in barray, of root root, to file pointed to by stream in
  * unrooted form */
 {
@@ -869,8 +865,8 @@ static void ur_print(Dataptr matrix, FILE *const stream, const Branch *const bar
     if (doneabsroot == LVB_FALSE)	/* print whole tree */
     {
 		/* start tree */
-		tmp_title = alloc(strlen(matrix->rowtitle[obj]) + 1, "temp. title");
-		strcpy(tmp_title, matrix->rowtitle[obj]);
+		tmp_title = alloc(strlen(matrix_seq_data->rowtitle[obj]) + 1, "temp. title");
+		strcpy(tmp_title, matrix_seq_data->rowtitle[obj]);
 		while(tmp_title[strlen(tmp_title) - 1] == ' '){
 			tmp_title[strlen(tmp_title) - 1] = '\0';
 		}
@@ -879,8 +875,8 @@ static void ur_print(Dataptr matrix, FILE *const stream, const Branch *const bar
 		usecomma = LVB_TRUE;
 		doneabsroot = LVB_TRUE;
 
-		ur_print(matrix, stream, barray, barray[root].left);
-		ur_print(matrix, stream, barray, barray[root].right);
+		ur_print(matrix, matrix_seq_data, stream, barray, barray[root].left);
+		ur_print(matrix, matrix_seq_data, stream, barray, barray[root].right);
 
 		/* end tree */
 		fprintf(stream, ");\n");
@@ -896,8 +892,8 @@ static void ur_print(Dataptr matrix, FILE *const stream, const Branch *const bar
 		if (usecomma == LVB_TRUE) fprintf(stream, "%s", CLADESEP);
 		if (root < matrix->n)	/* leaf */
 		{
-			tmp_title = alloc(strlen(matrix->rowtitle[obj]) + 1, "temp. title");
-			strcpy(tmp_title, matrix->rowtitle[obj]);
+			tmp_title = alloc(strlen(matrix_seq_data->rowtitle[obj]) + 1, "temp. title");
+			strcpy(tmp_title, matrix_seq_data->rowtitle[obj]);
 			while(tmp_title[strlen(tmp_title) - 1] == ' '){
 				tmp_title[strlen(tmp_title) - 1] = '\0';
 			}
@@ -909,8 +905,8 @@ static void ur_print(Dataptr matrix, FILE *const stream, const Branch *const bar
 		{
 			fprintf(stream, "(");
 			usecomma = LVB_FALSE;
-			ur_print(matrix, stream, barray, barray[root].left);
-			ur_print(matrix, stream, barray, barray[root].right);
+			ur_print(matrix, matrix_seq_data, stream, barray, barray[root].left);
+			ur_print(matrix, matrix_seq_data, stream, barray, barray[root].right);
 			fputc(')', stream);
 			usecomma = LVB_TRUE;
 		}

@@ -38,23 +38,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <unistd.h>
 
 /* it is in ReadFile.cpp library */
-void read_parameters(Params *prms, int argc, char **argv);
+int read_parameters(Params *prms, int argc, char **argv);
 
-static int get_default_seed(void)
+int get_default_seed(void)
 /* return a default integer in the interval [0..MAX_SEED], obtained from the
  * system clock, or exit with an error message if the system time is
  * unavailable */
 {
-    time_t tim;			/* system time */
-    unsigned long ul_seed;	/* seed value obtained from system time */
-
-    tim = time(NULL);
-    lvb_assert(tim != -1);
-    ul_seed = (unsigned long) tim;
-    ul_seed = ul_seed % (1UL + (unsigned long) MAX_SEED);
-    lvb_assert(ul_seed <= MAX_SEED);
-    return (int) ul_seed;
-
+	srand(time(NULL));
+    return (int) (rand() % (unsigned long) MAX_SEED);
 } /* end get_default_seed() */
 
 
@@ -79,12 +71,19 @@ void defaults_params(Params *const prms)
 
 } /* end defaults_params() */
 
-void getparam(Params *prms, int argc, char **argv)
+int getparam(Params *prms, int argc, char **argv)
 /* Get configuration parameters. This function fills *prms with
  * run-time configuration parameters */
 {
 	defaults_params(prms);
- /*   user_adjust(prms);*/
-	read_parameters(prms, argc, argv);
 
+	int n_default_seed = prms->seed;
+ /*   user_adjust(prms);*/
+	int n_error_code = read_parameters(prms, argc, argv);
+
+	/* change initial seed because the user defined one */
+	if (prms->seed != n_default_seed){
+		srand(prms->seed);
+	}
+	return n_error_code;
 } /* end getparam() */

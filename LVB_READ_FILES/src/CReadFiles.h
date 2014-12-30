@@ -74,7 +74,7 @@ public:
 	static bool is_file_exist(std::string file_name);
 
 	void save_file(std::string sz_file_name_temp);
-	void read_file(std::string file_name_out, int n_file_type);
+	int read_file(std::string file_name_out, int n_file_type);
 	unsigned int get_length_sequences() {
 		if ((int) lst_sequences.size() > 0) return lst_sequences[0].length();
 		return 0;
@@ -95,14 +95,14 @@ private:
 	std::string sz_accept_chars;				// chars to pass on filter
 	int n_max_length_name_seq;
 
-	void clean_data();
+	int clean_data();
 
 private:
 	/// several read file methods
-	void read_clustal(int filetype);
-	void read_phylip();
-	void read_fasta();
-	void read_nexus();
+	int read_clustal(int filetype);
+	int read_phylip();
+	int read_fasta();
+	int read_nexus();
 
 	bool is_only_one_sequence_in_array(std::vector< std::string > lst_strings);
 	std::string get_string_from_list(std::vector< std::string > lst_strings, bool b_last_one);

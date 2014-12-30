@@ -58,7 +58,6 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstru
     long iter;		/* iteration of mutate/evaluate loop */
     long len;			/* length of current tree */
     long lendash;		/* length of proposed new tree */
-    long lenmin;		/* minimum length for any tree */
     double pacc;		/* prob. of accepting new config. */
     double r_lenmin;		/* minimum length for any tree */
     long rootdash;		/* root of new configuration */
@@ -86,8 +85,7 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstru
     alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
     len = getplen(matrix, x, rcstruct, root, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs);
     
-    lenmin = getminlen(matrix);
-    r_lenmin = (double) lenmin;
+    r_lenmin = (double) matrix->min_len_tree;
     
     /* Log progress to standard output if chosen*/
     if (log_progress) printf("\nDetermining the Starting Temperature ...\n");

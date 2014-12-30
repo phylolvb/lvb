@@ -44,7 +44,7 @@ wrapper.c - LVB to PHYLIP interface
 
 #include "lvb.h"
 
-void read_file(char *file_name, int n_file_format, Dataptr p_lvbmat);
+int read_file(char *file_name, int n_file_format, Dataptr p_lvbmat, DataSeqPtr lvbmat_seq);
 void phylip_mat_dims_in_external(char *file_name, int n_file_format, long *species_ptr, long *sites_ptr, int *max_length_name);
 
 
@@ -83,9 +83,10 @@ structure containing the data matrix.
 
 **********/
 
-void phylip_dna_matrin(char *p_file_name, int n_file_format, Dataptr lvbmat)
+int phylip_dna_matrin(char *p_file_name, int n_file_format, Dataptr lvbmat, DataSeqPtr lvbmat_seq)
 {
-	read_file(p_file_name, n_file_format, lvbmat);
+	int n_error_code = read_file(p_file_name, n_file_format, lvbmat, lvbmat_seq);
+	if (n_error_code != 0) return n_error_code;
 
     /* check number of sequences is in range for LVB */
     if (lvbmat->n < MIN_N) crash("The data matrix must have at least %ld sequences.", MIN_N);
@@ -93,6 +94,7 @@ void phylip_dna_matrin(char *p_file_name, int n_file_format, Dataptr lvbmat)
     /* check number of sites is in range for LVB */
     else if (lvbmat->m < MIN_M) crash("The data matrix must have at least %ld sites.", MIN_M);
     else if (lvbmat->m > MAX_M) crash("The data matrix must have no more than %ld sites.", MAX_M);
+	return 0;
 
 } /* end phylip_dna_matrin() */
 

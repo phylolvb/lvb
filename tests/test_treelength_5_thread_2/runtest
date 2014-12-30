@@ -33,14 +33,14 @@
 
 # run LVB
 $lvb = $ENV{LVB_EXECUTABLE};
-$output = `"$lvb" -p 2`;
+$output = `mpirun -np 2 ../"$lvb" -p 2`;
 $status = $?;
 
 # check output
 if ($status == 0)
 {
     if ($output =~
-	/1 most parsimonious tree of length 1006 written to file \'outtree\'/)
+	/1 most parsimonious tree of length 1006 written to file \'outtree_1\'/)
     {
 	print "test passed\n";
     }
@@ -54,4 +54,4 @@ else
     print "test failed\n";
 }
 
-unlink "outtree";
+unlink "outtree_1";

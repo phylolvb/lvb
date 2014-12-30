@@ -36,11 +36,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lvb.h"
 
-static void lenlog(FILE *lengthfp, long iteration, long length, double temperature)
+static void lenlog(FILE *lengthfp, int myMPIid, long iteration, long length, double temperature)
 /* write a message to file pointer lengthfp; iteration gives current iteration;
  * crash verbosely on write error */
 {
-    fprintf(lengthfp, "%-15.8f%-15ld%-15ld\n", temperature, iteration, length); 
+    fprintf(lengthfp, "%-15d%-15.8f%-15ld%-15ld\n", myMPIid, temperature, iteration, length);
     if (ferror(lengthfp)){
     	crash("file error when logging search progress");
     }
@@ -49,7 +49,7 @@ static void lenlog(FILE *lengthfp, long iteration, long length, double temperatu
 
 long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *const inittree,
 		Params rcstruct, long root, FILE * const lenfp, const long *weights,
-		long *current_iter, Lvb_bool log_progress)
+		long *current_iter, int myMPIid, Lvb_bool log_progress)
 /* perform a deterministic hill-climbing optimization on the tree in inittree,
  * using NNI on all internal branches until no changes are accepted; return the
  * length of the best tree found; current_iter should give the iteration number
@@ -104,7 +104,7 @@ long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *c
 					}
 				}
 				if ((log_progress == LVB_TRUE) && ((*current_iter % STAT_LOG_INTERVAL) == 0)) {
-					lenlog(lenfp, *current_iter, len, 0);
+					lenlog(lenfp, myMPIid, *current_iter, len, 0);
 				}
 				*current_iter += 1;
 			}
@@ -122,7 +122,7 @@ long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *c
 long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Params rcstruct,
 		long root, const double t0, const long maxaccept, const long maxpropose,
 		const long maxfail, FILE *const lenfp, const long *weights, long *current_iter,
-		Lvb_bool log_progress)
+		int myMPIid, Lvb_bool log_progress)
 /* seek parsimonious tree from initial tree in inittree (of root root)
  * with initial temperature t0, and subsequent temperatures obtained by
  * multiplying the current temperature by (t1 / t0) ** n * t0 where n is
@@ -145,7 +145,6 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
     long len;			/* length of current tree */
     long lenbest;		/* bet length found so far */
     long lendash;		/* length of proposed new tree */
-    long lenmin;		/* minimum length for any tree */
     double ln_t;		/* ln(current temperature) */
     long t_n = 0;		/* ordinal number of current temperature */
     double pacc;		/* prob. of accepting new config. */
@@ -181,11 +180,10 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
     lenbest = len;
     treestack_push(matrix, bstackp, inittree, root);	/* init. tree initially best */
     if ((log_progress == LVB_TRUE) && (*current_iter == 0)) {
-        fprintf(lenfp, "\nTemperature:   Rearrangement: Length:\n");
+        fprintf(lenfp, "\nProcess:  Temperature:   Rearrangement: Length:\n");
     }
 
-    lenmin = getminlen(matrix);
-    r_lenmin = (double) lenmin;
+    r_lenmin = (double) matrix->min_len_tree;
 
     int n_temp_possible_tree = 0;
     int n_temp_new_tree = 0;
@@ -200,7 +198,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
 		if ((*current_iter % REROOT_INTERVAL) == 0){
 			root = arbreroot(matrix, p_current_tree, root);
 			if ((log_progress == LVB_TRUE) && ((*current_iter % STAT_LOG_INTERVAL) == 0)) {
-        		lenlog(lenfp, *current_iter, len, t);
+        		lenlog(lenfp, myMPIid, *current_iter, len, t);
         	}
 		}
 

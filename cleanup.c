@@ -41,7 +41,7 @@ Lvb_bool cleanup(void)
  * LVB_TRUE on write error to stdout, LVB_FALSE otherwise */
 {
     time_t endtim;	/* time at end of run */
-    Lvb_bool val;	/* return value */
+    Lvb_bool val = LVB_TRUE;	/* return value */
 
     endtim = time(NULL);
     printf("\n");
@@ -49,8 +49,11 @@ Lvb_bool cleanup(void)
     printf("\n");
 
     /* log file won't be used again */
-    fflush(stdout);
-    if (ferror(stdout) != 0) val = LVB_TRUE;
-    else val = LVB_FALSE;
+//    fflush(stdout);
+//    if (ferror(stdout) != 0)
+//	val = LVB_TRUE;
+//    else
+//        val = LVB_FALSE;
+
     return val;
 } /* end cleanup() */
