@@ -33,7 +33,7 @@
 
 # run LVB
 $lvb = $ENV{LVB_EXECUTABLE};
-$output = `mpirun -np 2 ../"$lvb"`;
+$output = `mpirun -np 2 "$lvb"`;
 $status = $?;
 
 # check output
