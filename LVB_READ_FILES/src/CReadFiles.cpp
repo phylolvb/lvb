@@ -319,9 +319,8 @@ void CReadFiles::read_phylip()
 
 	if (n_seqs == 0){
 		error = "Some problem reading the file. Please, check the file format.\nMore information in http://evolution.genetics.washington.edu/phylip/doc/sequence.html";
-		exit_error(1 , error);
 		filein.close();
-		return;
+		exit_error(1 , error);
 	}
 	if ((int) lst_names_seq.size() != (int) lst_sequences.size()){
 		error = "The number of sequences read are different from the number of name samples.";
@@ -537,9 +536,8 @@ void CReadFiles::read_nexus()
 
 	if (n_seqs == 0){
 		error = "Some problem reading the file. Please, check the file format.\nMore information in http://evolution.genetics.washington.edu/phylip/doc/sequence.html";
-		exit_error(1 , error);
 		filein.close();
-		return;
+		exit_error(1 , error);
 	}
 	if ((int) lst_names_seq.size() != (int) lst_sequences.size()){
 		error = "The number of sequences read are different from the number of name samples.";
@@ -664,7 +662,7 @@ void CReadFiles::read_file(std::string sz_file_name_temp, int n_file_type){
 		if (b_debug) cout << lst_names_seq[i] << ": " << lst_sequences[i].length() << endl;
 		if (lst_sequences[i].length() != n_max_size){
 			error = "Something wrong with the file.\nThe sequence lengths are different in the file: " + sz_file_name;
-			exit_error(0 , error);
+			exit_error(1 , error);
 		}
 	}
 

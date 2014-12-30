@@ -50,10 +50,7 @@ Lvb_bool cleanup(void)
 
     /* log file won't be used again */
     fflush(stdout);
-    if (ferror(stdout) != 0)
-	val = LVB_TRUE;
-    else
-        val = LVB_FALSE;
-
+    if (ferror(stdout) != 0) val = LVB_TRUE;
+    else val = LVB_FALSE;
     return val;
 } /* end cleanup() */

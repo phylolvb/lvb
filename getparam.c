@@ -73,7 +73,7 @@ void defaults_params(Params *const prms)
     prms->seed = get_default_seed();
 
     strcpy(prms->file_name_in, "infile");
-    strcpy(prms->file_name_out, "outfile");
+    strcpy(prms->file_name_out, OUTTREEFNAM);
     prms->n_file_format = FORMAT_PHYLIP;
     prms->n_processors_available = 1;
 

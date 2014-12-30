@@ -136,9 +136,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
     /* Allocation of the initial encoded matrix is non-contiguous because
      * this matrix isn't used much, so any performance penalty won't matter. */
     enc_mat = (Lvb_bit_lentgh **) malloc((matrix->n) * sizeof(Lvb_bit_lentgh *));
-    for (i = 0; i < matrix->n; i++)
-    	enc_mat[i] = alloc(matrix->bytes, "state sets");
-    
+    for (i = 0; i < matrix->n; i++) enc_mat[i] = alloc(matrix->bytes, "state sets");
     dna_makebin(matrix, enc_mat);
 
     /* open and entitle statistics file shared by all cycles
