@@ -44,16 +44,16 @@
 #
 # first.
 #
-# For UNIX-like systems (including Windows with MinGW and MSYS, MacOS X
-# with Developer Tools, and Linux) compile with
+# For Linux, compile with
 #
 # make
 #
-# AFTER BUILDING LVB, RUN TESTS IMMEDIATELY: for UNIX-like systems, do
+# For OS X with the Intel C++ compiler, uncomment the definitions of CC,
+# G++ and CFLAGS below, then compile as for Linux.
+
+# AFTER BUILDING LVB, RUN TESTS IMMEDIATELY: do
 #
 # make test
-#
-# for Windows, the tests must be run by hand.
 
 # Directories
 TEST_DIR = ./tests
@@ -63,6 +63,11 @@ LVB_READ_FILE_DIR = ./LVB_READ_FILES/src
 ### define a c++ compiler to your platform 
 G++ = g++
 MPIC++ = mpic++
+
+# FOR OS X WITH THE INTEL C++ COMPILER:
+#G++ = icpc
+#CC = icc
+#CFLAGS += -openmp-link static
 
 # Compiler options
 #CFLAGS += -DLVB	 	# Must be present
