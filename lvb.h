@@ -41,6 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <errno.h>
 #include <limits.h>
 #include <math.h>
+#include <omp.h>
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdio.h>
