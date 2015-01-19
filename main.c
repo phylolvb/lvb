@@ -280,7 +280,7 @@ int main(int argc, char **argv)
 	"(c) Copyright 2003-2012 by Daniel Barker\n"
 	"(c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl\n"
 	"(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro\n"
-	"and Maximilian Strobl.\n"
+	"and Maximilian Strobl\n"
 	"(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro,\n"
 	"Maximilian Strobl and Chris Wood.\n"
 	"All rights reserved.\n"
