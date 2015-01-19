@@ -3,6 +3,8 @@
 (c) Copyright 2003-2012 by Daniel Barker
 (c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl
 (c) Copyright 2014 by Daniel Barker, Miguel Pinheiro and Maximilian Strobl
+(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl
+and Chris Wood.
 All rights reserved.
  
 Redistribution and use in source and binary forms, with or without
@@ -54,9 +56,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DataStructure.h"
 
 /* the program */
-#define PROGNAM "lvb"			/* program file name */
-#define LVB_VERSION "IN DEVELOPMENT"	/* version of program */
-#define LVB_SUBVERSION "(2014)"		/* version details e.g. date */
+#define PROGNAM "lvb"				/* program file name */
+#define LVB_VERSION "3.2 Beta"			/* version of program */
+#define LVB_SUBVERSION "(19 January 2015)"	/* version details e.g. date */
 
 /* set if is to compile with 64 or 32 */
 #define COMPILE_64_BITS				/* the default is 32 bits */

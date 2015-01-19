@@ -3,6 +3,8 @@
 (c) Copyright 2003-2012 by Daniel Barker
 (c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl
 (c) Copyright 2014 by Daniel Barker, Miguel Pinheiro and Maximilian Strobl
+(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl
+and Chris Wood.
 All rights reserved.
  
 Redistribution and use in source and binary forms, with or without
@@ -277,8 +279,10 @@ int main(int argc, char **argv)
     printf("\nLVB\n\n"
 	"(c) Copyright 2003-2012 by Daniel Barker\n"
 	"(c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl\n"
-	"(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro and Maximilian\n"
-	"Strobl.\n"
+	"(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro\n"
+	"and Maximilian Strobl.\n"
+	"(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro,\n"
+	"Maximilian Strobl and Chris Wood.\n"
 	"All rights reserved.\n"
 	"\n"
 	"Redistribution and use in source and binary forms, with or without\n"
