@@ -64,7 +64,7 @@ static void writeinf(Params prms, int myMPIid, int n_process)
     if(prms.cooling_schedule == 0) printf("GEOMETRIC\n");
     else printf("LINEAR\n");
 
-    printf("seed                 = %d\n", prms.seed);
+    printf("main seed            = %d\n", prms.seed);
     printf("bootstrap replicates = %ld\n", prms.bootstraps);
     printf("input file name      = %s\n", prms.file_name_in);
     printf("output file name     = %s\n", prms.file_name_out);
@@ -149,7 +149,7 @@ static long getsoln(Dataptr restrict matrix, DataSeqPtr restrict matrix_seq_data
     randtree(matrix, tree);	/* initialise required variables */
     ss_init(matrix, tree, enc_mat);
     initroot = 0;
-    t0 = get_initial_t(matrix, tree, rcstruct, initroot, weight_arr, log_progress);
+    t0 = get_initial_t(matrix, tree, rcstruct, initroot, weight_arr, myMPIid, log_progress);
 //    t0 = 0.18540001000004463;
 
     randtree(matrix, tree);	/* begin from scratch */
@@ -257,6 +257,7 @@ void print_data(Dataptr p_lvbmat, int n_thread){
 	printf("m: %ld\n", p_lvbmat->m);
 	printf("n: %ld\n", p_lvbmat->n);
 	printf("max_length_seq_name: %ld\n", p_lvbmat->max_length_seq_name);
+	printf("min_len_tree: %ld\n", p_lvbmat->min_len_tree);
 }
 
 void print_data_seq(DataSeqPtr p_lvbmat, int n_size, int n_thread){
@@ -328,7 +329,7 @@ int main(int argc, char **argv)
 
 	/* define the matrix structure MPI */
 	int				nItems = 2;
-	int          	blocklengths[2] = {9, 2};
+	int          	blocklengths[2] = {10, 2};
 	MPI_Datatype 	types[2] = {MPI_LONG, MPI_INT};
 	MPI_Datatype 	mpi_matrix;
 	MPI_Aint     	displacements[2];

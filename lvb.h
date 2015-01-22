@@ -62,9 +62,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* set if is to compile with 64 or 32 */
 #define COMPILE_64_BITS				/* the default is 32 bits */
-//#define	MPI_SEND_ONLY_MATRIX_NAMES	/* if defined only send the names of the matrix
-									   /* sometimes the data matrix are huge and it's only necessary to pass
-    								   the names of the other process */
+#define	MPI_SEND_ONLY_MATRIX_NAMES	/* if defined only send the names of the matrix */
+									/* sometimes the data matrix are huge and it's only necessary to pass */
+    								/* the names of the other process */
 
 /* DNA bases: bits to set in statesets */
 #define A_BIT 0b0001		/* (1U << 0) */
@@ -201,7 +201,7 @@ void dnapars_wrapper(void);
 char *f2str(FILE *const);
 Lvb_bool file_exists(const char *const);
 void get_bootstrap_weights(long *, long, long);
-double get_initial_t(Dataptr, const Branch *const, Params rcstruct, long, const long *, Lvb_bool);
+double get_initial_t(Dataptr, const Branch *const, Params rcstruct, long, const long *, int myMPIid, Lvb_bool);
 int getparam(Params *, int argc, char **argv);
 
 long getplen(Dataptr restrict, Branch *, Params rcstruct, const long, const long *restrict, long *restrict p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs);

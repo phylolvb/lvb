@@ -37,7 +37,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lvb.h"
 
 double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstruct, long root,
-		const long *weights, Lvb_bool log_progress)
+		const long *weights, int myMPIid, Lvb_bool log_progress)
 /* Determine the starting temperature for the annealing search 
  * by finding the temperature T at which 65% of proposed 
  * positive transitions (changes in the tree structure which increase
@@ -168,7 +168,7 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstru
     
     /* Log progress if chosen*/
     if (log_progress)
-        printf("Starting Temperature is: %-.8f\n", (t - increment_size));
+        printf("Starting Temperature is:%-.8f   Process:%d   Seed:%d\n", (t - increment_size), myMPIid, rcstruct.seed);
     
     /* Return the temperature last used */
     return (t - increment_size);

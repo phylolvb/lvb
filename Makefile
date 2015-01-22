@@ -71,10 +71,7 @@ MPIC++ = mpic++
 
 # Compiler options
 #CFLAGS += -DLVB	 	# Must be present
-CFLAGS += -O2 -Wall # -ansi	# Assumes GNU C compiler
-#CFLAGS += -fprofile-arcs -ftest-coverage -ansi
-#CFLAGS += -g -std=c99
-#CFLAGS += -O3 -std=c99 -fopenmp -ftree-loop-distribution -fvariable-expansion-in-unroller -ftree-vectorizer-verbose=6 -msse4.2
+#CFLAGS += -O2 -Wall -std=c99 -fopenmp -msse4.2 # -ansi	# Assumes GNU C compiler
 CFLAGS += -O3 -std=c99 -fopenmp -msse4.2
 
 # System-dependent macros - OK for Linux and UNIX-like systems, for others will

@@ -58,8 +58,8 @@ typedef struct data
     long tree_bytes_whitout_sset;	/* length the tree in bytes whitout sset */
     long nwords;
     long min_len_tree;			/*  minimum length of any tree based on matrix */
-    int n_threads_getplen;  /* number of possible threads in getplen function */
-    int n_slice_size_getplen;  /* slice size in getplen function, usually m/n_threads_getplen  */
+    int n_threads_getplen;  	/* number of possible threads in getplen function */
+    int n_slice_size_getplen;  	/* slice size in getplen function, usually m/n_threads_getplen  */
 } *Dataptr, DataStructure;
 
 
