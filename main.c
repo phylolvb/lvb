@@ -284,6 +284,68 @@ void print_binary_data(Lvb_bit_lentgh **p_enc_data, int n_size, int nwords, int 
 	}
 }
 
+/*  get temperatures from processes */
+void get_temperature_from_other_process(int num_procs){
+
+	int nProcessFinished = 0;
+	MPI_Request *pHandleTemperatureRecv;
+	MPI_Request *pHandleFinishProcess;
+	MPI_Status mpi_status;
+	int *pIntFinishedProcess, *pIntFinishedProcessChecked;
+	double *pDoubleTemperature;
+	int nFlag, i;
+
+	pHandleTemperatureRecv = (MPI_Request *) alloc(num_procs * sizeof(MPI_Request), "MPI_request for temperature...");
+	pHandleFinishProcess = (MPI_Request *) alloc(num_procs * sizeof(MPI_Request), "MPI_request for finish process...");
+	pIntFinishedProcess = (int *) alloc(num_procs * sizeof(int), "Buffer for finished processes...");
+	pIntFinishedProcessChecked = (int *) alloc(num_procs * sizeof(int), "Buffer for finished processes...");
+	pDoubleTemperature = (double *) alloc(num_procs * sizeof(double), "Buffer for temperature...");
+	memset(pIntFinishedProcessChecked, 0, num_procs * sizeof(int));
+	memset(pIntFinishedProcess, 0, num_procs * sizeof(int));
+
+	/* first get handles for all receivers */
+	for (i = 1; i < num_procs; i++) {
+		MPI_Irecv(pDoubleTemperature + i, 1, MPI_DOUBLE, i, MPI_TAG_SEND_TEMP_MASTER, MPI_COMM_WORLD, pHandleTemperatureRecv + i);
+		MPI_Irecv(pIntFinishedProcess + i, 1, MPI_INT, i, MPI_TAG_SEND_FINISHED, MPI_COMM_WORLD, pHandleFinishProcess + i);
+	}
+
+	while (1){
+		for (i = 1; i < num_procs; i++) {
+
+			MPI_Test(pHandleTemperatureRecv + i, &nFlag, &mpi_status);
+			if (nFlag == 1){	/* message received */
+				printf("Process:%d    main process getting temperature from process:%-15.8f\n", mpi_status.MPI_SOURCE, *(pDoubleTemperature + i));
+				/* launch other receive */
+				MPI_Irecv(pDoubleTemperature + i, 1, MPI_DOUBLE, i, MPI_TAG_SEND_TEMP_MASTER, MPI_COMM_WORLD, pHandleTemperatureRecv + i);
+			}
+
+			/* test the ones that finish  */
+			if (*(pIntFinishedProcessChecked + i) == 0){
+				MPI_Test(pHandleFinishProcess + i, &nFlag, &mpi_status);
+				if (nFlag == 1 && *(pIntFinishedProcess + i) == MPI_MESSAGE_FINISHED){
+					*(pIntFinishedProcessChecked + i) = 1;
+					nProcessFinished += 1;
+				}
+			}
+
+			/* is it finished  */
+			if (nProcessFinished == (num_procs - 1)){
+				/* All processes are finished */
+				/* cancel the requests of temperature*/
+				for (i = 1; i < num_procs; i++)  MPI_Cancel(pHandleTemperatureRecv + i);
+				break;
+			}
+		}
+		if (nProcessFinished == (num_procs - 1)){
+			break;
+		}
+	}
+	free(pHandleTemperatureRecv);
+	free(pHandleFinishProcess);
+	free(pIntFinishedProcess);
+	free(pIntFinishedProcessChecked);
+
+}
 
 int main(int argc, char **argv)
 {
@@ -462,6 +524,10 @@ int main(int argc, char **argv)
 			MPI_Send(p_pack_data_binary, n_buffer_size_binary, MPI_PACKED, i, MPI_TAG_BINARY_DATA, MPI_COMM_WORLD); //, &request);
 		}
 
+		/*  get temperatures from processes */
+		/* and wait until all processes are finished */
+		get_temperature_from_other_process(num_procs);
+
 	}
 	else{
 
@@ -593,7 +659,6 @@ int main(int argc, char **argv)
     if (rcstruct.verbose == LVB_TRUE) {
         printf("Process finish: %d\n", myMPIid);
     }
- //   printf("Process finish: %d\n", myMPIid);
 
     /* shut down MPI */
     MPI_Finalize();

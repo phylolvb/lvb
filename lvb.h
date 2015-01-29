@@ -56,15 +56,19 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DataStructure.h"
 
 /* the program */
-#define PROGNAM "lvb"			/* program file name */
+#define PROGNAM "lvb"					/* program file name */
 #define LVB_VERSION "IN DEVELOPMENT"	/* version of program */
-#define LVB_SUBVERSION "(2014)"		/* version details e.g. date */
+#define LVB_SUBVERSION "(2014)"			/* version details e.g. date */
 
 /* set if is to compile with 64 or 32 */
 #define COMPILE_64_BITS				/* the default is 32 bits */
 #define	MPI_SEND_ONLY_MATRIX_NAMES	/* if defined only send the names of the matrix */
 									/* sometimes the data matrix are huge and it's only necessary to pass */
     								/* the names of the other process */
+
+
+#define SWAP_TEMPERATURE_NUMBER_INTERACTIOS		100000		/* swap temperatures between process */
+
 
 /* DNA bases: bits to set in statesets */
 #define A_BIT 0b0001		/* (1U << 0) */
@@ -128,6 +132,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define	MPI_TAG_NAME_AND_SEQ_DATA		2
 #define	MPI_TAG_BINARY_DATA				3
 #define MPI_TAG_PARAMS					4
+#define MPI_TAG_SEND_TEMP_MASTER		5
+#define MPI_TAG_SEND_FINISHED			6
+
+#define MPI_MESSAGE_FINISHED			0x01
 /* END MPI definitions... */
 
 

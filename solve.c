@@ -159,6 +159,9 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
     long *p_todo_arr; /* [MAX_BRANCHES + 1];	 list of "dirty" branch nos */
     long *p_todo_arr_sum_changes; /*used in openMP, to sum the partial changes */
     int *p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */
+    MPI_Request request_handle = NULL;
+    int nFlagRequest;
+
 
     /* variables that could calculate immediately */
     const double log_wrapper_LVB_EPS = log_wrapper(LVB_EPS);
@@ -199,9 +202,12 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
 			root = arbreroot(matrix, p_current_tree, root);
 			if ((log_progress == LVB_TRUE) && ((*current_iter % STAT_LOG_INTERVAL) == 0)) {
         		lenlog(lenfp, myMPIid, *current_iter, len, t);
+
+        		/* send temperature to the master process*/
+        		if (request_handle != NULL) { MPI_Wait(&request_handle, NULL); }
+        		MPI_Isend(&t, 1, MPI_DOUBLE, 0, MPI_TAG_SEND_TEMP_MASTER, MPI_COMM_WORLD, &request_handle);
         	}
 		}
-
 		lvb_assert(t > DBL_EPSILON);
 
 		/* mutation: alternate between the two mutation functions */
@@ -328,13 +334,14 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
 		iter++;
     }
 
-/*    printf("\nn_temp_new_tree:%d\nn_temp_tree_swap:%d\nn_temp_possible_tree:%d\nn_temp_possible_tree_swaped:%d\ndect True:%d\n",
-    		n_temp_new_tree, n_temp_tree_swap, n_temp_possible_tree, n_temp_possible_tree_swaped, t_n);*/
-
     /* free "local" dynamic heap memory */
     free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
     free(p_current_tree);
     free(p_proposed_tree);
+
+    /*  Send FINISH message to master */
+    int nFinished = MPI_MESSAGE_FINISHED;
+    MPI_Send(&nFinished, 1, MPI_INT, 0, MPI_TAG_SEND_FINISHED, MPI_COMM_WORLD); /* this one waits until the master receive all confirmations */
     return lenbest;
 
 } /* end anneal() */
