@@ -301,12 +301,12 @@ void matchange(Dataptr matrix, const Params rcstruct)
      * limit the program too much, or causes massive waste of
      * address space. */
 
-    togo = alloc(matrix->m * sizeof(Lvb_bool), "'togo' array");
+    togo = (Lvb_bool *) alloc(matrix->m * sizeof(Lvb_bool), "'togo' array");
 
     /* initialize all elements to LVB_FALSE ('don't ignore') */
     for(n_columns_to_change = 0; n_columns_to_change < matrix->m; n_columns_to_change ++) *(togo + n_columns_to_change) = LVB_FALSE;
 
-    n_columns_to_change = constchar(matrix, togo, rcstruct.verbose);	/* compuslory cut */
+    n_columns_to_change = constchar(matrix, togo, (Lvb_bool) rcstruct.verbose);	/* compuslory cut */
 
     /* N.B. a function to mark autapomorphic characters for cutting
      * could be called at this point. The effect would be more noticable
@@ -348,7 +348,7 @@ return the number of columns cut */
     long uun = matrix->n;
     long uum = matrix->m;
     /* memory for new matrix row array */
-    newrow = alloc((size_t) uun * sizeof(char *), "pointers to new row strings");
+    newrow = (char **) alloc((size_t) uun * sizeof(char *), "pointers to new row strings");
     for (i = 0; i < uun; ++i) newrow[i] =  (char*) alloc(sizeof(char) * (n_columns_to_change + 1), "new row strings");
 
     newk = 0;

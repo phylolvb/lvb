@@ -1,0 +1,79 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>randpint.c - random positive integer operations</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#randpint___get_random_positive_integer">randpint - GET RANDOM POSITIVE INTEGER</a></li>
+	<ul>
+
+		<li><a href="#synopsis">SYNOPSIS</a></li>
+		<li><a href="#description">DESCRIPTION</a></li>
+		<li><a href="#parameters">PARAMETERS</a></li>
+		<ul>
+
+			<li><a href="#input">INPUT</a></li>
+			<li><a href="#return">RETURN</a></li>
+		</ul>
+
+	</ul>
+
+</ul>
+
+<hr name="index" />
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<p>randpint.c - random positive integer operations</p>
+<p>
+</p>
+<hr />
+<h1><a name="randpint___get_random_positive_integer">randpint - GET RANDOM POSITIVE INTEGER</a></h1>
+<p>
+</p>
+<h2><a name="synopsis">SYNOPSIS</a></h2>
+<pre>
+    long randpint(long upper);</pre>
+<p>
+</p>
+<h2><a name="description">DESCRIPTION</a></h2>
+<p>Returns a positive integer with a user-specified upper limit.</p>
+<p>Before calling <code>randpint()</code>, ensure the random number generator has
+been initialized by calling <code>rinit()</code>.</p>
+<p>
+</p>
+<h2><a name="parameters">PARAMETERS</a></h2>
+<p>
+</p>
+<h3><a name="input">INPUT</a></h3>
+<dl>
+<dt><strong><a name="upper" class="item">upper</a></strong></dt>
+
+<dd>
+<p>The random number will be in the range [0..<a href="#upper"><code>upper</code></a>] inclusive.</p>
+</dd>
+</dl>
+<p>
+</p>
+<h3><a name="return">RETURN</a></h3>
+<p>A random integer in the interval [0..<a href="#upper"><code>upper</code></a>].</p>
+
+</body>
+
+</html>

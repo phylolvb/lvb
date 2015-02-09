@@ -37,6 +37,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef LVB_LVB_H
 #define LVB_LVB_H
 
+#include "mpi.h"
+#include "mapreduce.h"
+#include "blockmacros.h"
+#include "keyvalue.h"
+
 #include <ctype.h>
 #include <errno.h>
 #include <limits.h>
@@ -48,14 +53,23 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <omp.h>
 #include "myuni.h"
 #include "mymaths.h"
 #include "DataStructure.h"
+
+#include "sys/stat.h"
+
+using namespace MAPREDUCE_NS;
+using namespace std;
 
 /* the program */
 #define PROGNAM "lvb"			/* program file name */
 #define LVB_VERSION "IN DEVELOPMENT"	/* version of program */
 #define LVB_SUBVERSION "(2014)"		/* version details e.g. date */
+
+
+#define __STDC_LIMIT_MACROS
 
 /* set if is to compile with 64 or 32 */
 #define COMPILE_64_BITS				/* the default is 32 bits */
@@ -71,23 +85,23 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define NIBBLE_WIDTH_BITS	2			/* bitwise multiply the NIBBLE_WIDTH */
 
 #ifdef COMPILE_64_BITS
-	typedef uint64_t Lvb_bit_lentgh;								/* define 64 bits */
-	#define NUMBER_OF_BITS										64
-	#define LENGTH_WORD											16	/* length of number packed bases */
-	#define LENGTH_WORD_BITS_MULTIPLY							4	/* multiply of number packed bases */
-	#define MINIMUM_WORDS_PER_SLICE_GETPLEN						30  /* minimum words per slice that run gplen threading */
-	#define MINIMUM_SIZE_NUMBER_WORDS_TO_ACTIVATE_THREADING		60 /* need to have this size to activate the threading */
-	#define MASK_SEVEN											0x7777777777777777U
-	#define MASK_EIGHT											0x8888888888888888U
+	typedef uint64_t Lvb_bit_lentgh;							/* define 64 bits */
+	#define NUMBER_OF_BITS						64
+	#define LENGTH_WORD						16			/* length of number packed bases */
+	#define LENGTH_WORD_BITS_MULTIPLY				4			/* multiply of number packed bases */
+	#define MINIMUM_WORDS_PER_SLICE_GETPLEN				30  			/* minimum words per slice that run gplen threading */
+	#define MINIMUM_SIZE_NUMBER_WORDS_TO_ACTIVATE_THREADING		60 			/* need to have this size to activate the threading */
+	#define MASK_SEVEN						0x7777777777777777U
+	#define MASK_EIGHT						0x8888888888888888U
 #else		/* default 32 bits */
-	typedef uint32_t Lvb_bit_lentgh;								/* define 32 bits */
-	#define NUMBER_OF_BITS										32
-	#define LENGTH_WORD											8	/* length of number packed bases */
-	#define LENGTH_WORD_BITS_MULTIPLY							3	/* multiply of number packed bases */
-	#define MINIMUM_WORDS_PER_SLICE_GETPLEN						30	/* minimum words per slice that run gplen threading */
-	#define MINIMUM_SIZE_NUMBER_WORDS_TO_ACTIVATE_THREADING		60 /* need to have this size to activate the threading */
-	#define MASK_SEVEN											0x77777777U
-	#define MASK_EIGHT											0x88888888U
+	typedef uint32_t Lvb_bit_lentgh;							/* define 32 bits */
+	#define NUMBER_OF_BITS						32
+	#define LENGTH_WORD						8			/* length of number packed bases */
+	#define LENGTH_WORD_BITS_MULTIPLY				3			/* multiply of number packed bases */
+	#define MINIMUM_WORDS_PER_SLICE_GETPLEN				30			/* minimum words per slice that run gplen threading */
+	#define MINIMUM_SIZE_NUMBER_WORDS_TO_ACTIVATE_THREADING		60 			/* need to have this size to activate the threading */
+	#define MASK_SEVEN						0x77777777U
+	#define MASK_EIGHT						0x88888888U
 #endif
 
 /* values some people may feel the dangerous urge to change */
@@ -139,6 +153,20 @@ typedef struct
     Treestack_element *stack;	/* pointer to first element in stack */
 } Treestack;
 
+struct MISC {
+	int rank,nprocs;
+
+	int ID;
+	long num;
+	bool SB;
+
+	int ntrees;
+        long nsets;
+	long mssz;	
+
+	int *count;
+};
+
 
 /* simulated annealing parameters */
 #define MAXACCEPT_SLOW 5L	/* maxaccept for "slow" searches */
@@ -163,10 +191,47 @@ typedef struct
 /* PHYLIP global data */
 //extern long chars;	/* defined in dnapars.c */
 
+ #ifdef __cplusplus
+     #define restrict    /* nothing */
+ #endif 
+
+typedef enum { LVB_FALSE, LVB_TRUE } Lvb_bool;
+
+/* matrix and associated information */
+typedef struct data
+{
+    int n_threads_getplen;              /* number of possible threads in getplen function */
+    int n_slice_size_getplen;           /* slice size in getplen function, usually m/n_threads_getplen  */
+    long m;                             /* number of columns */
+    long original_m;                    /* number of columns read from matrix*/
+    long n;                             /* number of rows */
+    long nbranches;                     /* number of possible braches */
+    long bytes;
+    long tree_bytes;                    /* length the tree in bytes */
+    long tree_bytes_whitout_sset;       /* length the tree in bytes whitout sset */
+    long nwords;
+    char **row;                         /* array of row strings */
+    char **rowtitle;                    /* array of row title strings */
+} *Dataptr, DataStructure;
+
+/* user- or programmer-configurable parameters */
+typedef struct
+{
+    int seed;                   /* seed for random number generator */
+    int cooling_schedule;   /* cooling schedule: 0 is geometric, 1 is linear */
+    int n_file_format;          /* number of file format, must be FORMAT_PHYLIP, FORMAT_FASTA, FORMAT_NEXUS, FORMAT_MSF, FORMAT_CLUSTAL*/
+    int n_processors_available; /* number of processors available */
+    long verbose;               /* verboseness level */
+    long bootstraps;            /* number of bootstrap replicates */
+    char file_name_in[LVB_FNAMSIZE];            /* input file name */
+    char file_name_out[LVB_FNAMSIZE];   /* output file name */
+} Params;
+
+
 /* LVB global functions */
 void *alloc(const size_t, const char *const);
 long anneal(Dataptr restrict, Treestack *, const Branch *const, Params rcstruct, long, const double,
- const long, const long, const long, FILE *const, const long *, long *, Lvb_bool);
+ const long, const long, const long, FILE *const, const long *, long *, Lvb_bool, MISC *misc, MapReduce *mrStackTree, MapReduce *mrBuffer);
 long arbreroot(Dataptr, Branch *const, const long);
 long bytes_per_row(const long);
 long childadd(Branch *const, const long, const long);
@@ -178,7 +243,7 @@ void clnremove(const char *const);
 void crash(const char *const, ...);
 void defaults_params(Params *const prms);
 long deterministic_hillclimb(Dataptr, Treestack *, const Branch *const, Params rcstruct,
-	long, FILE * const, const long *, long *, Lvb_bool);
+	long, FILE * const, const long *, long *, Lvb_bool, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer);
 void dna_makebin(Dataptr restrict, Lvb_bit_lentgh **);
 void dnapars_wrapper(void);
 char *f2str(FILE *const);
@@ -187,8 +252,7 @@ void get_bootstrap_weights(long *, long, long);
 double get_initial_t(Dataptr, const Branch *const, Params rcstruct, long, const long *, Lvb_bool);
 long getminlen(const Dataptr);
 void getparam(Params *, int argc, char **argv);
-long getplen(Dataptr restrict, Branch *, Params rcstruct, const long, const long *restrict, long *restrict p_todo_arr,
-			long *p_todo_arr_sum_changes, int *p_runs);
+long getplen(Dataptr restrict, Branch *, Params rcstruct, const long, const long *restrict, long *restrict p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs);
 void alloc_memory_to_getplen(Dataptr matrix, long **p_todo_arr, long **p_todo_arr_sum_changes, int **p_runs);
 void free_memory_to_getplen(long **p_todo_arr, long **p_todo_arr_sum_changes, int **p_runs);
 double get_predicted_length(double, double, long, long, long, long);
@@ -233,8 +297,19 @@ long treestack_transfer(Dataptr, Treestack *, Treestack *);
 long treestack_pop(Dataptr, Branch *, long *, Treestack *);
 long treestack_print(Dataptr, Treestack *, FILE *const, Lvb_bool);
 long treestack_push(Dataptr, Treestack *, const Branch *const, const long);
+
+long treestack_push_only(Dataptr matrix, Treestack *sp, const Branch *const barray, const long root);
+uint64_t mrStack_push(Dataptr matrix, Treestack *sp, const Branch *const barray, const long root, MapReduce *mrObj, MISC *misc);
+uint64_t tree_setpush(Dataptr matrix, const Branch *const tree, const long root, MapReduce *mrObj, MISC *misc);
+
 void treeswap(Branch **const, long *const, Branch **const, long *const);
 void uint32_dump(FILE *, Lvb_bit_lentgh);
 long words_per_row(const long);
+
+void map_clean(uint64_t itask, char *key, int keybytes, char *value, int valuebytes, KeyValue *kv, void *ptr);
+void reduce_count(char *key, int keybytes, char *multivalue, int nvalues, int *valuebytes, KeyValue *kv, void *ptr);
+void reduce_sets(char *key, int keybytes, char *multivalue, int nvalues, int *valuebytes, KeyValue *kv, void *ptr);
+
+void reduce_filter(char *key, int keybytes, char *multivalue, int nvalues, int *valuebytes, KeyValue *kv, void *ptr);
 
 #endif /* LVB_LVB_H */

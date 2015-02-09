@@ -1,0 +1,434 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>treestack.c - tree stack functions</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#description">DESCRIPTION</a></li>
+	<li><a href="#treestack_cnt___return_count_of_trees_on_stack">treestack_cnt - RETURN COUNT OF TREES ON STACK</a></li>
+	<ul>
+
+		<li><a href="#synopsis">SYNOPSIS</a></li>
+		<li><a href="#description">DESCRIPTION</a></li>
+		<li><a href="#parameters">PARAMETERS</a></li>
+		<ul>
+
+			<li><a href="#input">INPUT</a></li>
+		</ul>
+
+		<li><a href="#return">RETURN</a></li>
+	</ul>
+
+	<li><a href="#treestack_new___return_a_new_tree_stack">treestack_new - RETURN A NEW TREE STACK</a></li>
+	<ul>
+
+		<li><a href="#synopsis">SYNOPSIS</a></li>
+		<li><a href="#description">DESCRIPTION</a></li>
+		<li><a href="#parameters">PARAMETERS</a></li>
+		<li><a href="#return">RETURN</a></li>
+	</ul>
+
+	<li><a href="#treestack_push___push_tree_onto_tree_stack">treestack_push - PUSH TREE ONTO TREE STACK</a></li>
+	<ul>
+
+		<li><a href="#synopsis">SYNOPSIS</a></li>
+		<li><a href="#description">DESCRIPTION</a></li>
+		<li><a href="#parameters">PARAMETERS</a></li>
+		<ul>
+
+			<li><a href="#input">INPUT</a></li>
+			<li><a href="#inout">INOUT</a></li>
+		</ul>
+
+		<li><a href="#return">RETURN</a></li>
+	</ul>
+
+	<li><a href="#treestack_pop___pop_tree_off_tree_stack">treestack_pop - POP TREE OFF TREE STACK</a></li>
+	<ul>
+
+		<li><a href="#synopsis">SYNOPSIS</a></li>
+		<li><a href="#parameters">PARAMETERS</a></li>
+		<ul>
+
+			<li><a href="#output">OUTPUT</a></li>
+			<li><a href="#inout">INOUT</a></li>
+		</ul>
+
+		<li><a href="#return">RETURN</a></li>
+	</ul>
+
+	<li><a href="#treestack_dump___dump_and_clear_tree_stack">treestack_dump - DUMP AND CLEAR TREE STACK</a></li>
+	<ul>
+
+		<li><a href="#synopsis">SYNOPSIS</a></li>
+		<li><a href="#description">DESCRIPTION</a></li>
+		<li><a href="#parameters">PARAMETERS</a></li>
+		<ul>
+
+			<li><a href="#output">OUTPUT</a></li>
+			<li><a href="#inout">INOUT</a></li>
+		</ul>
+
+		<li><a href="#return">RETURN</a></li>
+	</ul>
+
+	<li><a href="#treestack_free___deallocate_tree_stack">treestack_free - DEALLOCATE TREE STACK</a></li>
+	<ul>
+
+		<li><a href="#synopsis">SYNOPSIS</a></li>
+		<li><a href="#description">DESCRIPTION</a></li>
+		<li><a href="#parameters">PARAMETERS</a></li>
+		<ul>
+
+			<li><a href="#inout">INOUT</a></li>
+		</ul>
+
+		<li><a href="#return">RETURN</a></li>
+	</ul>
+
+	<li><a href="#treestack_clear___empty_tree_stack">treestack_clear - EMPTY TREE STACK</a></li>
+	<ul>
+
+		<li><a href="#synopsis">SYNOPSIS</a></li>
+		<li><a href="#description">DESCRIPTION</a></li>
+		<li><a href="#parameters">PARAMETERS</a></li>
+		<ul>
+
+			<li><a href="#inout">INOUT</a></li>
+		</ul>
+
+		<li><a href="#return">RETURN</a></li>
+	</ul>
+
+	<li><a href="#treestack_transfer___transfer_trees_between_tree_stacks">treestack_transfer - TRANSFER TREES BETWEEN TREE STACKS</a></li>
+	<ul>
+
+		<li><a href="#synopsis">SYNOPSIS</a></li>
+		<li><a href="#description">DESCRIPTION</a></li>
+		<li><a href="#parameters">PARAMETERS</a></li>
+		<ul>
+
+			<li><a href="#inout">INOUT</a></li>
+		</ul>
+
+		<li><a href="#return">RETURN</a></li>
+	</ul>
+
+</ul>
+
+<hr name="index" />
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<p>treestack.c - tree stack functions</p>
+<p>
+</p>
+<hr />
+<h1><a name="description">DESCRIPTION</a></h1>
+<p>Provides operations for accessing and maintaining a stack of tree
+topologies.</p>
+<p>
+</p>
+<hr />
+<h1><a name="treestack_cnt___return_count_of_trees_on_stack">treestack_cnt - RETURN COUNT OF TREES ON STACK</a></h1>
+<p>
+</p>
+<h2><a name="synopsis">SYNOPSIS</a></h2>
+<p>long treestack_cnt(Treestack s);</p>
+<p>
+</p>
+<h2><a name="description">DESCRIPTION</a></h2>
+<p>Return the number of trees currently stored on the stack <a href="#s"><code>s</code></a>.</p>
+<p>
+</p>
+<h2><a name="parameters">PARAMETERS</a></h2>
+<p>
+</p>
+<h3><a name="input">INPUT</a></h3>
+<dl>
+<dt><strong><a name="s" class="item">s</a></strong></dt>
+
+<dd>
+<p>The tree stack whose size we wish to know.</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="return">RETURN</a></h2>
+<p>Returns number of trees on stack <a href="#s"><code>s</code></a>.</p>
+<p>
+</p>
+<hr />
+<h1><a name="treestack_new___return_a_new_tree_stack">treestack_new - RETURN A NEW TREE STACK</a></h1>
+<p>
+</p>
+<h2><a name="synopsis">SYNOPSIS</a></h2>
+<pre>
+    Treestack treestack_new(void);</pre>
+<p>
+</p>
+<h2><a name="description">DESCRIPTION</a></h2>
+<p>Returns a new tree stack.</p>
+<p>
+</p>
+<h2><a name="parameters">PARAMETERS</a></h2>
+<p>None.</p>
+<p>
+</p>
+<h2><a name="return">RETURN</a></h2>
+<p>Returns a new, empty tree stack.</p>
+<p>
+</p>
+<hr />
+<h1><a name="treestack_push___push_tree_onto_tree_stack">treestack_push - PUSH TREE ONTO TREE STACK</a></h1>
+<p>
+</p>
+<h2><a name="synopsis">SYNOPSIS</a></h2>
+<pre>
+    long treestack_push(Treestack *sp, const Branch *const barray,
+    const long root);</pre>
+<p>
+</p>
+<h2><a name="description">DESCRIPTION</a></h2>
+<p>Push copy of a tree onto an existing tree stack. Will not push if its
+topology is already present on the stack. The stack will increase its
+own memory allocation if necessary.</p>
+<p>
+</p>
+<h2><a name="parameters">PARAMETERS</a></h2>
+<p>
+</p>
+<h3><a name="input">INPUT</a></h3>
+<dl>
+<dt><strong><a name="barray" class="item">barray</a></strong></dt>
+
+<dd>
+<p>Pointer to first element of array containing tree to be pushed.</p>
+</dd>
+<dt><strong><a name="root" class="item">root</a></strong></dt>
+
+<dd>
+<p>Root branch number of tree to be pushed.</p>
+</dd>
+</dl>
+<p>
+</p>
+<h3><a name="inout">INOUT</a></h3>
+<dl>
+<dt><strong><a name="sp" class="item">sp</a></strong></dt>
+
+<dd>
+<p>Pointer to tree stack that will receive a new copy of the tree.</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="return">RETURN</a></h2>
+<p>Returns 1 if the tree was pushed, or 0 if not.</p>
+<p>
+</p>
+<hr />
+<h1><a name="treestack_pop___pop_tree_off_tree_stack">treestack_pop - POP TREE OFF TREE STACK</a></h1>
+<p>
+</p>
+<h2><a name="synopsis">SYNOPSIS</a></h2>
+<pre>
+    long treestack_pop(Branch *barray, long *root, Treestack *sp);
+    
+=head2 DESCRIPTION</pre>
+<p>Pop a tree off a tree stack.</p>
+<p>
+</p>
+<h2><a name="parameters">PARAMETERS</a></h2>
+<p>
+</p>
+<h3><a name="output">OUTPUT</a></h3>
+<dl>
+<dt><strong>barray</strong></dt>
+
+<dd>
+<p>Pointer to first element of array to contain the popped tree. There
+must be sufficient space in this array prior to the call.</p>
+</dd>
+<dt><strong>root</strong></dt>
+
+<dd>
+<p>Pointer to scalar that will receive the index of the root in <a href="#barray"><code>barray</code></a>.</p>
+</dd>
+</dl>
+<p>
+</p>
+<h3><a name="inout">INOUT</a></h3>
+<dl>
+<dt><strong>sp</strong></dt>
+
+<dd>
+<p>Pointer to tree stack from which we will pop the tree.</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="return">RETURN</a></h2>
+<p>Returns 1 if a tree was popped, or 0 if the stack was empty.</p>
+<p>
+</p>
+<hr />
+<h1><a name="treestack_dump___dump_and_clear_tree_stack">treestack_dump - DUMP AND CLEAR TREE STACK</a></h1>
+<p>
+</p>
+<h2><a name="synopsis">SYNOPSIS</a></h2>
+<pre>
+    long treestack_dump(Treestack *sp, FILE *const outfp);</pre>
+<p>
+</p>
+<h2><a name="description">DESCRIPTION</a></h2>
+<p>Pop all trees off a stack and dump them.</p>
+<p>
+</p>
+<h2><a name="parameters">PARAMETERS</a></h2>
+<p>
+</p>
+<h3><a name="output">OUTPUT</a></h3>
+<dl>
+<dt><strong><a name="outfp" class="item">outfp</a></strong></dt>
+
+<dd>
+<p>Pointer to the file to which we wish to output trees.</p>
+</dd>
+</dl>
+<p>
+</p>
+<h3><a name="inout">INOUT</a></h3>
+<dl>
+<dt><strong>sp</strong></dt>
+
+<dd>
+<p>The stack to be emptied and dumped.</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="return">RETURN</a></h2>
+<p>Returns the number of trees dumped.</p>
+<p>
+</p>
+<hr />
+<h1><a name="treestack_free___deallocate_tree_stack">treestack_free - DEALLOCATE TREE STACK</a></h1>
+<p>
+</p>
+<h2><a name="synopsis">SYNOPSIS</a></h2>
+<pre>
+    void treestack_free(Treestack *sp);</pre>
+<p>
+</p>
+<h2><a name="description">DESCRIPTION</a></h2>
+<p>Clear a tree stack and deallocate dynamically allocated heap
+memory associated with it.</p>
+<p>
+</p>
+<h2><a name="parameters">PARAMETERS</a></h2>
+<p>
+</p>
+<h3><a name="inout">INOUT</a></h3>
+<dl>
+<dt><strong>sp</strong></dt>
+
+<dd>
+<p>The stack to be emptied and deallocated.</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="return">RETURN</a></h2>
+<p>None.</p>
+<p>
+</p>
+<hr />
+<h1><a name="treestack_clear___empty_tree_stack">treestack_clear - EMPTY TREE STACK</a></h1>
+<p>
+</p>
+<h2><a name="synopsis">SYNOPSIS</a></h2>
+<pre>
+    void treestack_clear(Treestack *sp);</pre>
+<p>
+</p>
+<h2><a name="description">DESCRIPTION</a></h2>
+<p>Empty a tree stack but do not deallocate memory associated with it.
+This memory will be available for re-use when trees are pushed onto the
+stack again.</p>
+<p>
+</p>
+<h2><a name="parameters">PARAMETERS</a></h2>
+<p>
+</p>
+<h3><a name="inout">INOUT</a></h3>
+<dl>
+<dt><strong>sp</strong></dt>
+
+<dd>
+<p>The stack to be emptied.</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="return">RETURN</a></h2>
+<p>None.</p>
+<p>
+</p>
+<hr />
+<h1><a name="treestack_transfer___transfer_trees_between_tree_stacks">treestack_transfer - TRANSFER TREES BETWEEN TREE STACKS</a></h1>
+<p>
+</p>
+<h2><a name="synopsis">SYNOPSIS</a></h2>
+<pre>
+    void treestack_transfer(Treestack *destp, Treestack *sourcep);</pre>
+<p>
+</p>
+<h2><a name="description">DESCRIPTION</a></h2>
+<p>Transfer one tree stack in its entirety to another. Order of the transferred
+trees is not preserved. Current contents and current order of the destination
+stack are preserved. Duplicate topologies are not transferred. The source
+stack is emptied but not deallocated.</p>
+<p>
+</p>
+<h2><a name="parameters">PARAMETERS</a></h2>
+<p>
+</p>
+<h3><a name="inout">INOUT</a></h3>
+<dl>
+<dt><strong><a name="destp" class="item">destp</a></strong></dt>
+
+<dd>
+<p>Pointer to the stack to be added to.</p>
+</dd>
+<dt><strong><a name="sourcep" class="item">sourcep</a></strong></dt>
+
+<dd>
+<p>Pointer to the stack to be transferred to <a href="#destp"><code>destp</code></a> and cleared.</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="return">RETURN</a></h2>
+<p>Number of trees actually transferred (excluding duplicates which
+are not transferred).</p>
+
+</body>
+
+</html>

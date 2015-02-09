@@ -43,9 +43,10 @@ wrapper.c - LVB to PHYLIP interface
 **********/
 
 #include "lvb.h"
+#include "LVB_READ_FILES/src/ReadFile.h"
 
-void read_file(char *file_name, int n_file_format, Dataptr p_lvbmat);
-void phylip_mat_dims_in_external(char *file_name, int n_file_format, long *species_ptr, long *sites_ptr, int *max_length_name);
+//void read_file(char *file_name, int n_file_format, Dataptr p_lvbmat);
+//void phylip_mat_dims_in_external(char *file_name, int n_file_format, long *species_ptr, long *sites_ptr, int *max_length_name);
 
 
 /**********

@@ -316,7 +316,7 @@ char *f2str(FILE *const stream)
     if (ferror(stream) != 0)
 	crash("file error on reading file");
     inbytes = offmax + 2UL;	/* '\0', possible '\n' */
-    input = alloc(inbytes, "input");
+    input = (char *) alloc(inbytes, "input");
 
     /* get string */
     rewind(stream);

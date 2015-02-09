@@ -1,0 +1,182 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>mymaths.c - wrappers for standard maths functions</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#description">DESCRIPTION</a></li>
+	<li><a href="#exp_wrapper___interface_to_exp__">exp_wrapper - INTERFACE TO <code>exp()</code></a></li>
+	<ul>
+
+		<li><a href="#synopsis">SYNOPSIS</a></li>
+		<li><a href="#description">DESCRIPTION</a></li>
+		<li><a href="#parameters">PARAMETERS</a></li>
+		<ul>
+
+			<li><a href="#input">INPUT</a></li>
+		</ul>
+
+		<li><a href="#return">RETURN</a></li>
+	</ul>
+
+	<li><a href="#log_wrapper___interface_to_log__">log_wrapper - INTERFACE TO <code>log()</code></a></li>
+	<ul>
+
+		<li><a href="#synopsis">SYNOPSIS</a></li>
+		<li><a href="#description">DESCRIPTION</a></li>
+		<li><a href="#parameters">PARAMETERS</a></li>
+		<ul>
+
+			<li><a href="#input">INPUT</a></li>
+		</ul>
+
+		<li><a href="#return">RETURN</a></li>
+	</ul>
+
+	<li><a href="#pow_wrapper___interface_to_pow__">pow_wrapper - interface to <code>pow()</code></a></li>
+	<ul>
+
+		<li><a href="#synopsis">SYNOPSIS</a></li>
+		<li><a href="#description">DESCRIPTION</a></li>
+		<li><a href="#parameters">PARAMETERS</a></li>
+		<ul>
+
+			<li><a href="#input">INPUT</a></li>
+		</ul>
+
+		<li><a href="#return">RETURN</a></li>
+	</ul>
+
+</ul>
+
+<hr name="index" />
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<p>mymaths.c - wrappers for standard maths functions</p>
+<p>
+</p>
+<hr />
+<h1><a name="description">DESCRIPTION</a></h1>
+<p>Provides wrappers for mathematical functions in the standard library.
+These wrappers include error handling in the sense that they crash
+verbosely if the standard library function signifies an error through
+<code>errno</code> or its return value.</p>
+<p>
+</p>
+<hr />
+<h1><a name="exp_wrapper___interface_to_exp__">exp_wrapper - INTERFACE TO <code>exp()</code></a></h1>
+<p>
+</p>
+<h2><a name="synopsis">SYNOPSIS</a></h2>
+<pre>
+    double exp_wrapper(double x1);</pre>
+<p>
+</p>
+<h2><a name="description">DESCRIPTION</a></h2>
+<p>Calculates natural antilog of a number, or crashes verbosely on
+underflow, overflow or domain error.</p>
+<p>
+</p>
+<h2><a name="parameters">PARAMETERS</a></h2>
+<p>
+</p>
+<h3><a name="input">INPUT</a></h3>
+<dl>
+<dt><strong><a name="x1" class="item">x1</a></strong></dt>
+
+<dd>
+<p>The number whose antilogarithm we wish to calculate.</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="return">RETURN</a></h2>
+<p>Returns <em>e</em>**<a href="#x1"><code>x1</code></a>.</p>
+<p>
+</p>
+<hr />
+<h1><a name="log_wrapper___interface_to_log__">log_wrapper - INTERFACE TO <code>log()</code></a></h1>
+<p>
+</p>
+<h2><a name="synopsis">SYNOPSIS</a></h2>
+<pre>
+    double log_wrapper(double x2);</pre>
+<p>
+</p>
+<h2><a name="description">DESCRIPTION</a></h2>
+<p>Calculates natural logarithm of a number, or crashes verbosely on
+domain error.</p>
+<p>
+</p>
+<h2><a name="parameters">PARAMETERS</a></h2>
+<p>
+</p>
+<h3><a name="input">INPUT</a></h3>
+<dl>
+<dt><strong><a name="x2" class="item">x2</a></strong></dt>
+
+<dd>
+<p>The number whose natural logarithm we wish to calculate.</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="return">RETURN</a></h2>
+<p>Returns <em>ln</em>(<a href="#x2"><code>x2</code></a>).</p>
+<p>
+</p>
+<hr />
+<h1><a name="pow_wrapper___interface_to_pow__">pow_wrapper - interface to <code>pow()</code></a></h1>
+<p>
+</p>
+<h2><a name="synopsis">SYNOPSIS</a></h2>
+<pre>
+    double pow_wrapper(double x3, double y);</pre>
+<p>
+</p>
+<h2><a name="description">DESCRIPTION</a></h2>
+<p>Raises one number to the power of another, or crashes verbosely on
+domain error, range error or underflow.</p>
+<p>
+</p>
+<h2><a name="parameters">PARAMETERS</a></h2>
+<p>
+</p>
+<h3><a name="input">INPUT</a></h3>
+<dl>
+<dt><strong><a name="x3" class="item">x3</a></strong></dt>
+
+<dd>
+<p>The number to be raised to the power of <a href="#y"><code>y</code></a>.</p>
+</dd>
+<dt><strong><a name="y" class="item">y</a></strong></dt>
+
+<dd>
+<p>The number to the power of which <a href="#x3"><code>x3</code></a> is to be raised.</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="return">RETURN</a></h2>
+<p>Returns <a href="#x3"><code>x3</code></a>**<a href="#y"><code>y</code></a>.</p>
+
+</body>
+
+</html>

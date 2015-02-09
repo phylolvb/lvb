@@ -38,7 +38,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <unistd.h>
 
 /* it is in ReadFile.cpp library */
-void read_parameters(Params *prms, int argc, char **argv);
+/* void read_parameters(Params *prms, int argc, char **argv); */
+#include "LVB_READ_FILES/src/ReadFile.h"
 
 static int get_default_seed(void)
 /* return a default integer in the interval [0..MAX_SEED], obtained from the

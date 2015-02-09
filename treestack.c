@@ -59,12 +59,12 @@ static void upsize(Dataptr matrix, Treestack *sp)
     /* allocate for stack itself */
     if (sp->stack == NULL)	/* 1st call, stack does not exist */
     {
-        sp->stack = alloc(sp->size * sizeof(Treestack_element), "initial best tree stack");
+        sp->stack = (Treestack_element *) alloc(sp->size * sizeof(Treestack_element), "initial best tree stack");
         sp->next = 0;
         lvb_assert(sp->size == 1);	/* was incremented above */
     }
     else {
-        sp->stack = realloc(sp->stack, sp->size * sizeof(Treestack_element));
+        sp->stack = (Treestack_element *) realloc(sp->stack, sp->size * sizeof(Treestack_element));
         if (sp->stack == NULL)
             crash("out of memory: cannot increase allocation for\n"
             		"best tree stack to %ld elements", sp->size);
@@ -233,6 +233,23 @@ long treestack_push(Dataptr matrix, Treestack *sp, const Branch *const barray, c
     return 1;
 
 } /* end treestack_push() */
+
+
+long treestack_push_only(Dataptr matrix, Treestack *sp, const Branch *const barray, const long root)
+{
+
+    dopush(matrix, sp, barray, root);
+    return 1;
+}
+
+uint64_t mrStack_push(Dataptr matrix, Treestack *sp, const Branch *const barray, const long root, MapReduce *mrObj, MISC *misc)
+{
+    	uint64_t nKV = tree_setpush(matrix, barray, root, mrObj, misc);
+    	return nKV;
+}
+
+
+
 
 /**********
 
@@ -494,6 +511,7 @@ void treestack_clear(Treestack *sp)
     sp->next = 0;	/* clear stack */
 
 } /* end treestack_clear() */
+
 
 /**********
 

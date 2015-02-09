@@ -64,21 +64,21 @@ static void writeinf(Params prms)
     if(prms.cooling_schedule == 0) printf("GEOMETRIC\n");
     else printf("LINEAR\n");
 
-    printf("seed                 = %d\n", prms.seed);
+    printf("seed                 = %d\n",  prms.seed);
     printf("bootstrap replicates = %ld\n", prms.bootstraps);
-    printf("input file name      = %s\n", prms.file_name_in);
-    printf("output file name     = %s\n", prms.file_name_out);
-    if (prms.n_file_format == FORMAT_PHYLIP) printf("format input file    = phylip\n");
-    else if (prms.n_file_format == FORMAT_FASTA) printf("format input file    = fasta\n");
-    else if (prms.n_file_format == FORMAT_NEXUS) printf("format input file    = nexus\n");
-    else if (prms.n_file_format == FORMAT_MSF) printf("format input file    = msf\n");
+    printf("input file name      = %s\n",  prms.file_name_in);
+    printf("output file name     = %s\n",  prms.file_name_out);
+    if      (prms.n_file_format == FORMAT_PHYLIP)  printf("format input file    = phylip\n");
+    else if (prms.n_file_format == FORMAT_FASTA)   printf("format input file    = fasta\n");
+    else if (prms.n_file_format == FORMAT_NEXUS)   printf("format input file    = nexus\n");
+    else if (prms.n_file_format == FORMAT_MSF)     printf("format input file    = msf\n");
     else if (prms.n_file_format == FORMAT_CLUSTAL) printf("format input file    = clustal\n");
     else{
     	fprintf (stderr, "Error, input format file not recognized\n");
     	abort();
     }
     printf("bootstrap replicates = %ld\n", prms.bootstraps);
-    printf("threads              = %d\n", prms.n_processors_available);
+    printf("threads              = %d\n",  prms.n_processors_available);
 
 } /* end writeinf() */
 
@@ -100,27 +100,31 @@ static void logtree1(Dataptr matrix, const Branch *const barray, const long star
 
 } /* end logtree1() */
 
-static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight_arr, long *iter_p, Lvb_bool log_progress)
+static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight_arr, long *iter_p, Lvb_bool log_progress, 
+		    MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer)
 /* get and output solution(s) according to parameters in rcstruct;
  * return length of shortest tree(s) found, using weights in weight_arr */
 {
     static char fnam[LVB_FNAMSIZE];	/* current file name */
     long fnamlen;			/* length of current file name */
     long i;				/* loop counter */
-    double t0;		/* SA cooling cycle initial temp */
-    long maxaccept = MAXACCEPT_SLOW;	/* SA cooling cycle maxaccept */
+    double t0;				/* SA cooling cycle initial temp */
+    long maxaccept  = MAXACCEPT_SLOW;	/* SA cooling cycle maxaccept */
     long maxpropose = MAXPROPOSE_SLOW;	/* SA cooling cycle maxpropose */
-    long maxfail = MAXFAIL_SLOW;	/* SA cooling cycly maxfail */
+    long maxfail    = MAXFAIL_SLOW;	/* SA cooling cycly maxfail */
     long treec;				/* number of trees found */
     long treelength = LONG_MAX;		/* length of each tree found */
     long initroot;			/* initial tree's root */
     FILE *sumfp;			/* best length file */
     FILE *resfp;			/* results file */
     Branch *tree;			/* initial tree */
-    Lvb_bit_lentgh **enc_mat;	/* encoded data mat. */
-    long *p_todo_arr; /* [MAX_BRANCHES + 1];	 list of "dirty" branch nos */
-    long *p_todo_arr_sum_changes; /*used in openMP, to sum the partial changes */
-    int *p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */
+    Lvb_bit_lentgh **enc_mat;		/* encoded data mat. */
+    long *p_todo_arr; 			/* [MAX_BRANCHES + 1];	 list of "dirty" branch nos */
+    long *p_todo_arr_sum_changes; 	/*used in openMP, to sum the partial changes */
+    int *p_runs; 			/*used in openMP, 0 if not run yet, 1 if it was processed */
+    int *total_count;
+
+    //MISC *misc = (MISC *) ptr;
 
     /* NOTE: These variables and their values are "dummies" and are no longer
      * used in the current version of LVB. However, in order to keep the
@@ -137,7 +141,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
      * this matrix isn't used much, so any performance penalty won't matter. */
     enc_mat = (Lvb_bit_lentgh **) malloc((matrix->n) * sizeof(Lvb_bit_lentgh *));
     for (i = 0; i < matrix->n; i++)
-    	enc_mat[i] = alloc(matrix->bytes, "state sets");
+    	enc_mat[i] = (Lvb_bit_lentgh *) alloc(matrix->bytes, "state sets");
     
     dna_makebin(matrix, enc_mat);
 
@@ -146,6 +150,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
      * of LVB. The code bellow is purely to keep the output consistent
      * with that of previous versions. */
 
+if (misc->rank == 0) {
     if (rcstruct.verbose == LVB_TRUE) {
 		sumfp = clnopen(SUMFNAM, "w");
 		fprintf(sumfp, "StartNo\tCycleNo\tCycInit\tCycBest\tCycTrees\n");
@@ -153,6 +158,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
     else{
         sumfp = NULL;
     }
+}
 	
     /* determine starting temperature */
     randtree(matrix, tree);	/* initialise required variables */
@@ -165,32 +171,80 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
     ss_init(matrix, tree, enc_mat);
     initroot = 0;
 
+if (misc->rank == 0) {
     if (rcstruct.verbose) smessg(start, cyc);
-    	check_stdout();
+    check_stdout();
+}
 
     /* start cycles's entry in sum file
      * NOTE: There are no cycles anymore in the current version
      * of LVB. The code bellow is purely to keep the output consistent
      * with that of previous versions.  */
+if (misc->rank == 0) {
     if(rcstruct.verbose == LVB_TRUE) {
         alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-		fprintf(sumfp, "%ld\t%ld\t%ld\t", start, cyc, getplen(matrix, tree, rcstruct, initroot, weight_arr, p_todo_arr, p_todo_arr_sum_changes, p_runs));
-		free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-		logtree1(matrix, tree, start, cyc, initroot);
+	fprintf(sumfp, "%ld\t%ld\t%ld\t", start, cyc, getplen(matrix, tree, rcstruct, initroot, weight_arr, p_todo_arr, p_todo_arr_sum_changes, p_runs));
+	free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
+	logtree1(matrix, tree, start, cyc, initroot);
     }
+}
 
+    MPI_Barrier(MPI_COMM_WORLD);
     /* find solution(s) */
     treelength = anneal(matrix, &bstack_overall, tree, rcstruct, initroot, t0, maxaccept,
-    		maxpropose, maxfail, stdout, weight_arr, iter_p, log_progress);
-    treestack_pop(matrix, tree, &initroot, &bstack_overall);
-    treestack_push(matrix, &bstack_overall, tree, initroot);
-    treelength = deterministic_hillclimb(matrix, &bstack_overall, tree, rcstruct, initroot, stdout,
-    		weight_arr, iter_p, log_progress);
+    		maxpropose, maxfail, stdout, weight_arr, iter_p, log_progress, misc, mrTreeStack, mrBuffer );
 
-	/* log this cycle's solution and its details 
-	 * NOTE: There are no cycles anymore in the current version
+    treestack_pop(matrix, tree, &initroot, &bstack_overall);
+
+//    treestack_push(matrix, &bstack_overall, tree, initroot);
+
+    misc->SB = 0;
+    tree_setpush(matrix, tree, initroot, mrBuffer, misc);
+    mrTreeStack->add(mrBuffer);
+    mrTreeStack->collate(NULL);
+    mrTreeStack->reduce(reduce_filter, NULL);
+ 
+    mrBuffer->add(mrTreeStack);
+    mrBuffer->collate(NULL);
+
+    misc->count = (int *) alloc( (bstack_overall.next+1) * sizeof(int), "integer array for tree compare using MapReduce");
+    total_count = (int *) alloc( (bstack_overall.next+1) * sizeof(int), "integer array for tree compare using MapReduce");
+    for(int i=1; i<=bstack_overall.next; i++) misc->count[i] = 0;
+    mrBuffer->reduce(reduce_count, misc);
+
+    for(int i=1; i<=bstack_overall.next; i++) total_count[i] = 0;
+    MPI_Reduce( misc->count, total_count, bstack_overall.next, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD );
+  
+    int check_cmp = 0;
+    if (misc->rank == 0) {
+    	for(int i=1; i<=bstack_overall.next; i++) {
+           if (misc->nsets == total_count[i]) {
+                check_cmp = 1;
+        	break;
+           } 
+    	}
+    } 
+ 
+    MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Bcast(&check_cmp, 1, MPI_INT, 0,    MPI_COMM_WORLD);
+    if (check_cmp == 0) {
+          misc->SB = 0;
+          tree_setpush(matrix, tree, initroot, mrBuffer, misc); 
+          mrTreeStack->add(mrBuffer);
+          treestack_push_only(matrix, &bstack_overall, tree, initroot);
+    }
+ 
+    free(misc->count);
+    free(total_count);
+
+    treelength = deterministic_hillclimb(matrix, &bstack_overall, tree, rcstruct, initroot, stdout,
+    		weight_arr, iter_p, log_progress, misc, mrTreeStack, mrBuffer);
+
+    /* log this cycle's solution and its details 
+     * NOTE: There are no cycles anymore in the current version
      * of LVB. The code bellow is purely to keep the output consistent
      * with that of previous versions. */
+if (misc->rank == 0) {
     if (rcstruct.verbose == LVB_TRUE){
 		fnamlen = sprintf(fnam, "%s_start%ld_cycle%ld", RESFNAM, start, cyc);
 		lvb_assert(fnamlen < LVB_FNAMSIZE);	/* really too late */
@@ -206,15 +260,14 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
 		}
     }
 
-
     if (rcstruct.verbose == LVB_TRUE) printf("Ending start %ld cycle %ld\n", start, cyc);
     check_stdout();
 
     if (rcstruct.verbose == LVB_TRUE) clnclose(sumfp, SUMFNAM);
-
+}
     /* "local" dynamic heap memory */
     free(tree);
-	for (i = 0; i < matrix->n; i++) free(enc_mat[i]);
+    for (i = 0; i < matrix->n; i++) free(enc_mat[i]);
     free(enc_mat);
 
     return treelength;
@@ -259,6 +312,14 @@ static void logstim(void)
 
 int main(int argc, char **argv)
 {
+
+    MPI_Init(&argc,&argv);
+
+    MISC misc;
+
+    MPI_Comm_rank(MPI_COMM_WORLD,&misc.rank);
+    MPI_Comm_size(MPI_COMM_WORLD,&misc.nprocs);
+
     Dataptr matrix;	/* data matrix */
     int val;			/* return value */
     Params rcstruct;		/* configurable parameters */
@@ -273,8 +334,19 @@ int main(int argc, char **argv)
     long *weight_arr;  		/* weights for sites */
     Lvb_bool log_progress;	/* whether or not to log anneal search */
 
+    MapReduce *mrTreeStack = new MapReduce(MPI_COMM_WORLD);
+    mrTreeStack->memsize = 1024;
+    mrTreeStack->verbosity = 1;
+    mrTreeStack->timer = 1;
+
+    MapReduce *mrBuffer = new MapReduce(MPI_COMM_WORLD);
+    mrBuffer->memsize = 1024;
+    mrBuffer->verbosity = 1;
+    mrBuffer->timer = 1; 
+
     /* global files */
 
+if(misc.rank == 0) {
     /* entitle standard output */
     printf("\nLVB\n\n"
 	"(c) Copyright 2003-2012 by Daniel Barker\n"
@@ -318,13 +390,14 @@ int main(int argc, char **argv)
 	"search for phylogenetic trees. Bioinformatics, 20, 274-275.\n\n");
     printf("Download and support:\n"
 	"http://eggg.st-andrews.ac.uk/lvb\n\n");
+}
 
     lvb_initialize();
     getparam(&rcstruct, argc, argv);
     logstim();
 
     /* read and alloc space to the data structure */
-    matrix = alloc(sizeof(DataStructure), "alloc data structure");
+    matrix = (data *) alloc(sizeof(DataStructure), "alloc data structure");
     phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix);
 
     /* "file-local" dynamic heap memory: set up best tree stacks, need to be by thread */
@@ -335,17 +408,17 @@ int main(int argc, char **argv)
     calc_distribution_processors(matrix, rcstruct);
 
     if (rcstruct.verbose == LVB_TRUE) {
-    	printf("getminlen: %ld\n\n", getminlen(matrix));
+    	if (misc.rank == 0) printf("getminlen: %ld\n\n", getminlen(matrix));
     }
     rinit(rcstruct.seed);
     if (rcstruct.bootstraps > 0) {
     	log_progress = LVB_FALSE;
-    	printf("\nReplicate:      Rearrangements: Trees output:   Length:\n");
+    	if (misc.rank == 0) printf("\nReplicate:      Rearrangements: Trees output:   Length:\n");
     }
     else log_progress = LVB_TRUE;
 
     weight_arr = (long*) alloc(sizeof(long) * matrix->m, "alloc data structure");
-    outtreefp = clnopen(rcstruct.file_name_out, "w");
+    if (misc.rank == 0) outtreefp = clnopen(rcstruct.file_name_out, "w");
     do{
 		iter = 0;
 		if (rcstruct.bootstraps > 0){
@@ -354,20 +427,26 @@ int main(int argc, char **argv)
 		else{
 			for (i = 0; i < matrix->m; i++) weight_arr[i] = 1;
 		}
-		final_length = getsoln(matrix, rcstruct, weight_arr, &iter, log_progress);
+		final_length = getsoln(matrix, rcstruct, weight_arr, &iter, log_progress, &misc, mrTreeStack, mrBuffer);
+	   if (misc.rank == 0) {
 		if (rcstruct.bootstraps > 0) trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_TRUE);
 		else trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_FALSE);
-
+	   }
 		trees_output_total += trees_output;
 		treestack_clear(&bstack_overall);
+	        mrTreeStack->map( mrTreeStack, map_clean, NULL );
+		mrBuffer->map( mrBuffer, map_clean, NULL );
 		replicate_no++;
 		if (rcstruct.bootstraps > 0) {
-			printf("%-16ld%-16ld%-16ld%ld\n", replicate_no, iter, trees_output, final_length);
+			if (misc.rank == 0) printf("%-16ld%-16ld%-16ld%ld\n", replicate_no, iter, trees_output, final_length);
 			total_iter += (double) iter;
 		}
-		else  printf("\nRearrangements tried: %ld\n", iter);
-	} while (replicate_no < rcstruct.bootstraps);
+		else  {
+			if (misc.rank == 0) printf("\nRearrangements tried: %ld\n", iter);
+		}
+    } while (replicate_no < rcstruct.bootstraps);
 
+     if (misc.rank == 0) {
 	clnclose(outtreefp, rcstruct.file_name_out);
 
 	printf("\n");
@@ -386,7 +465,8 @@ int main(int argc, char **argv)
 			printf("%ld equally parsimonious trees of length %ld written to "
 			 "file '%s'\n", trees_output_total, final_length, rcstruct.file_name_out);
 		}
-    }
+    	}
+     }
 
     rowfree(matrix);
     free(matrix);
@@ -397,6 +477,13 @@ int main(int argc, char **argv)
 
     if (cleanup() == LVB_TRUE) val = EXIT_FAILURE;
     else val = EXIT_SUCCESS;
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    delete mrTreeStack;
+    delete mrBuffer;
+
+    MPI_Finalize(); 
 
     return val;
 

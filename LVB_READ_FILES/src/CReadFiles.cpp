@@ -611,21 +611,21 @@ void CReadFiles::read_file(std::string sz_file_name_temp, int n_file_type){
 	//// setup initial data...
 	clean_data();
 
-	if (n_file_type == CReadFiles::FORMAT_CLUSTAL) {               // Clustal format
+	if (n_file_type == FORMAT_CLUSTAL) {           // Clustal format
 		filetype=1;
 		read_clustal(filetype);
 	}
-	else if (n_file_type == CReadFiles::FORMAT_MSF) {          // MSF format
+	else if (n_file_type == FORMAT_MSF) {          // MSF format
 		filetype=2;
 		read_clustal(filetype);
 	}
-	else if (n_file_type == CReadFiles::FORMAT_PHYLIP) {          // Phylip format
+	else if (n_file_type == FORMAT_PHYLIP) {       // Phylip format
 		read_phylip();
 	}
-	else if (n_file_type == CReadFiles::FORMAT_FASTA) {          // Fasta format
+	else if (n_file_type == FORMAT_FASTA) {        // Fasta format
 		read_fasta();
 	}
-	else if (n_file_type == CReadFiles::FORMAT_NEXUS) {          // nexus format
+	else if (n_file_type == FORMAT_NEXUS) {        // nexus format
 		read_nexus();
 	}
 	else {

@@ -50,10 +50,10 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct,
 {
     long branch;			/* current branch number */
     long changes = 0;			/* tree length (number of changes) */
-    long n_changes_temp;	/* temp variable to count the changes */
+    long n_changes_temp;		/* temp variable to count the changes */
     long done = 0;			/* count of branches "done" */
-	long i;					/* loop counter */
-	long k;					/* current character number */
+    long i;				/* loop counter */
+    long k;				/* current character number */
     long left;				/* current left child number */
     long right;				/* current right child number */
     long todo_cnt = 0;			/* count of branches "to do" */
@@ -249,10 +249,10 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct,
 		long ch;					/* partial changes */
 		long j;						/* loop counter */
 		Lvb_bit_lentgh not_u;				/* complement of u */
-		Lvb_bit_lentgh shifted;			/* ~u, shifted in partial len calcs */
-		Lvb_bit_lentgh u;					/* for s. set and length calcs */
-		Lvb_bit_lentgh x;					/* batch of 8 left state sets */
-		Lvb_bit_lentgh y;					/* batch of 8 right state sets */
+		Lvb_bit_lentgh shifted;				/* ~u, shifted in partial len calcs */
+		Lvb_bit_lentgh u;				/* for s. set and length calcs */
+		Lvb_bit_lentgh x;				/* batch of 8 left state sets */
+		Lvb_bit_lentgh y;				/* batch of 8 right state sets */
 
 		for (i = matrix->n; i < matrix->nbranches; i++) {
 			if (barray[i].sset[0] == 0U){

@@ -46,16 +46,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sstream>
 #include <algorithm>
 
+#include "../../DataStructure.h"
+
 using namespace std;
 
 class CReadFiles {
 
 public:
-	static const int FORMAT_PHYLIP = 0;
-	static const int FORMAT_FASTA = 1;
-	static const int FORMAT_NEXUS = 2;
-	static const int FORMAT_MSF = 3;
-	static const int FORMAT_CLUSTAL = 4;
+//	static const int FORMAT_PHYLIP = 0;
+//	static const int FORMAT_FASTA = 1;
+//	static const int FORMAT_NEXUS = 2;
+//	static const int FORMAT_MSF = 3;
+//	static const int FORMAT_CLUSTAL = 4;
 
 
 public:
@@ -89,10 +91,10 @@ public:
 private:
 	std::vector< std::string > lst_sequences;
 	std::vector< std::string > lst_names_seq;
-	std::string sz_extension;						/// extension of the file
-	std::string sz_file_name;					/// file name possible all path
-	std::string sz_only_file_name;				/// only yhe file name
-	std::string sz_accept_chars;				// chars to pass on filter
+	std::string sz_extension;			/// extension of the file
+	std::string sz_file_name;			/// file name possible all path
+	std::string sz_only_file_name;			/// only yhe file name
+	std::string sz_accept_chars;			// chars to pass on filter
 	int n_max_length_name_seq;
 
 	void clean_data();

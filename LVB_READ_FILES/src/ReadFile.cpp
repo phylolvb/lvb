@@ -34,6 +34,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "ReadFile.h"
 
+long brcnt(long n) { return (n << 1) - 3; };
+
 void read_file(char *file_name, int n_file_type, Dataptr p_lvbmat){
 
 	CReadFiles readFiles = CReadFiles();

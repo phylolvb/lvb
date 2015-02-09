@@ -1,0 +1,175 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>sops.c - string manipulation functions</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#cistrcmp___case_independent_string_comparison">cistrcmp - CASE-INDEPENDENT STRING COMPARISON</a></li>
+	<ul>
+
+		<li><a href="#synopsis">SYNOPSIS</a></li>
+		<li><a href="#description">DESCRIPTION</a></li>
+		<li><a href="#parameters">PARAMETERS</a></li>
+		<ul>
+
+			<li><a href="#input">INPUT</a></li>
+		</ul>
+
+		<li><a href="#return">RETURN</a></li>
+	</ul>
+
+	<li><a href="#nextnonwspc___find_next_non_white_space_character">nextnonwspc - FIND NEXT NON-WHITE-SPACE CHARACTER</a></li>
+	<ul>
+
+		<li><a href="#synopsis">SYNOPSIS</a></li>
+		<li><a href="#description">DESCRIPTION</a></li>
+		<li><a href="#parameters">PARAMETERS</a></li>
+		<ul>
+
+			<li><a href="#input">INPUT</a></li>
+		</ul>
+
+		<li><a href="#return">RETURN</a></li>
+	</ul>
+
+	<li><a href="#supper___convert_to_upper_case">supper - CONVERT TO UPPER CASE</a></li>
+	<ul>
+
+		<li><a href="#synopsis">SYNOPSIS</a></li>
+		<li><a href="#description">DESCRIPTION</a></li>
+		<li><a href="#parameters">PARAMETERS</a></li>
+		<ul>
+
+			<li><a href="#input_output">INPUT/OUTPUT</a></li>
+		</ul>
+
+		<li><a href="#return">RETURN</a></li>
+	</ul>
+
+</ul>
+
+<hr name="index" />
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<p>sops.c - string manipulation functions</p>
+<p>
+</p>
+<hr />
+<h1><a name="cistrcmp___case_independent_string_comparison">cistrcmp - CASE-INDEPENDENT STRING COMPARISON</a></h1>
+<p>
+</p>
+<h2><a name="synopsis">SYNOPSIS</a></h2>
+<pre>
+    long cistrcmp(const char *s1, const char *s2);</pre>
+<p>
+</p>
+<h2><a name="description">DESCRIPTION</a></h2>
+<p>Compares two strings in a case-independent manner. The strings may have
+the same or different length. (Strings of nonequal length are always
+considered different from each other.)</p>
+<p>The strings may overlap in memory or occupy the same memory.</p>
+<p>
+</p>
+<h2><a name="parameters">PARAMETERS</a></h2>
+<p>
+</p>
+<h3><a name="input">INPUT</a></h3>
+<dl>
+<dt><strong><a name="s1" class="item">s1</a></strong></dt>
+
+<dd>
+<p>Pointer to the first text character of one of the strings to be
+compared.</p>
+</dd>
+<dt><strong><a name="s2" class="item">s2</a></strong></dt>
+
+<dd>
+<p>Pointer to the first text character of the other string to be compared.</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="return">RETURN</a></h2>
+<p>Returns 0 if the string are the same or nonzero if different.</p>
+<p>
+</p>
+<hr />
+<h1><a name="nextnonwspc___find_next_non_white_space_character">nextnonwspc - FIND NEXT NON-WHITE-SPACE CHARACTER</a></h1>
+<p>
+</p>
+<h2><a name="synopsis">SYNOPSIS</a></h2>
+<pre>
+    char *nextnonwspc(const char *string);</pre>
+<p>
+</p>
+<h2><a name="description">DESCRIPTION</a></h2>
+<p>Finds the next non-white-space text character in a string, if any.</p>
+<p>
+</p>
+<h2><a name="parameters">PARAMETERS</a></h2>
+<p>
+</p>
+<h3><a name="input">INPUT</a></h3>
+<dl>
+<dt><strong><a name="string" class="item">string</a></strong></dt>
+
+<dd>
+<p>Pointer to the first character in the string in question.</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="return">RETURN</a></h2>
+<p>Pointer to the first non-white-space character in the string, or
+<code>NULL</code> if all characters in the string are white space.</p>
+<p>
+</p>
+<hr />
+<h1><a name="supper___convert_to_upper_case">supper - CONVERT TO UPPER CASE</a></h1>
+<p>
+</p>
+<h2><a name="synopsis">SYNOPSIS</a></h2>
+<pre>
+    char *supper(char *s);</pre>
+<p>
+</p>
+<h2><a name="description">DESCRIPTION</a></h2>
+<p>Convert a string to upper case.</p>
+<p>
+</p>
+<h2><a name="parameters">PARAMETERS</a></h2>
+<p>
+</p>
+<h3><a name="input_output">INPUT/OUTPUT</a></h3>
+<dl>
+<dt><strong><a name="s" class="item">s</a></strong></dt>
+
+<dd>
+<p>Pointer to first text character in the string to be converted.</p>
+</dd>
+</dl>
+<p>
+</p>
+<h2><a name="return">RETURN</a></h2>
+<p>Returns <a href="#s"><code>s</code></a>.</p>
+
+</body>
+
+</html>

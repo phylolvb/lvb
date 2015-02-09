@@ -61,65 +61,36 @@ DOCS_PROG_DIR = ./docs_programmer
 LVB_READ_FILE_DIR = ./LVB_READ_FILES/src
 
 ### define a c++ compiler to your platform 
-G++ = g++
+G++ = mpic++
+MPIC++ = mpic++
 
 # Compiler options
-CFLAGS += -DLVB	 	# Must be present
-CFLAGS += -O2 -Wall # -ansi	# Assumes GNU C compiler
+#CFLAGS += -DLVB	 	# Must be present
+CFLAGS += -Wall # -ansi	# Assumes GNU C compiler
+CXXFLAGS += -Wall
 #CFLAGS += -fprofile-arcs -ftest-coverage -ansi
 #CFLAGS += -g -std=c99
 #CFLAGS += -O3 -std=c99 -fopenmp -ftree-loop-distribution -fvariable-expansion-in-unroller -ftree-vectorizer-verbose=6 -msse4.2
-CFLAGS += -O3 -std=c99 -fopenmp -msse4.2
+CFLAGS += -O3 -fopenmp -msse4.2 -Wno-deprecated -I/gpfs/stfc/local/HCP006/mdw02/cxk42-mdw02/LIBs/mrmpi-22Nov13/src 
+CXXFLAGS += -O3 -fopenmp -msse4.2 -Wno-deprecated -I/gpfs/stfc/local/HCP006/mdw02/cxk42-mdw02/LIBs/mrmpi-22Nov13/src
 
 # System-dependent macros - OK for Linux and UNIX-like systems, for others will
 # require change
-LM = -lm		# UNIX
+LM = -lm /gpfs/stfc/local/HCP006/mdw02/cxk42-mdw02/LIBs/mrmpi-22Nov13/src/libmrmpi_mpicc.a	# UNIX
+USRLIB=/gpfs/stfc/local/HCP006/mdw02/cxk42-mdw02/LIBs/mrmpi-22Nov13/src/libmrmpi_mpicc.a
 RANLIB = ranlib		# UNIX
 EXE =			# UNIX
 OBJ = o			# UNIX
 LIB_EXT = a		# UNIX
+CXX=mpic++
+CC=mpic++
 
 %.OBJ : %.c
+	@echo 'Building file: $<'
+	@echo 'Building file: $(MPICC)'
 	$(CC) $(CFLAGS) $<
 
-# LVB library
-LVB_LIB = liblvb.$(LIB_EXT)
-LIBS += $(LVB_LIB)
-
-LVB_PROG = lvb$(EXE)
-
-# Object files that will go into the LVB library
-
-LVB_LIB_OBJS = admin.$(OBJ) \
-               treestack.$(OBJ) \
-               cleanup.$(OBJ) \
-               datops.$(OBJ) \
-               err.$(OBJ) \
-               fops.$(OBJ) \
-               getparam.$(OBJ) \
-               getstartt.$(OBJ) \
-               mops.$(OBJ) \
-               mymaths.$(OBJ) \
-               myuni.$(OBJ) \
-               parsim.$(OBJ) \
-               randpint.$(OBJ) \
-               solve.$(OBJ) \
-               sops.$(OBJ) \
-               trops.$(OBJ) \
-               wrapper.$(OBJ)
-
-LVB_READ_FILE_OBJS = 	$(LVB_READ_FILE_DIR)/CReadFiles.$(OBJ) \
-			$(LVB_READ_FILE_DIR)/ReadFile.$(OBJ)
-
-LVB_LIB_OBJS_OUTPUT = $(LVB_LIB_OBJS)
-
-# Object files that are used directly and will not go into the library
-
-LVB_PROG_OBJS = main.$(OBJ)
-
-# Documentation files
-
-LVB_MANUAL = lvb_manual.pdf
+#LVB_MANUAL = lvb_manual.pdf
 
 DOCS_PROGRAMMER = $(TEST_MANUAL) \
                   $(DOCS_PROG_DIR)/main.html \
@@ -140,7 +111,7 @@ DOCS_PROGRAMMER = $(TEST_MANUAL) \
 		  $(DOCS_PROG_DIR)/trops.html \
 		  $(DOCS_PROG_DIR)/wrapper.html
 
-TEST_MANUAL = $(DOCS_PROG_DIR)/go.html
+EST_MANUAL = $(DOCS_PROG_DIR)/go.html
 
 # All documentation files
 
@@ -148,33 +119,58 @@ DOCS = $(DOCS_PROGRAMMER) \
        $(TEST_MANUAL) \
        $(LVB_MANUAL)
 
-# Default rule for documentation files (not suitable for user's
-# documentation files, which are derived from *.pod not *.c, or for
-# go.html, which is derived from a different directory)
+
+# LVB library
+LVB_PROG = lvb_mrmpi$(EXE)
+
+# Object files that will go into the LVB library
+
+LVB_LIB_OBJS = admin.$(OBJ) \
+               treestack.$(OBJ) \
+               cleanup.$(OBJ) \
+               datops.$(OBJ) \
+               err.$(OBJ) \
+               fops.$(OBJ) \
+               getparam.$(OBJ) \
+               getstartt.$(OBJ) \
+               main.$(OBJ) \
+               mops.$(OBJ) \
+               mymaths.$(OBJ) \
+               myuni.$(OBJ) \
+               parsim.$(OBJ) \
+               randpint.$(OBJ) \
+               solve.$(OBJ) \
+               sops.$(OBJ) \
+               trops.$(OBJ) \
+               wrapper.$(OBJ)\
+	       mrSubroutine.$(OBJ) \
+
+LVB_READ_FILE_OBJS = 	$(LVB_READ_FILE_DIR)/CReadFiles.$(OBJ) \
+			$(LVB_READ_FILE_DIR)/ReadFile.$(OBJ)
+
+LVB_LIB_OBJS_OUTPUT = $(LVB_LIB_OBJS)
+
+# Object files that are used directly and will not go into the library
 
 %.html : $(LVB_LIB)
 	pod2html $(notdir $*).c > $@
 
-all : lvb	# allow 'make all' as synonym for 'make lvb'
+all : lvb_mpi			# allow 'make all' as synonym for 'make lvb'
 
-lvb : LVB_PROG $(DOCS)
+lvb_mpi : LVB_PROG $(DOCS)
 
 $(LVB_MANUAL) : lvb_manual.odt
 	soffice --headless --convert-to pdf:writer_pdf_Export lvb_manual.odt
 
-LVB_PROG : $(LVB_LIB) $(LVB_PROG_OBJS)
-	$(G++) $(CFLAGS) $(LDFLAGS) -o $(LVB_PROG) $(LVB_PROG_OBJS) $(LVB_READ_FILE_OBJS) $(LIBS) $(LM)
-
-$(LVB_LIB) : $(LVB_LIB_OBJS) $(LVB_READ_FILE_OBJS) 
-	ar rv $@ $(LVB_LIB_OBJS_OUTPUT) 
-	$(RANLIB) $(LVB_LIB)
+LVB_PROG : $(LVB_LIB_OBJS) $(LVB_READ_FILE_OBJS) $(USRLIB)
+	$(MPIC++) $(CFLAGS) $(LDFLAGS) -o $(LVB_PROG) $(LVB_LIB_OBJS) $(LVB_READ_FILE_OBJS) $(LIBS) $(LM)
 
 # If the main test script has changed, we should run the tests
-$(TEST_MANUAL) : $(TEST_DIR)/go
-	pod2html $< >$@
+#$(TEST_MANUAL) : $(TEST_DIR)/go
+#	pod2html $< >$@
 
 test : FORCE
-	cd tests ; env LVB_EXECUTABLE="`pwd`/../$(LVB_PROG)" LVB_LIBRARY="`pwd`/../$(LVB_LIB)" LVB_OTHERLIBS="$(LM)" LVB_HEADER_PATH=".." GPLUSPLUS="$(G++)" CC="$(CC)" CFLAGS="$(CFLAGS)" ./go; cd ..;
+	cd tests ; env LVB_EXECUTABLE="`pwd`/../$(LVB_PROG)" LVB_OTHERLIBS="$(LM)" LVB_HEADER_PATH=".." GPLUSPLUS="$(G++)" CC="$(CC)" CFLAGS="$(CFLAGS)" ./go; cd ..;
 
 tests : test	# allow 'make tests' as synonym for 'make test'
 
@@ -182,10 +178,8 @@ tests : test	# allow 'make tests' as synonym for 'make test'
 # source files
 clean : FORCE
 	rm -f $(LVB_PROG) \
-	$(LVB_LIB) \
 	$(LVB_LIB_OBJS) \
 	$(LVB_READ_FILE_OBJS) \
 	$(LVB_PROG_OBJS) \
 	$(DOCS)
-
 FORCE:

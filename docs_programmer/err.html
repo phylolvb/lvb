@@ -1,0 +1,126 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>err.c - error functions</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+
+<!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#crash___crash_verbosely">crash - CRASH VERBOSELY</a></li>
+	<ul>
+
+		<li><a href="#synopsis">SYNOPSIS</a></li>
+		<li><a href="#description">DESCRIPTION</a></li>
+		<li><a href="#parameters">PARAMETERS</a></li>
+		<ul>
+
+			<li><a href="#input">INPUT</a></li>
+		</ul>
+
+	</ul>
+
+	<li><a href="#scream___log_dire_warning">scream - log dire warning</a></li>
+	<ul>
+
+		<li><a href="#synopsis">SYNOPSIS</a></li>
+		<li><a href="#description">DESCRIPTION</a></li>
+		<li><a href="#parameters">PARAMETERS</a></li>
+		<ul>
+
+			<li><a href="#input">INPUT</a></li>
+		</ul>
+
+	</ul>
+
+</ul>
+
+<hr name="index" />
+</div>
+<!-- INDEX END -->
+
+<p>
+</p>
+<h1><a name="name">NAME</a></h1>
+<p>err.c - error functions</p>
+<p>
+</p>
+<hr />
+<h1><a name="crash___crash_verbosely">crash - CRASH VERBOSELY</a></h1>
+<p>
+</p>
+<h2><a name="synopsis">SYNOPSIS</a></h2>
+<pre>
+    void crash(const char *fmt, ...);</pre>
+<p>
+</p>
+<h2><a name="description">DESCRIPTION</a></h2>
+<p>Prints a message consisting of 'FATAL ERROR: ' followed by a
+user-supplied, <code>vfprintf</code>-acceptable message. Then calls <code>cleanup()</code>
+and exits abnormally.</p>
+<p>
+</p>
+<h2><a name="parameters">PARAMETERS</a></h2>
+<p>
+</p>
+<h3><a name="input">INPUT</a></h3>
+<dl>
+<dt><strong><a name="fmt" class="item">fmt</a></strong></dt>
+
+<dd>
+<p>Pointer to the first character in a format string acceptable to
+<code>vfprintf()</code>.</p>
+</dd>
+<dt><strong><a name="___" class="item">...</a></strong></dt>
+
+<dd>
+<p>Any parameters whose presence is dictated by <a href="#fmt"><code>fmt</code></a>.</p>
+</dd>
+</dl>
+<p>
+</p>
+<hr />
+<h1><a name="scream___log_dire_warning">scream - log dire warning</a></h1>
+<p>
+</p>
+<h2><a name="synopsis">SYNOPSIS</a></h2>
+<pre>
+    void scream(const char *format, ...);</pre>
+<p>
+</p>
+<h2><a name="description">DESCRIPTION</a></h2>
+<p>Prints a message consisting of 'ERROR: ' followed by a user-supplied,
+<code>vfprintf</code>-acceptable message.</p>
+<p>
+</p>
+<h2><a name="parameters">PARAMETERS</a></h2>
+<p>
+</p>
+<h3><a name="input">INPUT</a></h3>
+<dl>
+<dt><strong><a name="format" class="item">format</a></strong></dt>
+
+<dd>
+<p>Pointer to the first character in a format string acceptable to
+<code>vfprintf()</code>.</p>
+</dd>
+<dt><strong><a name="___2" class="item">...</a></strong></dt>
+
+<dd>
+<p>Any parameters whose presence is dictated by <a href="#format"><code>format</code></a>.</p>
+</dd>
+</dl>
+
+</body>
+
+</html>
