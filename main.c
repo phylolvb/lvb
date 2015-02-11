@@ -57,7 +57,7 @@ static void smessg(long start, long cycle)
 
 } /* end smessg() */
 
-static void writeinf(Params prms)
+static void writeinf(Params prms, Dataptr matrix)
 /* write initial details to standard output */
 {
     printf("\n");
@@ -80,7 +80,13 @@ static void writeinf(Params prms)
     	abort();
     }
     printf("bootstrap replicates = %ld\n", prms.bootstraps);
-    printf("threads              = %d\n", prms.n_processors_available);
+    printf("threads              = %d\n\n", prms.n_processors_available);
+
+    printf("#Species             = %ld\n", matrix->n);
+    printf("Lenght of Sequences:\n");
+    printf("    Before cut       = %ld\n", matrix->original_m);
+    printf("    After cut        = %ld\n", matrix->m);
+
 
 } /* end writeinf() */
 
@@ -243,7 +249,7 @@ void calc_distribution_processors(Dataptr matrix, Params rcstruct){
 		matrix->n_threads_getplen = 1; /* need to pass for 1 thread because the number of words is to low */
 	}
 	printf("\nthreads that will be used  = %d\n", matrix->n_threads_getplen);
-	printf("(because is related with the size of the data)\n");
+	printf("(because it is related with the size of the data)\n");
 }
 
 
@@ -332,8 +338,8 @@ int main(int argc, char **argv)
     /* "file-local" dynamic heap memory: set up best tree stacks, need to be by thread */
     bstack_overall = treestack_new();
 
-    writeinf(rcstruct);
     matchange(matrix, rcstruct);	/* cut columns */
+    writeinf(rcstruct, matrix);
     calc_distribution_processors(matrix, rcstruct);
 
     if (rcstruct.verbose == LVB_TRUE) {
@@ -359,6 +365,11 @@ int main(int argc, char **argv)
 		final_length = getsoln(matrix, rcstruct, weight_arr, &iter, log_progress);
 		if (rcstruct.bootstraps > 0) trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_TRUE);
 		else trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_FALSE);
+
+		/* print in the screen */
+/*		for (i = 0; i < bstack_overall.next; i++) {
+			treedump_screen(matrix, bstack_overall.stack[i].tree);
+		}*/
 
 		trees_output_total += trees_output;
 		treestack_clear(&bstack_overall);

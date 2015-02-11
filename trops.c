@@ -49,8 +49,8 @@ typedef	struct	/* object set derived from a cladogram */
 	long cnt;	/* sizes of object sets */
 }	Objset;
 
-static void cr_nbo(const Branch *const barray, const long obj);
-static void cr_tbo(const Branch *const barray, const long obj);
+/* static void cr_nbo(const Branch *const barray, const long obj); */
+/* static void cr_tbo(const Branch *const barray, const long obj); */
 
 static void cr_bpnc(const Branch *const barray, const long branch);
 static void cr_chaf(const Branch *const barray, const long destination, const long newchild);
@@ -825,7 +825,6 @@ void treedump_screen(Dataptr matrix, const Branch *const tree)
 /* send tree as table of integers to file pointed to by stream */
 {
     long i;				/* loop counter */
-    long j;				/* loop counter */
 
     printf("Branch\tParent\tLeft\tRight\tChanges\tDirty\n");
     for (i = 0; i < matrix->nbranches; i++) {
