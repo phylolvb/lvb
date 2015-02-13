@@ -88,9 +88,6 @@ long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *c
     for (i = matrix->n; i < matrix->nbranches; i++) todo[todo_cnt++] = i;
     lvb_assert(todo_cnt == matrix->nbranches - matrix->n);
 
-    uint64_t nKV_mrBuffer = 0;
-    uint64_t nKV_mrTreeStack = 0;
-
     do {
 		newtree = LVB_FALSE;
 		for (i = 0; i < todo_cnt; i++) {
@@ -107,8 +104,11 @@ long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *c
 					if (deltalen < 0)  /* very best so far */
 					{
 						treestack_clear(bstackp);
+						treestack_push_only(matrix, bstackp, p_proposed_tree, rootdash);
+
                                         	misc->ID = bstackp->next;
-						mrTreeStack->map( mrTreeStack, map_clean, NULL );
+                                        	misc->SB = 1;
+                                        	tree_setpush(matrix, p_proposed_tree, rootdash, mrTreeStack, misc);
 					
 						len = lendash;
 					} else {
