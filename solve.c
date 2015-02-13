@@ -106,21 +106,15 @@ long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *c
 				if (deltalen <= 0) {
 					if (deltalen < 0)  /* very best so far */
 					{
-						//if(bstackp->next > 1) mrTreeStack->map( mrTreeStack, map_clean, NULL );
 						treestack_clear(bstackp);
                                         	misc->ID = bstackp->next;
-
+						mrTreeStack->map( mrTreeStack, map_clean, NULL );
+					
 						len = lendash;
 					} else {
 
 						misc->SB = 0;
                                         	tree_setpush(matrix, p_proposed_tree, rootdash, mrBuffer, misc);
-				
-						//if(bstackp->next == 1) {
-                                               // 	misc->SB = 1;
-                                                //	misc->ID = bstackp->next;
-                                               // 	tree_setpush(matrix, p_current_tree, rootdash, mrTreeStack, misc);
-                                        	//}		
 						mrBuffer->add(mrTreeStack);
                                         	mrBuffer->collate(NULL);
 
@@ -160,10 +154,6 @@ long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *c
 
 					}
 
-				//	if (treestack_push(matrix, bstackp, p_proposed_tree, rootdash) == 1) {
-				//		newtree = LVB_TRUE;
-				//		treeswap(&p_current_tree, &root, &p_proposed_tree, &rootdash);
-				//	}
 				}
 				if ((log_progress == LVB_TRUE) && ((*current_iter % STAT_LOG_INTERVAL) == 0)) {
 				   if(misc->rank == 0) lenlog(lenfp, *current_iter, len, 0);
@@ -247,6 +237,10 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
     lenbest = len;
     MPI_Bcast(&lenbest,  1, MPI_LONG, 0, MPI_COMM_WORLD);
     treestack_push(matrix, bstackp, inittree, root);	/* init. tree initially best */
+    misc->SB = 1;
+    misc->ID = bstackp->next;
+    tree_setpush(matrix, inittree, root, mrTreeStack, misc);
+
     if ((log_progress == LVB_TRUE) && (*current_iter == 0)) {
          if(misc->rank == 0) fprintf(lenfp, "\nTemperature:   Rearrangement: Length:\n");
     }
@@ -291,29 +285,16 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
 		{
 			if (lendash <= lenbest)	/* store tree if new */
 			{
-				/*printf("%ld\n", *current_iter);*/
-			//	if (lendash < lenbest) treestack_clear(bstackp);	/* discard old bests */
-			//	if (treestack_push(matrix, bstackp, p_proposed_tree, rootdash) == 1){
-			//		accepted++;
-			//		n_temp_new_tree += 1;
-			//	}
 
 				if (lendash < lenbest) { 
 					treestack_clear(bstackp);
-					if(bstackp->next > 1) mrTreeStack->map( mrTreeStack, map_clean, NULL );	
+					mrTreeStack->map( mrTreeStack, map_clean, NULL );	
 
 					treestack_push_only(matrix, bstackp, p_proposed_tree, rootdash);
 					misc->ID = bstackp->next;
 
 				        misc->SB = 1;
-					//mrStack_push(matrix, bstackp, p_proposed_tree, rootdash, mrTreeStack, misc);
 					tree_setpush(matrix, p_proposed_tree, rootdash, mrTreeStack, misc);
-					//if(bstackp->next > 1) {
-				//		mrStack_push(matrix, bstackp, p_proposed_tree, rootdash, mrBuffer,    misc);
-			//			mrTreeStack->add(mrBuffer);
-			//		} else {
-			//			mrStack_push(matrix, bstackp, p_proposed_tree, rootdash, mrTreeStack, misc);
-			//		}
 
 					accepted++;
 					MPI_Bcast(&accepted,  1, MPI_LONG, 0, MPI_COMM_WORLD);
@@ -322,15 +303,8 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
 					MPI_Barrier(MPI_COMM_WORLD);
 				} else {
 						
-					//MPI_Barrier(MPI_COMM_WORLD);
                                         misc->SB = 0;
 					tree_setpush(matrix, p_proposed_tree, rootdash, mrBuffer, misc);
-					//mrStack_push(matrix, bstackp, p_proposed_tree, rootdash, mrBuffer, misc);
-					if(bstackp->next == 1) {
-						misc->SB = 1;
-						misc->ID = bstackp->next;
-						tree_setpush(matrix, p_current_tree, rootdash, mrTreeStack, misc);
-					}
 					mrBuffer->add(mrTreeStack);
 					mrBuffer->collate(NULL);
 
