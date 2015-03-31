@@ -1072,21 +1072,88 @@ static long makeset_single(Dataptr matrix, const Branch *const tree, const long 
     return nsets;
 }
 
-
-uint64_t tree_setpush(Dataptr matrix, const Branch *const tree, const long root, MapReduce *mrObj, MISC *misc)
+void print_sets(Dataptr matrix, Treestack *sp, MISC *misc) 
 {
+   const long d_obj1 = 0L;
+   static long prev_m = 0;
+   static long prev_n = 0;
+
+   long uggm = matrix->m;
+   long uggn = matrix->n;
+
+   long *set;
+   int nsets = matrix->n - 3;
+   int mssz  = matrix->n - 2;
+   Branch *Tree;
+   Tree = treealloc(matrix, LVB_FALSE);
+   if (sset_2[0].set == NULL)  ssarralloc(sset_2, nsets, mssz);
+
+if(misc->rank == 0) {
+   for(int i=0; i < sp->next; i++) {
+
+      prev_m = uggm;
+      prev_n = uggn;
+      lvb_assert((prev_m == uggm) && (prev_n == uggn));
+
+      treecopy(matrix, Tree, sp->stack[i].tree, LVB_FALSE);
+      long root = sp->stack[i].root;
+      lvb_assert(root < uggn);
+      if(root != d_obj1) lvb_reroot(matrix, Tree, root, d_obj1, LVB_FALSE);
+      root = d_obj1;
+
+      fillsets(matrix, sset_2, Tree, root);
+      sort(sset_2, nsets);
+
+      for(int j=0; j<nsets; j++) {
+	  set = (long *) alloc( sset_2[j].cnt * sizeof(long), "int array for tree comp using MR");
+	  memcpy( set, sset_2[j].set, sset_2[j].cnt * sizeof(long) );	
+
+          for (int k = 0; k < sset_2[j].cnt; k++) cerr << set[k] << "\t";
+	  cerr <<endl;	
+
+	  free(set);
+      }
+      cerr << " --------------------------------- " << endl;
+
+   }
+}
+   free(Tree);
+}
+
+uint64_t tree_setpush(Dataptr matrix, const Branch *const tree, long root, MapReduce *mrObj, MISC *misc)
+{
+    static Branch *copy_tree = NULL;
+    const long d_obj1 = 0L;
+    static long prev_m = 0; 
+    static long prev_n = 0;
+
+    long uggm = matrix->m;
+    long uggn = matrix->n;
+
     misc->nsets = matrix->n - 3;   /* sets per tree */
     misc->mssz  = matrix->n - 2;   /* maximum objects per set */  
 
     if (sset_1[0].set == NULL)  ssarralloc(sset_1, misc->nsets, misc->mssz);
-    fillsets(matrix, sset_1, tree, root);
+
+    copy_tree = treealloc(matrix, LVB_FALSE);
+    prev_m = uggm;
+    prev_n = uggn;
+    lvb_assert((prev_m == uggm) && (prev_n == uggn));
+
+    treecopy(matrix, copy_tree, tree, LVB_FALSE);
+    lvb_assert(root < uggn);
+    if(root != d_obj1) lvb_reroot(matrix, copy_tree, root, d_obj1, LVB_FALSE);
+    root = d_obj1;
+
+    fillsets(matrix, sset_1, copy_tree, root);
     sort(sset_1, misc->nsets);
     
     MPI_Barrier(MPI_COMM_WORLD);
-    mrObj->map(misc->nprocs, map_pushSets, misc);
-    mrObj->broadcast(0);
-    mrObj->collate(NULL);
-    uint64_t nKV = mrObj->reduce(reduce_sets, NULL);
+    uint64_t nKV = mrObj->map(misc->nprocs, map_pushSets, misc);
+//    mrObj->broadcast(0);
+//    mrObj->collate(NULL);
+//    uint64_t nKV = mrObj->reduce(reduce_sets, NULL);
+
     return nKV;
 }
 
@@ -1110,8 +1177,9 @@ void map_pushSets(int itask, KeyValue *kv, void *ptr)
     if(misc->SB == 1) ID = misc->ID;
     else	      ID = 0;
 
-    for(int i=0; i<misc->nsets; i++) {
-	if(misc->rank ==0) kv->add( (char *) &sset_1[i].set, misc->mssz * sizeof(long), (char *) &ID, sizeof(int) );
+    if(misc->rank == 0) {
+       for(int i=0; i<misc->nsets; i++) 
+	  kv->add( (char *) sset_1[i].set, sset_1[i].cnt * sizeof(long), (char *) &ID, sizeof(int) );
     }
 
 }

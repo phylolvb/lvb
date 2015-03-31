@@ -296,10 +296,10 @@ Treestack treestack_new(void);
 long treestack_transfer(Dataptr, Treestack *, Treestack *);
 long treestack_pop(Dataptr, Branch *, long *, Treestack *);
 long treestack_print(Dataptr, Treestack *, FILE *const, Lvb_bool);
-long treestack_push(Dataptr, Treestack *, const Branch *const, const long);
+long treestack_push(Dataptr, Treestack *, const Branch *const, long);
 
 long treestack_push_only(Dataptr matrix, Treestack *sp, const Branch *const barray, const long root);
-uint64_t mrStack_push(Dataptr matrix, Treestack *sp, const Branch *const barray, const long root, MapReduce *mrObj, MISC *misc);
+//uint64_t mrStack_push(Dataptr matrix, Treestack *sp, Branch *barray, const long root, MapReduce *mrObj, MISC *misc);
 uint64_t tree_setpush(Dataptr matrix, const Branch *const tree, const long root, MapReduce *mrObj, MISC *misc);
 
 void treeswap(Branch **const, long *const, Branch **const, long *const);
@@ -311,5 +311,7 @@ void reduce_count(char *key, int keybytes, char *multivalue, int nvalues, int *v
 void reduce_sets(char *key, int keybytes, char *multivalue, int nvalues, int *valuebytes, KeyValue *kv, void *ptr);
 
 void reduce_filter(char *key, int keybytes, char *multivalue, int nvalues, int *valuebytes, KeyValue *kv, void *ptr);
+
+void print_sets(Dataptr matrix, Treestack *sp, MISC *misc);
 
 #endif /* LVB_LVB_H */

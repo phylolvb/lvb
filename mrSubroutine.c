@@ -10,13 +10,14 @@ void reduce_count(char *key, int keybytes, char *multivalue, int nvalues, int *v
 {
    char *value;
    MISC *misc = (MISC *) ptr;
-   int check = 0;
+   int check;
    int ID;
  
    uint64_t nvalues_total;
    CHECK_FOR_BLOCKS(multivalue,valuebytes,nvalues,nvalues_total)
    BEGIN_BLOCK_LOOP(multivalue,valuebytes,nvalues)
 
+   check = 0;
    value = multivalue;
    for (int i=0; i<nvalues; i++) {
 	ID = *(int *) value;
@@ -28,15 +29,25 @@ void reduce_count(char *key, int keybytes, char *multivalue, int nvalues, int *v
    }
 
    if (check == 1) {
-     value = multivalue;
-     for (int i=0; i<nvalues; i++) {
+    value = multivalue;
+    for (int i=0; i<nvalues; i++) {
         ID = *(int *) value;
-	if (ID != 0) misc->count[ID]++; 
+	misc->count[ID]++; 
 	value += valuebytes[i];
-     }
+    }
    }
 
    END_BLOCK_LOOP
+
+// if(misc->rank ==0) {
+//   long *set;
+//   set = (long *) key;
+//   int n = (int) (keybytes / sizeof(long));
+//   for (int i=0; i<n; i++) { 
+//	cerr << "\t" << set[i];
+//   }
+//   cerr << endl << " -------------- " << endl;
+// }
 
 }
 

@@ -194,10 +194,11 @@ if (misc->rank == 0) {
     treelength = anneal(matrix, &bstack_overall, tree, rcstruct, initroot, t0, maxaccept,
     		maxpropose, maxfail, stdout, weight_arr, iter_p, log_progress, misc, mrTreeStack, mrBuffer );
 
-    treestack_pop(matrix, tree, &initroot, &bstack_overall);
 
-//    treestack_push(matrix, &bstack_overall, tree, initroot);
+    long val = treestack_pop(matrix, tree, &initroot, &bstack_overall);
+    treestack_push(matrix, &bstack_overall, tree, initroot);
 
+if(val ==  1) {
     misc->SB = 0;
     tree_setpush(matrix, tree, initroot, mrBuffer, misc);
     mrTreeStack->add(mrBuffer);
@@ -209,17 +210,17 @@ if (misc->rank == 0) {
 
     misc->count = (int *) alloc( (bstack_overall.next+1) * sizeof(int), "integer array for tree compare using MapReduce");
     total_count = (int *) alloc( (bstack_overall.next+1) * sizeof(int), "integer array for tree compare using MapReduce");
-    for(int i=1; i<=bstack_overall.next; i++) misc->count[i] = 0;
+    for(int i=0; i<=bstack_overall.next; i++) misc->count[i] = 0;
     mrBuffer->reduce(reduce_count, misc);
 
-    for(int i=1; i<=bstack_overall.next; i++) total_count[i] = 0;
-    MPI_Reduce( misc->count, total_count, bstack_overall.next, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD );
+    for(int i=0; i<=bstack_overall.next; i++) total_count[i] = 0;
+    MPI_Reduce( misc->count, total_count, bstack_overall.next+1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD );
   
-    int check_cmp = 0;
+    int check_cmp = 1;
     if (misc->rank == 0) {
     	for(int i=1; i<=bstack_overall.next; i++) {
            if (misc->nsets == total_count[i]) {
-                check_cmp = 1;
+                check_cmp = 0;
         	break;
            } 
     	}
@@ -227,18 +228,27 @@ if (misc->rank == 0) {
  
     MPI_Barrier(MPI_COMM_WORLD);
     MPI_Bcast(&check_cmp, 1, MPI_INT, 0,    MPI_COMM_WORLD);
-    if (check_cmp == 0) {
-          misc->SB = 0;
+    if (check_cmp == 1) {
+//	  treestack_push_only(matrix, &bstack_overall, tree, initroot);
+	  misc->ID = bstack_overall.next;  
+          misc->SB = 1;
           tree_setpush(matrix, tree, initroot, mrBuffer, misc); 
           mrTreeStack->add(mrBuffer);
-          treestack_push_only(matrix, &bstack_overall, tree, initroot);
     }
  
     free(misc->count);
     free(total_count);
+//} else {
+//	treestack_push_only(matrix, &bstack_overall, tree, initroot);
+//	misc->ID = bstack_overall.next;
+//	misc->SB = 1;
+//        tree_setpush(matrix, tree, initroot, mrBuffer, misc);
+//        mrTreeStack->add(mrBuffer);
+}
 
     treelength = deterministic_hillclimb(matrix, &bstack_overall, tree, rcstruct, initroot, stdout,
     		weight_arr, iter_p, log_progress, misc, mrTreeStack, mrBuffer);
+
 
     /* log this cycle's solution and its details 
      * NOTE: There are no cycles anymore in the current version
@@ -336,13 +346,13 @@ int main(int argc, char **argv)
 
     MapReduce *mrTreeStack = new MapReduce(MPI_COMM_WORLD);
     mrTreeStack->memsize = 1024;
-    mrTreeStack->verbosity = 1;
-    mrTreeStack->timer = 1;
+    mrTreeStack->verbosity = 0;
+    mrTreeStack->timer = 0;
 
     MapReduce *mrBuffer = new MapReduce(MPI_COMM_WORLD);
     mrBuffer->memsize = 1024;
-    mrBuffer->verbosity = 1;
-    mrBuffer->timer = 1; 
+    mrBuffer->verbosity = 0;
+    mrBuffer->timer = 0; 
 
     /* global files */
 

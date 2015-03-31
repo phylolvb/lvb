@@ -242,11 +242,11 @@ long treestack_push_only(Dataptr matrix, Treestack *sp, const Branch *const barr
     return 1;
 }
 
-uint64_t mrStack_push(Dataptr matrix, Treestack *sp, const Branch *const barray, const long root, MapReduce *mrObj, MISC *misc)
-{
-    	uint64_t nKV = tree_setpush(matrix, barray, root, mrObj, misc);
-    	return nKV;
-}
+//uint64_t mrStack_push(Dataptr matrix, Treestack *sp, Branch *barray, const long root, MapReduce *mrObj, MISC *misc)
+//{
+//    	uint64_t nKV = tree_setpush(matrix, barray, root, mrObj, misc);
+//    	return nKV;
+//}
 
 
 
