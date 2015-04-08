@@ -83,7 +83,7 @@ static char *getstatev(const Dataptr matrix, const long k)
 
 long getminlen(const Dataptr matrix)
 /* return minimum length of any tree based on matrix; FIXME not quite right
- * with ambiguity or gaps */
+ * with ambiguity codes */
 {
     long minlen = 0;	/* return value */
     char *statev;	/* list of states in current character */
