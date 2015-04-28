@@ -57,11 +57,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* the program */
 #define PROGNAM "lvb"				/* program file name */
-#define LVB_VERSION "3.2 Beta"			/* version of program */
-#define LVB_SUBVERSION "(19 January 2015)"	/* version details e.g. date */
+#define LVB_VERSION "3.2"			/* version of program */
+#define LVB_SUBVERSION "(29 April 2015)"	/* version details e.g. date */
 
 /* set if is to compile with 64 or 32 */
+#ifndef COMPILE_32_BITS
 #define COMPILE_64_BITS				/* the default is 32 bits */
+#endif
 
 /* DNA bases: bits to set in statesets */
 #define A_BIT 0b0001		/* (1U << 0) */

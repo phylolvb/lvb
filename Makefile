@@ -46,9 +46,12 @@
 #
 # first.
 #
-# For Linux, compile with
+# For 64-bit Linux, compile with
 #
 # make
+#
+# For 32-bit Linux, uncomment the definition of CFLAGS below, then compile
+# as above.
 #
 # For OS X with the Intel C++ compiler, uncomment the definitions of CC,
 # G++ and CFLAGS below, then compile as for Linux.
@@ -65,7 +68,10 @@ LVB_READ_FILE_DIR = ./LVB_READ_FILES/src
 ### define a c++ compiler to your platform 
 G++ = g++
 
-# FOR OS X WITH THE INTEL C++ COMPILER:
+# UNCOMMENT THIS FOR 32-BIT LINUX:
+# CFLAGS += -DCOMPILE_32_BITS
+
+# UNCOMMENT THESE FOR OS X WITH THE INTEL C++ COMPILER:
 #G++ = icpc
 #CC = icc
 #CFLAGS += -openmp-link static
