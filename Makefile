@@ -70,6 +70,8 @@ G++ = g++
 
 # UNCOMMENT THIS FOR 32-BIT LINUX:
 # CFLAGS += -DCOMPILE_32_BITS
+# COMMENT THIS FOR NON-INTEL HARDWARE (E.G. RASPBERRY PI):
+CFLAGS += -msse4.2
 
 # UNCOMMENT THESE FOR OS X WITH THE INTEL C++ COMPILER:
 #G++ = icpc
@@ -82,7 +84,7 @@ CFLAGS += -O2 -Wall # -ansi	# Assumes GNU C compiler
 #CFLAGS += -fprofile-arcs -ftest-coverage -ansi
 #CFLAGS += -g -std=c99
 #CFLAGS += -O3 -std=c99 -fopenmp -ftree-loop-distribution -fvariable-expansion-in-unroller -ftree-vectorizer-verbose=6 -msse4.2
-CFLAGS += -O3 -std=c99 -fopenmp -msse4.2
+CFLAGS += -O3 -std=c99 -fopenmp
 
 # System-dependent macros - OK for Linux and UNIX-like systems, for others will
 # require change

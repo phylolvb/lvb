@@ -42,7 +42,7 @@ $status = $?;
 if ($status == 0)
 {
     if ($output =~
-		/1 most parsimonious tree of length 1006 written to file \'outtree\'/)
+		/1 most parsimonious tree of length 1846 written to file \'outtree\'/)
     {
 		print "test passed\n";
     }

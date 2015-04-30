@@ -50,6 +50,10 @@ void read_file(char *file_name, int n_file_type, Dataptr p_lvbmat){
     p_lvbmat->n = (long) readFiles.get_number_seqs();
     p_lvbmat->nbranches = brcnt(p_lvbmat->n); 		/* possible number of braches */
 
+    /* it is used in tree compare */
+    p_lvbmat->nsets = p_lvbmat->n - 3;				/* sets per tree */
+    p_lvbmat->mssz = p_lvbmat->n - 2;				/* maximum objects per set */
+
     /* array for row title strings */
     p_lvbmat->rowtitle = (char **) malloc((p_lvbmat->n) * sizeof(char *));
     if (p_lvbmat->rowtitle == NULL) readFiles.exit_error(1 , "Fail to allocate memory...");
@@ -145,7 +149,7 @@ void usage(char *p_file_name){
 			"       default: only one thread available\n");
 	printf("    -h print this help.\n");
 	printf("    -? print this help.\n");
-	abort();
+	exit(0);
 }
 
 
@@ -161,20 +165,19 @@ void read_parameters(Params *prms, int argc, char **argv){
 				if (optarg == NULL){
 					fprintf (stderr, "Option -%c requires an argument -c [g|l]\n", optopt);
 					usage(argv[0]);
-					abort();
+					exit(1);
 				}
 				if (strcmp(optarg, "g") == 0 || strcmp(optarg, "G") == 0) prms->cooling_schedule = 0;
 				else if (strcmp(optarg, "l") == 0 || strcmp(optarg, "L") == 0) prms->cooling_schedule = 1;
 				else{
 					fprintf (stderr, "Unknown cooling schedule option\nPlease, choose between Geometric (g) or Linear (l).");
-					abort();
+					exit(1);
 				}
 				break;
 			case 'b':	/* bootstrap */
 				if (optarg == NULL){
 					fprintf (stderr, "Option -%c requires an argument -b <int>\n", optopt);
 					usage(argv[0]);
-					abort();
 				}
 				prms->bootstraps = atoi(optarg);
 				break;
@@ -185,7 +188,6 @@ void read_parameters(Params *prms, int argc, char **argv){
 				if (optarg == NULL){
 					fprintf (stderr, "Option -%c requires an argument -s <int>\n", optopt);
 					usage(argv[0]);
-					abort();
 				}
 				prms->seed = atoi(optarg);
 				break;
@@ -193,11 +195,10 @@ void read_parameters(Params *prms, int argc, char **argv){
 				if (optarg == NULL){
 					fprintf (stderr, "Option -%c requires an argument -i <file name>\n", optopt);
 					usage(argv[0]);
-					abort();
 				}
 				if (strlen(optarg) > LVB_FNAMSIZE){
 					fprintf (stderr, "Error, the length file name greater than %d\n", LVB_FNAMSIZE);
-					abort();
+					exit(1);
 				}
 				strcpy(prms->file_name_in, optarg);
 				break;
@@ -205,11 +206,10 @@ void read_parameters(Params *prms, int argc, char **argv){
 				if (optarg == NULL){
 					fprintf (stderr, "Option -%c requires an argument -o <file name>\n", optopt);
 					usage(argv[0]);
-					abort();
 				}
 				if (strlen(optarg) > LVB_FNAMSIZE){
 					fprintf (stderr, "Error, the length file name greater than %d\n", LVB_FNAMSIZE);
-					abort();
+					exit(1);
 				}
 				strcpy(prms->file_name_out, optarg);
 				break;
@@ -217,7 +217,6 @@ void read_parameters(Params *prms, int argc, char **argv){
 				if (optarg == NULL){
 					fprintf (stderr, "Option -%c requires an argument -f [phylip|fasta|nexus|msf|clustal]\n", optopt);
 					usage(argv[0]);
-					abort();
 				}
 				if (strcmp(optarg, "phylip") == 0){
 					prms->n_file_format = FORMAT_PHYLIP;
@@ -237,14 +236,14 @@ void read_parameters(Params *prms, int argc, char **argv){
 				else{
 					fprintf (stderr, "Unknown file format.");
 					print_formats_available();
-					abort();
+					exit(1);
 				}
 				break;
 			case 'p':
 				if (optarg == NULL){
 					fprintf (stderr, "Option -%c requires an argument -p <file name>\n", optopt);
 					usage(argv[0]);
-					abort();
+					exit(1);
 				}
 				prms->n_processors_available = atoi(optarg);
 				if (prms->n_processors_available < 1) prms->n_processors_available = 1;

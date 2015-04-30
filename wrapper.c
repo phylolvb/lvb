@@ -96,6 +96,9 @@ void phylip_dna_matrin(char *p_file_name, int n_file_format, Dataptr lvbmat)
     else if (lvbmat->m < MIN_M) crash("The data matrix must have at least %ld sites.", MIN_M);
     else if (lvbmat->m > MAX_M) crash("The data matrix must have no more than %ld sites.", MAX_M);
 
+    /* maximum number of object sets per tree */
+    lvb_assert (lvbmat->nsets <= (MAX_N - 3));
+
 } /* end phylip_dna_matrin() */
 
 /**********

@@ -61,6 +61,8 @@ typedef struct data
     long tree_bytes;	/* length the tree in bytes */
     long tree_bytes_whitout_sset;	/* length the tree in bytes whitout sset */
     long nwords;
+    long nsets;	/* sets per tree */
+    long mssz;	/* maximum objects per set */
     char **row;			/* array of row strings */
     char **rowtitle;	/* array of row title strings */
 } *Dataptr, DataStructure;

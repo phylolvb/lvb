@@ -248,8 +248,12 @@ void calc_distribution_processors(Dataptr matrix, Params rcstruct){
 	else{
 		matrix->n_threads_getplen = 1; /* need to pass for 1 thread because the number of words is to low */
 	}
-	printf("\nthreads that will be used  = %d\n", matrix->n_threads_getplen);
-	printf("(because it is related with the size of the data)\n");
+	// only to protect
+	if (matrix->n_threads_getplen < 1) matrix->n_threads_getplen = 1;
+
+	printf("\nthreads that will be use   = %d\n", matrix->n_threads_getplen);
+	if (rcstruct.n_processors_available != matrix->n_threads_getplen)
+		printf("(because it is related with the size of the data)\n");
 }
 
 
@@ -319,8 +323,7 @@ int main(int argc, char **argv)
 	"STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)\n"
 	"ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF\n"
 	"ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n\n");
-    printf("* This is %s version %s %s *\n\n", PROGNAM, LVB_VERSION,
-	LVB_SUBVERSION);
+    printf("* This is %s version %s %s *\n\n", PROGNAM, LVB_VERSION, LVB_SUBVERSION);
     printf("Literature reference:\n"
 	"Barker, D. 2004. LVB: Parsimony and simulated annealing in the\n"
 	"search for phylogenetic trees. Bioinformatics, 20, 274-275.\n\n");

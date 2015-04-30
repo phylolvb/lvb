@@ -440,7 +440,7 @@ bool CReadFiles::is_phylip_line_sequential(int &n_total_lines){
 
 void CReadFiles::read_fasta()
 {
-	std::string sz_line = "";
+	std::string sz_line;
 	int n_count_sequence = -1;
 
 	ifstream filein;
@@ -450,12 +450,13 @@ void CReadFiles::read_fasta()
 
 		sz_line = trim(sz_line);
 		if (b_debug) cout << sz_line << endl;
-		if ((int) sz_line.length() == 0) continue;
+		if ((int) sz_line.length() == 0) { continue; };
 		if (sz_line[0] == '>'){
 			lst_names_seq.push_back(sz_line.substr(1, sz_line.size() - 1));
 			n_count_sequence += 1;
 		}
 		else{
+			if (n_count_sequence == -1) { continue; }
 			if (n_count_sequence == (int) lst_sequences.size()) lst_sequences.push_back(sz_line);
 			else lst_sequences[n_count_sequence] += sz_line;
 		}
