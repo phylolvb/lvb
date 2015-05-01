@@ -54,8 +54,8 @@
 #
 # make test
 #
-# For 32-bit AMD or Intel-based hardware or entirely different CPUs
-# (e.g. Raspberry Pi), uncomment the line that adds -DCOMPILE_32_BITS to
+# For 32-bit AMD or Intel-based hardware or entirely different 32-bit CPUs
+# (e.g. the Raspberry Pi), uncomment the line that adds -DCOMPILE_32_BITS to
 # CFLAGS; also, comment-out the line that adds -msse4.2.
 #
 # For OS X with the Intel C++ compiler, uncomment the definitions of CC,
