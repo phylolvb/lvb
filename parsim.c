@@ -44,9 +44,8 @@ parsim.c - tree evaluation
 
 #include "lvb.h"
 
-long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct,
-		const long root, const long *restrict weights, long *restrict p_todo_arr,
-		long *p_todo_arr_sum_changes, int *p_runs)
+long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const long root,
+		long *restrict p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs)
 {
     long branch;			/* current branch number */
     long changes = 0;			/* tree length (number of changes) */
@@ -90,8 +89,6 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct,
 		{
 			long j;						/* loop counter */
 			long ch;					/* partial changes */
-			Lvb_bit_lentgh not_u;				/* complement of u */
-			Lvb_bit_lentgh shifted;			/* ~u, shifted in partial len calcs */
 			Lvb_bit_lentgh u;					/* for s. set and length calcs */
 			Lvb_bit_lentgh x;					/* batch of 8 left state sets */
 			Lvb_bit_lentgh y;					/* batch of 8 right state sets */
@@ -143,16 +140,7 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct,
 #endif
 								ch = LENGTH_WORD - ch;
 								u >>= 3;
-								if (rcstruct.bootstraps > 0 && ch > 0){
-									not_u = ~u;
-									for (k = 0; k < LENGTH_WORD; k++){
-										shifted = not_u >> (k << NIBBLE_WIDTH_BITS);
-										n_changes_temp += (shifted & 1U) ? (weights[(j >> LENGTH_WORD_BITS_MULTIPLY) + k]) : 0;
-									}
-								}
-								else{
-									n_changes_temp += ch;
-								}
+								n_changes_temp += ch;
 								barray[branch].sset[j] = (x & y) | ((x | y) & ((u + MASK_SEVEN) ^ MASK_EIGHT));;
 							}
 							*(p_todo_arr_sum_changes + (i * matrix->n_threads_getplen) + omp_get_thread_num()) = n_changes_temp;
@@ -186,17 +174,7 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct,
 
 				ch = LENGTH_WORD - ch;
 				u >>= 3;
-				if (rcstruct.bootstraps > 0 && ch > 0){
-					not_u = ~u;
-					for (k = 0; k < LENGTH_WORD; k++){
-						shifted = not_u >> (k << NIBBLE_WIDTH_BITS);
-						n_changes_temp += (shifted & 1U) ? (weights[(j >> LENGTH_WORD_BITS_MULTIPLY) + k]) : 0;
-					}
-				}
-				else{
-					n_changes_temp += ch;
-				}
-
+				n_changes_temp += ch;
 				x = (x & y) | ((x | y) & ((u + MASK_SEVEN) ^ MASK_EIGHT));
 				y = barray[root].sset[j];
 
@@ -213,18 +191,7 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct,
 				ch = __builtin_popcount(u);
 #endif
 				ch = LENGTH_WORD - ch;
-				if (rcstruct.bootstraps > 0 && ch > 0){
-					u >>= 3;
-					not_u = ~u;
-
-					for (k = 0; k < LENGTH_WORD; k++) {
-						shifted = not_u >> (k << NIBBLE_WIDTH_BITS);
-						n_changes_temp += (shifted & 1U) ? (weights[(j >> LENGTH_WORD_BITS_MULTIPLY) + k]) : 0;
-					}
-				}
-				else{
-					n_changes_temp += ch;
-				}
+				n_changes_temp += ch;
 			}
 			*(p_todo_arr_sum_changes + (todo_cnt * matrix->n_threads_getplen) + omp_get_thread_num()) = n_changes_temp;
 		}
@@ -248,8 +215,6 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct,
 
 		long ch;					/* partial changes */
 		long j;						/* loop counter */
-		Lvb_bit_lentgh not_u;				/* complement of u */
-		Lvb_bit_lentgh shifted;			/* ~u, shifted in partial len calcs */
 		Lvb_bit_lentgh u;					/* for s. set and length calcs */
 		Lvb_bit_lentgh x;					/* batch of 8 left state sets */
 		Lvb_bit_lentgh y;					/* batch of 8 right state sets */
@@ -307,14 +272,6 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct,
 							ch = LENGTH_WORD - ch;
 
 							u >>= 3;
-							if (rcstruct.bootstraps != 0 && ch > 0){
-								not_u = ~u;
-								ch = 0;
-								for (k = 0; k < LENGTH_WORD; k++){
-									shifted = not_u >> (k << NIBBLE_WIDTH_BITS);
-									ch += (shifted & 1U) ? (weights[(j >> LENGTH_WORD_BITS_MULTIPLY) + k]) : 0;
-								}
-							}
 							barray[branch].sset[j] = (x & y) | ((x | y) & ((u + MASK_SEVEN) ^ MASK_EIGHT));
 #ifdef	PRINT_PRINTF
 	#ifdef COMPILE_64_BITS
@@ -356,16 +313,7 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct,
 #endif
 			ch = LENGTH_WORD - ch;
 			u >>= 3;
-			if (rcstruct.bootstraps != 0 && ch > 0){
-				not_u = ~u;
-				for (k = 0; k < LENGTH_WORD; k++){
-					shifted = not_u >> (k << NIBBLE_WIDTH_BITS);
-					changes += (shifted & 1U) ? (weights[(j >> LENGTH_WORD_BITS_MULTIPLY) + k]) : 0;
-				}
-			}
-			else{
-				changes += ch;
-			}
+			changes += ch;
 
 			x = (x & y) | ((x | y) & ((u + MASK_SEVEN) ^ MASK_EIGHT));
 			y = barray[root].sset[j];
@@ -383,17 +331,7 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct,
 			ch = __builtin_popcount(u);
 #endif
 			ch = LENGTH_WORD - ch;
-			if (rcstruct.bootstraps != 0 && ch > 0){
-				u >>= 3;
-				not_u = ~u;
-				for (k = 0; k < LENGTH_WORD; k++) {
-					shifted = not_u >> (k << NIBBLE_WIDTH_BITS);
-					changes += (shifted & 1U) ? (weights[(j >> LENGTH_WORD_BITS_MULTIPLY) + k]) : 0;
-				}
-			}
-			else{
-				changes += ch;
-			}
+			changes += ch;
 		}
     }
 

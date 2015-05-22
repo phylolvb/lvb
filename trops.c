@@ -3,6 +3,8 @@
 (c) Copyright 2003-2012 by Daniel Barker
 (c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl
 (c) Copyright 2014 by Daniel Barker, Miguel Pinheiro and Maximilian Strobl
+(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl
+and Chris Wood.
 All rights reserved.
  
 Redistribution and use in source and binary forms, with or without
@@ -38,8 +40,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define CLADESEP ","	/* clade separator for trees */
 
-/* maximum number of object sets per tree */
-#define MAX_SSET_SIZE (MAX_N - 3)
 
 typedef	struct	/* object set derived from a cladogram */
 {
@@ -47,27 +47,25 @@ typedef	struct	/* object set derived from a cladogram */
 	long cnt;	/* sizes of object sets */
 }	Objset;
 
+/* static void cr_nbo(const Branch *const barray, const long obj); */
+/* static void cr_tbo(const Branch *const barray, const long obj); */
+
 static void cr_bpnc(const Branch *const barray, const long branch);
 static void cr_chaf(const Branch *const barray, const long destination, const long newchild);
 static void cr_uxe(FILE *const stream, const char *const msg);
-static void fillsets(Dataptr, Objset *const sstruct, const Branch *const tree,
- const long root);
-static void getobjs(Dataptr, const Branch *const barray, const long root,
- long *const objarr, long *const cnt);
+static void fillsets(Dataptr, Objset *const sstruct, const Branch *const tree, const long root);
+static void getobjs(Dataptr, const Branch *const barray, const long root, long *const objarr, long *const cnt);
 static long getsister(const Branch *const barray, const long branch);
-static long makesets(Dataptr, const Branch *const tree_1, const long root_1,
- const Branch *const tree_2, const long root_2);
+static void makesets(Dataptr restrict, const Branch *const tree_1, const Branch *const tree_2, const long root, Lvb_bool b_First);
 static int objnocmp(const void *o1, const void *o2);
 static int osetcmp(const void *oset1, const void *oset2);
-static long *randleaf(Dataptr, Branch *const barray,
- const Lvb_bool *const leafmask, const long objs);
-static void realgetobjs(Dataptr, const Branch *const barray, const long root,
- long *const objarr, long *const cnt);
-static Lvb_bool *randtopology(Dataptr, Branch *const barray, const long nobjs);
-static long setstcmp(Objset *const oset_1, Objset *const oset_2, const long nels);
-static void sort(Objset *const oset, const long nels);
-static void ssarralloc(Objset *nobjset, const long nsets, const long setsize);
-static void tree_make_canonical(Dataptr, Branch *const barray, long *objnos);
+static long *randleaf(Dataptr restrict, Branch *const barray,const Lvb_bool *const leafmask, const long objs);
+static void realgetobjs(Dataptr restrict, const Branch *const barray, const long root, long *const objarr, long *const cnt);
+static Lvb_bool *randtopology(Dataptr restrict, Branch *const barray, const long nobjs);
+static long setstcmp(Dataptr restrict, Objset *const oset_1, Objset *const oset_2, Lvb_bool b_First);
+static void sort(Objset *const oset_1, Objset *const oset_2, const long nels, Lvb_bool b_First);
+static void ssarralloc(Dataptr restrict matrix, Objset *nobjset_1, Objset *nobjset_2);
+static void tree_make_canonical(Dataptr restrict, Branch *const barray, long *objnos);
 static void ur_print(Dataptr, DataSeqPtr restrict matrix_seq_data, FILE *const stream, const Branch *const barray, const long root);
 
 /* object sets for tree 1 in comparison */
@@ -133,7 +131,7 @@ static void make_dirty_below(Dataptr restrict matrix, Branch *tree, long dirty_n
 
 } /* end make_dirty_below() */
 
-static void make_dirty_tree(Dataptr restrict matrix, Branch *tree)
+void make_dirty_tree(Dataptr restrict matrix, Branch *tree)
 /* mark all branches in tree tree as dirty: internal, external and root */
 {
     long i, j;					/* loop counter */
@@ -914,81 +912,81 @@ static void ur_print(Dataptr matrix, DataSeqPtr restrict matrix_seq_data, FILE *
 
 } /* end ur_print() */
 
-long treecmp(Dataptr matrix, const Branch *const tree_1, const long root_1,
-		const Branch *const tree_2, long root_2)
+
+
+long treecmp(Dataptr matrix, const Branch *const tree_1, const Branch *const tree_2, long root, Lvb_bool b_First)
 /* return 0 if the topology of tree_1 (of root root_1) is the same as
  * that of tree_2 (of root root_2), or non-zero if different */
 {
-    static Branch *copy_2 = NULL;	/* possibly re-rooted tree 2 */
-    static long prev_m = 0;		/* m on previous call */
-    static long prev_n = 0;		/* n on previous call */
-    long nsets;				/* elements per set array */
-
-    long uggm = matrix->m;
-    long uggn = matrix->n;
-
-    /* allocate "local" static heap memory - static - do not free! */
-    if (copy_2 == NULL) {
-		copy_2 = treealloc(matrix, LVB_FALSE);
-		prev_m = uggm;
-		prev_n = uggn;
-    }
-    lvb_assert((prev_m == uggm) && (prev_n == uggn));
-
-    treecopy(matrix, copy_2, tree_2, LVB_FALSE);
-    lvb_assert(root_1 < uggn);
-    if(root_1 != root_2) lvb_reroot(matrix, copy_2, root_2, root_1, LVB_FALSE);
-
-    root_2 = root_1;
-    nsets = makesets(matrix, tree_1, root_1, copy_2, root_2);
-    return setstcmp(sset_1, sset_2, nsets);
+//	b_First = LVB_TRUE;
+    makesets(matrix, tree_1, tree_2, root, b_First);
+    return setstcmp(matrix, sset_1, sset_2, b_First);
 
 } /* end treecmp() */
 
-static long setstcmp(Objset *const oset_1, Objset *const oset_2, const long nels)
+static long setstcmp(Dataptr matrix, Objset *const oset_1, Objset *const oset_2, Lvb_bool b_First)
 /* return 0 if the same sets of objects are in oset_1 and oset_2,
  * and non-zero otherwise */
 {
     long i;		/* loop counter */
-    long j;		/* loop counter */
-    long *set_1;	/* current set in set array 1 */
-    long *set_2;	/* current set in set array 2 */
 
     /* sort the set arrays and their constituent sets */
-    sort(oset_1, nels);
-    sort(oset_2, nels);
+    sort(oset_1, oset_2, matrix->nsets, b_First);
 
     /* compare the set arrays */
-    for (i = 0; i < nels; i++){
+    for (i = 0; i < matrix->nsets; i++){
     	if (oset_1[i].cnt != oset_2[i].cnt) return 1;
-    	else {
-			set_1 = oset_1[i].set;
-			set_2 = oset_2[i].set;
-			for (j = 0; j < oset_1[i].cnt; ++j) {
-				if (set_1[j] != set_2[j]) return 1;
-			}
-    	}
+    	if (memcmp(oset_1[i].set, oset_2[i].set, sizeof(long) * oset_1[i].cnt) != 0) return 1;
     }
     return 0;
-
 } /* end setstcmp() */
 
-static void sort(Objset *const oset, const long nels)
+
+void sort_array(long *p_array, int n_left, int n_rigth){
+	int l_hold, r_hold;
+	long l_pivot = *(p_array + ((n_left + n_rigth) / 2));
+	long l_temp;
+
+	l_hold = n_left;		//i=l;
+	r_hold = n_rigth;     //j=r;
+	do {
+		while (p_array[l_hold] < l_pivot) l_hold++;
+		while (p_array[r_hold] > l_pivot) r_hold--;
+
+		if (l_hold <= r_hold){
+			l_temp = p_array[l_hold];
+			p_array[l_hold] = p_array[r_hold];
+			p_array[r_hold] = l_temp;
+			l_hold++;
+			r_hold--;
+		}
+	} while (l_hold < r_hold);
+	if (n_left < r_hold) sort_array(p_array, n_left, r_hold);
+	if (l_hold < n_rigth) sort_array(p_array, l_hold, n_rigth);
+}
+
+
+static void sort(Objset *const oset_1, Objset *const oset_2, const long nels, Lvb_bool b_First)
 /* sort the nels object sets in oset so that each is in order, and sort oset so
  * that the sets themselves are in order of size and content */
 {
     long i;	/* loop counter */
 
     /* first sort each set member list */
-    for (i = 0; i < nels; i++)
-	qsort(oset[i].set, (size_t) oset[i].cnt, sizeof(long),
-	 objnocmp);
+    for (i = 0; i < nels; i++){
+    	if (oset_1[i].cnt > 2) sort_array(oset_1[i].set, 0, oset_1[i].cnt - 1);
+    	else qsort(oset_1[i].set, (size_t) oset_1[i].cnt, sizeof(long), objnocmp);
+    	if (b_First == LVB_TRUE){
+    		if (oset_2[i].cnt > 2) sort_array(oset_2[i].set, 0, oset_2[i].cnt - 1);
+    		else qsort(oset_2[i].set, (size_t) oset_2[i].cnt, sizeof(long), objnocmp);
+    	}
+    }
 
-    /* now sort the arrays of sets by size and content */
-    for (i = 0; i < nels; i++)
-	qsort(oset, (size_t) nels, sizeof(Objset), osetcmp);
-
+   	/* now sort the arrays of sets by size and content */
+   	qsort(oset_1, (size_t) nels, sizeof(Objset), osetcmp);
+   	if (b_First == LVB_TRUE) qsort(oset_2, (size_t) nels, sizeof(Objset), osetcmp);
 } /* end sort() */
+
 
 static int osetcmp(const void *oset1, const void *oset2)
 /* comparison function for object sets (type Objset):
@@ -1004,19 +1002,14 @@ static int osetcmp(const void *oset1, const void *oset2)
     const Objset loset_2 = *((const Objset *) oset2);	/* typed */
 
     /* sets of different size differ */
-    if (loset_1.cnt < loset_2.cnt)
-	return -1;
-    else if (loset_1.cnt > loset_2.cnt)
-	return +1;
+    if (loset_1.cnt < loset_2.cnt) return -1;
+    else if (loset_1.cnt > loset_2.cnt) return +1;
 
     /* if we reach here, sets are equal size, so we see if sets'
      * contents differ */
-    for (i = 0; i < loset_1.cnt; i++)
-    {
-	if (loset_1.set[i] < loset_2.set[i])
-	    return -1;
-	else if (loset_1.set[i] > loset_2.set[i])
-	    return +1;
+    for (i = 0; i < loset_1.cnt; i++){
+    	if (loset_1.set[i] < loset_2.set[i]) return -1;
+    	else if (loset_1.set[i] > loset_2.set[i]) return +1;
     }
 
     /* if we reach here, really the sets are the same */
@@ -1024,39 +1017,33 @@ static int osetcmp(const void *oset1, const void *oset2)
 
 } /* end osetcmp() */
 
-static long makesets(Dataptr matrix, const Branch *const tree_1, const long root_1,
- const Branch *const tree_2, const long root_2)
+static void makesets(Dataptr matrix, const Branch *const tree_1, const Branch *const tree_2, const long root, Lvb_bool b_First)
 /* fill static sset_1 and static sset_2 with arrays of object sets for
  * tree_1 and tree_2 (of root_1 and root_2 respectively), and return
  * the extent of each array;
  * the trees must have the same object in the root branch;
  * arrays will be overwritten on subsequent calls */
 {
-    const long nsets = matrix->n - 3;	/* sets per tree */
-    const long mssz = matrix->n - 2;	/* maximum objects per set */
-
-    if (sset_1[0].set == NULL)	/* first call, allocate memory */
-    {
-		ssarralloc(sset_1, nsets, mssz);
-		ssarralloc(sset_2, nsets, mssz);
+    if (sset_1[0].set == NULL){	/* first call, allocate memory */
+		ssarralloc(matrix, sset_1, sset_2);
     }
-	fillsets(matrix, sset_1, tree_1, root_1);
-	fillsets(matrix, sset_2, tree_2, root_2);
-	return nsets;
+
+    fillsets(matrix, sset_1, tree_1, root);
+	if (b_First == LVB_TRUE) fillsets(matrix, sset_2, tree_2, root);
 
 } /* end makesets() */
 
-static void ssarralloc(Objset *nobjset, const long nsets, const long setsize)
+static void ssarralloc(Dataptr matrix, Objset *nobjset_1, Objset *nobjset_2)
 /* Fill nobjset[0..nsets-1] with pointers each pointing to newly
  * allocated space for setsize objects; assumes nobjset points to the
  * first element of an array with at least nsets elements. */
 {
     long i; 	/* loop counter */
-    lvb_assert (nsets <= MAX_SSET_SIZE);
-
-    for (i = 0; i < nsets; i++){
-    	nobjset[i].set = alloc(setsize * sizeof(long), "object set object arrays");
-    	nobjset[i].cnt = UNSET;
+    for (i = 0; i < matrix->nsets; i++){
+    	nobjset_1[i].set = alloc(matrix->mssz * sizeof(long), "object set object arrays");
+    	nobjset_1[i].cnt = UNSET;
+    	nobjset_2[i].set = alloc(matrix->mssz * sizeof(long), "object set object arrays");
+    	nobjset_2[i].cnt = UNSET;
     }
 
 } /* end ssarralloc() */
@@ -1104,8 +1091,7 @@ static void getobjs(Dataptr matrix, const Branch *const barray, const long root,
 
 } /* end getobjs() */
 
-static void realgetobjs(Dataptr matrix, const Branch *const barray, const long root,
- long *const objarr, long *const cnt)
+static void realgetobjs(Dataptr matrix, const Branch *const barray, const long root, long *const objarr, long *const cnt)
 /* fill objarr (which must be large enough) with numbers of all objects
  * in the tree in barray in the clade starting at branch root;
  * fill the number pointed to by cnt, which must initially be zero,
@@ -1113,13 +1099,11 @@ static void realgetobjs(Dataptr matrix, const Branch *const barray, const long r
  * written to objarr); this function should not be called from anywhere
  * except getobjs(), which is a safer interface */
 {
-    if (root < matrix->n)
-    {
+    if (root < matrix->n) {
 		objarr[*cnt] = root;
 		++(*cnt);
     }
-    else
-    {
+    else {
 		if (barray[root].left != UNSET)
 			realgetobjs(matrix, barray, barray[root].left, objarr, cnt);
 		if (barray[root].right != UNSET)

@@ -153,15 +153,16 @@ Returns a new, empty tree stack.
 
 **********/ 
 
-Treestack treestack_new(void)
+Treestack * treestack_new(void)
 {
-    Treestack s;	/* return value */
+	Treestack * p_stack;
+	p_stack = (Treestack *) alloc(sizeof(Treestack), "alloc Treestack structure");
 
-    s.size = 0;
-    s.next = 0;
-    s.stack = NULL;
+	p_stack->size = 0;
+	p_stack->next = 0;
+	p_stack->stack = NULL;
 
-    return s;
+	return p_stack;
 
 } /* end treestack_new() */
 
@@ -216,19 +217,33 @@ Returns 1 if the tree was pushed, or 0 if not.
 
 long treestack_push(Dataptr matrix, Treestack *sp, const Branch *const barray, const long root)
 {
-    long i;			/* loop counter */
-    Branch *stacktree = NULL;	/* current tree on stack */
+	long i, new_root = root;			/* loop counter */
     long stackroot;		/* root of current tree */
+
+    static Branch *copy_2 = NULL;	/* possibly re-rooted tree 2 */
+    Lvb_bool b_First = LVB_TRUE;
+
+    /* allocate "local" static heap memory - static - do not free! */
+    if (copy_2 == NULL) {
+    	copy_2 = treealloc(matrix, LVB_FALSE);
+    }
+    treecopy(matrix, copy_2, barray, LVB_FALSE);
 
     /* return before push if not a new topology */
     /* check backwards as similar trees may be discovered together */
     for (i = sp->next - 1; i >= 0; i--) {
-        stacktree = sp->stack[i].tree;
         stackroot = sp->stack[i].root;
-        if (treecmp(matrix, stacktree, stackroot, barray, root) == 0) return 0;
+        if(stackroot != new_root){
+        	lvb_reroot(matrix, copy_2, new_root, stackroot, LVB_FALSE);
+        	new_root = stackroot;
+        	b_First = LVB_TRUE;
+        }
+        if (treecmp(matrix, sp->stack[i].tree, copy_2, stackroot, b_First) == 0) return 0;
+        b_First = LVB_FALSE;
     }
 
     /* topology is new so must be pushed */
+    lvb_assert(root < matrix->n);
     dopush(matrix, sp, barray, root);
     return 1;
 

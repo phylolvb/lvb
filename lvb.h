@@ -61,13 +61,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define LVB_SUBVERSION "(2014)"			/* version details e.g. date */
 
 /* set if is to compile with 64 or 32 */
-#define COMPILE_64_BITS				/* the default is 32 bits */
+#ifndef COMPILE_32_BITS
+	#define COMPILE_64_BITS				/* the default is 32 bits */
+#endif
 #define	MPI_SEND_ONLY_MATRIX_NAMES	/* if defined only send the names of the matrix */
 									/* sometimes the data matrix are huge and it's only necessary to pass */
     								/* the names of the other process */
 
-
-#define SWAP_TEMPERATURE_NUMBER_INTERACTIOS		100000		/* swap temperatures between process */
+#define MPI_MAP_REDUCE_TREES_ITERATION		100000		/* number of iterations that the map reduce algorithm take place */
 
 
 /* DNA bases: bits to set in statesets */
@@ -191,7 +192,7 @@ typedef struct
 /* LVB global functions */
 void *alloc(const size_t, const char *const);
 long anneal(Dataptr restrict, Treestack *, const Branch *const, Params rcstruct, long, const double,
- const long, const long, const long, FILE *const, const long *, long *, int, Lvb_bool);
+ const long, const long, const long, FILE *const, long *current_iter, int, Lvb_bool);
 long arbreroot(Dataptr, Branch *const, const long);
 long bytes_per_row(const long);
 long childadd(Branch *const, const long, const long);
@@ -203,16 +204,16 @@ void clnremove(const char *const);
 void crash(const char *const, ...);
 void defaults_params(Params *const prms);
 long deterministic_hillclimb(Dataptr, Treestack *, const Branch *const, Params rcstruct,
-	long, FILE * const, const long *, long *, int myMPIid, Lvb_bool);
+	long, FILE * const, long *current_iter, int myMPIid, Lvb_bool);
 void dna_makebin(Dataptr restrict, DataSeqPtr matrix_seq, Lvb_bit_lentgh **);
 void dnapars_wrapper(void);
 char *f2str(FILE *const);
 Lvb_bool file_exists(const char *const);
 void get_bootstrap_weights(long *, long, long);
-double get_initial_t(Dataptr, const Branch *const, Params rcstruct, long, const long *, int myMPIid, Lvb_bool);
+double get_initial_t(Dataptr, const Branch *const, Params rcstruct, long, int myMPIid, Lvb_bool);
 int getparam(Params *, int argc, char **argv);
 
-long getplen(Dataptr restrict, Branch *, Params rcstruct, const long, const long *restrict, long *restrict p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs);
+long getplen(Dataptr restrict, Branch *, Params rcstruct, const long, long *restrict p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs);
 
 void alloc_memory_to_getplen(Dataptr matrix, long **p_todo_arr, long **p_todo_arr_sum_changes, int **p_runs);
 void free_memory_to_getplen(long **p_todo_arr, long **p_todo_arr_sum_changes, int **p_runs);
@@ -246,14 +247,14 @@ long tree_bytes(Dataptr restrict matrix);
 long tree_bytes_whitout_sset(Dataptr restrict matrix);
 void treeclear(Dataptr, Branch *const);
 void treecopy(Dataptr restrict, Branch *const, const Branch *const, Lvb_bool b_with_sset);
-long treecmp(Dataptr, const Branch *const, const long, const Branch *const, long);
+long treecmp(Dataptr restrict, const Branch *const, const Branch *const, const long, Lvb_bool b_first);
 void treedump(Dataptr, FILE *const, const Branch *const, Lvb_bool b_with_sset);
 void treedump_screen(Dataptr matrix, const Branch *const tree);
 void treestack_clear(Treestack *);
 long treestack_cnt(Treestack);
 long treestack_dump(Dataptr, Treestack *, FILE *const);
 void treestack_free(Treestack *);
-Treestack treestack_new(void);
+Treestack * treestack_new(void);
 long treestack_transfer(Dataptr, Treestack *, Treestack *);
 long treestack_pop(Dataptr, Branch *, long *, Treestack *);
 long treestack_print(Dataptr, DataSeqPtr restrict matrix_seq_data, Treestack *, FILE *const, Lvb_bool);

@@ -52,6 +52,11 @@ int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat, DataSeqPtr p_l
     p_lvbmat->nbranches = brcnt(p_lvbmat->n); 		/* possible number of braches */
     p_lvbmat->max_length_seq_name = readFiles.get_max_length_seq_name();
 
+    /* it is used in tree compare */
+    p_lvbmat->nsets = p_lvbmat->n - 3;				/* sets per tree */
+    p_lvbmat->mssz = p_lvbmat->n - 2;				/* maximum objects per set */
+
+
     /* array for row title strings */
     p_lvbmat_seq->rowtitle = (char **) malloc((p_lvbmat->n) * sizeof(char *));
     if (p_lvbmat_seq->rowtitle == NULL) return readFiles.exit_error(1 , "Fail to allocate memory...");
@@ -127,7 +132,6 @@ void usage(char *p_file_name){
 	printf("lvb seeks parsimonious trees from an aligned nucleotide data matrix.\n"
 			"It uses heuristic searches consisting of simulated annealing followed by hill-climbing.\n\n");
 
-	printf("\n    -b (0) bootstrap replicates, as an integer in the range 1 to %ld inclusive.", (long) MAX_BOOTSTRAPS);
 	printf("\n       default (0)");
 	printf("\n    -c [g|l] (g) cooling schedule. The schedule chosen\n"
 			"       will affect the quality and speed of the simulated annealing\n"
@@ -148,7 +152,6 @@ void usage(char *p_file_name){
 			"       default: only one thread available\n");
 	printf("    -h print this help.\n");
 	printf("    -? print this help.\n");
-	abort();
 }
 
 
@@ -172,14 +175,6 @@ int read_parameters(Params *prms, int argc, char **argv){
 					fprintf (stderr, "Unknown cooling schedule option\nPlease, choose between Geometric (g) or Linear (l).");
 					return 1;
 				}
-				break;
-			case 'b':	/* bootstrap */
-				if (optarg == NULL){
-					fprintf (stderr, "Option -%c requires an argument -b <int>\n", optopt);
-					usage(argv[0]);
-					return 1;
-				}
-				prms->bootstraps = atoi(optarg);
 				break;
 			case 'v':	/* verbose */
 				prms->verbose = LVB_TRUE;
@@ -256,6 +251,7 @@ int read_parameters(Params *prms, int argc, char **argv){
 			case 'h':
 			default:
 	            usage(argv[0]);
+	            return 1;
 		}
 	}
 	return 0;

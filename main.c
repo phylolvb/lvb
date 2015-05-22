@@ -55,7 +55,7 @@ static void smessg(long start, long cycle)
 
 } /* end smessg() */
 
-static void writeinf(Params prms, int myMPIid, int n_process)
+static void writeinf(Params prms, Dataptr matrix, int myMPIid, int n_process)
 /* write initial details to standard output */
 {
     printf("\n#########\nProcess ID: %d\n", myMPIid);
@@ -65,7 +65,6 @@ static void writeinf(Params prms, int myMPIid, int n_process)
     else printf("LINEAR\n");
 
     printf("main seed            = %d\n", prms.seed);
-    printf("bootstrap replicates = %ld\n", prms.bootstraps);
     printf("input file name      = %s\n", prms.file_name_in);
     printf("output file name     = %s\n", prms.file_name_out);
     if (prms.n_file_format == FORMAT_PHYLIP) printf("format input file    = phylip\n");
@@ -77,9 +76,13 @@ static void writeinf(Params prms, int myMPIid, int n_process)
     	fprintf (stderr, "Error, input format file not recognized\n");
     	abort();
     }
-    printf("bootstrap replicates = %ld\n", prms.bootstraps);
     printf("threads              = %d\n", prms.n_processors_available);
-    printf("mpi process          = %d\n", n_process);
+    printf("mpi process          = %d\n\n", n_process);
+
+    printf("#Species             = %ld\n", matrix->n);
+    printf("Lenght of Sequences:\n");
+    printf("    Before cut       = %ld\n", matrix->original_m);
+    printf("    After cut        = %ld\n", matrix->m);
 } /* end writeinf() */
 
 
@@ -100,11 +103,12 @@ static void logtree1(Dataptr matrix, DataSeqPtr restrict matrix_seq_data, const 
 
 } /* end logtree1() */
 
-static long getsoln(Dataptr restrict matrix, DataSeqPtr restrict matrix_seq_data, Params rcstruct, const long *weight_arr, long *iter_p,
+static long getsoln(Dataptr restrict matrix, DataSeqPtr restrict matrix_seq_data, Params rcstruct,
 		Treestack* bstack_overall, Lvb_bit_lentgh **enc_mat, int myMPIid, Lvb_bool log_progress)
 /* get and output solution(s) according to parameters in rcstruct;
- * return length of shortest tree(s) found, using weights in weight_arr */
+ * return length of shortest tree(s) found */
 {
+	long l_iterations_anneal = 0, l_iterations_hillclimb = 0;			/* iterations of annealing algorithm */
     static char fnam[LVB_FNAMSIZE];	/* current file name */
     long fnamlen;			/* length of current file name */
     double t0;		/* SA cooling cycle initial temp */
@@ -149,7 +153,7 @@ static long getsoln(Dataptr restrict matrix, DataSeqPtr restrict matrix_seq_data
     randtree(matrix, tree);	/* initialise required variables */
     ss_init(matrix, tree, enc_mat);
     initroot = 0;
-    t0 = get_initial_t(matrix, tree, rcstruct, initroot, weight_arr, myMPIid, log_progress);
+    t0 = get_initial_t(matrix, tree, rcstruct, initroot, myMPIid, log_progress);
 //    t0 = 0.18540001000004463;
 
     randtree(matrix, tree);	/* begin from scratch */
@@ -165,18 +169,17 @@ static long getsoln(Dataptr restrict matrix, DataSeqPtr restrict matrix_seq_data
      * with that of previous versions.  */
     if(rcstruct.verbose == LVB_TRUE) {
         alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-		fprintf(sumfp, "%d\t%ld\t%ld\t%ld\t", myMPIid, start, cyc, getplen(matrix, tree, rcstruct, initroot, weight_arr, p_todo_arr, p_todo_arr_sum_changes, p_runs));
+		fprintf(sumfp, "%d\t%ld\t%ld\t%ld\t", myMPIid, start, cyc, getplen(matrix, tree, rcstruct, initroot, p_todo_arr, p_todo_arr_sum_changes, p_runs));
 		free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
 		logtree1(matrix, matrix_seq_data, tree, start, cyc, initroot);
     }
 
     /* find solution(s) */
     treelength = anneal(matrix, bstack_overall, tree, rcstruct, initroot, t0, maxaccept,
-    		maxpropose, maxfail, stdout, weight_arr, iter_p, myMPIid, log_progress);
+    		maxpropose, maxfail, stdout, &l_iterations_anneal, myMPIid, log_progress);
     treestack_pop(matrix, tree, &initroot, bstack_overall);
     treestack_push(matrix, bstack_overall, tree, initroot);
-    treelength = deterministic_hillclimb(matrix, bstack_overall, tree, rcstruct, initroot, stdout,
-    		weight_arr, iter_p, myMPIid, log_progress);
+    treelength = deterministic_hillclimb(matrix, bstack_overall, tree, rcstruct, initroot, stdout, &l_iterations_hillclimb, myMPIid, log_progress);
 
 	/* log this cycle's solution and its details 
 	 * NOTE: There are no cycles anymore in the current version
@@ -197,6 +200,9 @@ static long getsoln(Dataptr restrict matrix, DataSeqPtr restrict matrix_seq_data
 		}
     }
 
+    fnamlen = sprintf(fnam, "%s_start%ld_cycle%ld", RESFNAM, start, cyc);
+     		lvb_assert(fnamlen < LVB_FNAMSIZE);	/* really too late */
+     		resfp = clnopen(fnam, "w");
 
     if (rcstruct.verbose == LVB_TRUE) printf("Ending start %ld cycle %ld\n", start, cyc);
     check_stdout();
@@ -231,8 +237,10 @@ void calc_distribution_processors(Dataptr matrix, Params rcstruct){
 		matrix->n_slice_size_getplen = 0;	/* it doens't matter this value for 1 thread */
 		matrix->n_threads_getplen = 1; /* need to pass for 1 thread because the number of words is to low */
 	}
-	printf("\nthreads that will be used  = %d\n", matrix->n_threads_getplen);
-	printf("(because is related with the size of the data)\n");
+	printf("\nthreads that will be use   = %d\n", matrix->n_threads_getplen);
+	if (rcstruct.n_processors_available != matrix->n_threads_getplen)
+		printf("(because it is related with the size of the data)\n");
+
 }
 
 int get_other_seed_to_run_a_process(){
@@ -353,21 +361,14 @@ int main(int argc, char **argv)
     DataSeqPtr matrix_seq_data;
     int val = EXIT_SUCCESS;			/* return value */
     Params rcstruct;		/* configurable parameters */
-    long i, n_buffer_size_matrix, n_buffer_size_binary;			/* loop counter */
-    int position, n_error_code;
-    long iter;			/* iterations of annealing algorithm */
-    long replicate_no = 0L;	/* current bootstrap replicate number */
-    long trees_output_total = 0L;	/* number of trees output, overall */
-    long trees_output;		/* number of trees output for current rep. */
-    double total_iter = 0.0;	/* total iterations across all replicates */
-    long final_length;		/* length of shortest tree(s) found */
     FILE *outtreefp;		/* best trees found overall */
-    long *weight_arr;
-    Lvb_bit_lentgh **enc_mat;/* encoded data mat. */
+    long i, n_buffer_size_matrix, n_buffer_size_binary;			/* loop counter */
+    int position, n_error_code = EXIT_SUCCESS; /* return value */
+    Lvb_bit_lentgh **enc_mat = NULL;/* encoded data mat. */
     Lvb_bool log_progress;	/* whether or not to log anneal search */
-    Treestack bstack_overall;	/* overall best tree stack */
-    char *pack_data;
-    Lvb_bit_lentgh *p_pack_data_binary;
+    Treestack *p_bstack_overall = NULL;	/* overall best tree stack */
+    char *pack_data = NULL;
+    Lvb_bit_lentgh *p_pack_data_binary = NULL;
     /* global files */
 
     /* define mpi */
@@ -391,7 +392,7 @@ int main(int argc, char **argv)
 
 	/* define the matrix structure MPI */
 	int				nItems = 2;
-	int          	blocklengths[2] = {10, 2};
+	int          	blocklengths[2] = {12, 2};
 	MPI_Datatype 	types[2] = {MPI_LONG, MPI_INT};
 	MPI_Datatype 	mpi_matrix;
 	MPI_Aint     	displacements[2];
@@ -402,7 +403,7 @@ int main(int argc, char **argv)
 
 
 	nItems = 3;
-	int          	blocklengthsPar [3] = {9, 4, LVB_FNAMSIZE + LVB_FNAMSIZE};
+	int          	blocklengthsPar [3] = {1, 4, LVB_FNAMSIZE + LVB_FNAMSIZE};
 	MPI_Datatype 	typesPar[3] = {MPI_LONG, MPI_INT, MPI_CHAR};
 	MPI_Datatype 	mpi_params;
 	MPI_Aint     	displacementsPar[3];
@@ -460,200 +461,177 @@ int main(int argc, char **argv)
 
 		lvb_initialize();
 		n_error_code = getparam(&rcstruct, argc, argv);
-		if (n_error_code != 0){
-			MPI_Abort(MPI_COMM_WORLD, n_error_code);
-			exit(n_error_code);
+		if (n_error_code == EXIT_SUCCESS){
+			logstim();
+
+			/* read and alloc space to the data structure */
+			n_error_code = phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix, matrix_seq_data);
+			if (n_error_code == EXIT_SUCCESS){
+
+				/* send message to continue */
+				MPI_Bcast(&n_error_code, 1, MPI_INT, MPI_MAIN_PROCESS, MPI_COMM_WORLD);
+
+				/* start the main process */
+				matchange(matrix, matrix_seq_data, rcstruct);	/* cut columns */
+				writeinf(rcstruct, matrix, myMPIid, num_procs);
+				calc_distribution_processors(matrix, rcstruct);
+
+				/* Allocation of the initial encoded matrix is non-contiguous because
+				 * this matrix isn't used much, so any performance penalty won't matter. */
+				enc_mat = (Lvb_bit_lentgh **) alloc((matrix->n) * sizeof(Lvb_bit_lentgh *), "state sets");
+				for (i = 0; i < matrix->n; i++) enc_mat[i] = alloc(matrix->bytes, "state sets");
+				dna_makebin(matrix, matrix_seq_data, enc_mat);
+
+				/* pack data for seq matrix */
+		#ifdef MPI_SEND_ONLY_MATRIX_NAMES
+				n_buffer_size_matrix = sizeof(char) * matrix->n * (matrix->max_length_seq_name + 1);
+		#else
+				n_buffer_size_matrix = sizeof(char) * matrix->n * (matrix->m + 1) + sizeof(char) * matrix->n * (matrix->max_length_seq_name + 1);
+		#endif
+				pack_data = (char *) alloc(n_buffer_size_matrix, "sequences packing");
+				/* packing data */
+				position = 0;
+				for (i = 0; i < matrix->n; i++){
+		#ifndef MPI_SEND_ONLY_MATRIX_NAMES
+					MPI_Pack(matrix_seq_data->row[i], matrix->m + 1, MPI_CHAR, pack_data, n_buffer_size_matrix, &position, MPI_COMM_WORLD);
+		#endif
+					MPI_Pack(matrix_seq_data->rowtitle[i], matrix->max_length_seq_name + 1, MPI_CHAR, pack_data, n_buffer_size_matrix, &position, MPI_COMM_WORLD);
+				}
+				/* END pack data for seq matrix */
+
+				/* pack binary for seq data */
+				n_buffer_size_binary = matrix->bytes * matrix->n;
+				p_pack_data_binary = (Lvb_bit_lentgh *) alloc(n_buffer_size_binary, "binary packing");
+				position = 0;
+				for (i = 0; i < matrix->n; i++){
+					MPI_Pack(enc_mat[i], matrix->bytes, MPI_CHAR, p_pack_data_binary, n_buffer_size_binary, &position, MPI_COMM_WORLD);
+				}
+				/* END pack binary for seq data */
+
+				for (i = 1; i < num_procs; i++) {
+
+					/* send matrix to each process */
+					MPI_Send(matrix, 1, mpi_matrix, i, MPI_TAG_MATRIX, MPI_COMM_WORLD); //, &request);
+
+					/* send binary data of each sample */
+					rcstruct.seed = get_other_seed_to_run_a_process();
+					MPI_Send(&rcstruct, 1, mpi_params, i, MPI_TAG_PARAMS, MPI_COMM_WORLD); //, &request);
+
+					/* send names and/or seq and names */
+					MPI_Send(pack_data, n_buffer_size_matrix, MPI_PACKED, i, MPI_TAG_NAME_AND_SEQ_DATA, MPI_COMM_WORLD); //, &request);
+
+					/* send binary data */
+					MPI_Send(p_pack_data_binary, n_buffer_size_binary, MPI_PACKED, i, MPI_TAG_BINARY_DATA, MPI_COMM_WORLD); //, &request);
+				}
+
+				/*  get temperatures from processes */
+				/* and wait until all processes are finished */
+				get_temperature_from_other_process(num_procs);
+
+				/* clean memory */
+				for (i = 0; i < matrix->n; i++) free(enc_mat[i]);
+				free(enc_mat);
+				rowfree(matrix_seq_data, matrix->n);
+				free(pack_data);
+				free(p_pack_data_binary);
+				free(p_bstack_overall);
+			}
 		}
-		logstim();
-
-		/* read and alloc space to the data structure */
-		n_error_code = phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix, matrix_seq_data);
-		if (n_error_code != 0){
-			MPI_Abort(MPI_COMM_WORLD, n_error_code);
-			exit(n_error_code);
+		if (n_error_code != EXIT_SUCCESS){
+			/* kill the others */
+			MPI_Bcast(&n_error_code, 1, MPI_INT, MPI_MAIN_PROCESS, MPI_COMM_WORLD);
 		}
-		writeinf(rcstruct, myMPIid, num_procs);
-		matchange(matrix, matrix_seq_data, rcstruct);	/* cut columns */
-		calc_distribution_processors(matrix, rcstruct);
-
-	    /* Allocation of the initial encoded matrix is non-contiguous because
-	     * this matrix isn't used much, so any performance penalty won't matter. */
-		enc_mat = (Lvb_bit_lentgh **) alloc((matrix->n) * sizeof(Lvb_bit_lentgh *), "state sets");
-		for (i = 0; i < matrix->n; i++) enc_mat[i] = alloc(matrix->bytes, "state sets");
-	    dna_makebin(matrix, matrix_seq_data, enc_mat);
-
-	    /* pack data for seq matrix */
-#ifdef MPI_SEND_ONLY_MATRIX_NAMES
-	    n_buffer_size_matrix = sizeof(char) * matrix->n * (matrix->max_length_seq_name + 1);
-#else
-	    n_buffer_size_matrix = sizeof(char) * matrix->n * (matrix->m + 1) + sizeof(char) * matrix->n * (matrix->max_length_seq_name + 1);
-#endif
-	    pack_data = (char *) alloc(n_buffer_size_matrix, "sequences packing");
-	    /* packing data */
-		position = 0;
-		for (i = 0; i < matrix->n; i++){
-#ifndef MPI_SEND_ONLY_MATRIX_NAMES
-			MPI_Pack(matrix_seq_data->row[i], matrix->m + 1, MPI_CHAR, pack_data, n_buffer_size_matrix, &position, MPI_COMM_WORLD);
-#endif
-			MPI_Pack(matrix_seq_data->rowtitle[i], matrix->max_length_seq_name + 1, MPI_CHAR, pack_data, n_buffer_size_matrix, &position, MPI_COMM_WORLD);
-		}
-	    /* END pack data for seq matrix */
-
-	    /* pack binary for seq data */
-	    n_buffer_size_binary = matrix->bytes * matrix->n;
-	    p_pack_data_binary = (Lvb_bit_lentgh *) alloc(n_buffer_size_binary, "binary packing");
-	    position = 0;
-		for (i = 0; i < matrix->n; i++){
-			MPI_Pack(enc_mat[i], matrix->bytes, MPI_CHAR, p_pack_data_binary, n_buffer_size_binary, &position, MPI_COMM_WORLD);
-		}
-	    /* END pack binary for seq data */
-
-		for (i = 1; i < num_procs; i++) {
-
-			/* send matrix to each process */
-			MPI_Send(matrix, 1, mpi_matrix, i, MPI_TAG_MATRIX, MPI_COMM_WORLD); //, &request);
-
-			/* send binary data of each sample */
-			rcstruct.seed = get_other_seed_to_run_a_process();
-			MPI_Send(&rcstruct, 1, mpi_params, i, MPI_TAG_PARAMS, MPI_COMM_WORLD); //, &request);
-
-			/* send names and/or seq and names */
-			MPI_Send(pack_data, n_buffer_size_matrix, MPI_PACKED, i, MPI_TAG_NAME_AND_SEQ_DATA, MPI_COMM_WORLD); //, &request);
-
-			/* send binary data */
-			MPI_Send(p_pack_data_binary, n_buffer_size_binary, MPI_PACKED, i, MPI_TAG_BINARY_DATA, MPI_COMM_WORLD); //, &request);
-		}
-
-		/*  get temperatures from processes */
-		/* and wait until all processes are finished */
-		get_temperature_from_other_process(num_procs);
-
 	}
 	else{
 
-		MPI_Recv(matrix, 1, mpi_matrix, MPI_MAIN_PROCESS, MPI_TAG_MATRIX, MPI_COMM_WORLD, &status);
-//		print_data(matrix, myMPIid); /* print data.... */
+		/* Is to proceed or to finish? */
+		MPI_Bcast(&n_error_code, 1, MPI_INT, MPI_MAIN_PROCESS, MPI_COMM_WORLD);
+		if (n_error_code == EXIT_SUCCESS){
 
-		MPI_Recv(&rcstruct, 1, mpi_params, MPI_MAIN_PROCESS, MPI_TAG_PARAMS, MPI_COMM_WORLD, &status);
-		sprintf(rcstruct.file_name_out, "%s_%d", rcstruct.file_name_out, myMPIid);
-//		writeinf(rcstruct, myMPIid, num_procs); /* print data.... */
+			MPI_Recv(matrix, 1, mpi_matrix, MPI_MAIN_PROCESS, MPI_TAG_MATRIX, MPI_COMM_WORLD, &status);
+	//		print_data(matrix, myMPIid); /* print data.... */
 
-		matrix_seq_data->rowtitle = (char **) malloc((matrix->n) * sizeof(char *));
-#ifdef MPI_SEND_ONLY_MATRIX_NAMES
-	    n_buffer_size_matrix = sizeof(char) * matrix->n * (matrix->max_length_seq_name + 1);
-	    matrix_seq_data->row = 0L;
-#else
-	    n_buffer_size_matrix = sizeof(char) * matrix->n * (matrix->m + 1) + sizeof(char) * matrix->n * (matrix->max_length_seq_name + 1);
-	    /* array for row strings */
-	    matrix_seq_data->row = (char **) malloc((matrix->n) * sizeof(char *));
-#endif
+			MPI_Recv(&rcstruct, 1, mpi_params, MPI_MAIN_PROCESS, MPI_TAG_PARAMS, MPI_COMM_WORLD, &status);
+	//		writeinf(rcstruct, myMPIid, num_procs); /* print data.... */
 
-		/* send names and/or seq and names */
-	    pack_data = (char *) alloc(n_buffer_size_matrix, "sequences packing");
-	    MPI_Recv(pack_data, n_buffer_size_matrix, MPI_CHAR, MPI_MAIN_PROCESS, MPI_TAG_NAME_AND_SEQ_DATA, MPI_COMM_WORLD, &status);
+			matrix_seq_data->rowtitle = (char **) malloc((matrix->n) * sizeof(char *));
+	#ifdef MPI_SEND_ONLY_MATRIX_NAMES
+			n_buffer_size_matrix = sizeof(char) * matrix->n * (matrix->max_length_seq_name + 1);
+			matrix_seq_data->row = 0L;
+	#else
+			n_buffer_size_matrix = sizeof(char) * matrix->n * (matrix->m + 1) + sizeof(char) * matrix->n * (matrix->max_length_seq_name + 1);
+			/* array for row strings */
+			matrix_seq_data->row = (char **) malloc((matrix->n) * sizeof(char *));
+	#endif
 
-		/* array for row title strings */
-		position = 0;
-		for ( i = 0; i < matrix->n; i++){
-#ifndef MPI_SEND_ONLY_MATRIX_NAMES
-			matrix_seq_data->row[i] = (char*) malloc(sizeof(char) * (matrix->m + 1));
-			memcpy((char*) (matrix_seq_data->row[i]), pack_data + position, matrix->m + 1);
-			position += matrix->m + 1;
-#endif
-			matrix_seq_data->rowtitle[i] = (char*) malloc(sizeof(char) * (matrix->max_length_seq_name + 1));
-			memcpy((char*) (matrix_seq_data->rowtitle[i]), pack_data + position, matrix->max_length_seq_name + 1);
-			position += matrix->max_length_seq_name + 1;
-		}
-		/* print data.... */
-//		print_data_seq(matrix_seq_data, matrix->n, myMPIid);
-		/* END send names and/or seq and names */
+			/* send names and/or seq and names */
+			pack_data = (char *) alloc(n_buffer_size_matrix, "sequences packing");
+			MPI_Recv(pack_data, n_buffer_size_matrix, MPI_CHAR, MPI_MAIN_PROCESS, MPI_TAG_NAME_AND_SEQ_DATA, MPI_COMM_WORLD, &status);
 
-
-		/* send binary data */
-		n_buffer_size_binary = matrix->bytes * matrix->n;
-		p_pack_data_binary = (Lvb_bit_lentgh *) alloc(n_buffer_size_binary, "binary packing");
-		MPI_Recv(p_pack_data_binary, n_buffer_size_binary, MPI_CHAR, MPI_MAIN_PROCESS, MPI_TAG_BINARY_DATA, MPI_COMM_WORLD, &status);
-
-		enc_mat = (Lvb_bit_lentgh **) alloc((matrix->n) * sizeof(Lvb_bit_lentgh *), "state sets");
-		for (i = 0; i < matrix->n; i++){
-			enc_mat[i] = (Lvb_bit_lentgh *) alloc(sizeof(char) * matrix->bytes, "binary packing");
-			memcpy((Lvb_bit_lentgh *) (enc_mat[i]), p_pack_data_binary + i * matrix->nwords, matrix->bytes);
-		}
-//		print_binary_data(enc_mat, matrix->n, matrix->nwords, myMPIid);
-		/* END send binary data */
-
-		rinit(rcstruct.seed);
-
-		/* "file-local" dynamic heap memory: set up best tree stacks, need to be by thread */
-		bstack_overall = treestack_new();
-
-		if (rcstruct.bootstraps > 0) {
-			log_progress = LVB_FALSE;
-			printf("\nProcess: %d    Replicate:      Rearrangements: Trees output:   Length:\n", myMPIid);
-		}
-		else log_progress = LVB_TRUE;
-
-		weight_arr = (long*) alloc(sizeof(long) * matrix->m, "alloc data structure");
-		outtreefp = clnopen(rcstruct.file_name_out, "w");
-		do{
-			iter = 0;
-			if (rcstruct.bootstraps > 0){
-				get_bootstrap_weights(weight_arr, matrix->m, matrix->original_m - matrix->m);
+			/* array for row title strings */
+			position = 0;
+			for ( i = 0; i < matrix->n; i++){
+	#ifndef MPI_SEND_ONLY_MATRIX_NAMES
+				matrix_seq_data->row[i] = (char*) malloc(sizeof(char) * (matrix->m + 1));
+				memcpy((char*) (matrix_seq_data->row[i]), pack_data + position, matrix->m + 1);
+				position += matrix->m + 1;
+	#endif
+				matrix_seq_data->rowtitle[i] = (char*) malloc(sizeof(char) * (matrix->max_length_seq_name + 1));
+				memcpy((char*) (matrix_seq_data->rowtitle[i]), pack_data + position, matrix->max_length_seq_name + 1);
+				position += matrix->max_length_seq_name + 1;
 			}
-			else{
-				for (i = 0; i < matrix->m; i++) weight_arr[i] = 1;
+			/* print data.... */
+	//		print_data_seq(matrix_seq_data, matrix->n, myMPIid);
+			/* END send names and/or seq and names */
+
+
+			/* send binary data */
+			n_buffer_size_binary = matrix->bytes * matrix->n;
+			p_pack_data_binary = (Lvb_bit_lentgh *) alloc(n_buffer_size_binary, "binary packing");
+			MPI_Recv(p_pack_data_binary, n_buffer_size_binary, MPI_CHAR, MPI_MAIN_PROCESS, MPI_TAG_BINARY_DATA, MPI_COMM_WORLD, &status);
+
+			enc_mat = (Lvb_bit_lentgh **) alloc((matrix->n) * sizeof(Lvb_bit_lentgh *), "state sets");
+			for (i = 0; i < matrix->n; i++){
+				enc_mat[i] = (Lvb_bit_lentgh *) alloc(sizeof(char) * matrix->bytes, "binary packing");
+				memcpy((Lvb_bit_lentgh *) (enc_mat[i]), p_pack_data_binary + i * matrix->nwords, matrix->bytes);
 			}
-			final_length = getsoln(matrix, matrix_seq_data, rcstruct, weight_arr, &iter, &bstack_overall, enc_mat, myMPIid, log_progress);
-			if (rcstruct.bootstraps > 0) trees_output = treestack_print(matrix, matrix_seq_data, &bstack_overall, outtreefp, LVB_TRUE);
-			else trees_output = treestack_print(matrix, matrix_seq_data, &bstack_overall, outtreefp, LVB_FALSE);
+	//		print_binary_data(enc_mat, matrix->n, matrix->nwords, myMPIid);
+			/* END send binary data */
 
-			trees_output_total += trees_output;
-			treestack_clear(&bstack_overall);
-			replicate_no++;
-			if (rcstruct.bootstraps > 0) {
-				printf("%-16ld%-16ld%-16ld%ld\n", replicate_no, iter, trees_output, final_length);
-				total_iter += (double) iter;
-			}
-			else  printf("\nRearrangements tried: %ld\n", iter);
-		} while (replicate_no < rcstruct.bootstraps);
+			rinit(rcstruct.seed);
 
-		clnclose(outtreefp, rcstruct.file_name_out);
+			/* "file-local" dynamic heap memory: set up best tree stacks, need to be by thread */
+			p_bstack_overall = treestack_new();
+			log_progress = LVB_TRUE;
 
-		printf("\n");
-		if (rcstruct.bootstraps > 0)
-			printf("Total rearrangements tried across all replicates: %g\n\n", total_iter);
+			/* get the length and the tree */
+			getsoln(matrix, matrix_seq_data, rcstruct, p_bstack_overall, enc_mat, myMPIid, log_progress);
+			/* print the trees */
+			sprintf(rcstruct.file_name_out, "%s_%d", rcstruct.file_name_out, myMPIid); /* name of output file for this process */
+			outtreefp = clnopen(rcstruct.file_name_out, "w");
+			treestack_print(matrix, matrix_seq_data, p_bstack_overall, outtreefp, LVB_FALSE);
+			clnclose(outtreefp, rcstruct.file_name_out);
 
-		if ((trees_output_total == 1L) && (rcstruct.bootstraps == 0)) {
-			printf("1 most parsimonious tree of length %ld written to file '%s'\n", final_length, rcstruct.file_name_out);
+			treestack_clear(p_bstack_overall);
+
+			/* "file-local" dynamic heap memory */
+			treestack_free(p_bstack_overall);
+
+			/* only print the time end the process finish */
+			cleanup();
+
+			/* clean memory */
+			for (i = 0; i < matrix->n; i++) free(enc_mat[i]);
+			free(enc_mat);
+			rowfree(matrix_seq_data, matrix->n);
+			free(pack_data);
+			free(p_pack_data_binary);
+			free(p_bstack_overall);
 		}
-		else {
-			if (rcstruct.bootstraps > 0){
-				lvb_assert(trees_output_total == rcstruct.bootstraps);
-				printf("%ld trees written to file '%s'\n", trees_output_total,
-				rcstruct.file_name_out);
-			}
-			else{
-				printf("%ld equally parsimonious trees of length %ld written to "
-						"file '%s'\n", trees_output_total, final_length, rcstruct.file_name_out);
-			}
-		}
-
-		/* "file-local" dynamic heap memory */
-		treestack_free(&bstack_overall);
-		free(weight_arr);
-
-		/* only print the time */
-		cleanup();
 	}
 	MPI_Type_free(&mpi_matrix);
 	MPI_Type_free(&mpi_params);
-
-	for (i = 0; i < matrix->n; i++) free(enc_mat[i]);
-	free(enc_mat);
-	rowfree(matrix_seq_data, matrix->n);
 	free(matrix_seq_data);
-	free(pack_data);
-	free(p_pack_data_binary);
     free(matrix);
 
     if (rcstruct.verbose == LVB_TRUE) {

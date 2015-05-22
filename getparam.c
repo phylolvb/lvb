@@ -54,8 +54,6 @@ void defaults_params(Params *const prms)
 /* set seed in *prms to unacceptable value, and other parameters to their
  * defaults_params from lvb.h */
 {
-    prms->bootstraps = 0;	/* sensible default */
-
     /* meaningful value that is not user-configurable */
     prms->verbose = LVB_FALSE;
 

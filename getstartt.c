@@ -37,7 +37,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lvb.h"
 
 double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstruct, long root,
-		const long *weights, int myMPIid, Lvb_bool log_progress)
+		int myMPIid, Lvb_bool log_progress)
 /* Determine the starting temperature for the annealing search 
  * by finding the temperature T at which 65% of proposed 
  * positive transitions (changes in the tree structure which increase
@@ -83,7 +83,7 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstru
 
     treecopy(matrix, x, inittree, LVB_TRUE);	/* current configuration */
     alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-    len = getplen(matrix, x, rcstruct, root, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+    len = getplen(matrix, x, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
     
     r_lenmin = (double) matrix->min_len_tree;
     
@@ -109,7 +109,7 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstru
 			if (iter & 0x01) mutate_spr(matrix, xdash, x, root);	/* global change */
 			else mutate_nni(matrix, xdash, x, root);	/* local change */
 
-			lendash = getplen(matrix, xdash, rcstruct, rootdash, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+			lendash = getplen(matrix, xdash, rcstruct, rootdash, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 			lvb_assert (lendash >= 1L);
 			deltalen = lendash - len;
 			deltah = (r_lenmin / (double) len) - (r_lenmin / (double) lendash);

@@ -52,8 +52,8 @@ static long getminlen(const Dataptr matrix, DataSeqPtr matrix_seq);
 static char *getstatev(const Dataptr matrix, DataSeqPtr matrix_seq, const long k)
 /* return pointer to string containing 1 instance of each character state in
  * column k of matrix, or NULL if more than MAXSTATES states are
- * found; ignores the special meaning of ambiguity codes or gaps, so can return
- * NULL if these are present;
+ * found; does not include '-', '?', 'N' or 'X'; ignores the special meaning
+ * of other (partial) ambiguity codes, so can return NULL if these are present;
  * N.B. string is static and will be overwritten by later calls */
 {
     static char statev[MAXSTATES + 1];	/* array of states */
@@ -67,7 +67,9 @@ static char *getstatev(const Dataptr matrix, DataSeqPtr matrix_seq, const long k
     /* update record of states for column k */
     for (i = 0; i < matrix->n; ++i){
 		if (strchr(statev, (int) matrix_seq->row[i][k]) == NULL){	/* new state */
-			statev[statec++] = matrix_seq->row[i][k];
+			if ((matrix_seq->row[i][k] != '-') && (matrix_seq->row[i][k] != '?') && (matrix_seq->row[i][k] != 'N') && (matrix_seq->row[i][k] != 'X')) {
+				statev[statec++] = matrix_seq->row[i][k];
+			}
 			if (statec > MAXSTATES) return NULL;
 			statev[statec] = '\0';	/* for strchr() */
 		}
