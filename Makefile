@@ -71,13 +71,13 @@ CXXFLAGS += -Wall
 #CFLAGS += -fprofile-arcs -ftest-coverage -ansi
 #CFLAGS += -g -std=c99
 #CFLAGS += -O3 -std=c99 -fopenmp -ftree-loop-distribution -fvariable-expansion-in-unroller -ftree-vectorizer-verbose=6 -msse4.2
-CFLAGS += -O3 -fopenmp -msse4.2 -Wno-deprecated -I/gpfs/stfc/local/HCP006/mdw02/cxk42-mdw02/LIBs/mrmpi-22Nov13/src 
-CXXFLAGS += -O3 -fopenmp -msse4.2 -Wno-deprecated -I/gpfs/stfc/local/HCP006/mdw02/cxk42-mdw02/LIBs/mrmpi-22Nov13/src
+CFLAGS += -O3 -fopenmp -msse4.2 -Wno-deprecated -I/home/software/mrmpi-7Apr14/src
+CXXFLAGS += -O3 -fopenmp -msse4.2 -Wno-deprecated -I/home/software/mrmpi-7Apr14/src
 
 # System-dependent macros - OK for Linux and UNIX-like systems, for others will
 # require change
-LM = -lm /gpfs/stfc/local/HCP006/mdw02/cxk42-mdw02/LIBs/mrmpi-22Nov13/src/libmrmpi_mpicc.a	# UNIX
-USRLIB=/gpfs/stfc/local/HCP006/mdw02/cxk42-mdw02/LIBs/mrmpi-22Nov13/src/libmrmpi_mpicc.a
+LM = -lm /home/software/mrmpi-7Apr14/src/libmrmpi_mpicc.a	# UNIX
+USRLIB=/home/software/mrmpi-7Apr14/src/libmrmpi_mpicc.a
 RANLIB = ranlib		# UNIX
 EXE =			# UNIX
 OBJ = o			# UNIX

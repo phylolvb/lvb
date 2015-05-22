@@ -97,60 +97,57 @@ long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *c
 				lvb_assert (lendash >= 1L);
 				deltalen = lendash - len;
 
-                		MPI_Bcast(&deltalen, 1, MPI_LONG, 0,    MPI_COMM_WORLD);
-                		MPI_Bcast(&lendash,  1, MPI_LONG, 0,    MPI_COMM_WORLD);
+				MPI_Bcast(&deltalen, 1, MPI_LONG, 0,    MPI_COMM_WORLD);
+				MPI_Bcast(&lendash,  1, MPI_LONG, 0,    MPI_COMM_WORLD);
 
 				if (deltalen <= 0) {
 					if (deltalen < 0)  /* very best so far */
 					{
 						treestack_clear(bstackp);
 						treestack_push_only(matrix, bstackp, p_proposed_tree, rootdash);
-
-                                        	misc->ID = bstackp->next;
-                                        	misc->SB = 1;
-                                        	tree_setpush(matrix, p_proposed_tree, rootdash, mrTreeStack, misc);
-					
+						misc->ID = bstackp->next;
+						misc->SB = 1;
+						tree_setpush(matrix, p_proposed_tree, rootdash, mrTreeStack, misc);
 						len = lendash;
 					} else {
 
 					  misc->SB = 0;
-                                          tree_setpush(matrix, p_proposed_tree, rootdash, mrBuffer, misc);
+					  tree_setpush(matrix, p_proposed_tree, rootdash, mrBuffer, misc);
 					  mrBuffer->add(mrTreeStack);
-                                          mrBuffer->collate(NULL);
+					  mrBuffer->collate(NULL);
 
-                                          misc->count = (int *) alloc( (bstackp->next+1) * sizeof(int), "int array for tree comp using MR");
-                                          total_count = (int *) alloc( (bstackp->next+1) * sizeof(int), "int array for tree comp using MR");
-                                          for(int i=0; i<=bstackp->next; i++) misc->count[i] = 0;
-                                          mrBuffer->reduce(reduce_count, misc);
+					  misc->count = (int *) alloc( (bstackp->next+1) * sizeof(int), "int array for tree comp using MR");
+					  total_count = (int *) alloc( (bstackp->next+1) * sizeof(int), "int array for tree comp using MR");
+					  for(int i=0; i<=bstackp->next; i++) misc->count[i] = 0;
+					  mrBuffer->reduce(reduce_count, misc);
 
-                                          for(int i=0; i<=bstackp->next; i++) total_count[i] = 0;
-                                          MPI_Reduce( misc->count, total_count, bstackp->next+1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD );
+					  for(int i=0; i<=bstackp->next; i++) total_count[i] = 0;
+					  MPI_Reduce( misc->count, total_count, bstackp->next+1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD );
 
-                                          check_cmp = 1;
-                                          if (misc->rank == 0) {
-                                               	for(int i=1; i<=bstackp->next; i++) {
-                                                       	if (misc->nsets == total_count[i]) {
-                                                               	check_cmp = 0;
-                                                               	break;
-                                                       	}
-                                               	}
-                                          }
+					  check_cmp = 1;
+					  if (misc->rank == 0) { /* sum to root process */
+						for(int i=1; i<=bstackp->next; i++) {
+							if (misc->nsets == total_count[i]) {
+								check_cmp = 0; /* different */
+								break;
+							}
+						}
+					  }
 
-                                          MPI_Barrier(MPI_COMM_WORLD);
-                                          MPI_Bcast(&check_cmp, 1, MPI_INT, 0,    MPI_COMM_WORLD);
+					  MPI_Barrier(MPI_COMM_WORLD);
+					  MPI_Bcast(&check_cmp, 1, MPI_INT, 0,    MPI_COMM_WORLD);
 					  if (check_cmp == 0) {
-                                               	misc->SB = 1;
-                                               	tree_setpush(matrix, p_proposed_tree, rootdash, mrBuffer, misc);
-						mrTreeStack->add(mrBuffer);
-                                               	treestack_push_only(matrix, bstackp, p_proposed_tree, rootdash);
-                                               	misc->ID = bstackp->next;
+							misc->SB = 1;
+							tree_setpush(matrix, p_proposed_tree, rootdash, mrBuffer, misc);
+							mrTreeStack->add(mrBuffer);
+							treestack_push_only(matrix, bstackp, p_proposed_tree, rootdash);
+							misc->ID = bstackp->next;
 
-						newtree = LVB_TRUE;
-						treeswap(&p_current_tree, &root, &p_proposed_tree, &rootdash);
-                                          }
-
-                                          free(misc->count);
-                                          free(total_count);	
+							newtree = LVB_TRUE;
+							treeswap(&p_current_tree, &root, &p_proposed_tree, &rootdash);
+					  }
+					  free(misc->count);
+					  free(total_count);
 
 					}
 
@@ -160,7 +157,7 @@ long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *c
 				}
 				*current_iter += 1;
 			}
-if(misc->rank == 0) cerr << *current_iter << " " << i << " " << newtree << endl;
+			if(misc->rank == 0) cerr << *current_iter << " " << i << " " << newtree << endl;
 		}
     } while (newtree == LVB_TRUE);
 
@@ -294,10 +291,10 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
 					treestack_push_only(matrix, bstackp, p_proposed_tree, rootdash);
 					misc->ID = bstackp->next;
 
-				        misc->SB = 1;
+				    misc->SB = 1;
 					tree_setpush(matrix, p_proposed_tree, rootdash, mrTreeStack, misc);
 
-					accepted++;
+					accepted = 1;
 					MPI_Bcast(&accepted,  1, MPI_LONG, 0, MPI_COMM_WORLD);
 					n_temp_new_tree += 1;
 
@@ -305,7 +302,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
 				} else {
 //		if(misc->rank == 0) cerr << "checking treecmp! " << endl;
 				
-                                        misc->SB = 0;
+                    misc->SB = 0;
 					tree_setpush(matrix, p_proposed_tree, rootdash, mrBuffer, misc);
 					mrBuffer->add(mrTreeStack);
 					mrBuffer->collate(NULL);
@@ -314,8 +311,11 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
 					total_count = (int *) alloc( (bstackp->next+1) * sizeof(int), "int array for tree comp using MR");
 
 					for(int i=0; i<=misc->ID; i++) misc->count[i] = 0;
+/*					cerr << "Reduce ********************* " << endl;
+					cerr << "Reduce ********************* " << endl;
 					mrBuffer->reduce(reduce_count, misc);	
-
+					cerr << "END Reduce ********************* " << endl;
+					cerr << "END Reduce ********************* " << endl;*/
 					for(int i=0; i<=misc->ID; i++) total_count[i] = 0;
 					MPI_Reduce( misc->count, total_count, misc->ID+1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD );
 					
@@ -328,8 +328,10 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
 								break;
 							}								
 						}	
-
+//	cerr << "Sanity Check = " << endl;
+//	cerr << "Sanity Check = " << endl;
 //	for(int i=0; i<=misc->ID; i++) cerr << "Sanity Check = " << i << " " << check_cmp << " " << total_count[i] << " " << total_count[0] << endl;
+
 					}
 
 					MPI_Barrier(MPI_COMM_WORLD);
@@ -342,7 +344,6 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
 						misc->SB = 1;
 						tree_setpush(matrix, p_proposed_tree, rootdash, mrBuffer, misc);
 						mrTreeStack->add(mrBuffer);
-
 						accepted++;
 						MPI_Bcast(&accepted,  1, MPI_LONG, 0, MPI_COMM_WORLD);
 						n_temp_new_tree += 1;
@@ -364,6 +365,8 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
 				lenbest = lendash;
 				MPI_Bcast(&lenbest,  1, MPI_LONG, 0, MPI_COMM_WORLD);
 			}
+/*	cerr << "accepted = " << accepted << endl;
+	if (accepted > 2) exit(1);*/
 		}
 		else	/* poss. accept change for the worse */
 		{

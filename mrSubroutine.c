@@ -13,31 +13,52 @@ void reduce_count(char *key, int keybytes, char *multivalue, int nvalues, int *v
    int check;
    int ID;
  
-   uint64_t nvalues_total;
-   CHECK_FOR_BLOCKS(multivalue,valuebytes,nvalues,nvalues_total)
-   BEGIN_BLOCK_LOOP(multivalue,valuebytes,nvalues)
+   uint64_t totalnvalues;
+//   CHECK_FOR_BLOCKS(multivalue,valuebytes,nvalues,nvalues_total)
+//   BEGIN_BLOCK_LOOP(multivalue,valuebytes,nvalues)
 
-   check = 0;
-   value = multivalue;
-   for (int i=0; i<nvalues; i++) {
-	ID = *(int *) value;
-	if(ID == 0) {
-		check = 1;
-		break;
+   	int macro_nblocks = 1;
+	totalnvalues = nvalues;
+	cerr << "totalnvalues 1 = " << totalnvalues << endl;
+
+	MapReduce *macro_mr = NULL;
+	if (!(multivalue)) {
+		macro_mr = (MapReduce *) (valuebytes);
+		totalnvalues = macro_mr->multivalue_blocks(macro_nblocks);
 	}
-	value += valuebytes[i];
-   }
+	cerr << "totalnvalues 2 = " << totalnvalues << endl;
 
-   if (check == 1) {
-    value = multivalue;
-    for (int i=0; i<nvalues; i++) {
-        ID = *(int *) value;
-	misc->count[ID]++; 
-	value += valuebytes[i];
-    }
-   }
+	for (int macro_iblock = 0; macro_iblock < macro_nblocks; macro_iblock++) {
+	    if (macro_mr)
+	    	(nvalues) = macro_mr->multivalue_block(macro_iblock, &(multivalue),&(valuebytes));
 
-   END_BLOCK_LOOP
+	    check = 0;
+	   value = multivalue;
+	   cerr << "value 2 0 = " << *value << " " << nvalues << endl;
+	   for (int i=0; i<nvalues; i++) {
+			ID = *(int *) value;
+			if(ID == 0) {
+				check = 1;
+				break;
+			}
+			value += valuebytes[i];
+			ID = *(int *) value;
+			cerr << "value 2 = " << i << " " << ID << endl;
+	   }
+
+	   if (check == 1) {
+			value = multivalue;
+			cerr << "value 3 0 = " << *value << endl;
+			for (int i=0; i<nvalues; i++) {
+				ID = *(int *) value;
+				misc->count[ID]++;
+				value += valuebytes[i];
+				ID = *(int *) value;
+				cerr << "value 3 = " << i << " " << ID << " " << valuebytes[i] << endl;
+			}
+	   }
+
+	}
 
 // if(misc->rank ==0) {
 //   long *set;

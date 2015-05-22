@@ -150,15 +150,15 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
      * of LVB. The code bellow is purely to keep the output consistent
      * with that of previous versions. */
 
-if (misc->rank == 0) {
-    if (rcstruct.verbose == LVB_TRUE) {
-		sumfp = clnopen(SUMFNAM, "w");
-		fprintf(sumfp, "StartNo\tCycleNo\tCycInit\tCycBest\tCycTrees\n");
-    }
-    else{
-        sumfp = NULL;
-    }
-}
+	if (misc->rank == 0) {
+		if (rcstruct.verbose == LVB_TRUE) {
+			sumfp = clnopen(SUMFNAM, "w");
+			fprintf(sumfp, "StartNo\tCycleNo\tCycInit\tCycBest\tCycTrees\n");
+		}
+		else{
+			sumfp = NULL;
+		}
+	}
 	
     /* determine starting temperature */
     randtree(matrix, tree);	/* initialise required variables */
@@ -171,23 +171,23 @@ if (misc->rank == 0) {
     ss_init(matrix, tree, enc_mat);
     initroot = 0;
 
-if (misc->rank == 0) {
-    if (rcstruct.verbose) smessg(start, cyc);
-    check_stdout();
-}
+	if (misc->rank == 0) {
+		if (rcstruct.verbose) smessg(start, cyc);
+		check_stdout();
+	}
 
     /* start cycles's entry in sum file
      * NOTE: There are no cycles anymore in the current version
      * of LVB. The code bellow is purely to keep the output consistent
      * with that of previous versions.  */
-if (misc->rank == 0) {
-    if(rcstruct.verbose == LVB_TRUE) {
-        alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-	fprintf(sumfp, "%ld\t%ld\t%ld\t", start, cyc, getplen(matrix, tree, rcstruct, initroot, weight_arr, p_todo_arr, p_todo_arr_sum_changes, p_runs));
-	free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-	logtree1(matrix, tree, start, cyc, initroot);
-    }
-}
+	if (misc->rank == 0) {
+		if(rcstruct.verbose == LVB_TRUE) {
+			alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
+		fprintf(sumfp, "%ld\t%ld\t%ld\t", start, cyc, getplen(matrix, tree, rcstruct, initroot, weight_arr, p_todo_arr, p_todo_arr_sum_changes, p_runs));
+		free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
+		logtree1(matrix, tree, start, cyc, initroot);
+		}
+	}
 
     MPI_Barrier(MPI_COMM_WORLD);
     /* find solution(s) */
@@ -198,53 +198,53 @@ if (misc->rank == 0) {
     long val = treestack_pop(matrix, tree, &initroot, &bstack_overall);
     treestack_push(matrix, &bstack_overall, tree, initroot);
 
-if(val ==  1) {
-    misc->SB = 0;
-    tree_setpush(matrix, tree, initroot, mrBuffer, misc);
-    mrTreeStack->add(mrBuffer);
-    mrTreeStack->collate(NULL);
-    mrTreeStack->reduce(reduce_filter, NULL);
- 
-    mrBuffer->add(mrTreeStack);
-    mrBuffer->collate(NULL);
+	if(val ==  1) {
+		misc->SB = 0;
+		tree_setpush(matrix, tree, initroot, mrBuffer, misc);
+		mrTreeStack->add(mrBuffer);
+		mrTreeStack->collate(NULL);
+		mrTreeStack->reduce(reduce_filter, NULL);
 
-    misc->count = (int *) alloc( (bstack_overall.next+1) * sizeof(int), "integer array for tree compare using MapReduce");
-    total_count = (int *) alloc( (bstack_overall.next+1) * sizeof(int), "integer array for tree compare using MapReduce");
-    for(int i=0; i<=bstack_overall.next; i++) misc->count[i] = 0;
-    mrBuffer->reduce(reduce_count, misc);
+		mrBuffer->add(mrTreeStack);
+		mrBuffer->collate(NULL);
 
-    for(int i=0; i<=bstack_overall.next; i++) total_count[i] = 0;
-    MPI_Reduce( misc->count, total_count, bstack_overall.next+1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD );
-  
-    int check_cmp = 1;
-    if (misc->rank == 0) {
-    	for(int i=1; i<=bstack_overall.next; i++) {
-           if (misc->nsets == total_count[i]) {
-                check_cmp = 0;
-        	break;
-           } 
-    	}
-    } 
- 
-    MPI_Barrier(MPI_COMM_WORLD);
-    MPI_Bcast(&check_cmp, 1, MPI_INT, 0,    MPI_COMM_WORLD);
-    if (check_cmp == 1) {
-//	  treestack_push_only(matrix, &bstack_overall, tree, initroot);
-	  misc->ID = bstack_overall.next;  
-          misc->SB = 1;
-          tree_setpush(matrix, tree, initroot, mrBuffer, misc); 
-          mrTreeStack->add(mrBuffer);
-    }
- 
-    free(misc->count);
-    free(total_count);
-//} else {
-//	treestack_push_only(matrix, &bstack_overall, tree, initroot);
-//	misc->ID = bstack_overall.next;
-//	misc->SB = 1;
-//        tree_setpush(matrix, tree, initroot, mrBuffer, misc);
-//        mrTreeStack->add(mrBuffer);
-}
+		misc->count = (int *) alloc( (bstack_overall.next+1) * sizeof(int), "integer array for tree compare using MapReduce");
+		total_count = (int *) alloc( (bstack_overall.next+1) * sizeof(int), "integer array for tree compare using MapReduce");
+		for(int i=0; i<=bstack_overall.next; i++) misc->count[i] = 0;
+		mrBuffer->reduce(reduce_count, misc);
+
+		for(int i=0; i<=bstack_overall.next; i++) total_count[i] = 0;
+		MPI_Reduce( misc->count, total_count, bstack_overall.next+1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD );
+
+		int check_cmp = 1;
+		if (misc->rank == 0) {
+			for(int i=1; i<=bstack_overall.next; i++) {
+			   if (misc->nsets == total_count[i]) {
+					check_cmp = 0; /* different */
+				break;
+			   }
+			}
+		}
+
+		MPI_Barrier(MPI_COMM_WORLD);
+		MPI_Bcast(&check_cmp, 1, MPI_INT, 0,    MPI_COMM_WORLD);
+		if (check_cmp == 1) {
+	//	  treestack_push_only(matrix, &bstack_overall, tree, initroot);
+		  misc->ID = bstack_overall.next;
+			  misc->SB = 1;
+			  tree_setpush(matrix, tree, initroot, mrBuffer, misc);
+			  mrTreeStack->add(mrBuffer);
+		}
+
+		free(misc->count);
+		free(total_count);
+	//} else {
+	//	treestack_push_only(matrix, &bstack_overall, tree, initroot);
+	//	misc->ID = bstack_overall.next;
+	//	misc->SB = 1;
+	//        tree_setpush(matrix, tree, initroot, mrBuffer, misc);
+	//        mrTreeStack->add(mrBuffer);
+	}
 
     treelength = deterministic_hillclimb(matrix, &bstack_overall, tree, rcstruct, initroot, stdout,
     		weight_arr, iter_p, log_progress, misc, mrTreeStack, mrBuffer);
@@ -254,6 +254,7 @@ if(val ==  1) {
      * NOTE: There are no cycles anymore in the current version
      * of LVB. The code bellow is purely to keep the output consistent
      * with that of previous versions. */
+
 if (misc->rank == 0) {
     if (rcstruct.verbose == LVB_TRUE){
 		fnamlen = sprintf(fnam, "%s_start%ld_cycle%ld", RESFNAM, start, cyc);
@@ -356,51 +357,51 @@ int main(int argc, char **argv)
 
     /* global files */
 
-if(misc.rank == 0) {
-    /* entitle standard output */
-    printf("\nLVB\n\n"
-	"(c) Copyright 2003-2012 by Daniel Barker\n"
-	"(c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl\n"
-	"(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro and Maximilian\n"
-	"Strobl.\n"
-	"All rights reserved.\n"
-	"\n"
-	"Redistribution and use in source and binary forms, with or without\n"
-	"modification, are permitted provided that the following conditions\n"
-	"are met:\n"
-	"\n"
-	"1. Redistributions of source code must retain the above copyright\n"
-	"notice, this list of conditions and the following disclaimer.\n"
-	"\n"
-	"2. Redistributions in binary form must reproduce the above\n"
-	"copyright notice, this list of conditions and the following\n"
-	"disclaimer in the documentation and/or other materials provided\n"
-	"with the distribution.\n"
-	"\n"
-	"3. Neither the name of the copyright holder nor the names of its\n"
-	"contributors may be used to endorse or promote products derived\n"
-	"from this software without specific prior written permission.\n"
-	"\n"
-	"THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS\n"
-	"\"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT\n"
-	"LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS\n"
-	"FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE\n"
-	"COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,\n"
-	"INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES\n"
-	"(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR\n"
-	"SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)\n"
-	"HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,\n"
-	"STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)\n"
-	"ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF\n"
-	"ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n\n");
-    printf("* This is %s version %s %s *\n\n", PROGNAM, LVB_VERSION,
-	LVB_SUBVERSION);
-    printf("Literature reference:\n"
-	"Barker, D. 2004. LVB: Parsimony and simulated annealing in the\n"
-	"search for phylogenetic trees. Bioinformatics, 20, 274-275.\n\n");
-    printf("Download and support:\n"
-	"http://eggg.st-andrews.ac.uk/lvb\n\n");
-}
+	if(misc.rank == 0) {
+		/* entitle standard output */
+		printf("\nLVB\n\n"
+		"(c) Copyright 2003-2012 by Daniel Barker\n"
+		"(c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl\n"
+		"(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro and Maximilian\n"
+		"Strobl.\n"
+		"All rights reserved.\n"
+		"\n"
+		"Redistribution and use in source and binary forms, with or without\n"
+		"modification, are permitted provided that the following conditions\n"
+		"are met:\n"
+		"\n"
+		"1. Redistributions of source code must retain the above copyright\n"
+		"notice, this list of conditions and the following disclaimer.\n"
+		"\n"
+		"2. Redistributions in binary form must reproduce the above\n"
+		"copyright notice, this list of conditions and the following\n"
+		"disclaimer in the documentation and/or other materials provided\n"
+		"with the distribution.\n"
+		"\n"
+		"3. Neither the name of the copyright holder nor the names of its\n"
+		"contributors may be used to endorse or promote products derived\n"
+		"from this software without specific prior written permission.\n"
+		"\n"
+		"THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS\n"
+		"\"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT\n"
+		"LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS\n"
+		"FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE\n"
+		"COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,\n"
+		"INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES\n"
+		"(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR\n"
+		"SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)\n"
+		"HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,\n"
+		"STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)\n"
+		"ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF\n"
+		"ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n\n");
+		printf("* This is %s version %s %s *\n\n", PROGNAM, LVB_VERSION,
+		LVB_SUBVERSION);
+		printf("Literature reference:\n"
+		"Barker, D. 2004. LVB: Parsimony and simulated annealing in the\n"
+		"search for phylogenetic trees. Bioinformatics, 20, 274-275.\n\n");
+		printf("Download and support:\n"
+		"http://eggg.st-andrews.ac.uk/lvb\n\n");
+	}
 
     lvb_initialize();
     getparam(&rcstruct, argc, argv);
@@ -438,14 +439,17 @@ if(misc.rank == 0) {
 			for (i = 0; i < matrix->m; i++) weight_arr[i] = 1;
 		}
 		final_length = getsoln(matrix, rcstruct, weight_arr, &iter, log_progress, &misc, mrTreeStack, mrBuffer);
-	   if (misc.rank == 0) {
-		if (rcstruct.bootstraps > 0) trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_TRUE);
-		else trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_FALSE);
-	   }
+		if (misc.rank == 0) {
+			if (rcstruct.bootstraps > 0) trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_TRUE);
+			else trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_FALSE);
+		}
 		trees_output_total += trees_output;
 		treestack_clear(&bstack_overall);
-	        mrTreeStack->map( mrTreeStack, map_clean, NULL );
+
+		/* clean the TreeStack and buffer */
+		mrTreeStack->map( mrTreeStack, map_clean, NULL );
 		mrBuffer->map( mrBuffer, map_clean, NULL );
+		/* END clean the TreeStack and buffer */
 		replicate_no++;
 		if (rcstruct.bootstraps > 0) {
 			if (misc.rank == 0) printf("%-16ld%-16ld%-16ld%ld\n", replicate_no, iter, trees_output, final_length);
@@ -456,27 +460,28 @@ if(misc.rank == 0) {
 		}
     } while (replicate_no < rcstruct.bootstraps);
 
-     if (misc.rank == 0) {
-	clnclose(outtreefp, rcstruct.file_name_out);
 
-	printf("\n");
-	if (rcstruct.bootstraps > 0)
-		printf("Total rearrangements tried across all replicates: %g\n\n", total_iter);
 
-	if ((trees_output_total == 1L) && (rcstruct.bootstraps == 0)) {
-		printf("1 most parsimonious tree of length %ld written to file '%s'\n", final_length, rcstruct.file_name_out);
+    if (misc.rank == 0) {
+    	clnclose(outtreefp, rcstruct.file_name_out);
+		printf("\n");
+		if (rcstruct.bootstraps > 0)
+			printf("Total rearrangements tried across all replicates: %g\n\n", total_iter);
+
+		if ((trees_output_total == 1L) && (rcstruct.bootstraps == 0)) {
+			printf("1 most parsimonious tree of length %ld written to file '%s'\n", final_length, rcstruct.file_name_out);
+		}
+		else {
+			if (rcstruct.bootstraps > 0){
+				lvb_assert(trees_output_total == rcstruct.bootstraps);
+				printf("%ld trees written to file '%s'\n", trees_output_total, rcstruct.file_name_out);
+			}
+			else{
+				printf("%ld equally parsimonious trees of length %ld written to "
+				 "file '%s'\n", trees_output_total, final_length, rcstruct.file_name_out);
+			}
+		}
 	}
-	else {
-		if (rcstruct.bootstraps > 0){
-			lvb_assert(trees_output_total == rcstruct.bootstraps);
-			printf("%ld trees written to file '%s'\n", trees_output_total, rcstruct.file_name_out);
-		}
-		else{
-			printf("%ld equally parsimonious trees of length %ld written to "
-			 "file '%s'\n", trees_output_total, final_length, rcstruct.file_name_out);
-		}
-    	}
-     }
 
     rowfree(matrix);
     free(matrix);

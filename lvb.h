@@ -37,7 +37,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef LVB_LVB_H
 #define LVB_LVB_H
 
-#include "mpi.h"
+#include <mpi.h>
 #include "mapreduce.h"
 #include "blockmacros.h"
 #include "keyvalue.h"
