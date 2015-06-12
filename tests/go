@@ -174,8 +174,10 @@ else
 # run the tests and log the results
 print "\nRUNNING TESTS ON LVB ...\n";
 $failed_cnt = 0;
+@failed_tests = ();
 foreach $test_dir (@test_dirs)
 {
+	print "Testing \"$test_dir\": ";
     chdir "$test_dir" or die "error: can't change to directory $test_dir";
 
     # get original test directory listing
@@ -186,37 +188,35 @@ foreach $test_dir (@test_dirs)
     # build test executable if required
     if ($test_dir =~ /^test_lib/)
     {
-	@obj_files = grep { /\.o$/ } @orig_file_list;
-	$com = "$ENV{CC} $ENV{CFLAGS} -c main.c -I ../$ENV{LVB_HEADER_PATH} -o main.o;"
-		. " $ENV{GPLUSPLUS} $ENV{CFLAGS} -I ../$ENV{LVB_HEADER_PATH} -o testprog.exe main.o @obj_files $ENV{LVB_LIBRARY} "
-		. "$ENV{LVB_OTHERLIBS} ../../LVB_READ_FILES/src/CReadFiles.o ../../LVB_READ_FILES/src/ReadFile.o";
-	$com =~ s/My Documents/'My Documents'/g;
-	# Change DOS directory separator to Unix-style directory separator
-	$com =~ s/\\/\//g;
-	# And then build the executable
-	! `$com` or die "Cannot compile testprog.exe";
+		@obj_files = grep { /\.o$/ } @orig_file_list;
+		$com = "$ENV{CC} $ENV{CFLAGS} -c main.c -I ../$ENV{LVB_HEADER_PATH} -o main.o;"
+			. " $ENV{GPLUSPLUS} $ENV{CFLAGS} -I ../$ENV{LVB_HEADER_PATH} -o testprog.exe main.o @obj_files $ENV{LVB_LIBRARY} "
+			. "$ENV{LVB_OTHERLIBS} ../../LVB_READ_FILES/src/CReadFiles.o ../../LVB_READ_FILES/src/ReadFile.o";
+		$com =~ s/My Documents/'My Documents'/g;
+		# Change DOS directory separator to Unix-style directory separator
+		$com =~ s/\\/\//g;
+		# And then build the executable
+		! `$com` or die "Cannot compile testprog.exe";
     }
 
     # run test
     $result = `perl -w runtest` or die "error: can't execute 'runtest' in $test_dir";
 
     # summarize results
-    if ($result =~ /test passed/i)
-    {
-    	print "$test_dir: test passed\n";
+    if ($result =~ /test passed/i){
+    	print " test passed\n";
     }
-    else
-    {
-	$failed_cnt++;
-	print "$test_dir: test failed\n";
+    else{
+		$failed_cnt++;
+		print " test failed\n";
+		push @failed_tests, $test_dir;
     }
 
     # Remove files that are new since start of script
     opendir(THIS_DIR, ".") or die "error";
     @new_file_list = readdir THIS_DIR;
     closedir THIS_DIR;
-    foreach $file (@new_file_list)
-    {
+    foreach $file (@new_file_list){
         grep { /$file/ } @orig_file_list or unlink $file;
     }
 
@@ -226,16 +226,22 @@ foreach $test_dir (@test_dirs)
 # summarize results
 print "\n";
 print "SUMMARY OF TEST RESULTS:\n";
-if ($test_cnt == 1)
-{
+if ($test_cnt == 1){
     print "partial run: '@test_dirs' only\n";
 }
-else
-{
+else {
     print "$test_cnt tests in test suite\n";
 }
 print $test_cnt - $failed_cnt, " tests passed\n";
 print "$failed_cnt tests failed\n";
+print "\n";
+
+if (scalar (@failed_tests) > 0){
+	print "Tests failed :\n";
+	foreach $test_name (@failed_tests){
+		print "    $test_name;\n";
+	}
+}
 print "\n";
 
 # exit 0 on no failures, 1 otherwise

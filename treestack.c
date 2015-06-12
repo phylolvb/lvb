@@ -82,12 +82,12 @@ static void upsize(Dataptr matrix, Treestack *sp)
  
 } /* end upsize() */
 
-static void dopush(Dataptr matrix, Treestack *sp, const Branch *const barray, const long root)
+static void dopush(Dataptr matrix, Treestack *sp, const Branch *const barray, const long root, Lvb_bool b_with_sset)
 /* push tree in barray (of root root) on to stack *sp */
 {
     lvb_assert(sp->next <= sp->size);
     if (sp->next == sp->size) upsize(matrix, sp);
-    treecopy(matrix, sp->stack[sp->next].tree, barray, LVB_FALSE); /* MIGUEL */
+    treecopy(matrix, sp->stack[sp->next].tree, barray, b_with_sset); /* MIGUEL */
     sp->stack[sp->next].root = root;
     sp->next++;
  
@@ -216,7 +216,7 @@ Returns 1 if the tree was pushed, or 0 if not.
 
 **********/
 
-long treestack_push(Dataptr matrix, Treestack *sp, const Branch *const barray, const long root)
+long treestack_push(Dataptr matrix, Treestack *sp, const Branch *const barray, const long root, Lvb_bool b_with_sset)
 {
     long i, new_root = root;			/* loop counter */
     long stackroot;		/* root of current tree */
@@ -225,16 +225,16 @@ long treestack_push(Dataptr matrix, Treestack *sp, const Branch *const barray, c
 
 	/* allocate "local" static heap memory - static - do not free! */
 	if (copy_2 == NULL) {
-		copy_2 = treealloc(matrix, LVB_FALSE);
+		copy_2 = treealloc(matrix, b_with_sset);
 	}
-    treecopy(matrix, copy_2, barray, LVB_FALSE);
+    treecopy(matrix, copy_2, barray, b_with_sset);
 
     /* return before push if not a new topology */
     /* check backwards as similar trees may be discovered together */
     for (i = sp->next - 1; i >= 0; i--) {
         stackroot = sp->stack[i].root;
         if(stackroot != new_root){
-        	lvb_reroot(matrix, copy_2, new_root, stackroot, LVB_FALSE);
+        	lvb_reroot(matrix, copy_2, new_root, stackroot, b_with_sset);
         	new_root = stackroot;
         	b_First = LVB_TRUE;
         }
@@ -244,7 +244,7 @@ long treestack_push(Dataptr matrix, Treestack *sp, const Branch *const barray, c
 
     /* topology is new so must be pushed */
     lvb_assert(root < matrix->n);
-    dopush(matrix, sp, barray, root);
+    dopush(matrix, sp, barray, root, b_with_sset);
     return 1;
 
 } /* end treestack_push() */
@@ -296,13 +296,13 @@ Returns 1 if a tree was popped, or 0 if the stack was empty.
 
 **********/
 
-long treestack_pop(Dataptr matrix, Branch *barray, long *root, Treestack *sp)
+long treestack_pop(Dataptr matrix, Branch *barray, long *root, Treestack *sp, Lvb_bool b_with_sset)
 {
     long val;	/* return value */
 
     if (sp->next >= 1){
         sp->next--;
-        treecopy(matrix, barray, sp->stack[sp->next].tree, LVB_FALSE);
+        treecopy(matrix, barray, sp->stack[sp->next].tree, b_with_sset);
         *root = sp->stack[sp->next].root;
 
         val = 1;
@@ -405,7 +405,7 @@ long treestack_dump(Dataptr matrix, Treestack *sp, FILE *const outfp)
     /* "local" dynamic heap memory */
     barray = treealloc(matrix, LVB_FALSE);
 
-    while ((treestack_pop(matrix, barray, &root, sp)) != 0){
+    while ((treestack_pop(matrix, barray, &root, sp, LVB_FALSE)) != 0){
 		treedump(matrix, outfp, barray, LVB_FALSE);
 		cnt++;
     }
@@ -458,7 +458,7 @@ void treestack_free(Treestack *sp)
     long i;	/* loop counter */
 
     for (i = 0; i < sp->size; i++){
-    	free(sp->stack[i].tree);
+    	if (sp->stack[i].tree != NULL) free(sp->stack[i].tree);
         sp->stack[i].tree = NULL;
         sp->stack[i].root = -1;
     }
@@ -550,16 +550,16 @@ are not transferred).
 
 **********/
 
-long treestack_transfer(Dataptr matrix, Treestack *destp, Treestack *sourcep)
+long treestack_transfer(Dataptr matrix, Treestack *destp, Treestack *sourcep, Lvb_bool b_with_sset)
 {
     Branch *barray;		/* current tree, in transit */
     long root;			/* number of root branch */
     long pushed = 0;		/* number of trees transferred */
 
     /* "local" dynamic heap memory */
-    barray = treealloc(matrix, LVB_FALSE);
-    while (treestack_pop(matrix, barray, &root, sourcep) == 1) {
-        pushed += treestack_push(matrix, destp, barray, root);
+    barray = treealloc(matrix, b_with_sset);
+    while (treestack_pop(matrix, barray, &root, sourcep, b_with_sset) == 1) {
+        pushed += treestack_push(matrix, destp, barray, root, b_with_sset);
     }
 
     /* free "local" dynamic heap memory */

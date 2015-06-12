@@ -188,8 +188,8 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
     /* find solution(s) */
     treelength = anneal(matrix, &bstack_overall, tree, rcstruct, initroot, t0, maxaccept,
     		maxpropose, maxfail, stdout, weight_arr, iter_p, log_progress);
-    treestack_pop(matrix, tree, &initroot, &bstack_overall);
-    treestack_push(matrix, &bstack_overall, tree, initroot);
+    treestack_pop(matrix, tree, &initroot, &bstack_overall, LVB_FALSE);
+    treestack_push(matrix, &bstack_overall, tree, initroot, LVB_FALSE);
     treelength = deterministic_hillclimb(matrix, &bstack_overall, tree, rcstruct, initroot, stdout,
     		weight_arr, iter_p, log_progress);
 

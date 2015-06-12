@@ -80,6 +80,7 @@ int main(void)
 	lvb_assert(strcmp(matrix->rowtitle[i], name_expected[i]) == 0);
     }
 
+    rowfree(matrix);
     printf("test passed\n");
     return 0;
 }

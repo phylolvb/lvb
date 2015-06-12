@@ -100,7 +100,7 @@ long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *c
 						treestack_clear(bstackp);
 						len = lendash;
 					}
-					if (treestack_push(matrix, bstackp, p_proposed_tree, rootdash) == 1) {
+					if (treestack_push(matrix, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1) {
 						newtree = LVB_TRUE;
 						treeswap(&p_current_tree, &root, &p_proposed_tree, &rootdash);
 					}
@@ -181,7 +181,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
     lvb_assert( ((float) t >= (float) LVB_EPS) && (t <= 1.0) && (grad_geom >= LVB_EPS) && (grad_linear >= LVB_EPS));
 
     lenbest = len;
-    treestack_push(matrix, bstackp, inittree, root);	/* init. tree initially best */
+    treestack_push(matrix, bstackp, inittree, root, LVB_FALSE);	/* init. tree initially best */
     if ((log_progress == LVB_TRUE) && (*current_iter == 0)) {
         fprintf(lenfp, "\nTemperature:   Rearrangement: Length:\n");
     }
@@ -225,7 +225,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
 			{
 				/*printf("%ld\n", *current_iter);*/
 				if (lendash < lenbest) treestack_clear(bstackp);	/* discard old bests */
-				if (treestack_push(matrix, bstackp, p_proposed_tree, rootdash) == 1){
+				if (treestack_push(matrix, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1){
 					accepted++;
 					n_temp_new_tree += 1;
 				}

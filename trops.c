@@ -525,8 +525,9 @@ void treecopy(Dataptr restrict matrix, Branch *const dest, const Branch *const s
     }else{
     	/* only the scalars */
 		for (i = 0; i < matrix->nbranches; i++){
+			tmp_sset = dest[i].sset;
 			dest[i] = src[i];
-			dest[i].sset = NULL;
+			dest[i].sset = tmp_sset;
 		}
     }
 
@@ -822,7 +823,8 @@ void treedump_screen(Dataptr matrix, const Branch *const tree)
     printf("Branch\tParent\tLeft\tRight\tChanges\tDirty\n");
     for (i = 0; i < matrix->nbranches; i++) {
     	printf("%ld\t%ld\t%ld\t%ld\t%ld", i, tree[i].parent, tree[i].left, tree[i].right, tree[i].changes);
-    	if (tree[i].sset[0] == 0U) printf("\tyes\n");
+    	if (tree[i].sset == NULL) printf("\tNULL\n");
+    	else if (tree[i].sset[0] == 0U) printf("\tyes\n");
     	else printf("\tno\n");
     }
     printf("\n");

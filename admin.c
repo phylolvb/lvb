@@ -67,8 +67,6 @@ should be declared in functions as required.
 
 **********/
 
-Dataptr matrix = NULL;
-
 static void functionality_check(void)
 /* To the extent possible, check that standard functions and data types match
  * LVB's expectations. Crash verbosely if they are found not to. */
@@ -76,15 +74,12 @@ static void functionality_check(void)
     /* time() is expected to work without error for logging the start
      * and end time, and for generating the default random number seed */
     if (time(NULL) == -1)
-	crash("cannot get system time");
+    	crash("cannot get system time");
 
     /* if the system is not 32-bit, 64-bit, or more, some limits will be
      * less than documented and there may be memory allocation constraints
      * that LVB does not allow for */
-    if ((((long) INT_MAX) < 2147483647L)
-     || ((sizeof(void *) * CHAR_BIT) < 32)
-     || ((sizeof(size_t) * CHAR_BIT) < 32))
-    {
+    if ((((long) INT_MAX) < 2147483647L) || ((sizeof(void *) * CHAR_BIT) < 32) || ((sizeof(size_t) * CHAR_BIT) < 32)) {
         crash("program requires at least a 32-bit system");
     }
 

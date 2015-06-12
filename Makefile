@@ -89,7 +89,7 @@ CFLAGS += -O3 -std=c99 -fopenmp
 # System-dependent macros - OK for Linux and UNIX-like systems, for others will
 # require change
 LM = -lm		# UNIX
-RANLIB = ranlib		# UNIX
+RANLIB = ranlib	# UNIX
 EXE =			# UNIX
 OBJ = o			# UNIX
 LIB_EXT = a		# UNIX
@@ -197,6 +197,10 @@ tests : test	# allow 'make tests' as synonym for 'make test'
 # source files
 clean : FORCE
 	rm -f $(LVB_PROG) \
+	rm -f tests/test*/*.o \
+	rm -f tests/test*/testprog.exe \
+	rm pod2htmd.tmp \
+	rm pod2htmi.tmp \
 	$(LVB_LIB) \
 	$(LVB_LIB_OBJS) \
 	$(LVB_READ_FILE_OBJS) \
