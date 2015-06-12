@@ -135,7 +135,7 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct,
 								/* because bootstrap change the weights of the positions it is necessary to look one by one */
 								u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
 #ifdef COMPILE_64_BITS
-							#if (defined(__GNUC__) && __GNUC__ >= 4 && __GNUC_MINOR__ >= 2)
+							#if (defined(__x86_64__) && defined(__GNUC__) && __GNUC__ >= 4 && __GNUC_MINOR__ >= 2)
 								__asm__ ("popcnt %1, %0" : "=r" (ch) : "0" (u));
 							#else
 								ch = __builtin_popcountll(u);
@@ -177,7 +177,7 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct,
 				u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
 
 #ifdef COMPILE_64_BITS
-			#if (defined(__GNUC__) && __GNUC__ >= 4 && __GNUC_MINOR__ >= 2)
+			#if (defined(__x86_64__) && defined(__GNUC__) && __GNUC__ >= 4 && __GNUC_MINOR__ >= 2)
 				__asm__ ("popcnt %1, %0" : "=r" (ch) : "0" (u));
 			#else
 				ch = __builtin_popcountll(u);
@@ -206,7 +206,7 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct,
 				u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
 
 #ifdef COMPILE_64_BITS
-			#if (defined(__GNUC__) && __GNUC__ >= 4 && __GNUC_MINOR__ >= 2)
+			#if (defined(__x86_64__) && defined(__GNUC__) && __GNUC__ >= 4 && __GNUC_MINOR__ >= 2)
 				__asm__ ("popcnt %1, %0" : "=r" (ch) : "0" (u));
 			#else
 				ch = __builtin_popcountll(u);
@@ -298,7 +298,7 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct,
 #endif
 
 #ifdef COMPILE_64_BITS
-						#if (defined(__GNUC__) && __GNUC__ >= 4 && __GNUC_MINOR__ >= 2)
+						#if (defined(__x86_64__) && defined(__GNUC__) && __GNUC__ >= 4 && __GNUC_MINOR__ >= 2)
 							__asm__ ("popcnt %1, %0" : "=r" (ch) : "0" (u));
 						#else
 							ch = __builtin_popcountll(u);
@@ -348,7 +348,7 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct,
 			u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
 
 #ifdef COMPILE_64_BITS
-		#if (defined(__GNUC__) && __GNUC__ >= 4 && __GNUC_MINOR__ >= 2)
+		#if (defined(__x86_64__) && defined(__GNUC__) && __GNUC__ >= 4 && __GNUC_MINOR__ >= 2)
 			__asm__ ("popcnt %1, %0" : "=r" (ch) : "0" (u));
 		#else
 			ch = __builtin_popcountll(u);
@@ -376,7 +376,7 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct,
 			u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
 
 #ifdef COMPILE_64_BITS
-		#if (defined(__GNUC__) && __GNUC__ >= 4 && __GNUC_MINOR__ >= 2)
+		#if (defined(__x86_64__) && defined(__GNUC__) && __GNUC__ >= 4 && __GNUC_MINOR__ >= 2)
 			__asm__ ("popcnt %1, %0" : "=r" (ch) : "0" (u));
 		#else
 			ch = __builtin_popcountll(u);

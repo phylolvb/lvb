@@ -56,9 +56,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DataStructure.h"
 
 /* the program */
-#define PROGNAM "lvb"				/* program file name */
-#define LVB_VERSION "3.2"			/* version of program */
-#define LVB_SUBVERSION "(28 April 2015)"	/* version details e.g. date */
+#define PROGNAM "lvb"			/* program file name */
+#define LVB_VERSION "3.3"		/* version of program */
+#define LVB_SUBVERSION "(1 May 2015)"	/* version details e.g. date */
 
 /* set if is to compile with 64 or 32 */
 #ifndef COMPILE_32_BITS

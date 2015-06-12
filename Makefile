@@ -46,19 +46,20 @@
 #
 # first.
 #
-# For 64-bit Linux, compile with
+# For 64-bit Linux on AMD or Intel-based hardware, compile with
 #
 # make
 #
-# For 32-bit Linux, uncomment the definition of CFLAGS below, then compile
-# as above.
-#
-# For OS X with the Intel C++ compiler, uncomment the definitions of CC,
-# G++ and CFLAGS below, then compile as for Linux.
-#
-# AFTER BUILDING LVB, RUN TESTS IMMEDIATELY: do
+# AFTER BUILDING LVB, RUN TESTS IMMEDIATELY: DO
 #
 # make test
+#
+# For 32-bit AMD or Intel-based hardware or entirely different 32-bit CPUs
+# (e.g. the Raspberry Pi), uncomment the line that adds -DCOMPILE_32_BITS to
+# CFLAGS; also, comment-out the line that adds -msse4.2.
+#
+# For OS X with the Intel C++ compiler, uncomment the definitions of CC,
+# G++ and CFLAGS as instructed below, then compile as for Linux.
 
 # Directories
 TEST_DIR = ./tests
@@ -68,9 +69,9 @@ LVB_READ_FILE_DIR = ./LVB_READ_FILES/src
 ### define a c++ compiler to your platform 
 G++ = g++
 
-# UNCOMMENT THIS FOR 32-BIT LINUX:
-# CFLAGS += -DCOMPILE_32_BITS
-# COMMENT THIS FOR NON-INTEL HARDWARE (E.G. RASPBERRY PI):
+# UNCOMMENT THIS FOR 32-BIT LINUX (E.G. OLD INTEL CPUS OR RASPBERRY PI)
+#CFLAGS += -DCOMPILE_32_BITS
+# COMMENT THIS FOR 32-BIT (E.G. OLD INTEL CPUS OR RASPBERRY PI):
 CFLAGS += -msse4.2
 
 # UNCOMMENT THESE FOR OS X WITH THE INTEL C++ COMPILER:
@@ -78,7 +79,7 @@ CFLAGS += -msse4.2
 #CC = icc
 #CFLAGS += -openmp-link static
 
-# Compiler options
+# General options
 CFLAGS += -DLVB	 	# Must be present
 CFLAGS += -O2 -Wall # -ansi	# Assumes GNU C compiler
 #CFLAGS += -fprofile-arcs -ftest-coverage -ansi
