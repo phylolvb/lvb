@@ -55,7 +55,7 @@ static int *randleaf(Dataptr restrict, Branch *const barray,const Lvb_bool *cons
 static void realgetobjs(Dataptr restrict, const Branch *const barray, const int root, int *const objarr, int *const cnt);
 static Lvb_bool *randtopology(Dataptr restrict, Branch *const barray, const long nobjs);
 static long setstcmp(Dataptr restrict, Objset *const oset_1, Objset *const oset_2);
-static void sort(Objset *const oset_2, const long nels);
+static void sort(Dataptr matrix, Objset *const oset_2, const long nels);
 static void ssarralloc(Dataptr restrict matrix, Objset *nobjset_2);
 static void tree_make_canonical(Dataptr restrict, Branch *const barray, int *objnos);
 static void ur_print(Dataptr restrict, FILE *const stream, const Branch *const barray, const long root);
@@ -1012,12 +1012,13 @@ void sort_array(int *p_array, int n_left, int n_rigth){
 }
 
 
-static void sort(Objset *const oset_2, const long nels)
+static void sort(Dataptr matrix, Objset *const oset_2, const long nels)
 /* sort the nels object sets in oset so that each is in order, and sort oset so
  * that the sets themselves are in order of size and content */
 {
     /* first sort each set member list */
-	#pragma omp parallel for
+	omp_set_dynamic(0);	  /* disable dinamic threathing */
+	#pragma omp parallel for num_threads(matrix->n_threads_getplen)
     	for (long i = 0; i < nels; i++)
     		sort_array(oset_2[i].set, 0, oset_2[i].cnt - 1);
 
@@ -1067,7 +1068,7 @@ void makesets(Dataptr matrix, const Branch *const tree_2, const int root)
     }
 
     fillsets(matrix, sset_2, tree_2, root);
-    sort(sset_2, matrix->nsets);
+    sort(matrix, sset_2, matrix->nsets);
 } /* end makesets() */
 
 static void ssarralloc(Dataptr matrix, Objset *nobjset_2)
