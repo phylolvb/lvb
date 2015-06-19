@@ -249,7 +249,7 @@ long treestack_push(Dataptr matrix, Treestack *sp, const Branch *const barray, c
     }
     else{
     	if (sp->next > MIN_THREAD_SEARCH_SSET) slice = sp->next / matrix->n_threads_getplen;
-    	if (sp->next > MIN_THREAD_SEARCH_SSET){ // && slice > 10){
+    	if (sp->next > MIN_THREAD_SEARCH_SSET && slice > 0){
     		makesets(matrix, copy_2, 0 /* always root zero */);
     		slice_tail = (sp->next - (slice * matrix->n_threads_getplen));
     		omp_set_dynamic(0);	  /* disable dinamic threathing */
