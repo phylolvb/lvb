@@ -226,7 +226,7 @@ Returns 1 if the tree was pushed, or 0 if not.
 
 **********/
 
-long treestack_push(Dataptr matrix, Treestack *sp, const Branch *const barray, const int root, int n_max_trees, Lvb_bool b_with_sset)
+long treestack_push(Dataptr matrix, Treestack *sp, const Branch *const barray, const int root, Lvb_bool b_with_sset)
 {
 #define MIN_THREAD_SEARCH_SSET		5
 
@@ -280,9 +280,6 @@ long treestack_push(Dataptr matrix, Treestack *sp, const Branch *const barray, c
     		}
     	}
     }
-
-    /// set max trees possible
-    if (n_max_trees > 0 && sp->next > n_max_trees) return 1;
 
     /* topology is new so must be pushed */
     lvb_assert(root < matrix->n);
@@ -599,7 +596,7 @@ are not transferred).
 
 **********/
 
-long treestack_transfer(Dataptr matrix, Treestack *destp, Treestack *sourcep, int n_number_max_trees, Lvb_bool b_with_sset)
+long treestack_transfer(Dataptr matrix, Treestack *destp, Treestack *sourcep, Lvb_bool b_with_sset)
 {
     Branch *barray;		/* current tree, in transit */
     long root;			/* number of root branch */
@@ -608,7 +605,7 @@ long treestack_transfer(Dataptr matrix, Treestack *destp, Treestack *sourcep, in
     /* "local" dynamic heap memory */
     barray = treealloc(matrix, b_with_sset);
     while (treestack_pop(matrix, barray, &root, sourcep, b_with_sset) == 1) {
-        pushed += treestack_push(matrix, destp, barray, root, n_number_max_trees, b_with_sset);
+        pushed += treestack_push(matrix, destp, barray, root, b_with_sset);
     }
 
     /* free "local" dynamic heap memory */

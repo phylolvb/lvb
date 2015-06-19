@@ -189,9 +189,11 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
     treelength = anneal(matrix, &bstack_overall, tree, rcstruct, initroot, t0, maxaccept,
     		maxpropose, maxfail, stdout, weight_arr, iter_p, log_progress);
     treestack_pop(matrix, tree, &initroot, &bstack_overall, LVB_FALSE);
-    treestack_push(matrix, &bstack_overall, tree, initroot, rcstruct.n_number_max_trees, LVB_FALSE);
-    treelength = deterministic_hillclimb(matrix, &bstack_overall, tree, rcstruct, initroot, stdout,
-    		weight_arr, iter_p, log_progress);
+    treestack_push(matrix, &bstack_overall, tree, initroot, LVB_FALSE);
+
+    if (rcstruct.n_number_max_trees == 0 || bstack_overall.next < rcstruct.n_number_max_trees){
+    	treelength = deterministic_hillclimb(matrix, &bstack_overall, tree, rcstruct, initroot, stdout, weight_arr, iter_p, log_progress);
+    }
 
 	/* log this cycle's solution and its details 
 	 * NOTE: There are no cycles anymore in the current version

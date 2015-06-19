@@ -147,8 +147,8 @@ void usage(char *p_file_name){
 			"       default: phylip format\n");
 	printf("    -p (1) Threads available."
 			"       default: only one thread available\n");
-//	printf("    -t (0) number of trees keep in stack."
-//				"       default: all of them will be saved\n");
+	printf("    -t (0) max number of trees keep in stack. After that save an kill the LVB."
+				"       default: all of them will be saved\n");
 	printf("    -h print this help.\n");
 	printf("    -? print this help.\n");
 	exit(0);
@@ -250,15 +250,15 @@ void read_parameters(Params *prms, int argc, char **argv){
 				prms->n_processors_available = atoi(optarg);
 				if (prms->n_processors_available < 1) prms->n_processors_available = 1;
 				break;
-//			case 't':
-//				if (optarg == NULL){
-//					fprintf (stderr, "Option -%c requires an argument -p <file name>\n", optopt);
-//					usage(argv[0]);
-//					exit(1);
-//				}
-//				prms->n_number_max_trees = atoi(optarg);
-//				if (prms->n_number_max_trees < 1) prms->n_number_max_trees = 0;
-//				break;
+			case 't':
+				if (optarg == NULL){
+					fprintf (stderr, "Option -%c requires an argument -p <file name>\n", optopt);
+					usage(argv[0]);
+					exit(1);
+				}
+				prms->n_number_max_trees = atoi(optarg);
+				if (prms->n_number_max_trees < 1) prms->n_number_max_trees = 0;
+				break;
 			case '?':
 			case 'h':
 			default:
