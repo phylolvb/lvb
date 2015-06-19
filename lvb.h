@@ -84,6 +84,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	#define MINIMUM_SIZE_NUMBER_WORDS_TO_ACTIVATE_THREADING		40 /* need to have this size to activate the threading */
 	#define MASK_SEVEN											0x7777777777777777U
 	#define MASK_EIGHT											0x8888888888888888U
+
+	/* limits that could be changed but, if increased enormously, might lead to
+	 * some trouble at some point */
+	#define MAX_N 1000000		/* max. rows */
+	#define MAX_M 5000000		/* max. cols */
 #else		/* default 32 bits */
 	typedef uint32_t Lvb_bit_lentgh;								/* define 32 bits */
 	#define NUMBER_OF_BITS										32
@@ -93,54 +98,62 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	#define MINIMUM_SIZE_NUMBER_WORDS_TO_ACTIVATE_THREADING		40 /* need to have this size to activate the threading */
 	#define MASK_SEVEN											0x77777777U
 	#define MASK_EIGHT											0x88888888U
+
+	/* limits that could be changed but, if increased enormously, might lead to
+		 * some trouble at some point */
+	#define MAX_N 15000		/* max. rows */
+	#define MAX_M 30000		/* max. cols */
+
 #endif
 
 /* values some people may feel the dangerous urge to change */
 #define LVB_INPUTSTRING_SIZE 2000	/* max. bytes for interactive input */
-#define UNSET (-1)			/* value of integral vars when unset */
-#define STAT_LOG_INTERVAL 50000	/* min. interval for progress log */
+#define STAT_LOG_INTERVAL 50000		/* min. interval for progress log */
 #define REROOT_INTERVAL 1000		/* change root every ... updates */
 
 
-/* limits that could be changed but, if increased enormously, might lead to
- * some trouble at some point */
-#define MAX_N 1000000	/* max. rows */
-#define MAX_M 5000000	/* max. cols */
-
 /* implementation-independent limits */
-#define LVB_EPS 1E-8		/* 0.0 < DBL_EPSILON < LVB_EPS */
-#define MIN_M 1L		/* min. no. of characters for any analysis */
+#define LVB_EPS 1E-8					/* 0.0 < DBL_EPSILON < LVB_EPS */
+#define MIN_M 1L						/* min. no. of characters for any analysis */
+#define UNSET (-1)						/* value of integral vars when unset */
 #define MAX_BRANCHES (2 * MAX_N - 3)	/* max. branches per tree */
 #define MIN_BRANCHES (2 * MIN_N - 3)	/* max. branches per tree */
-#define MIN_N 5L		/* min. no. of objs, for rearrangeable tree */
+#define MIN_N 5L						/* min. no. of objs, for rearrangeable tree */
 #define MAX_ALLOC ((size_t) (INT_MAX - 2))	/* max. bytes per dyn. alloc. */
-#define MAXSTATES 5		/* max. "true" states in data matrix */
+#define MAXSTATES 5						/* max. "true" states in data matrix */
 
 /* limits that could be changed but are likely to be OK */
 #define FROZEN_T 0.0001		/* consider system frozen if temp < FROZEN_T */
 
 
+typedef	struct	/* object set derived from a cladogram */
+{
+	int *set;	/* arrays of object sets */
+	int cnt;	/* sizes of object sets */
+}	Objset;
+
 /* branch of tree */
 typedef struct
 {
-    long parent;		/* parent branch number, UNSET in root */
-    long left;			/* index of first child in tree array */
-    long right;			/* index of second child in tree array */
-    long changes;		/* changes associated with this branch */
+    int parent;		/* parent branch number, UNSET in root */
+    int left;			/* index of first child in tree array */
+    int right;			/* index of second child in tree array */
+    int changes;		/* changes associated with this branch */
     Lvb_bit_lentgh *sset;	/* statesets for all sites */
 } Branch;
 
 /* tree stacks */
 typedef struct
 {
+	int root;		/* root of tree */
     Branch *tree;	/* pointer to first branch in tree array */
-    long root;		/* root of tree */
+    Objset *p_sset;	/* array with sset with the root always on zero */
 } Treestack_element;
 
 typedef struct
 {
-    long size;			/* number of trees currently allocated for */
-    long next;			/* next unused element of stack */
+	int size;			/* number of trees currently allocated for */
+	int next;			/* next unused element of stack */
     Treestack_element *stack;	/* pointer to first element in stack */
 } Treestack;
 
@@ -172,20 +185,24 @@ typedef struct
 void *alloc(const size_t, const char *const);
 long anneal(Dataptr restrict, Treestack *, const Branch *const, Params rcstruct, long, const double,
  const long, const long, const long, FILE *const, const long *, long *, Lvb_bool);
-long arbreroot(Dataptr, Branch *const, const long);
+int arbreroot(Dataptr, Branch *const, const int);
 long bytes_per_row(const long);
-long childadd(Branch *const, const long, const long);
+int childadd(Branch *const, const int, const int);
 long cistrcmp(const char *const, const char *const);
 Lvb_bool cleanup(void);
 void clnclose(FILE *const, const char *const);
 FILE *clnopen(const char *const, const char *const);
 void clnremove(const char *const);
+void copy_sset(Dataptr restrict matrix, Objset *p_sset_1);
 void crash(const char *const, ...);
 void defaults_params(Params *const prms);
 long deterministic_hillclimb(Dataptr, Treestack *, const Branch *const, Params rcstruct,
 	long, FILE * const, const long *, long *, Lvb_bool);
 void dna_makebin(Dataptr restrict, Lvb_bit_lentgh **);
 void dnapars_wrapper(void);
+void dump_stack_to_screen(Dataptr matrix, Treestack *sp);
+void dump_objset_to_screen(Dataptr matrix, Objset *oset_1);
+void dump_objset_to_screen_sset_2(Dataptr matrix);
 char *f2str(FILE *const);
 Lvb_bool file_exists(const char *const);
 void get_bootstrap_weights(long *, long, long);
@@ -202,13 +219,14 @@ long getroot(const Branch *const);
 void lvb_assertion_fail(const char *, const char *, int);
 void lvb_initialize(void);
 Dataptr lvb_matrin(const char *);
-long lvb_reroot(Dataptr restrict, Branch *const barray, const long oldroot, const long newroot, Lvb_bool b_with_sset);
+long lvb_reroot(Dataptr restrict, Branch *const barray, const int oldroot, const int newroot, Lvb_bool b_with_sset);
 void lvb_treeprint (Dataptr, FILE *const, const Branch *const, const long);
+void makesets(Dataptr restrict, const Branch *const tree_2, const int root);
 void matchange(Dataptr, const Params);
 Dataptr matrin(const char *const);
 void mutate_deterministic(Dataptr restrict, Branch *const, const Branch *const, long, long, Lvb_bool);
-void mutate_spr(Dataptr restrict, Branch *const, const Branch *const, long);
-void mutate_nni(Dataptr restrict, Branch *const, const Branch *const, long);
+void mutate_spr(Dataptr restrict, Branch *const, const Branch *const, int);
+void mutate_nni(Dataptr restrict, Branch *const, const Branch *const, int);
 char *nextnonwspc(const char *);
 void nodeclear(Branch *const, const long);
 long objreroot(Branch *const, const long, const long);
@@ -216,9 +234,10 @@ void params_change(Params *);
 void phylip_dna_matrin(char *, int, Dataptr);
 void phylip_mat_dims_in(char *, int, long *, long *, int *);
 void randtree(Dataptr, Branch *const);
-long randpint(const long);
+int randpint(const long);
 void rowfree(Dataptr);
 void scream(const char *const, ...);
+long setstcmp_with_sset2(Dataptr matrix, Objset *const oset_1);
 void ss_init(Dataptr, Branch *, Lvb_bit_lentgh **);
 char *supper(char *const s);
 Branch *treealloc(Dataptr restrict, Lvb_bool b_with_sset);
@@ -226,18 +245,18 @@ long tree_bytes(Dataptr restrict matrix);
 long tree_bytes_whitout_sset(Dataptr restrict matrix);
 void treeclear(Dataptr, Branch *const);
 void treecopy(Dataptr restrict, Branch *const, const Branch *const, Lvb_bool b_with_sset);
-long treecmp(Dataptr restrict, const Branch *const, const Branch *const, const long, Lvb_bool b_first);
+long treecmp(Dataptr restrict, Objset *, const Branch *const, Lvb_bool b_first);
 void treedump(Dataptr, FILE *const, const Branch *const, Lvb_bool b_with_sset);
 void treedump_screen(Dataptr matrix, const Branch *const tree);
 void treestack_clear(Treestack *);
 long treestack_cnt(Treestack);
 long treestack_dump(Dataptr, Treestack *, FILE *const);
-void treestack_free(Treestack *);
+void treestack_free(Dataptr restrict matrix, Treestack *);
 Treestack treestack_new(void);
-long treestack_transfer(Dataptr, Treestack *, Treestack *, Lvb_bool b_with_sset);
+long treestack_transfer(Dataptr, Treestack *, Treestack *, int n_number_max_trees, Lvb_bool b_with_sset);
 long treestack_pop(Dataptr, Branch *, long *, Treestack *, Lvb_bool b_with_sset);
-long treestack_print(Dataptr, Treestack *, FILE *const, Lvb_bool onerandom);
-long treestack_push(Dataptr, Treestack *, const Branch *const, const long, Lvb_bool b_with_sset);
+int treestack_print(Dataptr, Treestack *, FILE *const, Lvb_bool onerandom);
+long treestack_push(Dataptr, Treestack *, const Branch *const, const int, int n_max_trees, Lvb_bool b_with_sset);
 void treeswap(Branch **const, long *const, Branch **const, long *const);
 void uint32_dump(FILE *, Lvb_bit_lentgh);
 long words_per_row(const long);

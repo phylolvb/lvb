@@ -43,7 +43,7 @@ if ($status == 0)
 		/11 equally parsimonious trees of length 297 written to file \'outtree\'/ &&
 		$output =~ /Rearrangements tried: 986321/ &&
 		$output =~ /Starting Temperature is: 0.01671001/ &&
-		$output =~ /0.00011899     950000         297/)
+		$output =~ /0.00011899     950000         11              297/)
     {
 		print "test passed\n";
     }
@@ -57,4 +57,4 @@ else
     print "test failed\n";
 }
 
-unlink "outtree_1";
+unlink "outtree";

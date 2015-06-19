@@ -35,7 +35,7 @@
 
 # run LVB
 $lvb = $ENV{LVB_EXECUTABLE};
-$output = `"$lvb" -p 2`;
+$output = `"$lvb" -p 2 2>/dev/null`;
 $status = $?;
 
 if (($status != 0) and ($output =~ /FATAL ERROR: cannot read data matrix/)

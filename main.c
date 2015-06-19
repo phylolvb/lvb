@@ -189,7 +189,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
     treelength = anneal(matrix, &bstack_overall, tree, rcstruct, initroot, t0, maxaccept,
     		maxpropose, maxfail, stdout, weight_arr, iter_p, log_progress);
     treestack_pop(matrix, tree, &initroot, &bstack_overall, LVB_FALSE);
-    treestack_push(matrix, &bstack_overall, tree, initroot, LVB_FALSE);
+    treestack_push(matrix, &bstack_overall, tree, initroot, rcstruct.n_number_max_trees, LVB_FALSE);
     treelength = deterministic_hillclimb(matrix, &bstack_overall, tree, rcstruct, initroot, stdout,
     		weight_arr, iter_p, log_progress);
 
@@ -403,13 +403,11 @@ int main(int argc, char **argv)
 			 "file '%s'\n", trees_output_total, final_length, rcstruct.file_name_out);
 		}
     }
-
+	/* "file-local" dynamic heap memory */
+	treestack_free(matrix, &bstack_overall);
     rowfree(matrix);
     free(matrix);
     free(weight_arr);
-
-    /* "file-local" dynamic heap memory */
-    treestack_free(&bstack_overall);
 
     if (cleanup() == LVB_TRUE) val = EXIT_FAILURE;
     else val = EXIT_SUCCESS;

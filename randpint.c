@@ -81,25 +81,22 @@ A random integer in the interval [0..C<upper>].
 
 **********/
 
-long randpint(const long upper)
+int randpint(const long upper)
 {
     double frand;	/* random real */
     double fupper;	/* upper limit */
-    long rand;		/* return value */
+    int rand;		/* return value */
 
     lvb_assert(upper >= 0);
 
     fupper = (double) upper;
     frand = uni();
     frand = frand * fupper;		/* scale to right range */
-    rand = (long) (frand + 0.5);	/* round to nearest integer */
+    rand = (int) (frand + 0.5);	/* round to nearest integer */
 
     /* guard against arithmetic inaccuracy */
-    if (rand < 0)
-	rand = 0;
-    else if (rand > upper)
-	rand = upper;
-
+    if (rand < 0) rand = 0;
+    else if (rand > upper) rand = upper;
     return rand;
 
 } /* end randpint() */

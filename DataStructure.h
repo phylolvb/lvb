@@ -61,8 +61,8 @@ typedef struct data
     long tree_bytes;	/* length the tree in bytes */
     long tree_bytes_whitout_sset;	/* length the tree in bytes whitout sset */
     long nwords;
-    long nsets;	/* sets per tree */
-    long mssz;	/* maximum objects per set */
+    long nsets;			/* sets per tree */
+    long mssz;			/* maximum objects per set */
     char **row;			/* array of row strings */
     char **rowtitle;	/* array of row title strings */
 } *Dataptr, DataStructure;
@@ -72,12 +72,13 @@ typedef struct data
 /* user- or programmer-configurable parameters */
 typedef struct
 {
-    int seed;			/* seed for random number generator */
-    int cooling_schedule;   /* cooling schedule: 0 is geometric, 1 is linear */
-    int n_file_format;		/* number of file format, must be FORMAT_PHYLIP, FORMAT_FASTA, FORMAT_NEXUS, FORMAT_MSF, FORMAT_CLUSTAL*/
-    int n_processors_available;	/* number of processors available */
-    long verbose;		/* verboseness level */
-    long bootstraps;		/* number of bootstrap replicates */
-    char file_name_in[LVB_FNAMSIZE];		/* input file name */
+    int seed;							/* seed for random number generator */
+    int cooling_schedule;   			/* cooling schedule: 0 is geometric, 1 is linear */
+    int n_file_format;					/* number of file format, must be FORMAT_PHYLIP, FORMAT_FASTA, FORMAT_NEXUS, FORMAT_MSF, FORMAT_CLUSTAL*/
+    int n_processors_available;			/* number of processors available */
+    long verbose;						/* verboseness level */
+    long bootstraps;					/* number of bootstrap replicates */
+    int n_number_max_trees;				/* number of bootstrap replicates */
+    char file_name_in[LVB_FNAMSIZE];	/* input file name */
     char file_name_out[LVB_FNAMSIZE];	/* output file name */
 } Params;

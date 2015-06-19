@@ -78,6 +78,7 @@ void defaults_params(Params *const prms)
     strcpy(prms->file_name_out, OUTTREEFNAM);
     prms->n_file_format = FORMAT_PHYLIP;
     prms->n_processors_available = 1;
+    prms->n_number_max_trees = 0;			/* by default keepall of them */
 
 } /* end defaults_params() */
 

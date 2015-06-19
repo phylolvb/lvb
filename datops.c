@@ -395,7 +395,7 @@ void get_bootstrap_weights(long *weight_arr, long m, long extras)
     memset(weight_arr, 0, m * sizeof(long));
 
     while (samples < (m + extras)){
-    	site = randpint(m + extras - 1);
+    	site = (long) randpint(m + extras - 1);
     	if (site < m) weight_arr[site] += 1;
     	samples++;
     }

@@ -124,7 +124,7 @@ void print_formats_available(){
 
 /* "dcbvsi:o:f:p" */
 void usage(char *p_file_name){
-	printf("Usage: lvb [dcbvsiofp]\n");
+	printf("Usage: lvb [dcbvsioftp]\n");
 	printf("lvb seeks parsimonious trees from an aligned nucleotide data matrix.\n"
 			"It uses heuristic searches consisting of simulated annealing followed by hill-climbing.\n\n");
 
@@ -147,6 +147,8 @@ void usage(char *p_file_name){
 			"       default: phylip format\n");
 	printf("    -p (1) Threads available."
 			"       default: only one thread available\n");
+//	printf("    -t (0) number of trees keep in stack."
+//				"       default: all of them will be saved\n");
 	printf("    -h print this help.\n");
 	printf("    -? print this help.\n");
 	exit(0);
@@ -158,7 +160,7 @@ void read_parameters(Params *prms, int argc, char **argv){
 	int c;
 	opterr = 0;
 
-	while ((c = getopt (argc, argv, "c:b:vs:i:o:f:p:")) != -1){
+	while ((c = getopt (argc, argv, "t:c:b:vs:i:o:f:p:")) != -1){
 		switch (c)
 		{
 			case 'c':	/* cooling schedule */
@@ -248,6 +250,15 @@ void read_parameters(Params *prms, int argc, char **argv){
 				prms->n_processors_available = atoi(optarg);
 				if (prms->n_processors_available < 1) prms->n_processors_available = 1;
 				break;
+//			case 't':
+//				if (optarg == NULL){
+//					fprintf (stderr, "Option -%c requires an argument -p <file name>\n", optopt);
+//					usage(argv[0]);
+//					exit(1);
+//				}
+//				prms->n_number_max_trees = atoi(optarg);
+//				if (prms->n_number_max_trees < 1) prms->n_number_max_trees = 0;
+//				break;
 			case '?':
 			case 'h':
 			default:

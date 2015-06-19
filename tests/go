@@ -238,8 +238,10 @@ print "\n";
 
 if (scalar (@failed_tests) > 0){
 	print "Tests failed :\n";
+	$count = 1;
 	foreach $test_name (@failed_tests){
-		print "    $test_name;\n";
+		print "    $count) $test_name;\n";
+		$count += 1;
 	}
 }
 print "\n";
