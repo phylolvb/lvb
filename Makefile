@@ -75,9 +75,9 @@ G++ = g++
 CFLAGS += -msse4.2
 
 # FOR OS X WITH THE INTEL C++ COMPILER, UNCOMMENT THE NEXT THREE LINES 
-G++ = icpc
-CC = icc
-CFLAGS += -openmp-link static
+#G++ = icpc
+#CC = icc
+#CFLAGS += -openmp-link static
 
 # General options
 CFLAGS += -DLVB	 	# Must be present
