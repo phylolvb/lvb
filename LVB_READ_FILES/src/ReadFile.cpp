@@ -124,31 +124,33 @@ void print_formats_available(){
 
 /* "dcbvsi:o:f:p" */
 void usage(char *p_file_name){
-	printf("Usage: lvb [dcbvsioftp]\n");
 	printf("lvb seeks parsimonious trees from an aligned nucleotide data matrix.\n"
-			"It uses heuristic searches consisting of simulated annealing followed by hill-climbing.\n\n");
+			"It uses heuristic searches consisting of simulated annealing followed\n"
+			"by hill-climbing.\n\n");
 
-	printf("\n    -b (0) bootstrap replicates, as an integer in the range 1 to %ld inclusive.", (long) MAX_BOOTSTRAPS);
-	printf("\n       default (0)");
-	printf("\n    -c [g|l] (g) cooling schedule. The schedule chosen\n"
-			"       will affect the quality and speed of the simulated annealing\n"
-			"       search. The GEOMETRIC (g) schedule will take significantly less time,\n"
+	printf("Usage: lvb [dcbvsioftp]\n");
+	printf("\n    -b (0) bootstrap replicates, as an integer in the range 1 to %ld"
+	"\n       inclusive.", (long) MAX_BOOTSTRAPS);
+	printf("\n       Default (0).");
+	printf("\n    -c [g|l] (g) cooling schedule. The schedule chosen will\n"
+			"       affect the quality and speed of the simulated annealing search.\n"
+			"       The GEOMETRIC (g) schedule will take significantly less time,\n"
 			"       but may produce lower quality results. The LINEAR (l) schedule may\n"
 			"       produce higher quality results, at the cost of increased runtime.\n"
-			"       default (g), is the GEOMETRIC schedule.\n");
+			"       Default (g), the GEOMETRIC schedule.\n");
 	printf("    -i input file name.\n"
-			"       default: 'infile'\n");
+			"       Default: 'infile'.\n");
 	printf("    -o output file name.\n"
-			"       default: 'outfile'\n");
+			"       Default: 'outfile'.\n");
 	printf("    -s specify a random number seed, or use default.\n"
-			"       default: it is taken from the system clock.\n");
+			"       Default: it is taken from the system clock.\n");
 	printf("    -v [t|f] (f) verbose.\n");
 	printf("    -f [phylip|fasta|nexus|msf|clustal] (phylip) file format of input file.\n"
-			"       default: phylip format\n");
-	printf("    -p (1) Threads available."
-			"       default: only one thread available\n");
-	printf("    -t (0) max number of trees keep in stack. After that save an kill the LVB."
-				"       default: all of them will be saved\n");
+			"       Default: PHYLIP format\n");
+	printf("    -p (1) Threads available.\n"
+			"       Default: only one thread available.\n");
+	printf("    -t (0) max number of trees keep in stack. After that, save, and kill LVB."
+				"          Default: all of them will be saved.\n");
 	printf("    -h print this help.\n");
 	printf("    -? print this help.\n");
 	exit(0);

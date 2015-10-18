@@ -473,7 +473,7 @@ static void cr_bpnc(const Branch *const barray, const long branch)
 
 }	/* end cr_bpnc() */
 
-Branch *const mvBranch(long nbranches, Branch *const dest, const Branch *const src)
+Branch *mvBranch(long nbranches, Branch *const dest, const Branch *const src)
 {
 	long i;
 	Lvb_bit_lentgh *tmp_sset;
