@@ -74,10 +74,10 @@ G++ = g++
 # COMMENT THIS FOR 32-BIT (E.G. OLD INTEL CPUS OR RASPBERRY PI):
 CFLAGS += -msse4.2
 
-# UNCOMMENT THESE FOR OS X WITH THE INTEL C++ COMPILER:
-G++ = icpc
-CC = icc
-CFLAGS += -openmp-link static
+# FOR OS X WITH THE INTEL C++ COMPILER, UNCOMMENT THE NEXT THREE LINES 
+#G++ = icpc
+#CC = icc
+#CFLAGS += -openmp-link static
 
 # General options
 CFLAGS += -DLVB	 	# Must be present
