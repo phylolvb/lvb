@@ -334,8 +334,221 @@ void mutate_spr(Dataptr restrict matrix, Branch *const desttree, const Branch *c
     if (parents_par != root){
     	make_dirty_below(matrix, tree, parents_par);
     }
-
 } /* end mutate_spr() */
+
+#ifdef TBR
+void mutate_tbr(Dataptr restrict matrix, Branch *const desttree, const Branch *const sourcetree, int root)
+/* make a copy of the tree sourcetree (of root root) in desttree,
+ * with a random change in topology, the change being caused by subtree
+ * pruning and regrafting (SPR) rearrangement */
+{
+    int src;				/* branch to move */
+    int dest;				/* destination of branch to move */
+    int dest_parent;			/* parent of destination branch */
+    int src_parent;			/* parent of branch to move */
+    int excess_br;			/* branch temporarily excised */
+    int orig_child = UNSET;		/* original child of destination */
+    int parents_par;			/* parent of parent of br. to move */
+    int src_sister;			/* sister of branch to move */
+    Branch *tree;			/* destination tree */
+
+		int oldroot;	
+		int current;							/* current branch */
+		int parnt;								/* parent of current branch */
+		int sister = UNSET;					/* sister of current branch */
+		int oldsister = UNSET;
+		int tempsister = UNSET;
+		int previous = UNSET;							/* previous branch */
+		int newroot;	
+		static int *oldparent = NULL;			/* element i was old static parent of i */
+
+    /* for ease of reading, make alias of desttree, tree */
+    tree = desttree;
+    treecopy(matrix, tree, sourcetree, LVB_TRUE);
+
+    /* get random branch but not root and not root's immediate descendant */
+    do {
+    	src = randpint(matrix->nbranches - 1);
+    } while ((src == root) || (src == tree[root].left) || (src == tree[root].right));
+
+    src_parent = tree[src].parent;
+    lvb_assert(src_parent != UNSET);
+    src_sister = getsister(tree, src);
+    lvb_assert(src_sister != UNSET);
+
+    /* get destination that is not source or its parent, sister or descendant
+     * or the root */
+    do {
+    	dest = randpint(matrix->nbranches - 1);
+    } while ((dest == src) || (dest == src_parent) || (dest == src_sister)
+       || (dest == root) || is_descendant(tree, root, src, dest));
+
+    /* excise source branch, leaving a damaged data structure */
+    if (tree[src_parent].left == src) {
+    	tree[src_parent].left = UNSET;
+    }
+    else if (tree[src_parent].right == src) {
+    	tree[src_parent].right = UNSET;
+    }
+    else {
+    	cr_bpnc(tree, src);
+    }
+    tree[src].parent = UNSET;
+
+    /* fix data structure by "freeing" the excess branch */
+    parents_par = tree[src_parent].parent;
+    lvb_assert(parents_par != UNSET);
+    if (tree[parents_par].left == src_parent) {
+    	tree[parents_par].left = src_sister;
+    }
+    else {
+    	tree[parents_par].right = src_sister;
+    }
+    tree[src_sister].parent = parents_par;
+
+    excess_br = src_parent;	/* for ease of human understanding */
+    nodeclear(tree, excess_br);
+
+    /* make space at destination, re-using the excess branch */
+    dest_parent = tree[dest].parent;
+    if (tree[dest_parent].left == dest) {
+    	orig_child = tree[dest_parent].left;
+    	tree[dest_parent].left = excess_br;
+    }
+    else if (tree[dest_parent].right == dest) {
+    	orig_child = tree[dest_parent].right;
+    	tree[dest_parent].right = excess_br;
+    }
+    else {
+    	crash("destination %ld is not a child of it's parent %ld\n", dest, dest_parent);
+    }
+    tree[excess_br].parent = dest_parent;
+    tree[excess_br].left = dest;
+    lvb_assert(orig_child != UNSET);
+    tree[orig_child].parent = excess_br;
+
+		if (oldparent == NULL) oldparent = alloc(matrix->nbranches * sizeof(int), "old parent alloc");
+
+		int size = count(tree, src);
+		int *arr=NULL;
+		if (arr == NULL) arr = malloc(size * sizeof(*arr));
+
+		int *mid_nodes=NULL;
+		if (mid_nodes == NULL) mid_nodes = malloc(size * sizeof(*mid_nodes));
+		int i = 0;
+
+	/*XXXXX reroot source branch (only if size of subtree > than 2) */
+	if (size > 2) {
+		oldroot = src;
+		for (current = 0; current < matrix->nbranches; current++)
+	    	oldparent[current] = tree[current].parent;
+
+     		addtoarray(tree, src, arr, 0);		
+		
+		 do {
+		newroot = arr[randpint(size - 1)];
+    } while (newroot == tree[oldroot].left || newroot == tree[oldroot].right);
+
+		/* update the newroot */
+		parnt = tree[newroot].parent;
+		if (tree[parnt].left == newroot) sister = tree[parnt].right;
+		else if (tree[parnt].right == newroot) sister = tree[parnt].left;
+		
+		tree[parnt].parent = previous;
+		tree[parnt].left = oldparent[parnt];
+		tree[parnt].right = newroot;
+		
+		oldsister = sister;
+		previous = parnt;
+		current = tree[parnt].left;
+		lvb_assert(current != UNSET);
+
+		/* loop for changing nodes between the newroot and oldroot */
+		
+		while (current != oldroot) {
+			mid_nodes[i] = current;
+			i++;
+			
+			parnt = oldparent[current];
+
+			if (tree[current].left == previous) tempsister = tree[current].right;
+			else if (tree[current].right == previous) tempsister = tree[current].left;
+			lvb_assert(tempsister != UNSET);
+
+			tree[current].right = oldsister;
+			tree[current].parent = previous;
+			tree[current].left = parnt;
+			tree[parnt].parent = current;
+			tree[oldsister].parent = current;
+			
+			oldsister = tempsister;
+			previous = current;
+			current = parnt;
+		}
+		
+		/* updating the oldroot */
+		tree[oldroot].parent = previous;
+		if (tree[current].left == tree[oldroot].parent) tree[oldroot].left = oldsister;
+    		else if (tree[current].right == tree[oldroot].parent) tree[oldroot].right = oldsister;
+		tree[oldsister].parent = current;
+		src = tree[newroot].parent;
+	}
+
+    /* add source branch to this new location */
+    tree[excess_br].right = src;
+    tree[src].parent = excess_br;
+
+    /* ensure recalculation of lengths where necessary */
+	if (size > 2) {
+		make_dirty_below(matrix, tree, oldroot);
+		if (i > 0) {
+			int j;
+			for (j = i-1; j >= 0; j--) {	
+    				make_dirty_below(matrix, tree, mid_nodes[j]);
+			}
+		}
+    		make_dirty_below(matrix, tree, src);
+	}
+	make_dirty_below(matrix, tree, excess_br);
+	if (parents_par != root){
+	 	make_dirty_below(matrix, tree, parents_par);
+	}
+	
+	
+	free(arr);
+	free(mid_nodes);
+} /* end mutate_tbr() */
+
+/* Count total number of nodes of the tbr subtree */
+int count(Branch *const tree, int current)
+{
+
+    if (current == UNSET)
+        return 0;
+    if ((tree[current].left == UNSET) && (tree[current].right == UNSET)) {
+	return 1;
+    } else {
+	return count(tree, tree[current].left) + count(tree, tree[current].right);
+    }
+}
+
+/* Generate an array of nodes from the tbr subtree */
+int addtoarray(Branch *const tree, int current, int arr[], int i)
+{
+	if (current == UNSET)
+	return 0;
+	if (tree[current].left == UNSET && tree[current].right == UNSET) {
+		arr[i] = current;
+		i++;
+	}
+	if (tree[current].left != UNSET)
+		i = addtoarray(tree, tree[current].left, arr, i);
+	if (tree[current].right != UNSET)
+		i = addtoarray(tree, tree[current].right, arr, i);
+	return i;
+}
+
+#endif
 
 long lvb_reroot(Dataptr restrict matrix, Branch *const barray, const int oldroot, const int newroot, Lvb_bool b_with_sset)
 /* Change the root of the tree in barray from oldroot to newroot, which

@@ -191,10 +191,17 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
     treestack_pop(matrix, tree, &initroot, &bstack_overall, LVB_FALSE);
     treestack_push(matrix, &bstack_overall, tree, initroot, LVB_FALSE);
 
+    #ifdef TBR
+/* XXXXXX
     if (rcstruct.n_number_max_trees == 0 || bstack_overall.next < rcstruct.n_number_max_trees){
     	treelength = deterministic_hillclimb(matrix, &bstack_overall, tree, rcstruct, initroot, stdout, weight_arr, iter_p, log_progress);
     }
-
+    */
+    #else
+    if (rcstruct.n_number_max_trees == 0 || bstack_overall.next < rcstruct.n_number_max_trees){
+    	treelength = deterministic_hillclimb(matrix, &bstack_overall, tree, rcstruct, initroot, stdout, weight_arr, iter_p, log_progress);
+    }
+    #endif
 	/* log this cycle's solution and its details 
 	 * NOTE: There are no cycles anymore in the current version
      * of LVB. The code bellow is purely to keep the output consistent
@@ -367,15 +374,22 @@ int main(int argc, char **argv)
 		else{
 			for (i = 0; i < matrix->m; i++) weight_arr[i] = 1;
 		}
+        #ifdef TBR
+		printf("\nXXXXXXXXX Rearrangements tried: %ld\n", iter);
+        #endif 
 		final_length = getsoln(matrix, rcstruct, weight_arr, &iter, log_progress);
+        #ifdef TBR
+		printf("\nXXXXXXXXX Rearrangements tried: %ld\n", iter);
+        #endif 
+
 		if (rcstruct.bootstraps > 0) trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_TRUE);
 		else trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_FALSE);
-
+		
 		/* print in the screen */
 /*		for (i = 0; i < bstack_overall.next; i++) {
 			treedump_screen(matrix, bstack_overall.stack[i].tree);
 		}*/
-
+		
 		trees_output_total += trees_output;
 		treestack_clear(&bstack_overall);
 		replicate_no++;

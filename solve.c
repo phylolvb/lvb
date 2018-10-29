@@ -6,7 +6,7 @@
 (c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl
 and Chris Wood.
 All rights reserved.
- 
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
@@ -140,7 +140,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
  * will be used in any statistics sent to lenfp, and will be updated on
  * return */
 {
-    long accepted = 0;		/* changes accespted */
+    long accepted = 0;		/* changes accepted */
     Lvb_bool dect;		/* should decrease temperature */
     double deltah;		/* change in energy (1 - C.I.) */
     long deltalen;		/* change in length with new tree */
@@ -188,11 +188,28 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
         fprintf(lenfp, "\nTemperature:   Rearrangement: TreeStack size: Length:\n");
     }
 
+	#ifdef TBR 
+    /*XXXXX Writing output to table.csv XXXXX*/
+    FILE * pFile;
+    char change[10]="";
+    if ((log_progress == LVB_TRUE) && (*current_iter == 0)) {
+	   pFile = fopen ("changeAccepted.csv","w");
+	   fprintf (pFile, "Iteration\tAlgorithm\tAccepted\tLength\n");
+    }
+    /*XXXXX*/
+	#endif 
     lenmin = getminlen(matrix);
     r_lenmin = (double) lenmin;
-
-    while (1) {
-
+    
+   #ifdef TBR 
+  int mutate_counter = 1;
+  double trops_probs[3] = {0,0,1};
+  
+    while (iter<=1000000) { /*XXXXX*/
+        int changeAcc = 0;
+    #else
+	while (1) {
+    #endif 
 		*current_iter += 1;
 		/* occasionally re-root, to prevent influence from root position */
 		if ((*current_iter % REROOT_INTERVAL) == 0){
@@ -206,8 +223,24 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
 
 		/* mutation: alternate between the two mutation functions */
 		rootdash = root;
+		 #ifdef TBR
+		double random_val = uni();
+ 		if (random_val < trops_probs[0]) {
+        		mutate_nni(matrix, p_proposed_tree, p_current_tree, root);	/* local change */
+			strcpy(change,"NNI");
+		}
+    	else if (random_val < trops_probs[0] + trops_probs[1]) {
+        	mutate_spr(matrix, p_proposed_tree, p_current_tree, root);	/* global change */
+            strcpy(change,"SPR");
+        }
+    	else {
+    	   	mutate_tbr(matrix, p_proposed_tree, p_current_tree, root);	/* global change */
+            strcpy(change,"TBR");
+        }
+		#else
 		if (iter & 0x01) mutate_spr(matrix, p_proposed_tree, p_current_tree, root);	/* global change */
 		else mutate_nni(matrix, p_proposed_tree, p_current_tree, root);	/* local change */
+		#endif
 
 		lendash = getplen(matrix, p_proposed_tree, rcstruct, rootdash, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 		lvb_assert (lendash >= 1L);
@@ -215,6 +248,9 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
 		deltah = (r_lenmin / (double) len) - (r_lenmin / (double) lendash);
 		if (deltah > 1.0) deltah = 1.0; /* getminlen() problem with ambiguous sites */
 
+		#ifdef TBR 
+		treestack_clear(bstackp);
+		#endif
 		if (deltalen <= 0)	/* accept the change */
 		{
 			if (lendash <= lenbest)	/* store tree if new */
@@ -231,6 +267,9 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
 
 			/* very best so far */
 			if (lendash < lenbest) lenbest = lendash;
+			#ifdef TBR 
+			changeAcc = 1;
+			#endif
 		}
 		else	/* poss. accept change for the worse */
 		{
@@ -269,13 +308,18 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
 				{
 					treeswap(&p_current_tree, &root, &p_proposed_tree, &rootdash);
 					len = lendash;
+					#ifdef TBR 
+					changeAcc = 1;
+					#endif 
 				}
 			}
 		}
 		proposed++;
 
+		
 		/* decide whether to reduce temperature */
 		if (accepted >= maxaccept){	/* enough new trees */
+      
 			failedcnt = 0;  /* this temperature a 'success' */
 			dect = LVB_TRUE;
 		}
@@ -308,6 +352,11 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
 				ln_t = ((double) t_n) * log_wrapper_grad_geom + log_wrapper_t0;
 				if (ln_t < log_wrapper_LVB_EPS) t = LVB_EPS;
 				else t = pow_wrapper(grad_geom, (double) t_n) * t0; /* decrease the temperature */
+		#ifdef TBR 
+        trops_probs[2] = t/t0;
+        trops_probs[1] = (1 - trops_probs[2])/2;
+        trops_probs[0] = trops_probs[1];
+		#endif 
 			}
 			else /* Linear cooling */
 			{
@@ -319,14 +368,23 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
 			accepted = 0;
 			dect = LVB_FALSE;
 		}
+
 		iter++;
 
 		if (rcstruct.n_number_max_trees > 0 && bstackp->next >= rcstruct.n_number_max_trees){
 			break;
 		}
+	#ifdef TBR 
+    /*XXXXXXXXX*/
+	fprintf (pFile, "%ld\t%s\t%d\t%ld\t\n", iter, change, changeAcc, len);
+    /*XXXXXXXXX*/
+	#endif 
     }
 
     /* free "local" dynamic heap memory */
+	#ifdef TBR 
+    fclose(pFile);
+	#endif 
     free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
     free(p_current_tree);
     free(p_proposed_tree);

@@ -65,6 +65,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	#define COMPILE_64_BITS				/* the default is 32 bits */
 #endif
 
+/* use TBR branch-Swapping Algorithm? */
+#ifndef TBR
+#define TBR
+#endif
+
 /* DNA bases: bits to set in statesets */
 #define A_BIT 0b0001		/* (1U << 0) */
 #define C_BIT 0b0010		/* (1U << 1) */
@@ -227,6 +232,9 @@ Dataptr matrin(const char *const);
 void mutate_deterministic(Dataptr restrict, Branch *const, const Branch *const, long, long, Lvb_bool);
 void mutate_spr(Dataptr restrict, Branch *const, const Branch *const, int);
 void mutate_nni(Dataptr restrict, Branch *const, const Branch *const, int);
+#ifdef TBR 
+void mutate_tbr(Dataptr restrict, Branch *const, const Branch *const, int);
+#endif 
 char *nextnonwspc(const char *);
 void nodeclear(Branch *const, const long);
 long objreroot(Branch *const, const long, const long);
@@ -260,5 +268,9 @@ long treestack_push(Dataptr, Treestack *, const Branch *const, const int, Lvb_bo
 void treeswap(Branch **const, long *const, Branch **const, long *const);
 void uint32_dump(FILE *, Lvb_bit_lentgh);
 long words_per_row(const long);
+#ifdef TBR 
+int count(Branch *const, int);
+int addtoarray(Branch *const, int, int *, int);
+#endif
 
 #endif /* LVB_LVB_H */
