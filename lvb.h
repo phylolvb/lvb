@@ -66,7 +66,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 /* use TBR branch-Swapping Algorithm? */
-#ifdef TBR
+#ifndef TBR
 /* #define TBR */
 #endif
 
