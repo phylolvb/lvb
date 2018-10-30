@@ -66,9 +66,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 /* use TBR branch-Swapping Algorithm? */
-#ifndef TBR
 /* #define TBR */
-#endif
 
 /* DNA bases: bits to set in statesets */
 #define A_BIT 0b0001		/* (1U << 0) */
