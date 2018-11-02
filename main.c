@@ -378,12 +378,14 @@ int main(int argc, char **argv)
 		else{
 			for (i = 0; i < matrix->m; i++) weight_arr[i] = 1;
 		}
-        if (rcstruct.algorithm_selection == 1)
-        {
+        #ifdef TBR
 		printf("\nXXXXXXXXX Rearrangements tried: %ld\n", iter);
+        #endif 
 		final_length = getsoln(matrix, rcstruct, weight_arr, &iter, log_progress);
+        #ifdef TBR
 		printf("\nXXXXXXXXX Rearrangements tried: %ld\n", iter);
-        }
+        #endif 
+
 		if (rcstruct.bootstraps > 0) trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_TRUE);
 		else trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_FALSE);
 		
