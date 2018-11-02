@@ -66,6 +66,10 @@ static void writeinf(Params prms, Dataptr matrix)
     if(prms.cooling_schedule == 0) printf("GEOMETRIC\n");
     else printf("LINEAR\n");
 
+    printf("algorithm selection     = ");
+    if(prms.algorithm_selection == 0) printf("Not TBR\n");
+    else printf("TBR\n");
+
     printf("seed                 = %d\n", prms.seed);
     printf("bootstrap replicates = %ld\n", prms.bootstraps);
     printf("input file name      = %s\n", prms.file_name_in);
