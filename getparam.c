@@ -73,6 +73,8 @@ void defaults_params(Params *const prms)
     prms->cooling_schedule = 0;
     /* default value that will usually be used */
     prms->seed = get_default_seed();
+    /* original branch-swapping algorithm */
+    prms->algorithm_selection = 0;
 
     strcpy(prms->file_name_in, "infile");
     strcpy(prms->file_name_out, OUTTREEFNAM);
