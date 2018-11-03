@@ -188,29 +188,24 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
         fprintf(lenfp, "\nTemperature:   Rearrangement: TreeStack size: Length:\n");
     }
 
-	#ifdef TBR 
-    /*XXXXX Writing output to table.csv XXXXX*/
+		/*XXXXX Writing output to table.csv XXXXX*/
     FILE * pFile;
     char change[10]="";
     if ((log_progress == LVB_TRUE) && (*current_iter == 0)) {
 	   pFile = fopen ("changeAccepted.csv","w");
 	   fprintf (pFile, "Iteration\tAlgorithm\tAccepted\tLength\n");
     }
-    /*XXXXX*/
-	#endif 
+    /*XXXXX*/  
     lenmin = getminlen(matrix);
     r_lenmin = (double) lenmin;
     
-   #ifdef TBR 
+    
   int mutate_counter = 1;
   double trops_probs[3] = {0,0,1};
   
     while (iter<=1000000) { /*XXXXX*/
         int changeAcc = 0;
-    #else
-	while (1) {
-    #endif 
-		*current_iter += 1;
+    	*current_iter += 1;
 		/* occasionally re-root, to prevent influence from root position */
 		if ((*current_iter % REROOT_INTERVAL) == 0){
 			root = arbreroot(matrix, p_current_tree, root);
@@ -223,7 +218,8 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
 
 		/* mutation: alternate between the two mutation functions */
 		rootdash = root;
-		 #ifdef TBR
+		  if (rcstruct.algorithm_selection == 1)
+		  {
 		double random_val = uni();
  		if (random_val < trops_probs[0]) {
         		mutate_nni(matrix, p_proposed_tree, p_current_tree, root);	/* local change */
@@ -237,20 +233,22 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
     	   	mutate_tbr(matrix, p_proposed_tree, p_current_tree, root);	/* global change */
             strcpy(change,"TBR");
         }
-		#else
+		  }
+		else
+		{
 		if (iter & 0x01) mutate_spr(matrix, p_proposed_tree, p_current_tree, root);	/* global change */
 		else mutate_nni(matrix, p_proposed_tree, p_current_tree, root);	/* local change */
-		#endif
-
+		}
+		
+		
 		lendash = getplen(matrix, p_proposed_tree, rcstruct, rootdash, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 		lvb_assert (lendash >= 1L);
 		deltalen = lendash - len;
 		deltah = (r_lenmin / (double) len) - (r_lenmin / (double) lendash);
 		if (deltah > 1.0) deltah = 1.0; /* getminlen() problem with ambiguous sites */
 
-		#ifdef TBR 
+		if (rcstruct.algorithm_selection == 1) 
 		treestack_clear(bstackp);
-		#endif
 		if (deltalen <= 0)	/* accept the change */
 		{
 			if (lendash <= lenbest)	/* store tree if new */
@@ -267,9 +265,9 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
 
 			/* very best so far */
 			if (lendash < lenbest) lenbest = lendash;
-			#ifdef TBR 
+			if (rcstruct.algorithm_selection == 1)
 			changeAcc = 1;
-			#endif
+
 		}
 		else	/* poss. accept change for the worse */
 		{
@@ -308,9 +306,8 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
 				{
 					treeswap(&p_current_tree, &root, &p_proposed_tree, &rootdash);
 					len = lendash;
-					#ifdef TBR 
-					changeAcc = 1;
-					#endif 
+					if (rcstruct.algorithm_selection == 1)
+					changeAcc = 1; 
 				}
 			}
 		}
@@ -352,11 +349,12 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
 				ln_t = ((double) t_n) * log_wrapper_grad_geom + log_wrapper_t0;
 				if (ln_t < log_wrapper_LVB_EPS) t = LVB_EPS;
 				else t = pow_wrapper(grad_geom, (double) t_n) * t0; /* decrease the temperature */
-		#ifdef TBR 
+		if (rcstruct.algorithm_selection == 1)
+		{
         trops_probs[2] = t/t0;
         trops_probs[1] = (1 - trops_probs[2])/2;
         trops_probs[0] = trops_probs[1];
-		#endif 
+		}
 			}
 			else /* Linear cooling */
 			{
@@ -374,17 +372,15 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
 		if (rcstruct.n_number_max_trees > 0 && bstackp->next >= rcstruct.n_number_max_trees){
 			break;
 		}
-	#ifdef TBR 
+	if (rcstruct.algorithm_selection == 1) 
     /*XXXXXXXXX*/
 	fprintf (pFile, "%ld\t%s\t%d\t%ld\t\n", iter, change, changeAcc, len);
     /*XXXXXXXXX*/
-	#endif 
     }
 
     /* free "local" dynamic heap memory */
-	#ifdef TBR 
-    fclose(pFile);
-	#endif 
+	if (rcstruct.algorithm_selection == 1) 
+    fclose(pFile); 
     free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
     free(p_current_tree);
     free(p_proposed_tree);
