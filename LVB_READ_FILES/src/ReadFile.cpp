@@ -132,6 +132,8 @@ void usage(char *p_file_name){
 	printf("\n    -b (0) bootstrap replicates, as an integer in the range 1 to %ld"
 	"\n       inclusive.", (long) MAX_BOOTSTRAPS);
 	printf("\n       Default (0).");
+	printf("\n    -a algorithm zero (0) does not include TBR,\n"
+	        "       algorithm one (1) includes TBR.\n");
 	printf("\n    -c [g|l] (g) cooling schedule. The schedule chosen will\n"
 			"       affect the quality and speed of the simulated annealing search.\n"
 			"       The GEOMETRIC (g) schedule will take significantly less time,\n"
@@ -162,7 +164,7 @@ void read_parameters(Params *prms, int argc, char **argv){
 	int c;
 	opterr = 0;
 
-	while ((c = getopt (argc, argv, "t:c:b:vs:i:o:f:p:")) != -1){
+	while ((c = getopt (argc, argv, "t:c:b:vs:i:o:f:p:a:")) != -1){
 		switch (c)
 		{
 			case 'c':	/* cooling schedule */
@@ -175,6 +177,19 @@ void read_parameters(Params *prms, int argc, char **argv){
 				else if (strcmp(optarg, "l") == 0 || strcmp(optarg, "L") == 0) prms->cooling_schedule = 1;
 				else{
 					fprintf (stderr, "Unknown cooling schedule option\nPlease, choose between Geometric (g) or Linear (l).");
+					exit(1);
+				}
+				break;
+			case 'a':	/* algorithm selection */
+				if (optarg == NULL){
+					fprintf (stderr, "Option -%a requires an argument -a [0|1]\n", optopt);
+					usage(argv[0]);
+					exit(1);
+				}
+				if (strcmp(optarg, "0") == 0 || strcmp(optarg, "0") == 0) prms->algorithm_selection = 0;
+				else if (strcmp(optarg, "1") == 0 || strcmp(optarg, "1") == 0) prms->algorithm_selection = 1;
+				else{
+					fprintf (stderr, "Unknown algorithm option\nPlease, choose between SN (0) or SEQ-TNS (1).");
 					exit(1);
 				}
 				break;
