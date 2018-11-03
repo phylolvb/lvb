@@ -336,7 +336,6 @@ void mutate_spr(Dataptr restrict matrix, Branch *const desttree, const Branch *c
     }
 } /* end mutate_spr() */
 
-#ifdef TBR
 void mutate_tbr(Dataptr restrict matrix, Branch *const desttree, const Branch *const sourcetree, int root)
 /* make a copy of the tree sourcetree (of root root) in desttree,
  * with a random change in topology, the change being caused by subtree
@@ -548,7 +547,6 @@ int addtoarray(Branch *const tree, int current, int arr[], int i)
 	return i;
 }
 
-#endif
 
 long lvb_reroot(Dataptr restrict matrix, Branch *const barray, const int oldroot, const int newroot, Lvb_bool b_with_sset)
 /* Change the root of the tree in barray from oldroot to newroot, which
