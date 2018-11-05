@@ -337,6 +337,11 @@ int main(int argc, char **argv)
     printf("Download and support:\n"
 	"http://eggg.st-andrews.ac.uk/lvb\n\n");
 
+    clock_t Start, End;
+    double Overall_Time_taken;
+    double Overall_Time_taken_minutes;
+
+    Start = clock();
     lvb_initialize();
     getparam(&rcstruct, argc, argv);
     logstim();
@@ -417,6 +422,12 @@ int main(int argc, char **argv)
 			 "file '%s'\n", trees_output_total, final_length, rcstruct.file_name_out);
 		}
     }
+    End = clock();
+
+    Overall_Time_taken = ((double) (End - Start)) /CLOCKS_PER_SEC;
+    Overall_Time_taken_minutes = Overall_Time_taken / 60;
+    printf("lvb took %.2lf seconds to complete (%.2lf minutes)\n", Overall_Time_taken, Overall_Time_taken_minutes);
+
 	/* "file-local" dynamic heap memory */
 	treestack_free(matrix, &bstack_overall);
     rowfree(matrix);
@@ -427,5 +438,7 @@ int main(int argc, char **argv)
     else val = EXIT_SUCCESS;
 
     return val;
+
+    
 
 } /* end main() */
