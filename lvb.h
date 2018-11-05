@@ -54,6 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "myuni.h"
 #include "mymaths.h"
 #include "DataStructure.h"
+#include <time.h>
 
 /* the program */
 #define PROGNAM "lvb"			/* program file name */
