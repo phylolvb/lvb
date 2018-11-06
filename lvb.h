@@ -188,7 +188,7 @@ typedef struct
 /* LVB global functions */
 void *alloc(const size_t, const char *const);
 long anneal(Dataptr restrict, Treestack *, const Branch *const, Params rcstruct, long, const double,
- const long, const long, const long, FILE *const, const long *, long *, Lvb_bool);
+ const long, const long, const long, FILE *const, const long *, long *, long *, Lvb_bool);
 int arbreroot(Dataptr, Branch *const, const int);
 long bytes_per_row(const long);
 int childadd(Branch *const, const int, const int);
