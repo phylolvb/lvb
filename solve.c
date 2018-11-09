@@ -32,7 +32,7 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-*/
+*/ 
 
 /* ********** solve.c - solving functions ********** */
 
@@ -122,7 +122,7 @@ long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *c
 
     return len;
 }
-
+/* long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch *const inittree, Params rcstruct, */
 long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Params rcstruct,
 		long root, const double t0, const long maxaccept, const long maxpropose,
 		const long maxfail, FILE *const lenfp, const long *weights, long *current_iter,
@@ -159,6 +159,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
     double t = t0;		/* current temperature */
     double grad_geom = 0.99;		/* "gradient" of the geometric schedule */
     double grad_linear = 3.64 * LVB_EPS; /* gradient of the linear schedule */
+	/* double grad_linear = 10 * LVB_EPS; */ /* gradient of the linear schedule */
     Branch *p_current_tree;			/* current configuration */
     Branch *p_proposed_tree;		/* proposed new configuration */
     long *p_todo_arr; /* [MAX_BRANCHES + 1];	 list of "dirty" branch nos */
@@ -170,6 +171,9 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
     const double log_wrapper_grad_geom = log_wrapper(grad_geom);
     const double log_wrapper_t0 =  log_wrapper(t0);
     /* REND variables that could calculate immediately */
+
+	/* long w_changes_prop = 0;
+    	long w_changes_acc = 0; */ 
 
     p_proposed_tree = treealloc(matrix, LVB_TRUE);
     p_current_tree = treealloc(matrix, LVB_TRUE);
@@ -184,6 +188,15 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
 
     lenbest = len;
     treestack_push(matrix, bstackp, inittree, root, LVB_FALSE);	/* init. tree initially best */
+	/* treestack_push(matrix, treevo, inittree, root, LVB_FALSE);
+
+	
+	double trops_counter[3] = {1,1,1};
+	double trops_probs[3] = {0,0,0};
+	long trops_total = trops_counter[0]+trops_counter[1]+trops_counter[2];
+	long trops_id; */
+	
+
     if ((log_progress == LVB_TRUE) && (*current_iter == 0)) {
         fprintf(lenfp, "\nTemperature:   Rearrangement: TreeStack size: Length:\n");
     }
@@ -194,6 +207,8 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
     if ((log_progress == LVB_TRUE) && (*current_iter == 0)) {
 	   pFile = fopen ("changeAccepted.csv","w");
 	   fprintf (pFile, "Iteration\tAlgorithm\tAccepted\tLength\n");
+	   /* pFile = fopen ("changeAccepted.tsv","w");
+	   fprintf (pFile, "Iteration\tAlgorithm\tAccepted\tLength\tTemperature\tCurrent_HI\n"); */
     }
     /*XXXXX*/  
     lenmin = getminlen(matrix);
@@ -218,20 +233,29 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
 
 		/* mutation: alternate between the two mutation functions */
 		rootdash = root;
+
+		/* trops_total = trops_counter[0]+trops_counter[1]+trops_counter[2];
+		trops_probs[0]=trops_counter[0]/trops_total;
+		trops_probs[1]=trops_counter[1]/trops_total;
+		trops_probs[2]=trops_counter[2]/trops_total; */
+
 		  if (rcstruct.algorithm_selection == 1)
 		  {
 		double random_val = uni();
  		if (random_val < trops_probs[0]) {
         		mutate_nni(matrix, p_proposed_tree, p_current_tree, root);	/* local change */
 			strcpy(change,"NNI");
+			/* trops_id = 0; */
 		}
     	else if (random_val < trops_probs[0] + trops_probs[1]) {
         	mutate_spr(matrix, p_proposed_tree, p_current_tree, root);	/* global change */
             strcpy(change,"SPR");
+			/* trops_id = 1; */
         }
     	else {
     	   	mutate_tbr(matrix, p_proposed_tree, p_current_tree, root);	/* global change */
             strcpy(change,"TBR");
+			/* trops_id = 2; */
         }
 		  }
 		else
@@ -249,6 +273,9 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
 
 		if (rcstruct.algorithm_selection == 1) 
 		treestack_clear(bstackp);
+		/* if (iter % 2000 == 0) {
+			treestack_push(matrix, treevo, p_current_tree, rootdash, LVB_FALSE);
+		} */
 		if (deltalen <= 0)	/* accept the change */
 		{
 			if (lendash <= lenbest)	/* store tree if new */
@@ -271,6 +298,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
 		}
 		else	/* poss. accept change for the worse */
 		{
+			/* w_changes_prop ++; */
 			/* Mathematically,
 			 *     Pacc = e ** (-1/T * deltaH)
 			 *     therefore ln Pacc = -1/T * deltaH
@@ -305,6 +333,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
 				if (uni() < pacc)	/* do accept the change */
 				{
 					treeswap(&p_current_tree, &root, &p_proposed_tree, &rootdash);
+				/* w_changes_acc++; */
 					len = lendash;
 					if (rcstruct.algorithm_selection == 1)
 					changeAcc = 1; 
@@ -365,6 +394,8 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
 			proposed = 0;
 			accepted = 0;
 			dect = LVB_FALSE;
+			/* w_changes_prop = 0;
+        w_changes_acc = 0; */
 		}
 
 		iter++;
@@ -374,6 +405,15 @@ long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Pa
 		}
 	if (rcstruct.algorithm_selection == 1) 
     /*XXXXXXXXX*/
+	/*	if (changeAcc == 1) {
+	    trops_counter[trops_id]++;
+	}
+	else {
+	    for (int i=0; i < 3; i++) {
+	     if (trops_id != i)
+	        trops_counter[i] = trops_counter[i] + 0.5;
+	    }
+	} */
 	fprintf (pFile, "%ld\t%s\t%d\t%ld\t\n", iter, change, changeAcc, len);
     /*XXXXXXXXX*/
     }
