@@ -188,6 +188,7 @@ void read_parameters(Params *prms, int argc, char **argv){
 				}
 				if (strcmp(optarg, "0") == 0 || strcmp(optarg, "0") == 0) prms->algorithm_selection = 0;
 				else if (strcmp(optarg, "1") == 0 || strcmp(optarg, "1") == 0) prms->algorithm_selection = 1;
+				else if (strcmp(optarg, "2") == 0 || strcmp(optarg, "2") == 0) prms->algorithm_selection = 2;
 				else{
 					fprintf (stderr, "Unknown algorithm option\nPlease, choose between SN (0) or SEQ-TNS (1).");
 					exit(1);
