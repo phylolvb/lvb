@@ -39,7 +39,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lvb.h"
 
 static Treestack bstack_overall;	/* overall best tree stack */
-static Treestack stack_treevo; 
+/* static Treestack stack_treevo; */
 
 static void check_stdout(void)
 /* Flush standard output, and crash verbosely on error. */
@@ -69,8 +69,7 @@ static void writeinf(Params prms, Dataptr matrix)
 
     printf("algorithm selection  = ");
     if(prms.algorithm_selection == 0) printf("SN\n");
-    else if(prms.algorithm_selection == 1) printf("SEQ-TNS\n");
-    else if(prms.algorithm_selection == 2) printf("PBS\n");
+    else printf("SEQ-TNS\n");
 
     printf("seed                 = %d\n", prms.seed);
     printf("bootstrap replicates = %ld\n", prms.bootstraps);
@@ -192,23 +191,17 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
     }
 
     /* find solution(s) */
-    if(rcstruct.algorithm_selection ==2)
-    {
-    treelength = anneal2(matrix, &bstack_overall, &stack_treevo, tree, rcstruct, initroot, t0, maxaccept, 
-    maxpropose, maxfail, stdout, weight_arr, iter_p, log_progress);
-    treestack_pop(matrix, tree, &initroot, &bstack_overall, LVB_FALSE);
-    treestack_push(matrix, &bstack_overall, tree, initroot, LVB_FALSE);
-    }
-    else
-    {
-    treelength = anneal1(matrix, &bstack_overall, tree, rcstruct, initroot, t0, maxaccept,
+    /* treelength = anneal(matrix, &bstack_overall, &stack_treevo, tree, rcstruct, initroot, t0, maxaccept, */
+    treelength = anneal(matrix, &bstack_overall, tree, rcstruct, initroot, t0, maxaccept,
     		maxpropose, maxfail, stdout, weight_arr, iter_p, log_progress);
     treestack_pop(matrix, tree, &initroot, &bstack_overall, LVB_FALSE);
     treestack_push(matrix, &bstack_overall, tree, initroot, LVB_FALSE);
+
+    /* comment out, here: */
     if (rcstruct.n_number_max_trees == 0 || bstack_overall.next < rcstruct.n_number_max_trees){
     	treelength = deterministic_hillclimb(matrix, &bstack_overall, tree, rcstruct, initroot, stdout, weight_arr, iter_p, log_progress);
     }
-    }
+    /* to here */
 
 	/* log this cycle's solution and its details 
 	 * NOTE: There are no cycles anymore in the current version
@@ -363,8 +356,7 @@ int main(int argc, char **argv)
 
     /* "file-local" dynamic heap memory: set up best tree stacks, need to be by thread */
     bstack_overall = treestack_new();
-    if(rcstruct.algorithm_selection ==2)
-    stack_treevo = treestack_new(); 
+    /* stack_treevo = treestack_new(); */
 
     matchange(matrix, rcstruct);	/* cut columns */
     writeinf(rcstruct, matrix);
@@ -382,9 +374,8 @@ int main(int argc, char **argv)
 
     weight_arr = (long*) alloc(sizeof(long) * matrix->m, "alloc data structure");
     outtreefp = clnopen(rcstruct.file_name_out, "w");
-    FILE * treEvo;
-    if(rcstruct.algorithm_selection ==2)
-    treEvo = fopen ("treEvo.tre","w");
+    /* FILE * treEvo;
+    treEvo = fopen ("treEvo.tre","w"); */
     do{
 		iter = 0;
 		if (rcstruct.bootstraps > 0){
@@ -410,8 +401,7 @@ int main(int argc, char **argv)
 		}*/
 		
 		trees_output_total += trees_output;
-        if(rcstruct.algorithm_selection ==2)
-		treestack_print(matrix, &stack_treevo, treEvo, LVB_FALSE);
+		/* treestack_print(matrix, &stack_treevo, treEvo, LVB_FALSE); */
         treestack_clear(&bstack_overall);
 		replicate_no++;
 		if (rcstruct.bootstraps > 0) {
@@ -420,8 +410,7 @@ int main(int argc, char **argv)
 		}
 		else  printf("\nRearrangements tried: %ld\n", iter);
 	} while (replicate_no < rcstruct.bootstraps);
-   if(rcstruct.algorithm_selection ==2)
-    fclose(treEvo);
+    /* fclose(treEvo); */
 	clnclose(outtreefp, rcstruct.file_name_out);
 
 	printf("\n");
@@ -448,8 +437,8 @@ int main(int argc, char **argv)
     printf("lvb took %.2lf seconds to complete (%.2lf minutes)\n", Overall_Time_taken, Overall_Time_taken_minutes);
 
 	/* "file-local" dynamic heap memory */
-    if (rcstruct.algorithm_selection ==2)
-    treestack_free(matrix, &stack_treevo);
+
+    /* treestack_free(matrix, &stack_treevo); */
 	treestack_free(matrix, &bstack_overall);
     rowfree(matrix);
     free(matrix);
