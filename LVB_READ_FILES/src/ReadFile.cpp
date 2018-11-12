@@ -133,7 +133,8 @@ void usage(char *p_file_name){
 	"\n       inclusive.", (long) MAX_BOOTSTRAPS);
 	printf("\n       Default (0).");
 	printf("\n    -a algorithm zero (0) does not include TBR,\n"
-	        "       algorithm one (1) includes TBR.\n");
+	        "       algorithm one (1) includes TBR.\n"
+			"		algorithm two (2) includes TBR.\n");
 	printf("\n    -c [g|l] (g) cooling schedule. The schedule chosen will\n"
 			"       affect the quality and speed of the simulated annealing search.\n"
 			"       The GEOMETRIC (g) schedule will take significantly less time,\n"
@@ -188,6 +189,7 @@ void read_parameters(Params *prms, int argc, char **argv){
 				}
 				if (strcmp(optarg, "0") == 0 || strcmp(optarg, "0") == 0) prms->algorithm_selection = 0;
 				else if (strcmp(optarg, "1") == 0 || strcmp(optarg, "1") == 0) prms->algorithm_selection = 1;
+				else if (strcmp(optarg, "2") == 0 || strcmp(optarg, "2") == 0) prms->algorithm_selection = 2;
 				else{
 					fprintf (stderr, "Unknown algorithm option\nPlease, choose between SN (0) or SEQ-TNS (1).");
 					exit(1);
