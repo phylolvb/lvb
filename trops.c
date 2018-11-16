@@ -120,16 +120,16 @@ static void make_dirty_below(Dataptr restrict matrix, Branch *tree, long dirty_n
 
 } /* end make_dirty_below() */
 
-static void make_dirty_tree(Dataptr restrict matrix, Branch *tree)
+/* static void make_dirty_tree(Dataptr restrict matrix, Branch *tree) */
 /* mark all branches in tree tree as dirty: internal, external and root */
-{
-    long i, j;					/* loop counter */
-    for (i = 0; i < matrix->nbranches; i++){
-    	for (j = 0; j < matrix->nwords; j++){ /* overkill beyond j=0, but harmless */
-    		tree[i].sset[j] = 0U;
-    	}
-    }
-} /* end make_dirty_tree() */
+// {
+//    long i, j;					/* loop counter */
+//    for (i = 0; i < matrix->nbranches; i++){
+//    	for (j = 0; j < matrix->nwords; j++){ /* overkill beyond j=0, but harmless */
+//    		tree[i].sset[j] = 0U;
+//    	}
+//    }
+// } /* end make_dirty_tree() */
 
 void mutate_deterministic(Dataptr restrict matrix, Branch *const desttree,
     const Branch *const sourcetree, long root, long p, Lvb_bool left)
