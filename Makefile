@@ -81,19 +81,19 @@ CFLAGS += -msse4.2
 
 # General options
 CFLAGS += -DLVB	 	# Must be present
-ifdef TBR 
+# ifdef TBR 
 CFLAGS += -g -Wall # -ansi	# Assumes GNU C compiler
-else
-CFLAGS += -O2 -Wall # -ansi	# Assumes GNU C compiler
-endif  
+# else
+# CFLAGS += -O2 -Wall # -ansi	# Assumes GNU C compiler
+# endif  
 #CFLAGS += -fprofile-arcs -ftest-coverage -ansi
 #CFLAGS += -g -std=c99
 #CFLAGS += -O3 -std=c99 -fopenmp -ftree-loop-distribution -fvariable-expansion-in-unroller -ftree-vectorizer-verbose=6 -msse4.2
-ifdef TBR
+# ifdef TBR
 CFLAGS += -std=c99 -fopenmp
-else
-CFLAGS += -O3 -std=c99 -fopenmp
-endif 
+#else
+#CFLAGS += -O3 -std=c99 -fopenmp
+#endif 
 
 # System-dependent macros - OK for Linux and UNIX-like systems, for others will
 # require change
