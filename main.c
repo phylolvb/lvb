@@ -170,8 +170,8 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
     randtree(matrix, tree);	/* initialise required variables */
     ss_init(matrix, tree, enc_mat);
     initroot = 0;
-    t0 = get_initial_t(matrix, tree, rcstruct, initroot, weight_arr, log_progress);
-    /* t0 = 0.01; */
+    /* t0 = get_initial_t(matrix, tree, rcstruct, initroot, weight_arr, log_progress); */
+    t0 = 0.01;
 
     randtree(matrix, tree);	/* begin from scratch */
     ss_init(matrix, tree, enc_mat);
