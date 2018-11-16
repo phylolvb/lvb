@@ -351,6 +351,7 @@ int main(int argc, char **argv)
     clock_t Start, End;
     double Overall_Time_taken;
     double Overall_Time_taken_minutes;
+    double Overall_Time_taken_hours;
 
     Start = clock();
     lvb_initialize();
@@ -445,8 +446,15 @@ int main(int argc, char **argv)
 
     Overall_Time_taken = ((double) (End - Start)) /CLOCKS_PER_SEC;
     Overall_Time_taken_minutes = Overall_Time_taken / 60;
-    printf("lvb took %.2lf seconds to complete (%.2lf minutes)\n", Overall_Time_taken, Overall_Time_taken_minutes);
-
+    Overall_Time_taken_hours = Overall_Time_taken_minutes / 60;
+    if (Overall_Time_taken <= 60)
+    printf("lvb took %.2lf seconds to complete\n", Overall_Time_taken, Overall_Time_taken_minutes);
+    if (Overall_Time_taken <= 3600) {
+            if (Overall_Time_taken >= 60)
+    printf("lvb took %.2lf minutes, %.2lf seconds to complete\n", Overall_Time_taken_minutes, Overall_Time_taken);
+    }
+    if (Overall_Time_taken <= 3600)
+         printf("lvb took %.2lf hours, %.2lf minutes to complete\n", Overall_Time_taken_hours, Overall_Time_taken_minutes);
 	/* "file-local" dynamic heap memory */
     if (rcstruct.algorithm_selection ==2)
     treestack_free(matrix, &stack_treevo);
