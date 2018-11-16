@@ -448,7 +448,7 @@ int main(int argc, char **argv)
     Overall_Time_taken_minutes = Overall_Time_taken / 60;
     Overall_Time_taken_hours = Overall_Time_taken_minutes / 60;
     if (Overall_Time_taken <= 60)
-    printf("lvb took %.2lf seconds to complete\n", Overall_Time_taken, Overall_Time_taken_minutes);
+    printf("lvb took %.2lf seconds to complete\n", Overall_Time_taken);
     if (Overall_Time_taken <= 3600) {
             if (Overall_Time_taken >= 60)
     printf("lvb took %.2lf minutes, %.2lf seconds to complete\n", Overall_Time_taken_minutes, Overall_Time_taken);
