@@ -217,7 +217,7 @@ long anneal2(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch
     r_lenmin = (double) lenmin;
     
     
-  int mutate_counter = 1;
+  /* int mutate_counter = 1; */
   /* double trops_probs[3] = {0,0,1}; */
   
     while (iter<=1000000) { /*XXXXX*/
@@ -541,7 +541,7 @@ long anneal1(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, P
     r_lenmin = (double) lenmin;
     
     
-  int mutate_counter = 1;
+  /* int mutate_counter = 1; */
   /* double trops_probs[3] = {0,0,1}; */
   
     while (iter<=1000000) { /*XXXXX*/
