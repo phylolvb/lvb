@@ -363,10 +363,10 @@ int main(int argc, char **argv)
     }
     rinit(rcstruct.seed);
     if (rcstruct.bootstraps > 0) {
-    	log_progress = LVB_FALSE;
+    	log_progress = LVB_TRUE;
     	printf("\nReplicate:      Rearrangements: Trees output:   Length:\n");
     }
-    else log_progress = LVB_TRUE;
+    else log_progress = LVB_FALSE;
 
     weight_arr = (long*) alloc(sizeof(long) * matrix->m, "alloc data structure");
     outtreefp = clnopen(rcstruct.file_name_out, "w");
