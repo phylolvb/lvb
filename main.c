@@ -39,7 +39,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lvb.h"
 
 static Treestack bstack_overall;	/* overall best tree stack */
-static Treestack stack_treevo; 
+static Treestack stack_treevo;
 
 static void check_stdout(void)
 /* Flush standard output, and crash verbosely on error. */
@@ -192,23 +192,10 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
     }
 
     /* find solution(s) */
-    if(rcstruct.algorithm_selection ==2)
-    {
-    treelength = anneal2(matrix, &bstack_overall, &stack_treevo, tree, rcstruct, initroot, t0, maxaccept, 
+    treelength = anneal(matrix, &bstack_overall, &stack_treevo, tree, rcstruct, initroot, t0, maxaccept, 
     maxpropose, maxfail, stdout, weight_arr, iter_p, log_progress);
     treestack_pop(matrix, tree, &initroot, &bstack_overall, LVB_FALSE);
     treestack_push(matrix, &bstack_overall, tree, initroot, LVB_FALSE);
-    }
-    else
-    {
-    treelength = anneal1(matrix, &bstack_overall, tree, rcstruct, initroot, t0, maxaccept,
-    		maxpropose, maxfail, stdout, weight_arr, iter_p, log_progress);
-    treestack_pop(matrix, tree, &initroot, &bstack_overall, LVB_FALSE);
-    treestack_push(matrix, &bstack_overall, tree, initroot, LVB_FALSE);
-    if (rcstruct.n_number_max_trees == 0 || bstack_overall.next < rcstruct.n_number_max_trees){
-    	treelength = deterministic_hillclimb(matrix, &bstack_overall, tree, rcstruct, initroot, stdout, weight_arr, iter_p, log_progress);
-    }
-    }
 
 	/* log this cycle's solution and its details 
 	 * NOTE: There are no cycles anymore in the current version
@@ -364,9 +351,9 @@ int main(int argc, char **argv)
 
     /* "file-local" dynamic heap memory: set up best tree stacks, need to be by thread */
     bstack_overall = treestack_new();
-    if(rcstruct.algorithm_selection ==2)
-    stack_treevo = treestack_new(); 
-
+    if(rcstruct.algorithm_selection ==2) 
+    stack_treevo = treestack_new();
+        
     matchange(matrix, rcstruct);	/* cut columns */
     writeinf(rcstruct, matrix);
     calc_distribution_processors(matrix, rcstruct);
