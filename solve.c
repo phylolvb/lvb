@@ -201,9 +201,9 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
     }
 
 		/*XXXXX Writing output to table.csv XXXXX*/
-    /* FILE * pFile; */
+    FILE * pFile;
     char change[10]="";
-    /* if ((log_progress == LVB_TRUE) && (*current_iter == 0)) {
+    if ((log_progress == LVB_TRUE) && (*current_iter == 0)) {
 	if (rcstruct.algorithm_selection <= 1) {
 	   pFile = fopen ("changeAccepted.csv","w");
 	   fprintf (pFile, "Iteration\tAlgorithm\tAccepted\tLength\n");
@@ -213,7 +213,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 	   pFile = fopen ("changeAccepted.tsv","w");
 	   fprintf (pFile, "Iteration\tAlgorithm\tAccepted\tLength\tTemperature\tCurrent_HI\n");
 		}
-	} */
+	}
     /*XXXXX*/  
     lenmin = getminlen(matrix);
     r_lenmin = (double) lenmin;
@@ -420,7 +420,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 		if (rcstruct.n_number_max_trees > 0 && bstackp->next >= rcstruct.n_number_max_trees){
 			break;
 		}
-	/* if (rcstruct.algorithm_selection <= 1) 
+	if (rcstruct.algorithm_selection <= 1) 
     fprintf (pFile, "%ld\t%s\t%d\t%ld\t\n", iter, change, changeAcc, len);
 	if (rcstruct.algorithm_selection == 2)
 	{
@@ -434,14 +434,14 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 	    }
 	}
 	}
-	fprintf (pFile, "%ld\t%s\t%d\t%ld\t%lf\t%lf\n", iter, change, changeAcc, len, t*10000, (float) r_lenmin/len); */
+	fprintf (pFile, "%ld\t%s\t%d\t%ld\t%lf\t%lf\n", iter, change, changeAcc, len, t*10000, (float) r_lenmin/len);
 
     /*XXXXXXXXX*/
     }
 
     /* free "local" dynamic heap memory */
 	if (rcstruct.algorithm_selection == 1) 
-    /* fclose(pFile); */
+    fclose(pFile);
     free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
     free(p_current_tree);
     free(p_proposed_tree);
