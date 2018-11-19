@@ -440,7 +440,7 @@ int main(int argc, char **argv)
             if (Overall_Time_taken >= 60)
     printf("lvb took %.2lf minutes, %.2lf seconds to complete\n", Overall_Time_taken_minutes, Overall_Time_taken);
     }
-    if (Overall_Time_taken <= 3600)
+    if (Overall_Time_taken >= 3600)
          printf("lvb took %.2lf hours, %.2lf minutes to complete\n", Overall_Time_taken_hours, Overall_Time_taken_minutes);
 	/* "file-local" dynamic heap memory */
     if (rcstruct.algorithm_selection ==2)
