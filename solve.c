@@ -200,12 +200,12 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
         fprintf(lenfp, "\nTemperature:   Rearrangement: TreeStack size: Length:\n");
     }
 
-		/*XXXXX Writing output to table.csv XXXXX*/
+		/*XXXXX Writing output to table.tsv XXXXX*/
     FILE * pFile;
     char change[10]="";
     if ((log_progress == LVB_TRUE) && (*current_iter == 0)) {
 	if (rcstruct.algorithm_selection <= 1) {
-	   pFile = fopen ("changeAccepted.csv","w");
+	   pFile = fopen ("changeAccepted.tsv","w");
 	   fprintf (pFile, "Iteration\tAlgorithm\tAccepted\tLength\n");
 	}
 	else
