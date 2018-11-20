@@ -222,7 +222,8 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
   /* int mutate_counter = 1; */
   /* double trops_probs[3] = {0,0,1}; */
   
-    while (iter<=1000000) { /*XXXXX*/
+    /* while (iter<=1000000) { */
+	   while (1) {
         int changeAcc = 0;
     	*current_iter += 1;
 		/* occasionally re-root, to prevent influence from root position */
