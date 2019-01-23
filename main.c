@@ -63,30 +63,31 @@ static void writeinf(Params prms, Dataptr matrix)
 {
     printf("\n");
 
-    printf("cooling schedule     = ");
+    printf("Algorithm Selection  = ");
+    if(prms.algorithm_selection == 0) printf("Algorithm 0 (SN)\n");
+    else if(prms.algorithm_selection == 1) printf("Algorithm 1 (SEQ-TNS)\n");
+    else if(prms.algorithm_selection == 2) printf("Algorithm 2 (PBS)\n");
+    
+    printf("Bootstrap Replicates = %ld\n", prms.bootstraps);
+
+    printf("Cooling Schedule     = ");
     if(prms.cooling_schedule == 0) printf("GEOMETRIC\n");
     else printf("LINEAR\n");
 
-    printf("algorithm selection  = ");
-    if(prms.algorithm_selection == 0) printf("SN\n");
-    else if(prms.algorithm_selection == 1) printf("SEQ-TNS\n");
-    else if(prms.algorithm_selection == 2) printf("PBS\n");
-
-    printf("seed                 = %d\n", prms.seed);
-    printf("bootstrap replicates = %ld\n", prms.bootstraps);
-    printf("input file name      = %s\n", prms.file_name_in);
-    printf("output file name     = %s\n", prms.file_name_out);
-    if (prms.n_file_format == FORMAT_PHYLIP) printf("format input file    = phylip\n");
-    else if (prms.n_file_format == FORMAT_FASTA) printf("format input file    = fasta\n");
-    else if (prms.n_file_format == FORMAT_NEXUS) printf("format input file    = nexus\n");
-    else if (prms.n_file_format == FORMAT_MSF) printf("format input file    = msf\n");
-    else if (prms.n_file_format == FORMAT_CLUSTAL) printf("format input file    = clustal\n");
+    if (prms.n_file_format == FORMAT_PHYLIP) printf("Format Input File    = PHYLIP\n");
+    else if (prms.n_file_format == FORMAT_FASTA) printf("Format Input File    = FASTA\n");
+    else if (prms.n_file_format == FORMAT_NEXUS) printf("Format Input File    = NEXUS\n");
+    else if (prms.n_file_format == FORMAT_MSF) printf("Format Input File    = MSF\n");
+    else if (prms.n_file_format == FORMAT_CLUSTAL) printf("Format Input File    = CLUSTAL\n");
     else{
     	fprintf (stderr, "Error, input format file not recognized\n");
     	abort();
     }
-    printf("bootstrap replicates = %ld\n", prms.bootstraps);
-    printf("threads              = %d\n\n", prms.n_processors_available);
+
+    printf("Input File           = %s\n", prms.file_name_in);
+    printf("Output File          = %s\n", prms.file_name_out);
+    printf("Seed                 = %d\n", prms.seed);
+    printf("Threads              = %d\n\n", prms.n_processors_available);
 
     printf("#Species             = %ld\n", matrix->n);
     printf("Lenght of Sequences:\n");
