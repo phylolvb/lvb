@@ -256,9 +256,9 @@ void calc_distribution_processors(Dataptr matrix, Params rcstruct){
 	// only to protect
 	if (matrix->n_threads_getplen < 1) matrix->n_threads_getplen = 1;
 
-	printf("\nthreads that will be use   = %d\n", matrix->n_threads_getplen);
+	printf("\nNumber of threads   = %d\n", matrix->n_threads_getplen);
 	if (rcstruct.n_processors_available != matrix->n_threads_getplen)
-		printf("(because it is related with the size of the data)\n");
+		printf("Reduced based on the size of the dataset\n");
 }
 
 
