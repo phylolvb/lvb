@@ -281,10 +281,10 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 		deltah = (r_lenmin / (double) len) - (r_lenmin / (double) lendash);
 		if (deltah > 1.0) deltah = 1.0; /* getminlen() problem with ambiguous sites */
 
-		if (rcstruct.algorithm_selection == 1) 
-		treestack_clear(bstackp);
-		if (rcstruct.algorithm_selection == 2)
-		treestack_clear(bstackp);
+		//if (rcstruct.algorithm_selection == 1) 
+		//treestack_clear(bstackp);
+		//if (rcstruct.algorithm_selection == 2)
+		//treestack_clear(bstackp);
 		{
 			if (iter % 2000 == 0) {
 			treestack_push(matrix, treevo, p_current_tree, rootdash, LVB_FALSE);
@@ -423,7 +423,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 		}
 	if (rcstruct.algorithm_selection <= 1) 
     fprintf (pFile, "%ld\t%s\t%d\t%ld\t\n", iter, change, changeAcc, len);
-	if (rcstruct.algorithm_selection == 2)
+	else if (rcstruct.algorithm_selection == 2)
 	{
 	if (changeAcc == 1) {
 	    trops_counter[trops_id]++;
@@ -435,7 +435,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 	    }
 	}
 	}
-	fprintf (pFile, "%ld\t%s\t%d\t%ld\t%lf\t%lf\n", iter, change, changeAcc, len, t*10000, (float) r_lenmin/len);
+	// fprintf (pFile, "%ld\t%s\t%d\t%ld\t%lf\t%lf\n", iter, change, changeAcc, len, t*10000, (float) r_lenmin/len);
 
     /*XXXXXXXXX*/
     }
