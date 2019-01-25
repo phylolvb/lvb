@@ -89,7 +89,7 @@ static void writeinf(Params prms, Dataptr matrix)
     printf("Seed                 = %d\n", prms.seed);
     printf("Threads              = %d\n\n", prms.n_processors_available);
 
-    printf("#Species             = %ld\n", matrix->n);
+    printf("Number of taxa       = %ld\n", matrix->n);
     printf("Length of Sequences:\n");
     printf("    Before cut       = %ld\n", matrix->original_m);
     printf("    After cut        = %ld\n", matrix->m);
