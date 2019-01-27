@@ -333,7 +333,7 @@ int main(int argc, char **argv)
 	"Barker, D. 2004. LVB: Parsimony and simulated annealing in the\n"
 	"search for phylogenetic trees. Bioinformatics, 20, 274-275.\n\n");
     printf("Download and support:\n"
-	"http://eggg.st-andrews.ac.uk/lvb\n\n");
+	"http://lvb.bio.ed.ac.uk/\n\n");
 
     /* start timer */ 
     clock_t Start, End;
