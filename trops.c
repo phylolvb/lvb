@@ -2,9 +2,11 @@
 
 (c) Copyright 2003-2012 by Daniel Barker
 (c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl
-(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro and Maximilian Strobl
-(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl
+(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
+(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
 and Chris Wood.
+(c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
+Maximilian Strobl, Chris Wood, and Fernando Guntoro.
 All rights reserved.
  
 Redistribution and use in source and binary forms, with or without
@@ -84,7 +86,7 @@ long tree_bytes(Dataptr restrict matrix)
     return (matrix->nbranches * sizeof(Branch)) + (matrix->nbranches * matrix->bytes);
 } /* end tree_bytes() */
 
-long tree_bytes_whitout_sset(Dataptr restrict matrix)
+long tree_bytes_without_sset(Dataptr restrict matrix)
 /* return bytes required for contiguous allocation of a tree for the data
  * accessible by matrix, */
 {
@@ -864,7 +866,7 @@ Branch *treealloc(Dataptr restrict matrix, Lvb_bool b_with_sset)
 
     if (b_with_sset) barray = alloc(matrix->tree_bytes, "tree with statesets");
     else{ /* don't need to do anything else */
-    	barray = alloc(matrix->tree_bytes_whitout_sset, "tree without statesets");
+    	barray = alloc(matrix->tree_bytes_without_sset, "tree without statesets");
     	return barray;
     }
 
