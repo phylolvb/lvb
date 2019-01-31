@@ -2,9 +2,11 @@
 
 (c) Copyright 2003-2012 by Daniel Barker
 (c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl
-(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro and Maximilian Strobl
-(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl
+(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
+(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
 and Chris Wood.
+(c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
+Maximilian Strobl, Chris Wood, and Fernando Guntoro.
 All rights reserved.
  
 Redistribution and use in source and binary forms, with or without
@@ -314,7 +316,7 @@ void matchange(Dataptr matrix, const Params rcstruct)
     n_columns_to_change = constchar(matrix, togo, rcstruct.verbose);	/* compuslory cut */
 
     /* N.B. a function to mark autapomorphic characters for cutting
-     * could be called at this point. The effect would be more noticable
+     * could be called at this point. The effect would be more noticeable
      * with unrealistically small test matrices than with real data */
 
     /* cut the cols as indicated, and crash verbosely if too few remain */
@@ -325,7 +327,7 @@ void matchange(Dataptr matrix, const Params rcstruct)
         matrix->bytes = bytes_per_row(matrix->m);
         matrix->nwords = words_per_row(matrix->m);
         matrix->tree_bytes = tree_bytes(matrix);
-        matrix->tree_bytes_whitout_sset = tree_bytes_whitout_sset(matrix);
+        matrix->tree_bytes_without_sset = tree_bytes_without_sset(matrix);
     }
     if (matrix->m < MIN_M)
     	crash("after constant columns are ignored, data matrix has\n"
@@ -377,7 +379,7 @@ return the number of columns cut */
     matrix->bytes = bytes_per_row(matrix->m);
     matrix->nwords = words_per_row(matrix->m);
     matrix->tree_bytes = tree_bytes(matrix);
-    matrix->tree_bytes_whitout_sset = tree_bytes_whitout_sset(matrix);
+    matrix->tree_bytes_without_sset = tree_bytes_without_sset(matrix);
 } /* end cutcols() */
 
 
