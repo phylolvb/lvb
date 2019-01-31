@@ -2,9 +2,11 @@
 
 (c) Copyright 2003-2012 by Daniel Barker
 (c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl
-(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro and Maximilian Strobl
-(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl
+(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
+(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
 and Chris Wood.
+(c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
+Maximilian Strobl, Chris Wood, and Fernando Guntoro.
 All rights reserved.
  
 Redistribution and use in source and binary forms, with or without
@@ -246,7 +248,7 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct,
 		}
 		/* END of threading code */
     }
-	else{	/* code to the orginal version, whitout threading */
+	else{	/* code to the orginal version, without threading */
 
 		long ch;					/* partial changes */
 		long j;						/* loop counter */
