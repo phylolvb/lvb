@@ -2,9 +2,12 @@
 
 (c) Copyright 2003-2012 by Daniel Barker
 (c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl
-(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro and Maximilian Strobl
-(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl
+(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
+(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
 and Chris Wood.
+(c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
+Maximilian Strobl, Chris Wood, and Fernando Guntoro.
+All rights reserved.
 
 All rights reserved.
  
@@ -56,10 +59,10 @@ typedef struct data
     long m;				/* number of columns */
     long original_m;	/* number of columns read from matrix*/
     long n;				/* number of rows */
-    long nbranches; 	/* number of possible braches */
+    long nbranches; 	/* number of possible branches */
     long bytes;
     long tree_bytes;	/* length the tree in bytes */
-    long tree_bytes_whitout_sset;	/* length the tree in bytes whitout sset */
+    long tree_bytes_without_sset;	/* length the tree in bytes without sset */
     long nwords;
     long nsets;			/* sets per tree */
     long mssz;			/* maximum objects per set */
