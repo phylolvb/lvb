@@ -385,7 +385,7 @@ int main(int argc, char **argv)
 			for (i = 0; i < matrix->m; i++) weight_arr[i] = 1;
 		}
         
-		printf("\nXXXXXXXXX Rearrangements tried: %ld\n", iter);
+		// printf("\nXXXXXXXXX Rearrangements tried: %ld\n", iter);
         
 		final_length = getsoln(matrix, rcstruct, weight_arr, &iter, log_progress);
         
