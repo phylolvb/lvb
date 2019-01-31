@@ -5,6 +5,8 @@
 (c) Copyright 2014 by Daniel Barker, Miguel Pinheiro and Maximilian Strobl
 (c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl
 and Chris Wood.
+(c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
+Maximilian Strobl, Chris Wood, and Fernando Guntoro.
 All rights reserved.
  
 Redistribution and use in source and binary forms, with or without
