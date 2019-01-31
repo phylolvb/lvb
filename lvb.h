@@ -2,9 +2,11 @@
 
 (c) Copyright 2003-2012 by Daniel Barker
 (c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl
-(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro and Maximilian Strobl
-(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl
+(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
+(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
 and Chris Wood.
+(c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
+Maximilian Strobl, Chris Wood, and Fernando Guntoro.
 All rights reserved.
  
 Redistribution and use in source and binary forms, with or without
@@ -247,7 +249,7 @@ void ss_init(Dataptr, Branch *, Lvb_bit_lentgh **);
 char *supper(char *const s);
 Branch *treealloc(Dataptr restrict, Lvb_bool b_with_sset);
 long tree_bytes(Dataptr restrict matrix);
-long tree_bytes_whitout_sset(Dataptr restrict matrix);
+long tree_bytes_without_sset(Dataptr restrict matrix);
 void treeclear(Dataptr, Branch *const);
 void treecopy(Dataptr restrict, Branch *const, const Branch *const, Lvb_bool b_with_sset);
 long treecmp(Dataptr restrict, Objset *, const Branch *const, Lvb_bool b_first);
