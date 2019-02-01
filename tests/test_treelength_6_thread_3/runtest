@@ -37,7 +37,7 @@
 
 # run LVB
 $lvb = $ENV{LVB_EXECUTABLE};
-$output = `"$lvb" -p 2 -s 465380177`;
+$output = `"$lvb" -p 3 -s 465380177`;
 $status = $?;
 
 # check output
