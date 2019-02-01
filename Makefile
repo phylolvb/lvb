@@ -6,7 +6,7 @@
 # (c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
 # and Chris Wood.
 # (c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
-# Maximilian Strobl, Chris Wood, and Fernando Guntoro.
+# Fernando Guntoro, Maximilian Strobl and Chris Wood.
 # All rights reserved.
 #  
 # Redistribution and use in source and binary forms, with or without
@@ -83,19 +83,13 @@ CFLAGS += -msse4.2
 
 # General options
 CFLAGS += -DLVB	 	# Must be present
-# ifdef TBR 
-CFLAGS += -g -Wall # -ansi	# Assumes GNU C compiler
-# else
-# CFLAGS += -O2 -Wall # -ansi	# Assumes GNU C compiler
-# endif  
+#CFLAGS += -g -Wall	#  Assumes GNU C compiler
+#CFLAGS += -O2 -Wall	# Assumes GNU C compiler
 #CFLAGS += -fprofile-arcs -ftest-coverage -ansi
 #CFLAGS += -g -std=c99
 #CFLAGS += -O3 -std=c99 -fopenmp -ftree-loop-distribution -fvariable-expansion-in-unroller -ftree-vectorizer-verbose=6 -msse4.2
-# ifdef TBR
-CFLAGS += -std=c99 -fopenmp
-#else
-#CFLAGS += -O3 -std=c99 -fopenmp
-#endif 
+#CFLAGS += -std=c99 -fopenmp
+CFLAGS += -O3 -std=c99 -fopenmp
 
 # System-dependent macros - OK for Linux and UNIX-like systems, for others will
 # require change
