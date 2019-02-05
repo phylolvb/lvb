@@ -438,7 +438,7 @@ void mutate_tbr(Dataptr restrict matrix, Branch *const desttree, const Branch *c
 		if (mid_nodes == NULL) mid_nodes = malloc(size * sizeof(*mid_nodes));
 		int i = 0;
 
-	/*XXXXX reroot source branch (only if size of subtree > than 2) */
+	/*reroot source branch (only if size of subtree > than 2) */
 	if (size > 2) {
 		oldroot = src;
 		for (current = 0; current < matrix->nbranches; current++)

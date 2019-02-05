@@ -202,7 +202,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
         fprintf(lenfp, "\nTemperature:   Rearrangement: TreeStack size: Length:\n");
     }
 
-		/*XXXXX Writing output to table.tsv XXXXX*/
+		/*Writing output to table.tsv*/
     FILE * pFile;
     char change[10]="";
     if ((log_progress == LVB_TRUE) && (*current_iter == 0)) {
@@ -216,7 +216,6 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 	   fprintf (pFile, "Iteration\tAlgorithm\tAccepted\tLength\tTemperature\tCurrent_HI\n");
 		}
 	}
-    /*XXXXX*/  
     lenmin = getminlen(matrix);
     r_lenmin = (double) lenmin;
     
@@ -439,7 +438,6 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 	}
 	// fprintf (pFile, "%ld\t%s\t%d\t%ld\t%lf\t%lf\n", iter, change, changeAcc, len, t*10000, (float) r_lenmin/len);
 
-    /*XXXXXXXXX*/
     }
 
     /* free "local" dynamic heap memory */

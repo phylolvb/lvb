@@ -385,11 +385,9 @@ int main(int argc, char **argv)
 			for (i = 0; i < matrix->m; i++) weight_arr[i] = 1;
 		}
         
-		// printf("\nXXXXXXXXX Rearrangements tried: %ld\n", iter);
-        
 		final_length = getsoln(matrix, rcstruct, weight_arr, &iter, log_progress);
         
-		printf("\nXXXXXXXXX Rearrangements tried: %ld\n", iter);
+		printf("\nRearrangements tried: %ld\n", iter);
          
 
 		if (rcstruct.bootstraps > 0) trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_TRUE);
