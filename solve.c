@@ -198,14 +198,16 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 	long trops_id;
 	
 
-    if ((log_progress == LVB_TRUE) && (*current_iter == 0)) {
+    if ((log_progress == LVB_TRUE) && (*current_iter == 0)) 
+	if (rcstruct.verbose == LVB_TRUE)
         fprintf(lenfp, "\nTemperature:   Rearrangement: TreeStack size: Length:\n");
-    }
 
 		/*Writing output to table.tsv*/
     FILE * pFile;
     char change[10]="";
     if ((log_progress == LVB_TRUE) && (*current_iter == 0)) {
+		if (rcstruct.verbose == LVB_TRUE)
+		{
 	if (rcstruct.algorithm_selection <= 1) {
 	   pFile = fopen ("changeAccepted.tsv","w");
 	   fprintf (pFile, "Iteration\tAlgorithm\tAccepted\tLength\n");
@@ -215,6 +217,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 	   pFile = fopen ("changeAccepted.tsv","w");
 	   fprintf (pFile, "Iteration\tAlgorithm\tAccepted\tLength\tTemperature\tCurrent_HI\n");
 		}
+	}
 	}
     lenmin = getminlen(matrix);
     r_lenmin = (double) lenmin;
@@ -423,7 +426,8 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 			break;
 		}
 	if (rcstruct.algorithm_selection <= 1) 
-    fprintf (pFile, "%ld\t%s\t%d\t%ld\t\n", iter, change, changeAcc, len);
+    if (rcstruct.verbose == LVB_TRUE)
+	fprintf (pFile, "%ld\t%s\t%d\t%ld\t\n", iter, change, changeAcc, len);
 	else if (rcstruct.algorithm_selection == 2)
 	{
 	if (changeAcc == 1) {
@@ -436,13 +440,14 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 	    }
 	}
 	}
-	// fprintf (pFile, "%ld\t%s\t%d\t%ld\t%lf\t%lf\n", iter, change, changeAcc, len, t*10000, (float) r_lenmin/len);
+	if (rcstruct.verbose == LVB_TRUE)
+	fprintf (pFile, "%ld\t%s\t%d\t%ld\t%lf\t%lf\n", iter, change, changeAcc, len, t*10000, (float) r_lenmin/len);
 
     }
 
     /* free "local" dynamic heap memory */
-	if (rcstruct.algorithm_selection == 1) 
-    fclose(pFile);
+	if (rcstruct.verbose == LVB_TRUE)
+	fclose(pFile);
     free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
     free(p_current_tree);
     free(p_proposed_tree);
