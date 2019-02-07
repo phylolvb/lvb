@@ -208,15 +208,8 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
     if ((log_progress == LVB_TRUE) && (*current_iter == 0)) {
 		if (rcstruct.verbose == LVB_TRUE)
 		{
-	if (rcstruct.algorithm_selection <= 1) {
-	   pFile = fopen ("changeAccepted.tsv","w");
-	   fprintf (pFile, "Iteration\tAlgorithm\tAccepted\tLength\n");
-	}
-	else
-		{
 	   pFile = fopen ("changeAccepted.tsv","w");
 	   fprintf (pFile, "Iteration\tAlgorithm\tAccepted\tLength\tTemperature\tCurrent_HI\n");
-		}
 	}
 	}
     lenmin = getminlen(matrix);
@@ -425,10 +418,10 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 		if (rcstruct.n_number_max_trees > 0 && bstackp->next >= rcstruct.n_number_max_trees){
 			break;
 		}
-	if (rcstruct.algorithm_selection <= 1) 
-    if (rcstruct.verbose == LVB_TRUE)
-	fprintf (pFile, "%ld\t%s\t%d\t%ld\t\n", iter, change, changeAcc, len);
-	else if (rcstruct.algorithm_selection == 2)
+	// if (rcstruct.algorithm_selection <= 1) 
+    // if (rcstruct.verbose == LVB_TRUE)
+	// fprintf (pFile, "%ld\t%s\t%d\t%ld\t\n", iter, change, changeAcc, len);
+	/* else */ if (rcstruct.algorithm_selection == 2)
 	{
 	if (changeAcc == 1) {
 	    trops_counter[trops_id]++;
