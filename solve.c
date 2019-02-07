@@ -209,7 +209,8 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 		if (rcstruct.verbose == LVB_TRUE)
 		{
 	   pFile = fopen ("changeAccepted.tsv","w");
-	   fprintf (pFile, "Iteration\tAlgorithm\tAccepted\tLength\tTemperature\tCurrent_HI\n");
+	   fprintf (pFile, "Iteration\tAlgorithm\tAccepted\tLength\tTemperature\n");
+	   // fprintf (pFile, "Iteration\tAlgorithm\tAccepted\tLength\tTemperature\tCurrent_HI\n");
 	}
 	}
     lenmin = getminlen(matrix);
@@ -434,8 +435,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 	}
 	}
 	if (rcstruct.verbose == LVB_TRUE)
-	fprintf (pFile, "%ld\t%s\t%d\t%ld\t%lf\t%lf\n", iter, change, changeAcc, len, t*10000, (float) r_lenmin/len);
-
+	fprintf (pFile, "%ld\t%s\t%d\t%ld\t%lf\n", iter, change, changeAcc, len, t*10000, (float) r_lenmin/len);
     }
 
     /* free "local" dynamic heap memory */
