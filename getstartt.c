@@ -36,7 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* *** getstartt.c - function to determine starting temperature *** */
+/* ========== getstartt.c - function to determine starting temperature ========== */
 
 #include "lvb.h"
 

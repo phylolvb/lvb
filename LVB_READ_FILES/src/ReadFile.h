@@ -36,6 +36,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
+/* ========== ReadFile.h - interface for ReadFile.cpp ========== */
+
 #include "CReadFiles.h"
 #include "../../DataStructure.h"
 #include <stdio.h>

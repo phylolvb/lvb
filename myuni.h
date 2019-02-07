@@ -36,7 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ********** myuni.h - header for RNG functions in myuni.c ********** */
+/* ========== myuni.h - header for RNG functions in myuni.c ========== */
 
 #include <float.h>
 #include <limits.h>

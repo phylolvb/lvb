@@ -36,7 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */ 
 
-/* ********** solve.c - solving functions ********** */
+/* ========== solve.c - solving functions ========== */
 
 #include "lvb.h"
 

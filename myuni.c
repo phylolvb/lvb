@@ -36,7 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ********** myuni.c - random number generation ********** */
+/* ========== myuni.c - random number generation ========== */
 
 /* exactly as suppplied by EPCC, except rcsid added, printf() then
  * exit() replaced with crash() (and braces made redundant removed),

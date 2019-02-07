@@ -36,15 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/**********
-
-=head1 NAME
-
-sops.c - string manipulation functions
-
-=cut
-
-**********/
+/* ========== sops.c - string manipulation functions ========== */
 
 #include "lvb.h"
 

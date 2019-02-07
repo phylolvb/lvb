@@ -36,15 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/**********
-
-=head1 NAME
-
-mops.c - basic memory operation
-
-=cut
-
-*********/
+/* ========== mops.c - basic memory operation ========== */
 
 #include "lvb.h"
 

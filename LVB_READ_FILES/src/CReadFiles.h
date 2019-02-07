@@ -36,6 +36,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
+
+/* ========== ReadFiles.h - interface for ReadFiles.cpp ========== */
+
 #ifndef CREADFILES_H_
 #define CREADFILES_H_
 

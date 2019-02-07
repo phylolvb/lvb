@@ -36,15 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/**********
-
-=head1 NAME
-
-datops.c - data matrix operations
-
-=cut
-
-**********/
+/* ========== datops.c - data matrix operations ========== */
 
 #include "lvb.h"
 

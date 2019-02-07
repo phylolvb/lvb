@@ -36,15 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/**********
-
-=head1 NAME
-
-admin.c - LVB library data and administration
-
-=cut
-
-**********/
+/* ========== admin.c - LVB library data and administration ========== */
 
 #include "lvb.h"
 

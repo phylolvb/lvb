@@ -36,15 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/**********
-
-=head1 NAME
-
-fops.c - file operations
-
-=cut
-
-**********/
+/* ========== fops.c - file operations ========== */
 
 #include "lvb.h"
 

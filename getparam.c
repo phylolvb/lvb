@@ -36,7 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ********** getparam.c - get and set configurable parameters ********** */
+/* ========== getparam.c - get and set configurable parameters ========== */
 
 #include "lvb.h"
 #include <unistd.h>

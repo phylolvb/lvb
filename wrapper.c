@@ -36,15 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/**********
-
-=head1 NAME
-
-wrapper.c - LVB to PHYLIP interface
-
-=cut
-
-**********/
+/* ========== wrapper.c - LVB to PHYLIP interface ========== */
 
 #include "lvb.h"
 

@@ -36,7 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ********** main.c - LVB ********** */
+/* ========== main.c - LVB ========== */
 
 #include "lvb.h"
 

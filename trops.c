@@ -36,7 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ********** trops.c - tree operations ********** */
+/* ========== trops.c - tree operations ========== */
 
 #include "lvb.h"
 

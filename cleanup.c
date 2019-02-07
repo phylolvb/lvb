@@ -36,7 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ********** cleanup.c - prepare for exit ********** */
+/* ========== cleanup.c - prepare for exit ========== */
 
 #include "lvb.h"
 

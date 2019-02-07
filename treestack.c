@@ -36,20 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/**********
-
-=head1 NAME
-
-treestack.c - tree stack functions
-
-=head1 DESCRIPTION
-
-Provides operations for accessing and maintaining a stack of tree
-topologies.
-
-=cut
-
-**********/
+/* ========== sops.c - string manipulation functions ========== */
 
 #include "lvb.h"
 

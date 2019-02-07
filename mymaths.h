@@ -36,7 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ********** mymaths.h - interface for mymaths.c ********** */
+/* ========== mymaths.h - interface for mymaths.c ========== */
 
 #ifndef LVB_MYMATHS_H
 #define LVB_MYMATHS_H

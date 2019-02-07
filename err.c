@@ -36,15 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/**********
-
-=head1 NAME
-
-err.c - error functions
-
-=cut
-
-**********/
+/* ========== err.c - error functions ========== */
 
 #include "lvb.h"
 

@@ -36,15 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/**********
-
-=head1 NAME
-
-parsim.c - tree evaluation
-
-=cut
-
-**********/
+/* ========== parsim.c - tree evaluation ========== */
 
 #include "lvb.h"
 

@@ -36,20 +36,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/**********
+/* ========== mymaths.c - wrappers for standard maths functions ========== */
 
-=head1 NAME
-
-mymaths.c - wrappers for standard maths functions
-
-=head1 DESCRIPTION
+/*
 
 Provides wrappers for mathematical functions in the standard library.
 These wrappers include error handling in the sense that they crash
 verbosely if the standard library function signifies an error through
 C<errno> or its return value.
-
-=cut
 
 **********/
 

@@ -38,6 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
+/* ========== DataStructure.h - definition of data structures ========== */
 
 #define FORMAT_PHYLIP 		0
 #define FORMAT_FASTA 		1
