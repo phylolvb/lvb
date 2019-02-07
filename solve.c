@@ -271,7 +271,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 		if (iter & 0x01) { mutate_spr(matrix, p_proposed_tree, p_current_tree, root);	/* global change */
 		strcpy(change,"SPR"); }
 		else { mutate_nni (matrix, p_proposed_tree, p_current_tree, root);	/* local change */
-		strcpy(change,"SPR"); }
+		strcpy(change,"NNI"); }
 		}
 		
 		
