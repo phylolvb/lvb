@@ -151,7 +151,7 @@ void usage(char *p_file_name){
 			"       Default: 'outfile'.\n");
 	printf("    -s specify a random number seed, or use default.\n"
 			"       Default: it is taken from the system clock.\n");
-	printf("    -v [t|f] (f) verbose.\n");
+	printf("    -v turn verbose mode on.\n");
 	printf("    -f [phylip|fasta|nexus|msf|clustal] (phylip) file format of input file.\n"
 			"       Default: PHYLIP format\n");
 	printf("    -p (1) Threads available.\n"
