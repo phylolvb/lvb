@@ -152,7 +152,7 @@ void usage(char *p_file_name){
 	printf("    -s specify a random number seed, or use default.\n"
 			"       Default: it is taken from the system clock.\n");
 	printf("    -v turn verbose mode on.\n");
-	printf("    -f [phylip|fasta|nexus|msf|clustal] (phylip) file format of input file.\n"
+	printf("    -f [clustal|fasta|msf|nexus|phylip].\n"
 			"       Default: PHYLIP format\n");
 	printf("    -p (1) Threads available.\n"
 			"       Default: only one thread available.\n");
