@@ -79,6 +79,7 @@ static void writeinf(Params prms, Dataptr matrix)
     if (prms.n_file_format == FORMAT_PHYLIP) printf("Format Input File    = PHYLIP\n");
     else if (prms.n_file_format == FORMAT_FASTA) printf("Format Input File    = FASTA\n");
     else if (prms.n_file_format == FORMAT_NEXUS) printf("Format Input File    = NEXUS\n");
+    else if (prms.n_file_format == FORMAT_MSF) printf("Format Input File    = MSF\n");
     else if (prms.n_file_format == FORMAT_CLUSTAL) printf("Format Input File    = CLUSTAL\n");
     else{
     	fprintf (stderr, "Error, input format file not recognized\n");
