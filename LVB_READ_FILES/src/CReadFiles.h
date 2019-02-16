@@ -61,8 +61,7 @@ public:
 	static const int FORMAT_PHYLIP = 0;
 	static const int FORMAT_FASTA = 1;
 	static const int FORMAT_NEXUS = 2;
-	static const int FORMAT_MSF = 3;
-	static const int FORMAT_CLUSTAL = 4;
+	static const int FORMAT_CLUSTAL = 3;
 
 
 public:

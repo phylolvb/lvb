@@ -620,10 +620,6 @@ void CReadFiles::read_file(std::string sz_file_name_temp, int n_file_type){
 		filetype=1;
 		read_clustal(filetype);
 	}
-	else if (n_file_type == CReadFiles::FORMAT_MSF) {          // MSF format
-		filetype=2;
-		read_clustal(filetype);
-	}
 	else if (n_file_type == CReadFiles::FORMAT_PHYLIP) {          // Phylip format
 		read_phylip();
 	}

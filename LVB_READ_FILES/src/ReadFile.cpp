@@ -122,7 +122,7 @@ void free_lvbmat_structure(DataStructure *p_lvbmat){
 
 void print_formats_available(){
 
-	printf("\nFormats available to read: phylip, fasta, nexus, msf and clustal");
+	printf("\nFormats available to read: phylip, fasta, nexus, and clustal");
 
 }
 
@@ -152,7 +152,7 @@ void usage(char *p_file_name){
 	printf("    -s specify a random number seed, or use default.\n"
 			"       Default: it is taken from the system clock.\n");
 	printf("    -v turn verbose mode on.\n");
-	printf("    -f [clustal|fasta|msf|nexus|phylip].\n"
+	printf("    -f [clustal|fasta|nexus|phylip].\n"
 			"       Default: PHYLIP format\n");
 	printf("    -p (1) Threads available.\n"
 			"       Default: only one thread available.\n");
@@ -240,7 +240,7 @@ void read_parameters(Params *prms, int argc, char **argv){
 				break;
 			case 'f':	/* format */
 				if (optarg == NULL){
-					fprintf (stderr, "Option -%c requires an argument -f [phylip|fasta|nexus|msf|clustal]\n", optopt);
+					fprintf (stderr, "Option -%c requires an argument -f [phylip|fasta|nexus|clustal]\n", optopt);
 					usage(argv[0]);
 				}
 				if (strcmp(optarg, "phylip") == 0){
@@ -251,9 +251,6 @@ void read_parameters(Params *prms, int argc, char **argv){
 				}
 				else if (strcmp(optarg, "nexus") == 0){
 					prms->n_file_format = FORMAT_NEXUS;
-				}
-				else if (strcmp(optarg, "msf") == 0){
-					prms->n_file_format = FORMAT_MSF;
 				}
 				else if (strcmp(optarg, "clustal") == 0){
 					prms->n_file_format = FORMAT_CLUSTAL;

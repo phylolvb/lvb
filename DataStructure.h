@@ -43,8 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define FORMAT_PHYLIP 		0
 #define FORMAT_FASTA 		1
 #define FORMAT_NEXUS 		2
-#define FORMAT_MSF 			3
-#define FORMAT_CLUSTAL 		4
+#define FORMAT_CLUSTAL 		3
 
 typedef enum { LVB_FALSE, LVB_TRUE } Lvb_bool;	/* boolean type */
 #define LVB_FNAMSIZE 2000		/* maximum bytes for file names */
@@ -79,7 +78,7 @@ typedef struct
     int seed;							/* seed for random number generator */
     int cooling_schedule;   			/* cooling schedule: 0 is geometric, 1 is linear */
     int algorithm_selection;             /* algorithm selection: 0 is original, 1 is no SEQ-TNS, and 2 is PBS */
-    int n_file_format;					/* number of file format, must be FORMAT_PHYLIP, FORMAT_FASTA, FORMAT_NEXUS, FORMAT_MSF, FORMAT_CLUSTAL*/
+    int n_file_format;					/* number of file format, must be FORMAT_PHYLIP, FORMAT_FASTA, FORMAT_NEXUS, FORMAT_CLUSTAL*/
     int n_processors_available;			/* number of processors available */
     long verbose;						/* verboseness level */
     long bootstraps;					/* number of bootstrap replicates */
