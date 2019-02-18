@@ -55,16 +55,14 @@ static void check_stdout(void)
 static void smessg(long start, long cycle)
 /* print cycle start message */
 {
-    printf("Beginning start %ld cycle %ld\n", start, cycle);
-    check_stdout();
+    // printf("Beginning start %ld cycle %ld\n", start, cycle);
+    // check_stdout();
 
 } /* end smessg() */
 
 static void writeinf(Params prms, Dataptr matrix)
 /* write initial details to standard output */
 {
-    printf("\n");
-
     printf("LVB was called as follows:\n\n");
 
 
@@ -96,7 +94,7 @@ static void writeinf(Params prms, Dataptr matrix)
     }
 
     printf("Seed                 = %d\n", prms.seed);
-    printf("Threads              = %d\n", prms.n_processors_available);
+    printf("Threads requested    = %d\n", prms.n_processors_available);
 
     
 
@@ -262,7 +260,7 @@ void calc_distribution_processors(Dataptr matrix, Params rcstruct){
 	// only to protect
 	if (matrix->n_threads_getplen < 1) matrix->n_threads_getplen = 1;
 
-	printf("\nNumber of threads   = %d\n", matrix->n_threads_getplen);
+	printf("\nThreads available = %d (possibly reduced due to limited availability)\n", matrix->n_threads_getplen);
 	if (rcstruct.n_processors_available != matrix->n_threads_getplen)
 		printf("Reduced based on the size of the dataset\n");
 }
@@ -366,7 +364,7 @@ int main(int argc, char **argv)
     calc_distribution_processors(matrix, rcstruct);
 
     if (rcstruct.verbose == LVB_TRUE) {
-    	printf("getminlen: %ld\n\n", getminlen(matrix));
+    	printf("Minimum length accepted based on matrix: %ld\n\n", getminlen(matrix));
     }
     rinit(rcstruct.seed);
     if (rcstruct.bootstraps > 0) {
