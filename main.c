@@ -71,7 +71,7 @@ static void writeinf(Params prms, Dataptr matrix)
     printf("Number of Taxa       = %ld\n", matrix->n);
     printf("Length of Sequences:\n");
     printf("    Before cut       = %ld\n", matrix->original_m);
-    printf("    After cut        = %ld\n", matrix->m);
+    printf("    After cut        = %ld\n\n", matrix->m);
     
     printf("Algorithm Selection  = ");
     if(prms.algorithm_selection == 0) printf("Algorithm 0 (SN)\n");
@@ -260,9 +260,9 @@ void calc_distribution_processors(Dataptr matrix, Params rcstruct){
 	// only to protect
 	if (matrix->n_threads_getplen < 1) matrix->n_threads_getplen = 1;
 
-	printf("\nThreads available = %d (possibly reduced due to limited availability)\n", matrix->n_threads_getplen);
-	if (rcstruct.n_processors_available != matrix->n_threads_getplen)
-		printf("Reduced based on the size of the dataset\n");
+	printf("Threads available = %d (possibly reduced due to limited availability)\n", matrix->n_threads_getplen);
+	// if (rcstruct.n_processors_available != matrix->n_threads_getplen)
+	//	printf("Reduced based on the size of the dataset\n");
 }
 
 
@@ -364,7 +364,7 @@ int main(int argc, char **argv)
     calc_distribution_processors(matrix, rcstruct);
 
     if (rcstruct.verbose == LVB_TRUE) {
-    	printf("Minimum length accepted based on matrix: %ld\n\n", getminlen(matrix));
+    	printf("\nMinimum length accepted based on matrix: %ld\n", getminlen(matrix));
     }
     rinit(rcstruct.seed);
     if (rcstruct.bootstraps > 0) {
