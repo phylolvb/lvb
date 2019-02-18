@@ -222,7 +222,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
     }
 
 
-    if (rcstruct.verbose == LVB_TRUE) printf("Ending start %ld cycle %ld\n", start, cyc);
+    if (rcstruct.verbose == LVB_TRUE) // printf("Ending start %ld cycle %ld\n", start, cyc);
     check_stdout();
 
     if (rcstruct.verbose == LVB_TRUE) clnclose(sumfp, SUMFNAM);
@@ -409,6 +409,7 @@ int main(int argc, char **argv)
 		replicate_no++;
 		if (rcstruct.bootstraps > 0) {
 			printf("\n\nReplicate %ld complete:\n\nRearrangements tried: %-16ld\nTrees saved:          %-16ld\nLength:               %ld\n\n", replicate_no, iter, trees_output, final_length);
+            if (replicate_no < rcstruct.bootstraps)
             printf("Temperature:   Rearrangement: TreeStack size: Length:\n");
 			total_iter += (double) iter;
 		}
