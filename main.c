@@ -55,7 +55,7 @@ static void check_stdout(void)
 static void smessg(long start, long cycle)
 /* print cycle start message */
 {
-    // printf("Beginning start %ld cycle %ld\n", start, cycle);
+    printf("Beginning cycle \n\n");
     check_stdout();
 
 } /* end smessg() */
@@ -260,7 +260,7 @@ void calc_distribution_processors(Dataptr matrix, Params rcstruct){
 	// only to protect
 	if (matrix->n_threads_getplen < 1) matrix->n_threads_getplen = 1;
 
-	printf("Threads available = %d (possibly reduced due to limited availability)\n", matrix->n_threads_getplen);
+	printf("Threads available = %d (possibly reduced due to limited availability)\n\n", matrix->n_threads_getplen);
 	// if (rcstruct.n_processors_available != matrix->n_threads_getplen)
 	//	printf("Reduced based on the size of the dataset\n");
 }
