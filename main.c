@@ -371,7 +371,7 @@ int main(int argc, char **argv)
     rinit(rcstruct.seed);
     if (rcstruct.bootstraps > 0) {
     	log_progress = LVB_TRUE;
-    	printf("\nReplicate:      Rearrangements: Trees output:   Length:\n");
+    	printf("Temperature:   Rearrangement: TreeStack size: Length:\n");
     }
     else log_progress = LVB_TRUE;
 
@@ -408,7 +408,8 @@ int main(int argc, char **argv)
         treestack_clear(&bstack_overall);
 		replicate_no++;
 		if (rcstruct.bootstraps > 0) {
-			printf("/n/nReplicate complete\n%-16ld%-16ld%-16ld%ld\n\n", replicate_no, iter, trees_output, final_length);
+			printf("\n\nReplicate %ld complete:\n\nRearrangements tried: %-16ld\nTrees saved:          %-16ld\nLength:               %ld\n\n", replicate_no, iter, trees_output, final_length);
+            printf("Temperature:   Rearrangement: TreeStack size: Length:\n");
 			total_iter += (double) iter;
 		}
 		else  printf("\nEnd cycle\n\nTotal rearrangements tried: %ld\n", iter);
