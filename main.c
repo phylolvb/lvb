@@ -269,7 +269,7 @@ static void logstim(void)
     time_t tim;	/* time */
 
     tim = time(NULL);
-    printf("Starting at: %s", ctime(&tim));
+    printf("Starting at: %s\n\n", ctime(&tim));
 
 } /* end logstim() */
 

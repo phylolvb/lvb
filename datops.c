@@ -281,8 +281,8 @@ static long constchar(Dataptr restrict matrix, Lvb_bool *const togo, const Lvb_b
     }
 
     if (verbose == LVB_TRUE){
-    	printf("Ignoring constant columns\n");
-    	if (n_columns == 0) printf("... none found.\n");
+    	printf("Constant columns excluded from analysis: ");
+    	if (n_columns == 0) printf(" none found.\n");
     	else logcut(togo, matrix->m);
     }
     return n_columns;
@@ -326,7 +326,7 @@ void matchange(Dataptr matrix, const Params rcstruct)
     			"%ld columns, which is less than LVB's lower limit of\n"
     			"%ld columns.\n", matrix->m, MIN_M);
     else{
-    	if (rcstruct.verbose == LVB_TRUE) printf("A total of %ld columns will be ignored\n", matrix->original_m - matrix->m);
+    	if (rcstruct.verbose == LVB_TRUE) printf("\n %ld columns excluded\n", matrix->original_m - matrix->m);
     }
 
     /* free "local" dynamic heap memory */
@@ -405,7 +405,7 @@ static void logcut(const Lvb_bool *const cut, const long m)
     const long max_noperln = 8; 	/* max. numbers written per line */
     Lvb_bool newline = LVB_FALSE;	/* last number followed by '\n' */
 
-    printf("... will ignore column numbers:\n");
+    printf("\n");
 
     /* give formatted list of columns to go */
     for (k = 0; k < m; ++k){
