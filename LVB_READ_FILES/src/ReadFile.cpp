@@ -136,9 +136,9 @@ void usage(char *p_file_name){
 	printf("\n    -b (0) bootstrap replicates, as an integer in the range 1 to %ld"
 	"\n       inclusive.", (long) MAX_BOOTSTRAPS);
 	printf("\n       Default (0).");
-	printf("\n    -a algorithm zero (0) does not include TBR,\n"
-	        "       algorithm one (1) includes TBR.\n"
-			"		algorithm two (2) includes TBR.\n");
+	printf("\n    -a algorithm zero (0) NNI + SPR,\n"
+	        "       algorithm one (1) NNI + SPR + TBR.\n"
+			"		algorithm two (2) Point based calculations.\n");
 	printf("\n    -c [g|l] (g) cooling schedule. The schedule chosen will\n"
 			"       affect the quality and speed of the simulated annealing search.\n"
 			"       The GEOMETRIC (g) schedule will take significantly less time,\n"
@@ -153,13 +153,13 @@ void usage(char *p_file_name){
 			"       Default: it is taken from the system clock.\n");
 	printf("    -v turn verbose mode on.\n");
 	printf("    -f [clustal|fasta|nexus|phylip].\n"
-			"       Default: PHYLIP format\n");
-	printf("    -p (1) Threads available.\n"
-			"       Default: only one thread available.\n");
-	printf("    -t (0) max number of trees keep in stack. After that, save, and kill LVB."
+			"       Default is 'PHYLIP' format\n");
+	printf("    -p (1) Number of threads to be used.\n"
+			"       Default: one thread.\n");
+	printf("    -t (0) Max number of trees to be saved. Once reached, LVB will stop."
 				"          Default: all of them will be saved.\n");
-	printf("    -h print this help.\n");
-	printf("    -? print this help.\n");
+	printf("    -h print help.\n");
+	printf("    -? print help.\n");
 	exit(0);
 }
 
