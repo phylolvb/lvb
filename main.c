@@ -260,7 +260,7 @@ void calc_distribution_processors(Dataptr matrix, Params rcstruct){
 	// only to protect
 	if (matrix->n_threads_getplen < 1) matrix->n_threads_getplen = 1;
 
-	printf("Threads available = %d (possibly reduced due to limited availability)\n\n", matrix->n_threads_getplen);
+	printf("Threads available    = %d (possibly reduced due to limited availability)\n\n", matrix->n_threads_getplen);
 
     printf("Begin cycle: \n\n");
     if (rcstruct.verbose == LVB_FALSE && rcstruct.bootstraps == LVB_FALSE)
@@ -368,7 +368,7 @@ int main(int argc, char **argv)
     calc_distribution_processors(matrix, rcstruct);
 
     if (rcstruct.verbose == LVB_TRUE) {
-    	printf("Based on matrix provided, maximum parsimony tree length: %ld\n", getminlen(matrix));
+    	printf("Based on matrix provided, maximum parsimony tree length: %ld\n\n", getminlen(matrix));
     }
     rinit(rcstruct.seed);
     if (rcstruct.bootstraps > 0) {

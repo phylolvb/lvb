@@ -200,7 +200,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 
     if ((log_progress == LVB_TRUE) && (*current_iter == 0)) 
 	if (rcstruct.verbose == LVB_TRUE && rcstruct.bootstraps == LVB_FALSE)
-        fprintf(lenfp, "\nTemperature:   Rearrangement: TreeStack size: Length:\n");
+        fprintf(lenfp, "Temperature:   Rearrangement: TreeStack size: Length:\n");
 
 		/*Writing output to table.tsv*/
     FILE * pFile;
