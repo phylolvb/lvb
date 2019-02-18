@@ -408,10 +408,10 @@ int main(int argc, char **argv)
         treestack_clear(&bstack_overall);
 		replicate_no++;
 		if (rcstruct.bootstraps > 0) {
-			printf("%-16ld%-16ld%-16ld%ld\n", replicate_no, iter, trees_output, final_length);
+			printf("/n/nReplicate complete\n%-16ld%-16ld%-16ld%ld\n\n", replicate_no, iter, trees_output, final_length);
 			total_iter += (double) iter;
 		}
-		else  printf("\nEnd Cycle\n\nTotal rearrangements tried: %ld\n", iter);
+		else  printf("\nEnd cycle\n\nTotal rearrangements tried: %ld\n", iter);
 	} while (replicate_no < rcstruct.bootstraps);
    if(rcstruct.algorithm_selection ==2)
     fclose(treEvo);
@@ -419,7 +419,7 @@ int main(int argc, char **argv)
 
 	printf("\n");
 	if (rcstruct.bootstraps > 0)
-		printf("Total rearrangements tried across all replicates: %g\n\n", total_iter);
+		printf("\nEnd cycle\n\nTotal rearrangements tried across all replicates: %g\n\n", total_iter);
 
 	if ((trees_output_total == 1L) && (rcstruct.bootstraps == 0)) {
 		printf("1 most parsimonious tree of length %ld written to file '%s'\n", final_length, rcstruct.file_name_out);
