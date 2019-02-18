@@ -366,7 +366,7 @@ int main(int argc, char **argv)
     calc_distribution_processors(matrix, rcstruct);
 
     if (rcstruct.verbose == LVB_TRUE) {
-    	printf("Minimum length accepted based on matrix: %ld\n", getminlen(matrix));
+    	printf("Based on matrix provided, maximum parsimony tree length: %ld\n", getminlen(matrix));
     }
     rinit(rcstruct.seed);
     if (rcstruct.bootstraps > 0) {
@@ -411,7 +411,7 @@ int main(int argc, char **argv)
 			printf("%-16ld%-16ld%-16ld%ld\n", replicate_no, iter, trees_output, final_length);
 			total_iter += (double) iter;
 		}
-		else  printf("\nRearrangements tried: %ld\n", iter);
+		else  printf("\nEnd Cycle\n\nTotal rearrangements tried: %ld\n", iter);
 	} while (replicate_no < rcstruct.bootstraps);
    if(rcstruct.algorithm_selection ==2)
     fclose(treEvo);
