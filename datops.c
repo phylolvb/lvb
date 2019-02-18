@@ -326,7 +326,7 @@ void matchange(Dataptr matrix, const Params rcstruct)
     			"%ld columns, which is less than LVB's lower limit of\n"
     			"%ld columns.\n", matrix->m, MIN_M);
     else{
-    	if (rcstruct.verbose == LVB_TRUE) printf("\n %ld columns excluded\n", matrix->original_m - matrix->m);
+    	if (rcstruct.verbose == LVB_TRUE) printf("\nIn total, %ld columns are excluded from the analysis\n", matrix->original_m - matrix->m);
     }
 
     /* free "local" dynamic heap memory */

@@ -65,6 +65,16 @@ static void writeinf(Params prms, Dataptr matrix)
 {
     printf("\n");
 
+    printf("LVB was called as follows:\n\n");
+
+
+    printf("Input File           = %s\n", prms.file_name_in);
+    printf("Output File          = %s\n", prms.file_name_out);
+    printf("Number of Taxa       = %ld\n", matrix->n);
+    printf("Length of Sequences:\n");
+    printf("    Before cut       = %ld\n", matrix->original_m);
+    printf("    After cut        = %ld\n", matrix->m);
+    
     printf("Algorithm Selection  = ");
     if(prms.algorithm_selection == 0) printf("Algorithm 0 (SN)\n");
     else if(prms.algorithm_selection == 1) printf("Algorithm 1 (SEQ-TNS)\n");
@@ -85,15 +95,10 @@ static void writeinf(Params prms, Dataptr matrix)
     	abort();
     }
 
-    printf("Input File           = %s\n", prms.file_name_in);
-    printf("Output File          = %s\n", prms.file_name_out);
     printf("Seed                 = %d\n", prms.seed);
-    printf("Threads              = %d\n\n", prms.n_processors_available);
+    printf("Threads              = %d\n", prms.n_processors_available);
 
-    printf("Number of Taxa       = %ld\n", matrix->n);
-    printf("Length of Sequences:\n");
-    printf("    Before cut       = %ld\n", matrix->original_m);
-    printf("    After cut        = %ld\n", matrix->m);
+    
 
 
 } /* end writeinf() */
