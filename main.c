@@ -55,7 +55,7 @@ static void check_stdout(void)
 static void smessg(long start, long cycle)
 /* print cycle start message */
 {
-    printf("Beginning cycle \n\n");
+    // printf("Beginning cycle \n\n");
     check_stdout();
 
 } /* end smessg() */
@@ -261,6 +261,8 @@ void calc_distribution_processors(Dataptr matrix, Params rcstruct){
 	if (matrix->n_threads_getplen < 1) matrix->n_threads_getplen = 1;
 
 	printf("Threads available = %d (possibly reduced due to limited availability)\n\n", matrix->n_threads_getplen);
+
+    printf("Begin cycle: \n\n");
 	// if (rcstruct.n_processors_available != matrix->n_threads_getplen)
 	//	printf("Reduced based on the size of the dataset\n");
 }
@@ -272,7 +274,7 @@ static void logstim(void)
     time_t tim;	/* time */
 
     tim = time(NULL);
-    printf("Starting at: %s\n\n", ctime(&tim));
+    printf("Starting at: %s\n", ctime(&tim));
 
 } /* end logstim() */
 
@@ -364,7 +366,7 @@ int main(int argc, char **argv)
     calc_distribution_processors(matrix, rcstruct);
 
     if (rcstruct.verbose == LVB_TRUE) {
-    	printf("\nMinimum length accepted based on matrix: %ld\n", getminlen(matrix));
+    	printf("Minimum length accepted based on matrix: %ld\n", getminlen(matrix));
     }
     rinit(rcstruct.seed);
     if (rcstruct.bootstraps > 0) {
