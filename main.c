@@ -56,7 +56,7 @@ static void smessg(long start, long cycle)
 /* print cycle start message */
 {
     // printf("Beginning start %ld cycle %ld\n", start, cycle);
-    // check_stdout();
+    check_stdout();
 
 } /* end smessg() */
 
