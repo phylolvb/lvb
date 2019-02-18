@@ -263,6 +263,8 @@ void calc_distribution_processors(Dataptr matrix, Params rcstruct){
 	printf("Threads available = %d (possibly reduced due to limited availability)\n\n", matrix->n_threads_getplen);
 
     printf("Begin cycle: \n\n");
+    if (rcstruct.verbose == LVB_FALSE && rcstruct.bootstraps == LVB_FALSE)
+        printf("\nTemperature:   Rearrangement: TreeStack size: Length:\n");
 	// if (rcstruct.n_processors_available != matrix->n_threads_getplen)
 	//	printf("Reduced based on the size of the dataset\n");
 }
