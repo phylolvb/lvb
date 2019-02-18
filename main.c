@@ -94,7 +94,7 @@ static void writeinf(Params prms, Dataptr matrix)
     }
 
     printf("Seed                 = %d\n", prms.seed);
-    printf("Threads requested    = %d\n", prms.n_processors_available);
+    printf("Threads Requested    = %d\n", prms.n_processors_available);
 
     
 
@@ -260,7 +260,7 @@ void calc_distribution_processors(Dataptr matrix, Params rcstruct){
 	// only to protect
 	if (matrix->n_threads_getplen < 1) matrix->n_threads_getplen = 1;
 
-	printf("Threads available    = %d (possibly reduced due to limited availability)\n\n", matrix->n_threads_getplen);
+	printf("Threads Available    = %d (possibly reduced due to limited availability)\n\n", matrix->n_threads_getplen);
 
     printf("Begin cycle: \n\n");
     if (rcstruct.verbose == LVB_FALSE && rcstruct.bootstraps == LVB_FALSE)
