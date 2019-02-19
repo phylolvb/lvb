@@ -392,10 +392,7 @@ int main(int argc, char **argv)
 		}
         
 		final_length = getsoln(matrix, rcstruct, weight_arr, &iter, log_progress);
-        
-		// printf("\nRearrangements tried: %ld\n", iter);
-         
-
+ 
 		if (rcstruct.bootstraps > 0) trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_TRUE);
 		else trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_FALSE);
 		
