@@ -36,8 +36,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== admin.c - LVB library data and administration ========== */
+/* 
 
+=head1 NAME
+
+========== admin.c - LVB library data and administration ==========
+
+=cut
+
+*/
 #include "lvb.h"
 
 /**********
@@ -81,6 +88,8 @@ static void functionality_check(void)
      * against floating-point arithmetic problems */
     if (DBL_EPSILON >= LVB_EPS)
         crash("program requires greater floating point precision");
+    /* if (!((LVB_EPS + INITIAL_INCREMENT) != INITIAL_INCREMENT))
+        crash("LVB_EPS and INITIAL_INCREMENT are incompatible with floating point precision"); */
 
     /* DBL_MANT_DIG is checked in rinit() so check not necessary here */
 
