@@ -45,8 +45,12 @@ Lvb_bool cleanup(void)
  * LVB_TRUE on write error to stdout, LVB_FALSE otherwise */
 {
     time_t endtim;	/* time at end of run */
+    // #ifdef NP_Implementation
     Lvb_bool val;	/* return value */
-    // Lvb_bool val = LVB_TRUE	/* return value */
+    // #endif
+    #ifdef MPI_Implementation
+    Lvb_bool val = LVB_TRUE	/* return value */
+    #endif
 
     endtim = time(NULL);
     printf("\n");
@@ -54,11 +58,19 @@ Lvb_bool cleanup(void)
     printf("\n");
 
     /* log file won't be used again */
-    // #ifdef MAP_REDUCE_SINGLE
+    // #ifdef NP_Implementation
     fflush(stdout);
     if (ferror(stdout) != 0) val = LVB_TRUE;
     else val = LVB_FALSE;
-     // #endif
+    // #endif
+    #ifdef MPI_Implementation
+    #ifdef MAP_Reduce
+    fflush(stdout);
+    if (ferror(stdout) != 0) val = LVB_TRUE;
+    else val = LVB_FALSE;
+    #endif
+    #endif
+    
     return val;
    
 } /* end cleanup() */
