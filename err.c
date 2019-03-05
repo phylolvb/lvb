@@ -86,9 +86,17 @@ void crash(const char *const fmt, ...)
 	va_end(args);
 	printf("\n");
 
+	//#ifdef NP_Implementation
 	cleanup();
 	exit(EXIT_FAILURE);
+	//#endif
 
+	#ifdef MPI_Implementation
+	//cleanup();
+	int n_error_code = 1;
+	MPI_Abort(MPI_COMM_WORLD, n_error_code);
+	exit(1);
+	#endif
 }	/* end crash() */
 
 void lvb_assertion_fail(const char *test, const char *file, int line)
