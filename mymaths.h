@@ -38,6 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== mymaths.h - interface for mymaths.c ========== */
 
+//#ifdef NP_Implementation
 #ifndef LVB_MYMATHS_H
 #define LVB_MYMATHS_H
 
@@ -46,3 +47,23 @@ double log_wrapper(double) /*@globals errno@*/ /*@modifies nothing@*/ ;
 double pow_wrapper(double, double) /*@globals errno@*/ /*@modifies nothing@*/ ;
 
 #endif /* LVB_MYMATHS_H */
+
+//#endif
+
+#ifdef MPI_Implementation
+
+#include <float.h>
+#include <limits.h>
+
+/* set max. random number seed value suitable for rinit() */
+#if 900000001L > INT_MAX
+#error LVB WARNING: type int not suitable, try with a 32-bit or larger system
+#else
+#define MAX_SEED 900000000
+#endif  /* if 900000001L > INT_MAX */
+
+/* external uni functions */
+double uni(void);
+void rinit(int ijkl);
+
+#endif
