@@ -40,9 +40,19 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lvb.h"
 
+//#ifdef NP_Implementation
 void read_file(char *file_name, int n_file_format, Dataptr p_lvbmat);
 void phylip_mat_dims_in_external(char *file_name, int n_file_format, long *species_ptr, long *sites_ptr, int *max_length_name);
+//#endif
 
+#ifdef MPI_Implementation
+#ifdef MAP_Reduce
+#include "LVB_READ_FILES/src/ReadFile.h"
+#else
+	int read_file(char *file_name, int n_file_format, Dataptr p_lvbmat, DataSeqPtr lvbmat_seq);
+	void phylip_mat_dims_in_external(char *file_name, int n_file_format, long *species_ptr, long *sites_ptr, int *max_length_name);
+#endif
+#endif
 
 /**********
 
@@ -79,6 +89,7 @@ structure containing the data matrix.
 
 **********/
 
+//#ifdef NP_Implementation
 void phylip_dna_matrin(char *p_file_name, int n_file_format, Dataptr lvbmat)
 {
 	read_file(p_file_name, n_file_format, lvbmat);
@@ -94,6 +105,26 @@ void phylip_dna_matrin(char *p_file_name, int n_file_format, Dataptr lvbmat)
     lvb_assert (lvbmat->nsets <= (MAX_N - 3));
 
 } /* end phylip_dna_matrin() */
+//#endif
+
+#ifdef MPI_Implementation
+
+int phylip_dna_matrin(char *p_file_name, int n_file_format, Dataptr lvbmat, DataSeqPtr lvbmat_seq)
+	{
+		int n_error_code = read_file(p_file_name, n_file_format, lvbmat, lvbmat_seq);
+		if (n_error_code != EXIT_SUCCESS) return n_error_code;
+
+		/* check number of sequences is in range for LVB */
+	    if (lvbmat->n < MIN_N) crash("The data matrix must have at least %ld sequences.", MIN_N);
+	    else if (lvbmat->n > MAX_N) crash("The data matrix must have no more than %ld sequences.", MAX_N);
+	    /* check number of sites is in range for LVB */
+	    else if (lvbmat->m < MIN_M) crash("The data matrix must have at least %ld sites.", MIN_M);
+	    else if (lvbmat->m > MAX_M) crash("The data matrix must have no more than %ld sites.", MAX_M);
+
+	    return EXIT_SUCCESS;
+	} /* end phylip_dna_matrin() */
+
+#endif
 
 /**********
 
