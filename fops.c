@@ -312,7 +312,13 @@ char *f2str(FILE *const stream)
     if (ferror(stream) != 0)
 	crash("file error on reading file");
     inbytes = offmax + 2UL;	/* '\0', possible '\n' */
+    //#ifdef NP_Implementation
     input = alloc(inbytes, "input");
+    //#endif
+
+    #ifdef MPI_Implementation
+    input = (char *) alloc(inbytes, "input");
+    #endif
 
     /* get string */
     rewind(stream);
