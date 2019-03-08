@@ -711,21 +711,40 @@ int CReadFiles::read_nexus()
 	#endif
 }
 
-
+//#ifdef NP_Implementation
 void CReadFiles::clean_data(){
+	//#endif
+
+#ifdef MPI_Implementation
+int CReadFiles::clean_data(){
+#endif
+
 	std::string error;
 
 	/// test if the file exist
 	if (!is_file_exist(sz_file_name)){
 		error = "File doesn't exist: " + sz_file_name;
+		//#ifdef NP_Implementation
 		exit_error(1 , error);
+		//#endif
+
+		#ifdef MPI_Implementation
+		return exit_error(1 , error);
+		#endif
+
 	}
 
 	ifstream filein;
 	filein.open(sz_file_name.c_str());
 	if (!filein.good()){
 		error = "Failed to open alignment file: " + sz_file_name;
+		//#ifdef NP_Implementation
 		exit_error(1 , error);
+		//#endif
+
+		#ifdef MPI_Implementation
+		return exit_error(1 , error);
+		#endif
 	}
 	filein.close();
 
@@ -750,9 +769,12 @@ void CReadFiles::clean_data(){
 	if (sz_only_file_name.find_last_of(".") != string::npos)
 		sz_extension = sz_only_file_name.substr(sz_only_file_name.find_last_of(".") + 1, sz_only_file_name.length() - sz_only_file_name.find_last_of("."));
 	else sz_extension = "";
+	#ifdef MPI_Implementation
+	return 0;
+	#endif
 }
 
-
+//#ifdef NP_Implementation
 void CReadFiles::read_file(std::string sz_file_name_temp, int n_file_type){
 
 	std::string error;
@@ -779,23 +801,81 @@ void CReadFiles::read_file(std::string sz_file_name_temp, int n_file_type){
 		error = "Unrecognized file..." + sz_file_name;
 		exit_error(1 , error);
 	}
+	//#endif
 
+	#ifdef MPI_Implementation
+	int CReadFiles::read_file(std::string sz_file_name_temp, int n_file_type){
+
+	std::string error;
+	int filetype = 0, n_error_code = EXIT_SUCCESS;
+	sz_file_name = sz_file_name_temp;
+
+	//// setup initial data...
+	n_error_code = clean_data();
+	if (n_error_code != EXIT_SUCCESS) return n_error_code;
+
+	if (n_file_type == CReadFiles::FORMAT_CLUSTAL_) {           // Clustal format
+		filetype=1;
+		n_error_code = read_clustal(filetype);
+		if (n_error_code != EXIT_SUCCESS) return n_error_code;
+	}
+	else if (n_file_type == CReadFiles::FORMAT_MSF_) {          // MSF format
+		filetype=2;
+		n_error_code = read_clustal(filetype);
+		if (n_error_code != EXIT_SUCCESS) return n_error_code;
+	}
+	else if (n_file_type == CReadFiles::FORMAT_PHYLIP_) {          // Phylip format
+		n_error_code = read_phylip();
+		if (n_error_code != EXIT_SUCCESS) return n_error_code;
+	}
+	else if (n_file_type == CReadFiles::FORMAT_FASTA_) {          // Fasta format
+		n_error_code = read_fasta();
+		if (n_error_code != EXIT_SUCCESS) return n_error_code;
+	}
+
+	else if (n_file_type == CReadFiles::FORMAT_NEXUS_) {          // nexus format
+		n_error_code = read_nexus();
+		if (n_error_code != EXIT_SUCCESS) return n_error_code;
+	}
+	else {
+		error = "Unrecognized file..." + sz_file_name;
+		return exit_error(1 , error);
+	}
+	#endif
 
 	if (b_debug) cout << "testing sequences..." << endl;
 	/// test if there is any sequence in the arrays, need to have more than one
 	if ((int) lst_sequences.size() < 2){
 		if ((int) lst_sequences.size() == 0){
 			error = "Zero sequences were read from the file: " + sz_file_name;
+			//ifdef NP_Implementation
 			exit_error(1 , error);
+			//#endif
+
+			#ifdef MPI_Implementation
+			return exit_error(1 , error);
+			#endif
 		}
 		error = "Only one sequence was read from the file: " + sz_file_name;
-		exit_error(1 , error);
+		//ifdef NP_Implementation
+			exit_error(1 , error);
+			//#endif
+
+			#ifdef MPI_Implementation
+			return exit_error(1 , error);
+			#endif
 	}
 
 	/// test the length of the two arrays
 	if (lst_sequences.size() != lst_names_seq.size()){
 		error = "Something wrong with the file.\nThe number of sequences names are different from the number of sequences in the file: " + sz_file_name;
-		exit_error(1 , error);
+		//ifdef NP_Implementation
+			exit_error(1 , error);
+			//#endif
+
+			#ifdef MPI_Implementation
+			return exit_error(1 , error);
+			#endif
 	}
 
 	/// get the max length of size name
@@ -811,7 +891,13 @@ void CReadFiles::read_file(std::string sz_file_name_temp, int n_file_type){
 		if (b_debug) cout << lst_names_seq[i] << ": " << lst_sequences[i].length() << endl;
 		if (lst_sequences[i].length() != n_max_size){
 			error = "Something wrong with the file.\nThe sequence lengths are different in the file: " + sz_file_name;
+			//ifdef NP_Implementation
 			exit_error(1 , error);
+			//#endif
+
+			#ifdef MPI_Implementation
+			return exit_error(1 , error);
+			#endif
 		}
 	}
 
@@ -828,13 +914,22 @@ void CReadFiles::read_file(std::string sz_file_name_temp, int n_file_type){
 				a += ": ";
 				a += lst_sequences[i].c_str();
 				a += "\n";
-				exit_error(1 , a.c_str());
+				//ifdef NP_Implementation
+			exit_error(1 , error);
+			//#endif
+
+			#ifdef MPI_Implementation
+			return exit_error(1 , error);
+			#endif
 			}
 		}
 
 	}
 
 	if (b_debug) cout << "Read: " << lst_names_seq.size() << " sequences with size " << lst_sequences.size() << endl;
+	#ifdef MPI_Implementation
+	return EXIT_SUCCESS;
+	#endif
 }
 
 void CReadFiles::save_file(std::string file_name_out){
