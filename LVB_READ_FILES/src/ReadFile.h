@@ -48,6 +48,8 @@ using namespace std;
 #ifndef READFILE_H_
 #define READFILE_H_
 
+//#ifdef NP_Implementation
+
 extern "C" void read_file(char *file_name, int n_file_type, Dataptr p_lvbmat);
 extern "C" void phylip_mat_dims_in_external(char *file_name, int n_file_type, long *species_ptr, long *sites_ptr, int *max_length_name);
 extern "C" void read_parameters(Params *prms, int argc, char **argv);
@@ -57,5 +59,33 @@ void read_file(char *file_name, int n_file_type, DataStructure *p_lvbmat);
 void phylip_mat_dims_in_external(char *file_name, int n_file_type, long *species_ptr, long *sites_ptr, int *max_length_name);
 void free_lvbmat_structure(DataStructure *p_lvbmat);
 long brcnt(long n) { return (n << 1) - 3; }; /* return number of branches in unrooted binary tree structure containing n tips */
+
+//#endif
+
+#ifdef MPI_Implementation
+#ifdef MAP_Reduce
+    #include "../../lvb.h"
+	#ifdef __cplusplus
+		extern "C" int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat, DataSeqPtr lvbmat_seq);
+		extern "C" void phylip_mat_dims_in_external(char *file_name, int n_file_type, long *species_ptr, long *sites_ptr, int *max_length_name);
+		extern "C" int read_parameters(Params *prms, int argc, char **argv);
+	#endif
+
+	int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat, DataSeqPtr lvbmat_seq);
+	void free_lvbmat_structure(DataStructure *p_lvbmat);
+	int read_parameters(Params *prms, int argc, char **argv);
+#else
+	extern "C" int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat, DataSeqPtr lvbmat_seq);
+	extern "C" void phylip_mat_dims_in_external(char *file_name, int n_file_type, long *species_ptr, long *sites_ptr, int *max_length_name);
+	extern "C" int read_parameters(Params *prms, int argc, char **argv);
+	int read_file(char *file_name, int n_file_type, DataStructure *p_lvbmat, DataSeqStructure *p_lvbmat_seq);
+	void free_lvbmat_structure(DataSeqStructure *p_lvbmat_seq, int n_size);
+	int read_parameters(Params *prms, int argc, char **argv);
+#endif
+
+void phylip_mat_dims_in_external(char *file_name, int n_file_type, long *species_ptr, long *sites_ptr, int *max_length_name);
+long brcnt(long n); /* return number of branches in unrooted binary tree structure containing n tips */
+
+#endif 
 
 #endif /* READFILE_H_ */
