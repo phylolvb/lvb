@@ -57,12 +57,23 @@ using namespace std;
 
 class CReadFiles {
 
+//#ifdef NP_Implementation
 public:
 	static const int FORMAT_PHYLIP = 0;
 	static const int FORMAT_FASTA = 1;
 	static const int FORMAT_NEXUS = 2;
 	static const int FORMAT_CLUSTAL = 3;
+//#endif
 
+#ifdef MPI_Implementation
+//MSF removed from LVB 3.5
+public:
+	static const int FORMAT_PHYLIP_ = 0;
+	static const int FORMAT_FASTA_ = 1;
+	static const int FORMAT_NEXUS_ = 2;
+	static const int FORMAT_MSF_ = 3;
+	static const int FORMAT_CLUSTAL_ = 4;
+#endif
 
 public:
 	/// this is because some compilers has a problem with to_string method
@@ -80,7 +91,14 @@ public:
 	static bool is_file_exist(std::string file_name);
 
 	void save_file(std::string sz_file_name_temp);
+	//#ifdef NP_Implementation
 	void read_file(std::string file_name_out, int n_file_type);
+	//#endif
+
+	#ifdef MPI_Implementation
+	int read_file(std::string file_name_out, int n_file_type);
+	#endif
+
 	unsigned int get_length_sequences() {
 		if ((int) lst_sequences.size() > 0) return lst_sequences[0].length();
 		return 0;
@@ -101,14 +119,32 @@ private:
 	std::string sz_accept_chars;				// chars to pass on filter
 	int n_max_length_name_seq;
 
+	//#ifdef NP_Implementation
 	void clean_data();
+	//#endif
 
+	#ifdef MPI_Implementation
+	int clean_data();
+	#endif
+
+//#ifdef NP_Implementation
 private:
 	/// several read file methods
 	void read_clustal(int filetype);
 	void read_phylip();
 	void read_fasta();
 	void read_nexus();
+//#endif
+
+#ifdef MPI_Implementation
+private:
+	/// several read file methods
+	int read_clustal(int filetype);
+	int read_phylip();
+	int read_fasta();
+	int read_nexus();
+#endif
+
 
 	bool is_only_one_sequence_in_array(std::vector< std::string > lst_strings);
 	std::string get_string_from_list(std::vector< std::string > lst_strings, bool b_last_one);
