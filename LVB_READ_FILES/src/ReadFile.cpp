@@ -241,7 +241,7 @@ void usage(char *p_file_name){
 #ifdef MPI_Implementation
 
 void usage(char *p_file_name){
-#ifdef MAP_REDUCE_SINGLE
+#ifdef MAP_Reduce
 	printf("Usage: lvb [cvsSCiofph]\n");
 #else
 	printf("Usage: lvb [cvsSCNiofph]\n");
