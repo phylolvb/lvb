@@ -40,10 +40,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lvb.h"
 
-#ifdef NP_Implementation
+//#ifdef NP_Implementation
 void read_file(char *file_name, int n_file_format, Dataptr p_lvbmat);
 void phylip_mat_dims_in_external(char *file_name, int n_file_format, long *species_ptr, long *sites_ptr, int *max_length_name);
-#endif
+//#endif
 
 #ifdef MPI_Implementation
 #ifdef MAP_Reduce
@@ -89,7 +89,7 @@ structure containing the data matrix.
 
 **********/
 
-#ifdef NP_Implementation
+//#ifdef NP_Implementation
 void phylip_dna_matrin(char *p_file_name, int n_file_format, Dataptr lvbmat)
 {
 	read_file(p_file_name, n_file_format, lvbmat);
@@ -105,7 +105,7 @@ void phylip_dna_matrin(char *p_file_name, int n_file_format, Dataptr lvbmat)
     lvb_assert (lvbmat->nsets <= (MAX_N - 3));
 
 } /* end phylip_dna_matrin() */
-#endif
+//#endif
 
 #ifdef MPI_Implementation
 

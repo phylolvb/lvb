@@ -38,7 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== mymaths.h - interface for mymaths.c ========== */
 
-#ifdef NP_Implementation
+//#ifdef NP_Implementation
 #ifndef LVB_MYMATHS_H
 #define LVB_MYMATHS_H
 
@@ -48,7 +48,7 @@ double pow_wrapper(double, double) /*@globals errno@*/ /*@modifies nothing@*/ ;
 
 #endif /* LVB_MYMATHS_H */
 
-#endif
+//#endif
 
 #ifdef MPI_Implementation
 

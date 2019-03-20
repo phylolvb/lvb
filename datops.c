@@ -40,14 +40,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lvb.h"
 
-#ifdef NP_Implementation
+//#ifdef NP_Implementation
 static long constchar(Dataptr restrict matrix, Lvb_bool *const togo, const Lvb_bool verbose);
 static void cutcols(Dataptr matrix, const Lvb_bool *const tocut, long n_columns_to_change);
 static void logcut(const Lvb_bool *const cut, const long m);
 
 static char *getstatev(const Dataptr matrix, const long k)
 
-#endif
+//#endif
 
 #ifdef MPI_Implementation
 static long constchar(Dataptr restrict matrix, DataSeqPtr restrict matrix_seq, Lvb_bool *const togo, const Lvb_bool verbose);
@@ -74,12 +74,12 @@ static char *getstatev(const Dataptr matrix, DataSeqPtr matrix_seq, const long k
 
     /* update record of states for column k */
     for (i = 0; i < matrix->n; ++i){
-	#ifdef NP_Implementation
+	//#ifdef NP_Implementation
 	if (strchr(statev, (int) matrix->row[i][k]) == NULL){	/* new state */
 	    if ((matrix->row[i][k] != '-') && (matrix->row[i][k] != '?')
 		&& (matrix->row[i][k] != 'N') && (matrix->row[i][k] != 'X')) {
 		statev[statec++] = matrix->row[i][k];
-	#endif
+	//#endif
 	#ifdef MPI_Implementation
 		if (strchr(statev, (int) matrix_seq->row[i][k]) == NULL){	/* new state */
 				if ((matrix_seq->row[i][k] != '-') && (matrix_seq->row[i][k] != '?') && (matrix_seq->row[i][k] != 'N') && (matrix_seq->row[i][k] != 'X')) {
@@ -93,9 +93,9 @@ static char *getstatev(const Dataptr matrix, DataSeqPtr matrix_seq, const long k
     return statev;
 } /* end getstatev() */
 
-#ifdef NP_Implementation
+//#ifdef NP_Implementation
 long getminlen(const Dataptr matrix)
-#endif
+//#endif
 
 #ifdef MPI_Implementation
 long getminlen(const Dataptr matrix, DataSeqPtr matrix_seq)
@@ -109,9 +109,9 @@ long getminlen(const Dataptr matrix, DataSeqPtr matrix_seq)
     long k;		/* loop counter */
 
     for (k = 0; k < matrix->m; ++k) {
-		#ifdef NP_Implementation
+		//#ifdef NP_Implementation
     	statev = getstatev(matrix, k);
-		#endif
+		//#endif
 
 		#ifdef MPI_Implementation
 		statev = getstatev(matrix, matrix_seq, k);
@@ -182,9 +182,9 @@ C<mat>C<->E<gt>C<row>[I<i>][I<j>], where I<i> is in the interval
 
 **********/
 
-#ifdef NP_Implementation
+//#ifdef NP_Implemenation
 void dna_makebin(Dataptr restrict mat, Lvb_bit_lentgh **enc_mat)
-#endif
+//#endif
 
 #ifdef MPI_Implementation
 void dna_makebin(Dataptr restrict mat, DataSeqPtr matrix_seq, Lvb_bit_lentgh **enc_mat)
@@ -215,9 +215,9 @@ void dna_makebin(Dataptr restrict mat, DataSeqPtr matrix_seq, Lvb_bit_lentgh **e
 				if (mat_offset >= mat->m)	/* padding required */
 					base = 'N';
 				else
-				#ifdef NP_Implementation
+				//#ifdef NP_Implementation
 					base = mat->row[i][(j << LENGTH_WORD_BITS_MULTIPLY) + k];	/* observed base required */
-				#endif
+				//#endif
 
 				#ifdef MPI_Implementation
 				base = matrix_seq->row[i][(j << LENGTH_WORD_BITS_MULTIPLY) + k];	/* observed base required */
@@ -282,9 +282,9 @@ void dna_makebin(Dataptr restrict mat, DataSeqPtr matrix_seq, Lvb_bit_lentgh **e
     }
 } /* end dna_makebin() */
 
-#ifdef NP_Implementation
+//#ifdef NP_Implementation
 void rowfree(Dataptr matrix)
-#endif
+//#endif
 
 #ifdef MPI_Implementation
 void rowfree(DataSeqPtr matrix, int n_lines)
@@ -296,7 +296,7 @@ void rowfree(DataSeqPtr matrix, int n_lines)
 {
     long i;	/* loop counter */
 
-	#ifdef NP_Implementation
+	//#ifdef NP_Implementation
     if (matrix->row != NULL) {
     	for(i = 0; i < matrix->n; ++i){
     		free(matrix->row[i]);
@@ -306,7 +306,7 @@ void rowfree(DataSeqPtr matrix, int n_lines)
     	free(matrix->rowtitle);
     	matrix->row = NULL;
     }
-	#endif
+	//#endif
 
 	#ifdef MPI_Implementation
 	if (matrix->row != NULL) {
@@ -322,9 +322,9 @@ void rowfree(DataSeqPtr matrix, int n_lines)
 
 } /* end rowfree() */
 
-#ifdef NP_Implementation
+//#ifdef NP_Implementation
 static long constchar(Dataptr restrict matrix, Lvb_bool *const togo, const Lvb_bool verbose)
-#endif
+//#endif
 
 #ifdef MPI_Implementation
 static long constchar(Dataptr restrict matrix, DataSeqPtr restrict matrix_seq, Lvb_bool *const togo, const Lvb_bool verbose)
@@ -344,9 +344,9 @@ static long constchar(Dataptr restrict matrix, DataSeqPtr restrict matrix_seq, L
     /* discover variable columns */
     for (k = 0; k < matrix->m; ++k){
     	for (i = 1; i < matrix->n; ++i){
-			#ifdef NP_Implementation
+			//#ifdef NP_Implementation
 			if (matrix->row[i][k] != matrix->row[0][k]){
-			#endif
+			//#endif
 
 			#ifdef MPI_Implementation
 			if (matrix_seq->row[i][k] != matrix_seq->row[0][k]){
@@ -359,10 +359,10 @@ static long constchar(Dataptr restrict matrix, DataSeqPtr restrict matrix_seq, L
     }
 
     if (verbose == LVB_TRUE){
-		#ifdef NP_Implementation
+		//#ifdef NP_Implementation
     	printf("Constant columns excluded from analysis: ");
     	if (n_columns == 0) printf(" none found.\n");
-		#endif
+		//#endif
 
 		#ifdef MPI_Implementation
 		printf("Ignoring constant columns\n");
@@ -374,9 +374,9 @@ static long constchar(Dataptr restrict matrix, DataSeqPtr restrict matrix_seq, L
     return n_columns;
 } /* end constchar() */
 
-#ifdef NP_Implementation
+//#ifdef NP_Implementation
 void matchange(Dataptr matrix, const Params rcstruct)
-#endif
+//#endif
 
 #ifdef MPI_Implementation
 void matchange(Dataptr matrix, DataSeqPtr matrix_seq, const Params rcstruct)
@@ -392,9 +392,9 @@ void matchange(Dataptr matrix, DataSeqPtr matrix_seq, const Params rcstruct)
      * limit the program too much, or causes massive waste of
      * address space. */
 
-    #ifdef NP_Implementation
+    //#ifdef NP_Implementation
 	togo = alloc(matrix->m * sizeof(Lvb_bool), "'togo' array");
-	#endif
+	//#endif
 
 	#ifdef MPI_Implementation
 	togo = (Lvb_bool *) alloc(matrix->m * sizeof(Lvb_bool), "'togo' array");
@@ -403,9 +403,9 @@ void matchange(Dataptr matrix, DataSeqPtr matrix_seq, const Params rcstruct)
     /* initialize all elements to LVB_FALSE ('don't ignore') */
     for(n_columns_to_change = 0; n_columns_to_change < matrix->m; n_columns_to_change ++) *(togo + n_columns_to_change) = LVB_FALSE;
 
-	#ifdef NP_Implementation
+	//#ifdef NP_Implementation
     n_columns_to_change = constchar(matrix, togo, rcstruct.verbose);	/* compuslory cut */
-	#endif
+	//#endif
 
 	#ifdef MPI_Implementation
 	n_columns_to_change = constchar(matrix, matrix_seq, togo, (Lvb_bool) rcstruct.verbose);	/* compuslory cut */
@@ -417,9 +417,9 @@ void matchange(Dataptr matrix, DataSeqPtr matrix_seq, const Params rcstruct)
 
     /* cut the cols as indicated, and crash verbosely if too few remain */
     if (n_columns_to_change != matrix->m){
-		#ifdef NP_Implementation
+		//#ifdef NP_Implementation
     	cutcols(matrix, togo, n_columns_to_change);	/* make changes to matrix */
-		#endif
+		//#endif
 
 		#ifdef MPI_Implementation
 		cutcols(matrix, matrix_seq, togo, n_columns_to_change);	/* make changes to matrix */
@@ -429,12 +429,12 @@ void matchange(Dataptr matrix, DataSeqPtr matrix_seq, const Params rcstruct)
         matrix->bytes = bytes_per_row(matrix->m);
         matrix->nwords = words_per_row(matrix->m);
         matrix->tree_bytes = tree_bytes(matrix);
-		#ifdef NP_Implementation
+		//#ifdef NP_Implementation
         matrix->tree_bytes_without_sset = tree_bytes_without_sset(matrix);
-		#endif
+		//#endif
 
-		#ifdef MPI_Implementation
-		matrix->tree_bytes_without_sset = tree_bytes_without_sset(matrix);
+		#ifdef NP_Implementation
+		matrix->tree_bytes_whitout_sset = tree_bytes_whitout_sset(matrix);
 		matrix->min_len_tree = getminlen(matrix, matrix_seq);
 		#endif
     }
@@ -443,9 +443,9 @@ void matchange(Dataptr matrix, DataSeqPtr matrix_seq, const Params rcstruct)
     			"%ld columns, which is less than LVB's lower limit of\n"
     			"%ld columns.\n", matrix->m, MIN_M);
     else{
-    	#ifdef NP_Implementation
+    	//#ifdef NP_Implementation
 		if (rcstruct.verbose == LVB_TRUE) printf("\nIn total, %ld columns are excluded from the analysis\n\n", matrix->original_m - matrix->m);
-		#endif
+		//#endif
 
 		#ifdef MPI_Implementation
 		if (rcstruct.verbose == LVB_TRUE) printf("A total of %ld columns will be ignored\n", matrix->original_m - matrix->m);
@@ -457,9 +457,9 @@ void matchange(Dataptr matrix, DataSeqPtr matrix_seq, const Params rcstruct)
 
 } /* end matchange() */
 
-#ifdef NP_Implementation
+//#ifdef NP_Implementation
 static void cutcols(Dataptr matrix, const Lvb_bool *const tocut, long n_columns_to_change)
-#endif
+//#endif
 
 #ifdef MPI_Implementation
 static void cutcols(Dataptr matrix, DataSeqPtr matrix_seq, const Lvb_bool *const tocut, long n_columns_to_change)
@@ -476,9 +476,9 @@ return the number of columns cut */
     long uun = matrix->n;
     long uum = matrix->m;
     /* memory for new matrix row array */
-    #ifdef NP_Implementation
+    //#ifdef NP_Implementation
 	newrow = alloc((size_t) uun * sizeof(char *), "pointers to new row strings");
-	#endif
+	//#endif
 
 	#ifdef MPI_Implementation
 	newrow = (char **) alloc((size_t) uun * sizeof(char *), "pointers to new row strings");
@@ -490,9 +490,9 @@ return the number of columns cut */
     for (k = 0; k < uum; ++k){	/* for every column */
 		if (tocut[k] == LVB_TRUE){	/* keep this column */
 			for (i = 0; i < uun; ++i)	/* fill for ea. row */
-				#ifdef NP_Implementation
+				//#ifdef NP_Implementation
 				newrow[i][newk] = matrix->row[i][k];
-				#endif
+				//#endif
 
 				#ifdef MPI_Implementation
 				newrow[i][newk] = matrix_seq->row[i][k];
@@ -508,19 +508,19 @@ return the number of columns cut */
     for (i = 0; i < uun; ++i) newrow[i][newk] = '\0';
 
     /* update matrix structure */
-	#ifdef NP_Implementation
+	//#ifdef NP_Implementation
     matrix->row = newrow;
-	#endif
+	//#endif
     matrix->m = n_columns_to_change;
     matrix->bytes = bytes_per_row(matrix->m);
     matrix->nwords = words_per_row(matrix->m);
     matrix->tree_bytes = tree_bytes(matrix);
-	#ifdef NP_Implementation
+	//#ifdef NP_Implementation
     matrix->tree_bytes_without_sset = tree_bytes_without_sset(matrix);
-	#endif
+	//#endif
 
 	#ifdef MPI_Implementation
-	matrix->tree_bytes_without_sset = tree_bytes_without_sset(matrix);
+	matrix->tree_bytes_whitout_sset = tree_bytes_whitout_sset(matrix);
     matrix_seq->row = newrow;
     matrix->min_len_tree = getminlen(matrix, matrix_seq);
 	#endif
@@ -541,9 +541,9 @@ void get_bootstrap_weights(long *weight_arr, long m, long extras)
     memset(weight_arr, 0, m * sizeof(long));
 
     while (samples < (m + extras)){
-    	#ifdef NP_Implemenation
+    	//#ifdef NP_Implemenation
 		site = (long) randpint(m + extras - 1);
-		#endif
+		//#endif
 
 		#ifdef MPI_Implementation
 		site = randpint(m + extras - 1);
@@ -564,9 +564,9 @@ static void logcut(const Lvb_bool *const cut, const long m)
     const long max_noperln = 8; 	/* max. numbers written per line */
     Lvb_bool newline = LVB_FALSE;	/* last number followed by '\n' */
 
-	#ifdef NP_Implementation
+	//#ifdef NP_Implementation
     printf("\n");
-	#endif
+	//#endif
 
 	#ifdef MPI_Implementation
 	printf("... will ignore column numbers:\n");

@@ -38,7 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== main.c - LVB ========== */
 
-#ifdef NP_Implementation
+//#NP_Implementation
 
 #include "lvb.h"
 
@@ -467,7 +467,7 @@ int main(int argc, char **argv)
 
 } /* end main() */
 
-#endif
+//#endif
 
 #ifdef MPI_Implementation
 

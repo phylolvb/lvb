@@ -40,9 +40,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "ReadFile.h"
 
-#ifdef NP_Implementation
+//#ifdef NP_Implementation
 void read_file(char *file_name, int n_file_type, Dataptr p_lvbmat){
-#endif
+//#endif
 
 #ifdef MPI_Implementation
 int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat, DataSeqPtr p_lvbmat_seq){
@@ -57,9 +57,9 @@ int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat, DataSeqPtr p_l
 	/// read file
 	std::string sz_file_name = std::string(file_name);
 	
-	#ifdef NP_Implementation
+	//ifdef NP_Implementation
 	readFiles.read_file(file_name, n_file_type);
-	#endif
+	//#endif
 
 	#ifdef MPI_Implementation
 	n_error_code = readFiles.read_file(file_name, n_file_type);
@@ -81,19 +81,15 @@ int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat, DataSeqPtr p_l
     p_lvbmat->nsets = p_lvbmat->n - 3;				/* sets per tree */
     p_lvbmat->mssz = p_lvbmat->n - 2;				/* maximum objects per set */
 
-	#ifdef NP_Implementation
+	//#ifdef NP_Implementation
     /* array for row title strings */
     p_lvbmat->rowtitle = (char **) malloc((p_lvbmat->n) * sizeof(char *));
     if (p_lvbmat->rowtitle == NULL) readFiles.exit_error(1 , "Fail to allocate memory...");
 
-	#endif
-
-	#ifdef MPI_Implementation
     /* array for row strings */
     p_lvbmat->row = (char **) malloc((p_lvbmat->n) * sizeof(char *));
     if (p_lvbmat->row == NULL) readFiles.exit_error(1 , "Fail to allocate memory...");
 
-	#endif
     /* we want null-terminated strings, so we cannot simply point to
      * the same, non-null-terminated arrays as are found in PHYLIP's
      * data structures */
@@ -204,7 +200,7 @@ void print_formats_available(){
 }
 
 /* "dcbvsi:o:f:p" */
-#ifdef NP_Implementation 
+//#ifdef NP_Implementation 
 void usage(char *p_file_name){
 	printf("lvb seeks parsimonious trees from an aligned nucleotide data matrix.\n"
 			"It uses heuristic searches consisting of simulated annealing followed\n"
@@ -240,7 +236,7 @@ void usage(char *p_file_name){
 	printf("    -? print help.\n");
 	exit(0);
 }
-#endif
+//#endif
 
 #ifdef MPI_Implementation
 
@@ -288,7 +284,7 @@ void usage(char *p_file_name){
 
 #endif
 
-#ifdef NP_Implementation
+//#ifdef NP_Implementation
 void read_parameters(Params *prms, int argc, char **argv){
 
 	int c;
@@ -412,7 +408,7 @@ void read_parameters(Params *prms, int argc, char **argv){
 	}
 }
 
-#endif
+//#endif
 
 #ifdef MPI_Implementation
 

@@ -77,9 +77,9 @@ int CReadFiles::exit_error(int ierr, std::string sz_error)
 	else cout << "Warning: " << sz_error << endl;
 
 	/* Exit if necessary */
-	#ifdef NP_Implementation
+	//#ifdef NP_Implementation
 	if (ierr==1 || ierr==-1) { exit(1); }
-	#endif
+	//#endif
 
 	#ifdef MPI_Implementation
 	if (ierr==1 || ierr==-1) { return 1; }
@@ -120,9 +120,9 @@ std::vector<std::string> CReadFiles::split(const std::string &s, char delim) {
     return elems;
 }
 
-#ifdef NP_Implementation
+//#ifdef NP_Implementation
 void CReadFiles::read_clustal(int filetype)
-#endif
+//#endif
 
 #ifdef MPI_Implementation
 int CReadFiles::read_clustal(int filetype)
@@ -175,9 +175,9 @@ int CReadFiles::read_clustal(int filetype)
 				}
 			}
 			else{
-				#ifdef NP_Implementation
+				//#ifdef NP_Implementation
 				if (n_count_sequence >= (int) lst_sequences.size()) exit_error(1 , "Some problem reading the file.");
-				#endif
+				//#endif
 
 				#ifdef MPI_Implementation
 				if (n_count_sequence >= (int) lst_sequences.size()) return exit_error(1 , "Some problem reading the file.");
@@ -238,9 +238,9 @@ std::string CReadFiles::get_string_from_list(std::vector< std::string > lst_stri
 /// src/phylip.h:#define nmlngth         10   /* number of characters in species name    */
 /// src/phylip.h:#define MAXNCH          20   /* must be greater than or equal to nmlngth */
 /// need to remove numbers from the sequences...
-#ifdef NP_Implementation
+//#ifdef NP_Implementation
 void CReadFiles::read_phylip()
-#endif
+//#endif
 
 #ifdef MPI_Implementation
 int CReadFiles::read_phylip()
@@ -309,9 +309,9 @@ int CReadFiles::read_phylip()
 				/// the clustal put other headers in phylip format sometimes...
 				if (length < n_nmlngth_phylip_names){
 					error = "Failed to open alignment file: " + sz_file_name + "\nThis line has less than " + to_string_(n_nmlngth_phylip_names) + " chars...";
-					#ifdef NP_Implementation
+					//#ifdef NP_Implementation
 					exit_error(1 , error);
-					#endif
+					//#endif
 
 					#ifdef MPI_Implementation
 					return exit_error(1 , error);
@@ -338,9 +338,9 @@ int CReadFiles::read_phylip()
 				/// the clustal put other headers in phylip format sometimes...
 				if (length < n_nmlngth_phylip_names){
 					error = "Failed to open alignment file: " + sz_file_name + "\nThis line has less than " + to_string_(n_nmlngth_phylip_names) + " chars...";
-					#ifdef NP_Implementation
+					//#ifdef NP_Implementation
 					exit_error(1 , error);
-					#endif
+					//endif
 
 					#ifdef MPI_Implementation
 					return exit_error(1 , error);
@@ -350,9 +350,9 @@ int CReadFiles::read_phylip()
 				lst_sequences.push_back(sz_line.substr(n_nmlngth_phylip_names, (int) sz_line.length() -  n_nmlngth_phylip_names));
 				if ((int) lst_names_seq.size() > n_seqs){
 					error = "There are more sequences than the predict ones. Please, check the file.";
-					#ifdef NP_Implementation
+					//#ifdef NP_Implementation
 					exit_error(1 , error);
-					#endif
+					//endif
 
 					#ifdef MPI_Implementation
 					return exit_error(1 , error);
@@ -373,9 +373,9 @@ int CReadFiles::read_phylip()
 	if (n_seqs == 0){
 		error = "Some problem reading the file. Please, check the file format.\nMore information in http://evolution.genetics.washington.edu/phylip/doc/sequence.html";
 		filein.close();
-		#ifdef NP_Implementation
+		//#ifdef NP_Implementation
 					exit_error(1 , error);
-					#endif
+					//endif
 
 					#ifdef MPI_Implementation
 					return exit_error(1 , error);
@@ -383,9 +383,9 @@ int CReadFiles::read_phylip()
 	}
 	if ((int) lst_names_seq.size() != (int) lst_sequences.size()){
 		error = "The number of sequences read are different from the number of name samples.";
-		#ifdef NP_Implementation
+		//#ifdef NP_Implementation
 					exit_error(1 , error);
-					#endif
+					//endif
 
 					#ifdef MPI_Implementation
 					return exit_error(1 , error);
@@ -395,9 +395,9 @@ int CReadFiles::read_phylip()
 	/// clean the numbers and spaces...
 	if ((int) lst_names_seq.size() != n_seqs){
 		error = "The file has a different number of sequences.\nRead: " + to_string_((int) lst_names_seq.size()) + "\nIn the header: " + to_string_(n_seqs);
-		#ifdef NP_Implementation
+		//#ifdef NP_Implementation
 					exit_error(1 , error);
-					#endif
+					//endif
 
 					#ifdef MPI_Implementation
 					return exit_error(1 , error);
@@ -408,9 +408,9 @@ int CReadFiles::read_phylip()
 		if ((int) lst_sequences[i].size() != n_length_seq){
 			cout << lst_sequences[i] << endl;
 			error = "This sequence " + lst_names_seq[i] + " has a different length " + to_string_((int) lst_sequences[i].size()) + " from the one read in the header: " + to_string_(n_length_seq);
-			#ifdef NP_Implementation
+			//#ifdef NP_Implementation
 					exit_error(1 , error);
-					#endif
+					//endif
 
 					#ifdef MPI_Implementation
 					return exit_error(1 , error);
@@ -512,17 +512,17 @@ bool CReadFiles::is_phylip_line_sequential(int &n_total_lines){
 }
 
 
-#ifdef NP_Implementation
+//#ifdef NP_Implementation
 void CReadFiles::read_fasta()
-#endif
+//endif
 
 #ifdef MPI_Implemenation
 int CReadFiles::read_fasta()
 #endif
 {
-	#ifdef NP_Implementation
+	//#ifdef NP_Implementation
 	std::string sz_line;
-	#endif
+	//#endif
 
 	#ifdef MPI_Implementation
 	std::string sz_line = "";
@@ -537,9 +537,9 @@ int CReadFiles::read_fasta()
 
 		sz_line = trim(sz_line);
 		if (b_debug) cout << sz_line << endl;
-		#ifdef NP_Implementation
+		//#ifdef NP_Implementation
 		if ((int) sz_line.length() == 0) { continue; };
-		#endif
+		//#endif
 
 		#ifdef MPI_Implementation
 		if ((int) sz_line.length() == 0) continue;
@@ -550,9 +550,9 @@ int CReadFiles::read_fasta()
 			n_count_sequence += 1;
 		}
 		else{
-			#ifdef NP_Implementation
+			//#ifdef NP_Implementation
 			if (n_count_sequence == -1) { continue; }
-			#endif
+			//#endif
 
 			#ifdef MPI_Implementation
 			if ((int) sz_line.length() == 0) continue;
@@ -581,9 +581,9 @@ void CReadFiles::get_dimensions_nexus_format(std::string sz_line, int &n_seqs, i
 }
 
 /// read nexus format
-#ifdef NP_Implementation
+//#ifdef NP_Implementation
 void CReadFiles::read_nexus()
-#endif
+//#endif
 
 #ifdef MPI_Implementation
 int CReadFiles::read_nexus()
@@ -612,9 +612,9 @@ int CReadFiles::read_nexus()
 			get_dimensions_nexus_format(sz_line, n_seqs, n_length_seq);
 			if (n_seqs == 0 || n_length_seq == 0){
 				error = "Wans't possible to get the dimensions of the matrix.\nLine: " + sz_line;
-				#ifdef NP_Implementation
+				//#ifdef NP_Implementation
 				exit_error(1 , error);
-				#endif
+				//#endif
 
 				#ifdef MPI_Implementation
 				return exit_error(1 , error);
@@ -643,9 +643,9 @@ int CReadFiles::read_nexus()
 				if ((int) lst_names_seq.size() == n_seqs) b_is_name_seq = true;
 			}
 			else{
-				#ifdef NP_Implementation
+				//#ifdef NP_Implementation
 				if (n_count_sequence >= (int) lst_sequences.size()) exit_error(1 , "Some problem reading the file.");
-				#endif
+				//#endif
 
 				#ifdef MPI_Implementation
 				if (n_count_sequence >= (int) lst_sequences.size()) return exit_error(1 , "Some problem reading the file.");
@@ -663,9 +663,9 @@ int CReadFiles::read_nexus()
 	if (n_seqs == 0){
 		error = "Some problem reading the file. Please, check the file format.\nMore information in http://evolution.genetics.washington.edu/phylip/doc/sequence.html";
 		filein.close();
-		#ifdef NP_Implementation
+		//#ifdef NP_Implementation
 		exit_error(1 , error);
-		#endif
+		//#endif
 
 		#ifdef MPI_Implementation
 		return exit_error(1 , error);
@@ -673,9 +673,9 @@ int CReadFiles::read_nexus()
 	}
 	if ((int) lst_names_seq.size() != (int) lst_sequences.size()){
 		error = "The number of sequences read are different from the number of name samples.";
-		#ifdef NP_Implementation
+		//#ifdef NP_Implementation
 		exit_error(1 , error);
-		#endif
+		//#endif
 
 		#ifdef MPI_Implementation
 		return exit_error(1 , error);
@@ -685,9 +685,9 @@ int CReadFiles::read_nexus()
 	/// clean the numbers and spaces...
 	if ((int) lst_names_seq.size() != n_seqs){
 		error = "The file has a different number of sequences.\nRead: " + to_string_((int) lst_names_seq.size()) + "\nIn the header: " + to_string_(n_seqs);
-		#ifdef NP_Implementation
+		//#ifdef NP_Implementation
 		exit_error(1 , error);
-		#endif
+		//#endif
 
 		#ifdef MPI_Implementation
 		return exit_error(1 , error);
@@ -696,9 +696,9 @@ int CReadFiles::read_nexus()
 	for(int i = 0; i < (int) lst_sequences.size(); i++){
 		if ((int) lst_sequences[i].size() != n_length_seq){
 			error = "This sequence " + lst_names_seq[i] + " has a different length " + to_string_((int) lst_sequences[i].size()) + " from the one read in the header: " + to_string_(n_length_seq);
-			#ifdef NP_Implementation
+			//#ifdef NP_Implementation
 		exit_error(1 , error);
-		#endif
+		//#endif
 
 		#ifdef MPI_Implementation
 		return exit_error(1 , error);
@@ -711,9 +711,9 @@ int CReadFiles::read_nexus()
 	#endif
 }
 
-#ifdef NP_Implementation
+//#ifdef NP_Implementation
 void CReadFiles::clean_data(){
-	#endif
+	//#endif
 
 #ifdef MPI_Implementation
 int CReadFiles::clean_data(){
@@ -724,9 +724,9 @@ int CReadFiles::clean_data(){
 	/// test if the file exist
 	if (!is_file_exist(sz_file_name)){
 		error = "File doesn't exist: " + sz_file_name;
-		#ifdef NP_Implementation
+		//#ifdef NP_Implementation
 		exit_error(1 , error);
-		#endif
+		//#endif
 
 		#ifdef MPI_Implementation
 		return exit_error(1 , error);
@@ -738,9 +738,9 @@ int CReadFiles::clean_data(){
 	filein.open(sz_file_name.c_str());
 	if (!filein.good()){
 		error = "Failed to open alignment file: " + sz_file_name;
-		#ifdef NP_Implementation
+		//#ifdef NP_Implementation
 		exit_error(1 , error);
-		#endif
+		//#endif
 
 		#ifdef MPI_Implementation
 		return exit_error(1 , error);
@@ -774,7 +774,7 @@ int CReadFiles::clean_data(){
 	#endif
 }
 
-#ifdef NP_Implementation
+//#ifdef NP_Implementation
 void CReadFiles::read_file(std::string sz_file_name_temp, int n_file_type){
 
 	std::string error;
@@ -801,7 +801,7 @@ void CReadFiles::read_file(std::string sz_file_name_temp, int n_file_type){
 		error = "Unrecognized file..." + sz_file_name;
 		exit_error(1 , error);
 	}
-	#endif
+	//#endif
 
 	#ifdef MPI_Implementation
 	int CReadFiles::read_file(std::string sz_file_name_temp, int n_file_type){
@@ -848,18 +848,18 @@ void CReadFiles::read_file(std::string sz_file_name_temp, int n_file_type){
 	if ((int) lst_sequences.size() < 2){
 		if ((int) lst_sequences.size() == 0){
 			error = "Zero sequences were read from the file: " + sz_file_name;
-			#ifdef NP_Implementation
+			//ifdef NP_Implementation
 			exit_error(1 , error);
-			#endif
+			//#endif
 
 			#ifdef MPI_Implementation
 			return exit_error(1 , error);
 			#endif
 		}
 		error = "Only one sequence was read from the file: " + sz_file_name;
-		#ifdef NP_Implementation
+		//ifdef NP_Implementation
 			exit_error(1 , error);
-			#endif
+			//#endif
 
 			#ifdef MPI_Implementation
 			return exit_error(1 , error);
@@ -869,9 +869,9 @@ void CReadFiles::read_file(std::string sz_file_name_temp, int n_file_type){
 	/// test the length of the two arrays
 	if (lst_sequences.size() != lst_names_seq.size()){
 		error = "Something wrong with the file.\nThe number of sequences names are different from the number of sequences in the file: " + sz_file_name;
-		#ifdef NP_Implementation
+		//ifdef NP_Implementation
 			exit_error(1 , error);
-			#endif
+			//#endif
 
 			#ifdef MPI_Implementation
 			return exit_error(1 , error);
@@ -891,9 +891,9 @@ void CReadFiles::read_file(std::string sz_file_name_temp, int n_file_type){
 		if (b_debug) cout << lst_names_seq[i] << ": " << lst_sequences[i].length() << endl;
 		if (lst_sequences[i].length() != n_max_size){
 			error = "Something wrong with the file.\nThe sequence lengths are different in the file: " + sz_file_name;
-			#ifdef NP_Implementation
+			//ifdef NP_Implementation
 			exit_error(1 , error);
-			#endif
+			//#endif
 
 			#ifdef MPI_Implementation
 			return exit_error(1 , error);
@@ -914,9 +914,9 @@ void CReadFiles::read_file(std::string sz_file_name_temp, int n_file_type){
 				a += ": ";
 				a += lst_sequences[i].c_str();
 				a += "\n";
-				#ifdef NP_Implementation
+				//ifdef NP_Implementation
 			exit_error(1 , error);
-			#endif
+			//#endif
 
 			#ifdef MPI_Implementation
 			return exit_error(1 , error);

@@ -74,9 +74,9 @@ static void rstart(int i, int j, int k, int l);
 /*const int NUMBER_UNI_AVAILABLE = 10000;
 const int NUMBER_UNI_BUFFER = 2000;
 static double uni_values[NUMBER_UNI_AVAILABLE + NUMBER_UNI_BUFFER];*/
-#ifdef NP_Implementation
+//#ifdef NP_Implementation
 static double uni_u[98];	/* Was U(97) in Fortran version */
-#endif
+//#endif
 
 #ifdef MPI_Implementation
 #define NUMBER_MAX_UNI	98
@@ -146,10 +146,10 @@ double uni(void)
 	luni = uni_u[uni_ui] - uni_u[uni_uj];
 	if (luni < 0.0) luni += 1.0;
 	uni_u[uni_ui] = luni;
-	#ifdef NP_Implementation
+	//#ifdef NP_Implementation
 	if (--uni_ui == 0) uni_ui = 97;
 	if (--uni_uj == 0) uni_uj = 97;
-	#endif
+	//#endif
 
 	#ifdef MPI_Implementation
 	if (--uni_ui == 0) uni_ui = NUMBER_MAX_UNI - 1;
@@ -166,9 +166,9 @@ static void rstart(int i, int j, int k, int l)
 	int ii, jj, m;
 	double s, t;
 
-	#ifdef NP_Implementation
+	//#ifdef NP_Implementation
 	for (ii = 1; ii <= 97; ii++) {
-	#endif
+	//#endif
 
 	#ifdef MPI_Implementation
 	for (ii = 1; ii < NUMBER_MAX_UNI; ii++) {

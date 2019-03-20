@@ -57,13 +57,13 @@ using namespace std;
 
 class CReadFiles {
 
-#ifdef NP_Implementation
+//#ifdef NP_Implementation
 public:
 	static const int FORMAT_PHYLIP = 0;
 	static const int FORMAT_FASTA = 1;
 	static const int FORMAT_NEXUS = 2;
 	static const int FORMAT_CLUSTAL = 3;
-#endif
+//#endif
 
 #ifdef MPI_Implementation
 //MSF removed from LVB 3.5
@@ -91,9 +91,9 @@ public:
 	static bool is_file_exist(std::string file_name);
 
 	void save_file(std::string sz_file_name_temp);
-	#ifdef NP_Implementation
+	//#ifdef NP_Implementation
 	void read_file(std::string file_name_out, int n_file_type);
-	#endif
+	//#endif
 
 	#ifdef MPI_Implementation
 	int read_file(std::string file_name_out, int n_file_type);
@@ -119,22 +119,22 @@ private:
 	std::string sz_accept_chars;				// chars to pass on filter
 	int n_max_length_name_seq;
 
-	#ifdef NP_Implementation
+	//#ifdef NP_Implementation
 	void clean_data();
-	#endif
+	//#endif
 
 	#ifdef MPI_Implementation
 	int clean_data();
 	#endif
 
-#ifdef NP_Implementation
+//#ifdef NP_Implementation
 private:
 	/// several read file methods
 	void read_clustal(int filetype);
 	void read_phylip();
 	void read_fasta();
 	void read_nexus();
-#endif
+//#endif
 
 #ifdef MPI_Implementation
 private:

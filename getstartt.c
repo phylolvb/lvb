@@ -40,10 +40,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lvb.h"
 
-#ifdef NP_Implementation
+//#ifdef NP_Implementation
 double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstruct, long root,
 		const long *weights, Lvb_bool log_progress)
-#endif
+//#endif
 #ifdef MPI_Implementation
 double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstruct, long root, int myMPIid, Lvb_bool log_progress)
 #endif
@@ -67,9 +67,9 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstru
     long iter;		/* iteration of mutate/evaluate loop */
     long len;			/* length of current tree */
     long lendash;		/* length of proposed new tree */
-    #ifdef NP_Implementation
+    //#ifdef NP_Implementation
 		long lenmin;		/* minimum length for any tree */
-		#endif
+		//#endif
     double pacc;		/* prob. of accepting new config. */
     double r_lenmin;		/* minimum length for any tree */
     long rootdash;		/* root of new configuration */
@@ -79,9 +79,9 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstru
 
     /* Variables specific to the get_initial_temperature() procedure*/
     int acc_pos_trans = 0;        /* Number of accepted positve transitions */
-		#ifdef NP_Implementation
+		//#ifdef NP_Implementation
     double increment_size = 0.00001; /* Step size by which the temperature is increased */
-		#endif
+		//#endif
 		#ifdef MPI_Implementation
     double increment_size = INITIAL_INCREMENT; /* Step size by which the temperature is increased */
 		#endif
@@ -101,11 +101,11 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstru
     treecopy(matrix, x, inittree, LVB_TRUE);	/* current configuration */
     alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
     
-		#ifdef NP_Implementation
+		//#ifdef NP_Implementation
 		len = getplen(matrix, x, rcstruct, root, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs);
     lenmin = getminlen(matrix);
     r_lenmin = (double) lenmin;
-		#endif
+		//#endif
 
 		#ifdef MPI_Implementation
 		len = getplen(matrix, x, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
@@ -133,9 +133,9 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstru
 			if (iter & 0x01) mutate_spr(matrix, xdash, x, root);	/* global change */
 			else mutate_nni(matrix, xdash, x, root);	/* local change */
 
-			#ifdef NP_Implementation
+			//#ifdef NP_Implementation
 			lendash = getplen(matrix, xdash, rcstruct, rootdash, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs);
-			#endif
+			//#endif
 
 			#ifdef MPI_Implementation
 			lendash = getplen(matrix, xdash, rcstruct, rootdash, p_todo_arr, p_todo_arr_sum_changes, p_runs);
@@ -197,10 +197,10 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstru
     free(xdash);
     
     /* Log progress if chosen*/
-		#ifdef NP_Implementation
+		//#ifdef NP_Implementation
     if (log_progress)
         printf("Starting Temperature is: %-.8f\n", (t - increment_size));
-    #endif
+    //#endif
 
 		#ifdef MPI_Implementation
 		#ifdef MAP_Reduce
