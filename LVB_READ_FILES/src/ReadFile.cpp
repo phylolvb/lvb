@@ -40,31 +40,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "ReadFile.h"
 
-//#ifdef NP_Implementation
-void read_file(char *file_name, int n_file_type, Dataptr p_lvbmat){
-//#endif
+#ifdef NP_Implementation
 
-#ifdef MPI_Implementation
-int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat, DataSeqPtr p_lvbmat_seq){
-#endif
+void read_file(char *file_name, int n_file_type, Dataptr p_lvbmat){
 
 	CReadFiles readFiles = CReadFiles();
-
-	#ifdef MPI_Implemenation
-	int n_error_code
-	#endif
-
 	/// read file
 	std::string sz_file_name = std::string(file_name);
-	
-	//ifdef NP_Implementation
 	readFiles.read_file(file_name, n_file_type);
-	//#endif
-
-	#ifdef MPI_Implementation
-	n_error_code = readFiles.read_file(file_name, n_file_type);
-		if (n_error_code != EXIT_SUCCESS) return n_error_code;
-	#endif
 
     /* scalars */
 	//cout << (long) readFiles.get_length_sequences() << endl;
@@ -73,15 +56,10 @@ int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat, DataSeqPtr p_l
     p_lvbmat->n = (long) readFiles.get_number_seqs();
     p_lvbmat->nbranches = brcnt(p_lvbmat->n); 		/* possible number of braches */
 
-	#ifdef MPI_Implementation
-	p_lvbmat->max_length_seq_name = readFiles.get_max_length_seq_name();
-	#endif
-
     /* it is used in tree compare */
     p_lvbmat->nsets = p_lvbmat->n - 3;				/* sets per tree */
     p_lvbmat->mssz = p_lvbmat->n - 2;				/* maximum objects per set */
 
-	//#ifdef NP_Implementation
     /* array for row title strings */
     p_lvbmat->rowtitle = (char **) malloc((p_lvbmat->n) * sizeof(char *));
     if (p_lvbmat->rowtitle == NULL) readFiles.exit_error(1 , "Fail to allocate memory...");
@@ -109,74 +87,6 @@ int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat, DataSeqPtr p_l
 	readFiles.save_file(file_name_out);*/
 }
 
-	void free_lvbmat_structure(DataStructure *p_lvbmat){
-
-		if (p_lvbmat->row != NULL){
-			for(int i = 0; i < p_lvbmat->n; ++i) free(p_lvbmat->row[i]);
-			free(p_lvbmat->row);
-			p_lvbmat->row = NULL;
-		}
-		if (p_lvbmat->rowtitle != NULL){
-			for(int i = 0; i < p_lvbmat->n; ++i) free(p_lvbmat->rowtitle[i]);
-			free(p_lvbmat->rowtitle);
-			p_lvbmat->rowtitle = NULL;
-		}
-	//	free(p_lvbmat);
-	//	p_lvbmat = NULL;
-}
-	//#endif
-
-	#ifdef MPI_Implementation
-
-	/* array for row title strings */
-		p_lvbmat_seq->rowtitle = (char **) malloc((p_lvbmat->n) * sizeof(char *));
-		if (p_lvbmat_seq->rowtitle == NULL) return readFiles.exit_error(1 , "Fail to allocate memory...");
-
-		/* array for row strings */
-		p_lvbmat_seq->row = (char **) malloc((p_lvbmat->n) * sizeof(char *));
-		if (p_lvbmat_seq->row == NULL) return readFiles.exit_error(1 , "Fail to allocate memory...");
-
-		/* we want null-terminated strings, so we cannot simply point to
-		 * the same, non-null-terminated arrays as are found in PHYLIP's
-		 * data structures */
-		for (int i = 0; i < p_lvbmat->n; i++){
-			p_lvbmat_seq->rowtitle[i] = (char*) malloc(sizeof(char) * (readFiles.get_max_length_seq_name() + 1));
-			p_lvbmat_seq->row[i] = (char*) malloc(sizeof(char) * (p_lvbmat->m + 1));
-		}
-		for (int i = 0; i < p_lvbmat->n; i++) {
-			for (int j = 0; j < p_lvbmat->m; j++) p_lvbmat_seq->row[i][j] = readFiles.get_char_sequences(i, j);
-			p_lvbmat_seq->row[i][p_lvbmat->m] = '\0';
-		}
-		for (int i = 0; i < p_lvbmat->n; i++) {
-			for (int j = 0; j < readFiles.get_length_seq_name(i); j++) p_lvbmat_seq->rowtitle[i][j] = readFiles.get_char_seq_name(i, j);
-			p_lvbmat_seq->rowtitle[i][readFiles.get_length_seq_name(i)] = '\0';
-		}
-	/*	std::string file_name_out = "/home/mmp/Downloads/file_nexus_nex_out.fas";
-		readFiles.save_file(file_name_out);*/
-		return EXIT_SUCCESS;
-	}
-
-	void free_lvbmat_structure(DataSeqStructure *p_lvbmat_seq, int n_size){
-
-		if (p_lvbmat_seq->row != NULL){
-			for(int i = 0; i < n_size; ++i) free(p_lvbmat_seq->row[i]);
-			free(p_lvbmat_seq->row);
-			p_lvbmat_seq->row = NULL;
-		}
-		if (p_lvbmat_seq->rowtitle != NULL){
-			for(int i = 0; i < n_size; ++i) free(p_lvbmat_seq->rowtitle[i]);
-			free(p_lvbmat_seq->rowtitle);
-			p_lvbmat_seq->rowtitle = NULL;
-		}
-	//	free(p_lvbmat);
-	//	p_lvbmat = NULL;
-	}
-
-long brcnt(long n){
-	return (n << 1) - 3;
-}; /* return number of branches in unrooted binary tree structure containing n tips */
-
-	#endif
 
 void phylip_mat_dims_in_external(char *file_name, int n_file_type, long *species_ptr, long *sites_ptr, int *max_length_name){
 
@@ -193,6 +103,25 @@ void phylip_mat_dims_in_external(char *file_name, int n_file_type, long *species
 
 }
 
+
+void free_lvbmat_structure(DataStructure *p_lvbmat){
+
+	if (p_lvbmat->row != NULL){
+		for(int i = 0; i < p_lvbmat->n; ++i) free(p_lvbmat->row[i]);
+		free(p_lvbmat->row);
+		p_lvbmat->row = NULL;
+	}
+	if (p_lvbmat->rowtitle != NULL){
+		for(int i = 0; i < p_lvbmat->n; ++i) free(p_lvbmat->rowtitle[i]);
+		free(p_lvbmat->rowtitle);
+		p_lvbmat->rowtitle = NULL;
+	}
+//	free(p_lvbmat);
+//	p_lvbmat = NULL;
+}
+
+
+
 void print_formats_available(){
 
 	printf("\nFormats available to read: phylip, fasta, nexus, and clustal");
@@ -200,7 +129,6 @@ void print_formats_available(){
 }
 
 /* "dcbvsi:o:f:p" */
-//#ifdef NP_Implementation 
 void usage(char *p_file_name){
 	printf("lvb seeks parsimonious trees from an aligned nucleotide data matrix.\n"
 			"It uses heuristic searches consisting of simulated annealing followed\n"
@@ -236,55 +164,8 @@ void usage(char *p_file_name){
 	printf("    -? print help.\n");
 	exit(0);
 }
-//#endif
 
-#ifdef MPI_Implementation
 
-void usage(char *p_file_name){
-#ifdef MAP_Reduce
-	printf("Usage: lvb [cvsSCiofph]\n");
-#else
-	printf("Usage: lvb [cvsSCNiofph]\n");
-#endif
-
-	printf("lvb seeks parsimonious trees from an aligned nucleotide data matrix.\n"
-			"It uses heuristic searches consisting of simulated annealing followed by hill-climbing.\n\n");
-
-	printf("\n    -c [g|l] (g) cooling schedule. The schedule chosen\n"
-			"       will affect the quality and speed of the simulated annealing\n"
-			"       search. The GEOMETRIC (g) schedule will take significantly less time,\n"
-			"       but may produce lower quality results. The LINEAR (l) schedule may\n"
-			"       produce higher quality results, at the cost of increased runtime.\n"
-			"       default (g), is the GEOMETRIC schedule.\n");
-	printf("    -i input file name.\n"
-			"       default: 'infile'\n");
-	printf("    -o output file name.\n"
-			"       default: 'outfile'\n");
-	printf("    -s specify a random number seed, or use default.\n"
-			"       default: it is taken from the system clock.\n");
-#ifndef MAP_REDUCE_SINGLE
-	printf("    -N specify the number of seeds to try, need to be greater than number of mpi process.\n"
-			"       default: it is the number of mpi process.\n");
-#endif
-	printf("    -C value in seconds when a checkpoint file is going to be saved.\n"
-					"       default: 1800\n");
-	printf("    -S if defined it is going to read and save states at a specific time points.\n"
-			"       If you want to read a state the command line need to be exactly the previous\n        on save state point plus -S flag.\n"
-			"       The state files need to be in the same directory where the lvb_mpi is called.\n"
-			"       The states files has the names \"state_<number of mpi process>.dat>\"\n"
-			"       default: it is not going to save/read states.\n");
-	printf("    -v [t|f] (f) verbose.\n");
-	printf("    -f [phylip|fasta|nexus|msf|clustal] (phylip) file format of input file.\n"
-			"       default: phylip format\n");
-	printf("    -p (1) Threads available."
-			"       default: only one thread available\n");
-	printf("    -h print this help.\n");
-	printf("    -? print this help.\n");
-}
-
-#endif
-
-//#ifdef NP_Implementation
 void read_parameters(Params *prms, int argc, char **argv){
 
 	int c;
@@ -408,9 +289,146 @@ void read_parameters(Params *prms, int argc, char **argv){
 	}
 }
 
-//#endif
+#endif // #ifdef NP_Implementation //
 
 #ifdef MPI_Implementation
+
+int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat, DataSeqPtr p_lvbmat_seq){
+
+		CReadFiles readFiles = CReadFiles();
+		int n_error_code;
+
+		/// read file
+		std::string sz_file_name = std::string(file_name);
+		n_error_code = readFiles.read_file(file_name, n_file_type);
+		if (n_error_code != EXIT_SUCCESS) return n_error_code;
+
+		/* scalars */
+		//cout << (long) readFiles.get_length_sequences() << endl;
+		p_lvbmat->m = (long) readFiles.get_length_sequences();
+		p_lvbmat->original_m = p_lvbmat->m;
+		p_lvbmat->n = (long) readFiles.get_number_seqs();
+		p_lvbmat->nbranches = brcnt(p_lvbmat->n); 		/* possible number of braches */
+		p_lvbmat->max_length_seq_name = readFiles.get_max_length_seq_name();
+
+		/* it is used in tree compare */
+		p_lvbmat->nsets = p_lvbmat->n - 3;				/* sets per tree */
+		p_lvbmat->mssz = p_lvbmat->n - 2;				/* maximum objects per set */
+
+		/* array for row title strings */
+		p_lvbmat_seq->rowtitle = (char **) malloc((p_lvbmat->n) * sizeof(char *));
+		if (p_lvbmat_seq->rowtitle == NULL) return readFiles.exit_error(1 , "Fail to allocate memory...");
+
+		/* array for row strings */
+		p_lvbmat_seq->row = (char **) malloc((p_lvbmat->n) * sizeof(char *));
+		if (p_lvbmat_seq->row == NULL) return readFiles.exit_error(1 , "Fail to allocate memory...");
+
+		/* we want null-terminated strings, so we cannot simply point to
+		 * the same, non-null-terminated arrays as are found in PHYLIP's
+		 * data structures */
+		for (int i = 0; i < p_lvbmat->n; i++){
+			p_lvbmat_seq->rowtitle[i] = (char*) malloc(sizeof(char) * (readFiles.get_max_length_seq_name() + 1));
+			p_lvbmat_seq->row[i] = (char*) malloc(sizeof(char) * (p_lvbmat->m + 1));
+		}
+		for (int i = 0; i < p_lvbmat->n; i++) {
+			for (int j = 0; j < p_lvbmat->m; j++) p_lvbmat_seq->row[i][j] = readFiles.get_char_sequences(i, j);
+			p_lvbmat_seq->row[i][p_lvbmat->m] = '\0';
+		}
+		for (int i = 0; i < p_lvbmat->n; i++) {
+			for (int j = 0; j < readFiles.get_length_seq_name(i); j++) p_lvbmat_seq->rowtitle[i][j] = readFiles.get_char_seq_name(i, j);
+			p_lvbmat_seq->rowtitle[i][readFiles.get_length_seq_name(i)] = '\0';
+		}
+	/*	std::string file_name_out = "/home/mmp/Downloads/file_nexus_nex_out.fas";
+		readFiles.save_file(file_name_out);*/
+		return EXIT_SUCCESS;
+	}
+
+	void free_lvbmat_structure(DataSeqStructure *p_lvbmat_seq, int n_size){
+
+		if (p_lvbmat_seq->row != NULL){
+			for(int i = 0; i < n_size; ++i) free(p_lvbmat_seq->row[i]);
+			free(p_lvbmat_seq->row);
+			p_lvbmat_seq->row = NULL;
+		}
+		if (p_lvbmat_seq->rowtitle != NULL){
+			for(int i = 0; i < n_size; ++i) free(p_lvbmat_seq->rowtitle[i]);
+			free(p_lvbmat_seq->rowtitle);
+			p_lvbmat_seq->rowtitle = NULL;
+		}
+	//	free(p_lvbmat);
+	//	p_lvbmat = NULL;
+	}
+
+long brcnt(long n){
+	return (n << 1) - 3;
+}; /* return number of branches in unrooted binary tree structure containing n tips */
+
+void phylip_mat_dims_in_external(char *file_name, int n_file_type, long *species_ptr, long *sites_ptr, int *max_length_name){
+
+	CReadFiles readFiles = CReadFiles();
+	/// read file
+	std::string sz_file_name = std::string(file_name);
+	readFiles.read_file(file_name, n_file_type);
+
+	*species_ptr = (long) readFiles.get_number_seqs();
+	*sites_ptr = (long) readFiles.get_length_sequences();
+	*max_length_name = readFiles.get_max_length_seq_name();
+//	std::string file_name_out = "/home/mmp/workspace/LVB_READ_FILES/aln_files/file_nexus_nex_out.fas";
+//	readFiles.save_file(file_name_out);
+
+}
+
+
+
+void print_formats_available(){
+
+	printf("\nFormats available to read: phylip, fasta, nexus, msf and clustal");
+
+}
+
+/* "dcbvsi:o:f:p" */
+void usage(char *p_file_name){
+#ifdef MAP_REDUCE_SINGLE
+	printf("Usage: lvb [cvsSCiofph]\n");
+#else
+	printf("Usage: lvb [cvsSCNiofph]\n");
+#endif
+
+	printf("lvb seeks parsimonious trees from an aligned nucleotide data matrix.\n"
+			"It uses heuristic searches consisting of simulated annealing followed by hill-climbing.\n\n");
+
+	printf("\n    -c [g|l] (g) cooling schedule. The schedule chosen\n"
+			"       will affect the quality and speed of the simulated annealing\n"
+			"       search. The GEOMETRIC (g) schedule will take significantly less time,\n"
+			"       but may produce lower quality results. The LINEAR (l) schedule may\n"
+			"       produce higher quality results, at the cost of increased runtime.\n"
+			"       default (g), is the GEOMETRIC schedule.\n");
+	printf("    -i input file name.\n"
+			"       default: 'infile'\n");
+	printf("    -o output file name.\n"
+			"       default: 'outfile'\n");
+	printf("    -s specify a random number seed, or use default.\n"
+			"       default: it is taken from the system clock.\n");
+#ifndef MAP_REDUCE_SINGLE
+	printf("    -N specify the number of seeds to try, need to be greater than number of mpi process.\n"
+			"       default: it is the number of mpi process.\n");
+#endif
+	printf("    -C value in seconds when a checkpoint file is going to be saved.\n"
+					"       default: 1800\n");
+	printf("    -S if defined it is going to read and save states at a specific time points.\n"
+			"       If you want to read a state the command line need to be exactly the previous\n        on save state point plus -S flag.\n"
+			"       The state files need to be in the same directory where the lvb_mpi is called.\n"
+			"       The states files has the names \"state_<number of mpi process>.dat>\"\n"
+			"       default: it is not going to save/read states.\n");
+	printf("    -v [t|f] (f) verbose.\n");
+	printf("    -f [phylip|fasta|nexus|msf|clustal] (phylip) file format of input file.\n"
+			"       default: phylip format\n");
+	printf("    -p (1) Threads available."
+			"       default: only one thread available\n");
+	printf("    -h print this help.\n");
+	printf("    -? print this help.\n");
+}
+
 
 int read_parameters(Params *prms, int argc, char **argv){
 
@@ -544,4 +562,4 @@ int read_parameters(Params *prms, int argc, char **argv){
 	return EXIT_SUCCESS;
 }
 
-#endif
+#endif // #ifdef MPI_Implementation // 

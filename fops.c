@@ -40,6 +40,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lvb.h"
 
+#ifdef NP_Implementation
+
 /**********
 
 =head1 file_exists - CHECK A FILE EXISTS
@@ -312,13 +314,7 @@ char *f2str(FILE *const stream)
     if (ferror(stream) != 0)
 	crash("file error on reading file");
     inbytes = offmax + 2UL;	/* '\0', possible '\n' */
-    //#ifdef NP_Implementation
     input = alloc(inbytes, "input");
-    //#endif
-
-    #ifdef MPI_Implementation
-    input = (char *) alloc(inbytes, "input");
-    #endif
 
     /* get string */
     rewind(stream);
@@ -338,3 +334,5 @@ char *f2str(FILE *const stream)
     return input;
 
 } /* end f2str() */
+
+#endif // #ifdef NP_Implementation //

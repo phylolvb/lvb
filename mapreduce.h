@@ -49,8 +49,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    See the README file in the top-level MapReduce directory.
 ------------------------------------------------------------------------- */
 
-#ifdef MPI_Implementation
-#ifdef MAP_Reduce
+
+#ifdef MAP_REDUCE_SINGLE
 	#ifndef MAP_REDUCE_H
 	#define MAP_REDUCE_H
 
@@ -298,4 +298,4 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 	#endif
 #endif
-#endif
+

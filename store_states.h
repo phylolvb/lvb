@@ -39,8 +39,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ********** store_states.h - interface for store_states.c ********** */
 
-#ifdef MPI_Implementation
-
 #include "lvb.h"
 
 #define STATE_BLOCK_UNI						1
@@ -85,5 +83,3 @@ unsigned long restore_anneal(FILE *fp, Dataptr matrix, long *accepted, Lvb_bool 
 	Branch *p_proposed_tree, Lvb_bool b_with_sset_proposed_tree);
 
 #endif /* LVB_STORE_STATES_H */
-
-#endif

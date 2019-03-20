@@ -40,7 +40,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lvb.h"
 
-//#ifdef NP_Implementation
+#ifdef NP_Implementation
+
 static void upsize(Dataptr restrict matrix, Treestack *sp)
 /* increase allocation for tree stack *sp */
 {
@@ -80,50 +81,7 @@ static void upsize(Dataptr restrict matrix, Treestack *sp)
  
 } /* end upsize() */
 
-//#endif
-
-#ifdef MPI_Implementation
-#include "store_states.h"
-
-static void upsize(Dataptr matrix, Treestack *sp)
-/* increase allocation for tree stack *sp */
-{
-    long i;	/* loop counter */
-
-    sp->size++;
- 
-    /* allocate for stack itself */
-    if (sp->stack == NULL)	/* 1st call, stack does not exist */
-    {
-        sp->stack = (Treestack_element *) alloc(sp->size * sizeof(Treestack_element), "initial best tree stack");
-        sp->next = 0;
-        lvb_assert(sp->size == 1);	/* was incremented above */
-    }
-    else {
-        sp->stack = (Treestack_element *) realloc(sp->stack, sp->size * sizeof(Treestack_element));
-        if (sp->stack == NULL)
-            crash("out of memory: cannot increase allocation for\n"
-            		"best tree stack to %ld elements", sp->size);
-    }
-
-    /* allocate space within stack */
-    for (i = sp->next; i < sp->size; i++){
-    	sp->stack[i].tree = treealloc(matrix, LVB_FALSE);
-    	sp->stack[i].root = -1;
-    }
- 
-} /* end upsize() */
-
-#endif
-
-//#ifdef NP_Implementation
 static void dopush(Dataptr matrix, Treestack *sp, const Branch *const barray, const int root, Lvb_bool b_with_sset)
-//#endif
-
-#ifdef MPI_Implementation
-static void dopush(Dataptr matrix, Treestack *sp, const Branch *const barray, const long root, Lvb_bool b_with_sset)
-#endif
-
 /* push tree in barray (of root root) on to stack *sp */
 {
     lvb_assert(sp->next <= sp->size);
@@ -132,9 +90,7 @@ static void dopush(Dataptr matrix, Treestack *sp, const Branch *const barray, co
     sp->stack[sp->next].root = root;
 
     /* need to copy the sset_2 to the sp->stack[sp->next].sset  */
-    //#ifdef NP_Implementation
     copy_sset(matrix, sp->stack[sp->next].p_sset);
-    //#endif
     sp->next++;
  
 } /* end dopush() */
@@ -171,94 +127,6 @@ Returns number of trees on stack C<s>.
 
 **********/
 
-#ifdef MPI_Implementation
-
-void checkpoint_treestack(FILE *fp, Treestack *s, Dataptr matrix, Lvb_bool b_with_sset)
-{
-    long i;					/* loop counter */
-    Treestack_element *stack = s->stack;	/* actual stack */
-    Treestack_element current_element;		/* current element of stack */
-    long trees = s->next;			/* number of trees stored */
-    long size = s->size;			/* size */
-
-    unsigned long n_bytes_to_write = 2 * sizeof(long) + sizeof(unsigned short);
-    /* size of tree stack element */
-    if (b_with_sset == LVB_TRUE) n_bytes_to_write += trees * (matrix->tree_bytes + sizeof(long));
-    else n_bytes_to_write += trees * (matrix->tree_bytes_whitout_sset + sizeof(long));
-    unsigned long checksum = 0;
-    unsigned short type_block = STATE_BLOCK_TREESTACK;
-    fwrite(&n_bytes_to_write, sizeof(n_bytes_to_write), 1, fp); checksum = CalculateBlockCRC32(sizeof(n_bytes_to_write), (unsigned char *) &n_bytes_to_write, checksum);
-    fwrite(&type_block, sizeof(type_block), 1, fp); checksum = CalculateBlockCRC32(sizeof(type_block), (unsigned char *) &type_block, checksum);
-
-    /* the number of trees on the stack */
-    fwrite(&trees, sizeof(trees), 1, fp); checksum = CalculateBlockCRC32(sizeof(trees), (unsigned char *) &trees, checksum);
-    fwrite(&size, sizeof(size), 1, fp); checksum = CalculateBlockCRC32(sizeof(size), (unsigned char *) &size, checksum);
-
-    /* trees */
-    for (i = 0; i < trees; i++) {
-		current_element = stack[i];
-		fwrite(&current_element.root, sizeof(long), 1, fp); checksum = CalculateBlockCRC32(sizeof(trees), (unsigned char *) &current_element.root, checksum);
-
-		if (b_with_sset == LVB_TRUE){
-			fwrite(current_element.tree, matrix->tree_bytes, 1, fp);
-			checksum = CalculateBlockCRC32(matrix->tree_bytes, (unsigned char *) current_element.tree, checksum);
-		}
-		else{
-			fwrite(current_element.tree, matrix->tree_bytes_whitout_sset, 1, fp);
-			checksum = CalculateBlockCRC32(matrix->tree_bytes_whitout_sset, (unsigned char *) current_element.tree, checksum);
-		}
-    }
-    fwrite(&checksum, sizeof(unsigned long), 1, fp);
-//   print_information_checkpoint("Save data treestack", n_bytes_to_write, checksum);
-    lvb_assert(ferror(fp) == 0);
-    lvb_assert(fflush(fp) == 0);
-}
-
-/* ********** restore_treestack() - restore the treestack ********** */
-
-void restore_treestack(FILE *fp, Treestack *sp, Dataptr matrix, Lvb_bool b_with_sset)
-{
-    long i;			/* loop counter */
-    long current_root;		/* current root read in from file */
-    Branch *p_current_tree;	/* current tree read in from file */
-    long trees;			/* number of trees */
-    long size;			/* number of trees */
-	unsigned long n_bytes_to_write = 2 * sizeof(long) + sizeof(unsigned short), n_bytes_to_read = 0;
-    unsigned long checksum = 0, checksum_read, n_read_values;
-    unsigned short type_block;
-
-    /* 'local' heap memory */
-    p_current_tree = treealloc(matrix, b_with_sset);
-
-    n_read_values = fread(&n_bytes_to_read, sizeof(n_bytes_to_read), 1, fp); checksum = CalculateBlockCRC32(sizeof(n_bytes_to_read), (unsigned char *) &n_bytes_to_read, checksum);
-    n_read_values = fread(&type_block, sizeof(type_block), 1, fp); checksum = CalculateBlockCRC32(sizeof(type_block), (unsigned char *) &type_block, checksum);
-    n_read_values = fread(&trees, sizeof(long), 1, fp); checksum = CalculateBlockCRC32(sizeof(trees), (unsigned char *) &trees, checksum);
-    n_read_values = fread(&size, sizeof(long), 1, fp); checksum = CalculateBlockCRC32(sizeof(size), (unsigned char *) &size, checksum);
-    if (b_with_sset == LVB_TRUE) n_bytes_to_write += trees * (matrix->tree_bytes + sizeof(long));
-    else n_bytes_to_write += trees * (matrix->tree_bytes_whitout_sset + sizeof(long));
-    for (i = 0; i < trees; i++) {
-    	n_read_values = fread(&current_root, sizeof(long), 1, fp); checksum = CalculateBlockCRC32(sizeof(long), (unsigned char *) &current_root, checksum);
-    	if (b_with_sset == LVB_TRUE){
-    		n_read_values = fread(p_current_tree, matrix->tree_bytes, 1, fp);
-    		checksum = CalculateBlockCRC32(matrix->tree_bytes, (unsigned char *) p_current_tree, checksum);
-    	}
-    	else{
-    		n_read_values = fread(p_current_tree, matrix->tree_bytes_whitout_sset, 1, fp);
-    		checksum = CalculateBlockCRC32(matrix->tree_bytes_whitout_sset, (unsigned char *) p_current_tree, checksum);
-    	}
-    	lvb_assert(n_read_values == 1);
-		treestack_push_only(matrix, sp, p_current_tree, current_root, b_with_sset);
-    }
-    n_read_values = fread(&checksum_read, sizeof(unsigned long), 1, fp);
-	lvb_assert(n_bytes_to_read == n_bytes_to_write);
-	lvb_assert(checksum_read == checksum);
-	lvb_assert(ferror(fp) == 0);
-    /* free 'local' heap memory */
-    free(p_current_tree);
-}
-
-#endif
-
 long treestack_cnt(Treestack s)
 {
     return s.next;
@@ -289,7 +157,6 @@ Returns a new, empty tree stack.
 
 **********/ 
 
-//#ifdef NP_Implementation
 Treestack treestack_new(void)
 {
     Treestack s;	/* return value */
@@ -298,20 +165,7 @@ Treestack treestack_new(void)
     s.next = 0;
     s.stack = NULL;
     return s;
-//#endif
 
-#ifdef MPI_Implementation
-Treestack * treestack_new(void)
-{
-    Treestack * p_stack;
-    p_stack = (Treestack *) alloc(sizeof(Treestack), "alloc Treestack structure");
-
-    p_stack->size = 0;
-    p_stack->next = 0;
-    p_stack->stack = NULL;
-
-    return p_stack;
-#endif
 } /* end treestack_new() */
 
 /**********
@@ -362,8 +216,6 @@ Returns 1 if the tree was pushed, or 0 if not.
 =cut
 
 **********/
-
-//#ifdef NP_Implementation
 
 long treestack_push(Dataptr matrix, Treestack *sp, const Branch *const barray, const int root, Lvb_bool b_with_sset)
 {
@@ -427,65 +279,6 @@ long treestack_push(Dataptr matrix, Treestack *sp, const Branch *const barray, c
 
 } /* end treestack_push() */
 
-//#endif
-
-#ifdef MPI_Implementation
-
-long treestack_push(Dataptr matrix, Treestack *sp, const Branch *const barray, const long root, Lvb_bool b_with_sset)
-{
-	long i, new_root = root;			/* loop counter */
-	long stackroot;		/* root of current tree */
-	static Branch *copy_2 = NULL;	/* possibly re-rooted tree 2 */
-	Lvb_bool b_First = LVB_TRUE;
-
-	/* allocate "local" static heap memory - static - do not free! */
-	if (copy_2 == NULL) {
-		copy_2 = treealloc(matrix, b_with_sset);
-	}
-	treecopy(matrix, copy_2, barray, b_with_sset);
-
-	/* return before push if not a new topology */
-	/* check backwards as similar trees may be discovered together */
-	for (i = sp->next - 1; i >= 0; i--) {
-		stackroot = sp->stack[i].root;
-		if(stackroot != new_root){
-			lvb_reroot(matrix, copy_2, new_root, stackroot, b_with_sset);
-			new_root = stackroot;
-			b_First = LVB_TRUE;
-		}
-		if (treecmp(matrix, sp->stack[i].tree, copy_2, stackroot, b_First) == 0) return 0;
-		b_First = LVB_FALSE;
-	}
-
-	/* topology is new so must be pushed */
-	lvb_assert(root < matrix->n);
-
-    /* topology is new so must be pushed */
-    dopush(matrix, sp, barray, root, b_with_sset);
-    return 1;
-
-} /* end treestack_push() */
-
-#endif
-
-#ifdef MPI_Implementation
-
-long treestack_push_only(Dataptr matrix, Treestack *sp, const Branch *const barray, const long root, Lvb_bool b_with_sset)
-{
-
-    dopush(matrix, sp, barray, root, b_with_sset);
-    return 1;
-}
-
-//uint64_t mrStack_push(Dataptr matrix, Treestack *sp, Branch *barray, const long root, MapReduce *mrObj, MISC *misc)
-//{
-//    	uint64_t nKV = tree_setpush(matrix, barray, root, mrObj, misc);
-//    	return nKV;
-//}
-
-#endif
-
-
 /**********
 
 =head1 treestack_pop - POP TREE OFF TREE STACK
@@ -541,16 +334,16 @@ long treestack_pop(Dataptr matrix, Branch *barray, long *root, Treestack *sp, Lv
         sp->next--;
         treecopy(matrix, barray, sp->stack[sp->next].tree, b_with_sset);
         *root = sp->stack[sp->next].root;
+
         val = 1;
     }
     else{
         val = 0;
     }
+
     return val;
 
 } /* end treestack_pop() */
-
-//#ifdef NP_Implementation
 
 int treestack_print(Dataptr matrix, Treestack *sp, FILE *const outfp, Lvb_bool onerandom)
 {
@@ -587,50 +380,6 @@ int treestack_print(Dataptr matrix, Treestack *sp, FILE *const outfp, Lvb_bool o
     return upper - lower;	/* number of trees printed */
 
 } /* end treestack_print() */
-
-//#endif
-
-#ifdef MPI_Implementation
-
-long treestack_print(Dataptr matrix, DataSeqPtr restrict matrix_seq_data, Treestack *sp, FILE *const outfp, Lvb_bool onerandom)
-{
-    const long d_obj1 = 0L;	/* 1st obj. for output trees */
-    long root;			/* root of current tree */
-    long i;			/* loop counter */
-    long lower;			/* lowest index of trees to print */
-    long upper;			/* 1 + upper index of trees to print */
-    Branch *barray;		/* current unpacked tree */
-
-    /* "local" dynamic heap memory */
-    barray = treealloc(matrix, LVB_FALSE);
-
-    if (onerandom == LVB_TRUE)	/* choose one random tree to print */
-    {
-		lower = randpint(sp->next - 1);
-		upper = lower + 1;
-    } else {
-		lower = 0;
-		upper = sp->next;
-    }
-
-    for (i = lower; i < upper; i++) {
-        treecopy(matrix, barray, sp->stack[i].tree, LVB_FALSE);
-        if (sp->stack[i].root != d_obj1) lvb_reroot(matrix, barray, sp->stack[i].root, d_obj1, LVB_FALSE);
-        root = d_obj1;
-
-        lvb_treeprint(matrix, matrix_seq_data, outfp, barray, root);
-    }
-    if (fflush(outfp) != 0)
-    	crash("file write error when writing best trees");
-
-    /* deallocate "local" dynamic heap memory */
-    free(barray);
-
-    return upper - lower;	/* number of trees printed */
-
-} /* end treestack_print() */
-
-#endif
 
 /**********
 
@@ -697,7 +446,7 @@ long treestack_dump(Dataptr matrix, Treestack *sp, FILE *const outfp)
 
     return cnt;
 
-} /* end treestack_dump() */
+} /* end bstdump() */
 
 /**********
 
@@ -732,8 +481,6 @@ None.
 
 **********/
 
-//#ifdef NP_Implementation
-
 void treestack_free(Dataptr restrict matrix, Treestack *sp)
 /* free all memory in tree stack *sp */
 {
@@ -758,29 +505,6 @@ void treestack_free(Dataptr restrict matrix, Treestack *sp)
     sp->stack = NULL;
  
 } /* end bstfree() */
-
-//#endif
-
-#ifdef MPI_Implementation
-
-void treestack_free(Treestack *sp)
-/* free all memory in tree stack *sp */
-{
-    long i;	/* loop counter */
-
-    for (i = 0; i < sp->size; i++){
-    	if (sp->stack[i].tree != NULL) free(sp->stack[i].tree);
-        sp->stack[i].tree = NULL;
-        sp->stack[i].root = -1;
-    }
-    free(sp->stack);
-    sp->next = 0;
-    sp->size = 0;
-    sp->stack = NULL;
- 
-} /* end bstfree() */
-
-#endif
 
 /**********
 
@@ -879,3 +603,5 @@ long treestack_transfer(Dataptr matrix, Treestack *destp, Treestack *sourcep, Lv
     free(barray);
     return pushed;
 }
+
+#endif // #ifdef NP_Implementation //

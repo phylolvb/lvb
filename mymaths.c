@@ -38,28 +38,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== mymaths.c - wrappers for standard maths functions ========== */
 
-/* exactly as suppplied by EPCC, except rcsid added, printf() then
- * exit() replaced with crash() (and braces made redundant removed),
- * float replaced with double, declaration for rstart added, "lvb.h"
- * included, global variables and rstart() made static, comment after
- * declaration of uni_u shortened to fit 80 columns after the addition
- * of the word 'static', mechanism added for uni() to crash with an
- * assertion failure if rinit() has not yet been called, and check on
- * DBL_MANT_DIG added to rinit(). This last has to be done at run-time
- * for portability, since DBL_MANT_DIG (from float.h) might not be a
- * constant.
-*/
-
-/*
- *	C version of Marsaglia's UNI random number generator
- *	More or less transliterated from the Fortran -- with 1 bug fix
- *	Hence horrible style
- *
- *	Features:
- *		ANSI C
- *		not callable from Fortran (yet)
- */
-
 /*
 
 Provides wrappers for mathematical functions in the standard library.
@@ -70,6 +48,8 @@ C<errno> or its return value.
 **********/
 
 #include "lvb.h"
+
+#ifdef NP_Implementation
 
 /**********
 
@@ -230,14 +210,7 @@ double pow_wrapper(double x, double y)
             val = 0.0;
         else if (y == 0.0)
             crash("internal error detected in function pow_wrapper():\n"
-             //#ifdef NP_Implementation
              "domain error. x is %g, y is %g", x, y);
-             //#endif
-
-             #ifdef MPI_Implementation
-             "domain error. x is %g, y is %g, ceil(y) is %g, floor(y) is %g",
-		 x, y, ceil(y), floor(y));
-            #endif
     }
     else
     {
@@ -255,3 +228,5 @@ double pow_wrapper(double x, double y)
     return val;
 
 }	/* end pow_wrapper() */
+
+#endif // #ifdef NP_Implementation //

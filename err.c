@@ -40,6 +40,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lvb.h"
 
+#ifdef NP_Implementation
+
 /**********
 
 =head1 crash - CRASH VERBOSELY
@@ -86,17 +88,9 @@ void crash(const char *const fmt, ...)
 	va_end(args);
 	printf("\n");
 
-	//#ifdef NP_Implementation
 	cleanup();
 	exit(EXIT_FAILURE);
-	//#endif
 
-	#ifdef MPI_Implementation
-	//cleanup();
-	int n_error_code = 1;
-	MPI_Abort(MPI_COMM_WORLD, n_error_code);
-	exit(1);
-	#endif
 }	/* end crash() */
 
 void lvb_assertion_fail(const char *test, const char *file, int line)
@@ -159,3 +153,5 @@ void scream(const char *const format, ...)
 		crash("write error on log");	/* may not work! */
 
 }	/* end scream() */
+
+#endif // #ifdef NP_Implementation //

@@ -46,8 +46,6 @@ interaction_temperature.c - decide which processes continue their search
 
 *********/
 
-#ifdef MPI_Implementation
-
 #include "lvb.h"
 
 	/* release memory to the structrure */
@@ -181,4 +179,3 @@ interaction_temperature.c - decide which processes continue their search
 		free(p_data);
 	}
 
-	#endif

@@ -40,6 +40,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lvb.h"
 
+#ifdef NP_Implementation
+
 enum { SAME, DIFFERENT };	/* strings same or different */
 
 /**********
@@ -200,3 +202,5 @@ char *supper(char *const s)
     return s;
 
 } /* end supper() */
+
+#endif // #ifdef NP_Implementation //

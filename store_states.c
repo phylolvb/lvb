@@ -38,8 +38,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ********** store_states.c - solving functions ********** */
 
-#ifdef MPI_Implementation
-
 #include "lvb.h"
 #include "store_states.h"
 
@@ -513,4 +511,4 @@ void print_memory_hex(char *p_char, int n_size){
 	printf("\n#################################################\n###############################\n");
 }
 
-#endif
+

@@ -38,10 +38,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== lvb.h - main header for lvb ========== */
 
-//#NP_Implementation
-
 #ifndef LVB_LVB_H
 #define LVB_LVB_H
+
+#include "DataStructure.h"
+#include "mapreduce.h"
+#include "blockmacros.h"
+#include "keyvalue.h"
 
 #include <ctype.h>
 #include <errno.h>
@@ -57,8 +60,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <time.h>
 #include "myuni.h"
 #include "mymaths.h"
-#include "DataStructure.h"
-#include <time.h>
+
 
 /* the program */
 #define PROGNAM "lvb"			/* program file name */
@@ -70,6 +72,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	#define COMPILE_64_BITS				/* the default is 32 bits */
 #endif
 
+#define NP_Implementation
+// #define MPI_Implementation
+
+#ifdef NP_Implementation
 /* use TBR branch-Swapping Algorithm? */
 /* #define TBR */ 
 
@@ -132,7 +138,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* limits that could be changed but are likely to be OK */
 #define FROZEN_T 0.0001		/* consider system frozen if temp < FROZEN_T */
-
 
 typedef	struct	/* object set derived from a cladogram */
 {
@@ -274,35 +279,13 @@ int addtoarray(Branch *const, int, int *, int);
 
 #endif /* LVB_LVB_H */
 
-//#endif
+#endif // #ifdef NP_Implementation //
 
 #ifdef MPI_Implementation
 
-#ifndef LVB_LVB_H
-#define LVB_LVB_H
-
-#include "DataStructure.h"
 #include <mpi.h>
-#include "mapreduce.h"
-#include "blockmacros.h"
-#include "keyvalue.h"
 
-#include <ctype.h>
-#include <errno.h>
-#include <limits.h>
-#include <math.h>
-#include <omp.h>
-#include <stdarg.h>
-#include <stddef.h>
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include "myuni.h"
-#include "mymaths.h"
-
-#ifdef MAP_Reduce
+#ifdef MAP_REDUCE_SINGLE
 	#include <omp.h>
 	#include "sys/stat.h"
 
@@ -311,16 +294,6 @@ int addtoarray(Branch *const, int, int *, int);
 	#define __STDC_LIMIT_MACROS
 #endif
 
-/* the program */
-#define PROGNAM "lvb"			/* program file name */
-#define LVB_VERSION "IN DEVELOPMENT"	/* version of program */
-#define LVB_SUBVERSION "$Id: 2f1a0126358acf0a108b58851f7a368fcfe57f7f $"		/* version details e.g. date */
-
-
-/* set if is to compile with 64 or 32 bits */
-#ifndef COMPILE_32_BITS
-	#define COMPILE_64_BITS
-#endif
 #define	MPI_SEND_ONLY_MATRIX_NAMES	/* if defined only send the names of the matrix */
 									/* sometimes the data matrix are huge and it's only necessary to pass */
     								/* the names of the other process */
@@ -454,7 +427,7 @@ typedef struct
 
 /* simulated annealing parameters */
 #define MAXACCEPT_MIN 5L		/* minimum value for maxaccept */
-#ifdef MAP_Reduce
+#ifdef MAP_REDUCE_SINGLE
 #define MAXACCEPT_MAX 5L		/* maximum value for maxaccept */
 #else
 #define MAXACCEPT_MAX 500L		/* maximum value for maxaccept */
@@ -482,7 +455,7 @@ typedef struct
 /* PHYLIP global data */
 //extern long chars;	/* defined in dnapars.c */
 
-#ifdef MAP_Reduce
+#ifdef MAP_REDUCE_SINGLE
 
 	struct MISC {
 		int rank,nprocs;
@@ -508,7 +481,7 @@ typedef struct
 /* LVB global functions */
 void *alloc(const size_t, const char *const);
 
-#ifdef MAP_Reduce
+#ifdef MAP_REDUCE_SINGLE
 	long anneal(Dataptr restrict, Treestack *, const Branch *const, Params *p_rcstruct, long, const double,
 		const long, const long, const long, FILE *const, long *, Lvb_bool, MISC *misc, MapReduce *mrStackTree, MapReduce *mrBuffer);
 #else
@@ -531,7 +504,7 @@ unsigned long restore_uni(FILE *);
 void checkpoint_treestack(FILE *, Treestack *, Dataptr, Lvb_bool b_with_sset);
 void restore_treestack(FILE *, Treestack *, Dataptr, Lvb_bool b_with_sset);
 void dna_makebin(Dataptr restrict, DataSeqPtr matrix_seq, Lvb_bit_lentgh **);
-#ifdef MAP_Reduce
+#ifdef MAP_REDUCE_SINGLE
 	long deterministic_hillclimb(Dataptr, Treestack *, const Branch *const, Params rcstruct,
 			long, FILE * const, long *, Lvb_bool, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer);
 #else
@@ -598,7 +571,7 @@ long treestack_pop(Dataptr, Branch *, long *, Treestack *, Lvb_bool b_with_sset)
 Treestack *treestack_new(void);
 long treestack_print(Dataptr, DataSeqPtr restrict matrix_seq_data, Treestack *, FILE *const, Lvb_bool);
 
-#ifdef MAP_Reduce
+#ifdef MAP_REDUCE_SINGLE
 	uint64_t tree_setpush(Dataptr matrix, const Branch *const tree, const long root, MapReduce *mrObj, MISC *misc);
 	void map_clean(uint64_t itask, char *key, int keybytes, char *value, int valuebytes, KeyValue *kv, void *ptr);
 	void reduce_count(char *key, int keybytes, char *multivalue, int nvalues, int *valuebytes, KeyValue *kv, void *ptr);
@@ -618,6 +591,4 @@ void uint32_dump(FILE *, Lvb_bit_lentgh);
 long words_per_row(const long);
 
 
-#endif /* LVB_LVB_H */
-
-#endif
+#endif // #define MPI_Implementation //

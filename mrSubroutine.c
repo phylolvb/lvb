@@ -36,8 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#ifdef MPI_Implementation
-#ifdef MAP_Reduce
+#ifdef MAP_REDUCE_SINGLE
 
 	#include "lvb.h"
 
@@ -155,5 +154,4 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		}
 
 	}
-#endif
 #endif

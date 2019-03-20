@@ -38,8 +38,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ********** popcnt_ll_macro.h - rapid inline popcnt macro ********** */
 
-#ifdef MPI_Implementation
-
 #ifndef LVB_POPCNTLL_MACRO_H
 #define LVB_POPCNTLL_MACRO_H
 
@@ -60,4 +58,3 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     X = X & 0x7f;
 
 #endif /* LVB_POPCNTLL_MACRO_H */
-#endif
