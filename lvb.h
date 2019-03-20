@@ -38,10 +38,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== lvb.h - main header for lvb ========== */
 
-//#NP_Implementation
-
 #ifndef LVB_LVB_H
 #define LVB_LVB_H
+
+#define NP_Implementation
+
+//#define MPI_Implementation
+//#define MAP_Reduce
+
+#ifdef NP_Implementation
 
 #include <ctype.h>
 #include <errno.h>
@@ -132,7 +137,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* limits that could be changed but are likely to be OK */
 #define FROZEN_T 0.0001		/* consider system frozen if temp < FROZEN_T */
-
 
 typedef	struct	/* object set derived from a cladogram */
 {
@@ -274,7 +278,7 @@ int addtoarray(Branch *const, int, int *, int);
 
 #endif /* LVB_LVB_H */
 
-//#endif
+#endif
 
 #ifdef MPI_Implementation
 
@@ -582,7 +586,7 @@ void ss_init(Dataptr, Branch *, Lvb_bit_lentgh **);
 char *supper(char *const s);
 Branch *treealloc(Dataptr restrict, Lvb_bool b_with_sset);
 long tree_bytes(Dataptr restrict matrix);
-long tree_bytes_whitout_sset(Dataptr restrict matrix);
+long tree_bytes_without_sset(Dataptr restrict matrix);
 void treeclear(Dataptr, Branch *const);
 void treecopy(Dataptr restrict, Branch *const, const Branch *const, Lvb_bool b_with_sset);
 long treecmp(Dataptr matrix, const Branch *const tree_1, const Branch *const tree_2, long root, Lvb_bool b_First);

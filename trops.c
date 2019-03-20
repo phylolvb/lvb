@@ -38,7 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== trops.c - tree operations ========== */
 
-//#ifdef NP_Implementation
+#ifdef NP_Implementation
 
 #include "lvb.h"
 
@@ -1376,7 +1376,7 @@ void ss_init(Dataptr matrix, Branch *tree, Lvb_bit_lentgh **enc_mat)
 
 } /* end ss_init() */
 
-//#endif
+#endif
 
 #ifdef MPI_Implementation
 

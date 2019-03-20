@@ -230,9 +230,9 @@ double pow_wrapper(double x, double y)
             val = 0.0;
         else if (y == 0.0)
             crash("internal error detected in function pow_wrapper():\n"
-             //#ifdef NP_Implementation
+             #ifdef NP_Implementation
              "domain error. x is %g, y is %g", x, y);
-             //#endif
+             #endif
 
              #ifdef MPI_Implementation
              "domain error. x is %g, y is %g, ceil(y) is %g, floor(y) is %g",

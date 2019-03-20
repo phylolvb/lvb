@@ -53,9 +53,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define LVB_FNAMSIZE 2000		/* maximum bytes for file names */
 
-//#ifdef NP_Implementation
+#ifdef NP_Implementation
 #define MAX_BOOTSTRAPS 1000000	/* max. bootstrap replicates */
-//#endif
+#endif
 
 #ifdef MPI_Implementation
 /* these flags is to read and save states in specfic time points */
@@ -75,10 +75,10 @@ typedef enum { LVB_FALSE, LVB_TRUE } Lvb_bool;	/* boolean type */
 /* matrix and associated information */
 typedef struct data
 {
-    //#ifdef NP_Implementation
+    #ifdef NP_Implementation
     int n_threads_getplen;  /* number of possible threads in getplen function */
     int n_slice_size_getplen;  /* slice size in getplen function, usually m/n_threads_getplen  */
-    //#endif
+    #endif
     long m;				/* number of columns */
     long original_m;	/* number of columns read from matrix*/
     long n;				/* number of rows */
@@ -95,10 +95,10 @@ typedef struct data
     #endif
     long nsets;			/* sets per tree */
     long mssz;			/* maximum objects per set */
-    //#ifdef NP_Implementation
+    #ifdef NP_Implementation
     char **row;			/* array of row strings */
     char **rowtitle;	/* array of row title strings */
-    //#endif
+    #endif
     #ifdef MPI_Implementation
     int n_threads_getplen;  	/* number of possible threads in getplen function */
     int n_slice_size_getplen;   /* slice size in getplen function, usually m/n_threads_getplen  */
@@ -118,16 +118,16 @@ typedef struct
 {
     int seed;							/* seed for random number generator */
     int cooling_schedule;   			/* cooling schedule: 0 is geometric, 1 is linear */
-    //#ifdef NP_Implementation
+    #ifdef NP_Implementation
     int algorithm_selection;             /* algorithm selection: 0 is original, 1 is no SEQ-TNS, and 2 is PBS */
-    //#endif
+    #endif
     int n_file_format;					/* number of file format, must be FORMAT_PHYLIP, FORMAT_FASTA, FORMAT_NEXUS, FORMAT_CLUSTAL*/
     int n_processors_available;			/* number of processors available */
     long verbose;						/* verboseness level */
-    //#ifdef NP_Implementation
+    #ifdef NP_Implementation
     long bootstraps;					/* number of bootstrap replicates */
     int n_number_max_trees;				/* number of bootstrap replicates */
-    //#endif
+    #endif
     #ifdef MPI_Implementation
     int n_seeds_need_to_try;	/* number of seeds that go to try, minimum is the number of mpi process */
      int n_flag_save_read_states;		/* flag to save/read the states, if 1 when starts try to read the last states, if not find */

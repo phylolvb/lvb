@@ -86,10 +86,10 @@ void crash(const char *const fmt, ...)
 	va_end(args);
 	printf("\n");
 
-	//#ifdef NP_Implementation
+	#ifdef NP_Implementation
 	cleanup();
 	exit(EXIT_FAILURE);
-	//#endif
+	#endif
 
 	#ifdef MPI_Implementation
 	//cleanup();

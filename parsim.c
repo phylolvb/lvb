@@ -38,7 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== parsim.c - tree evaluation ========== */
 
-//#ifdef NP_Implementation
+#ifdef NP_Implementation
 
 #include "lvb.h"
 
@@ -404,7 +404,7 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct,
 
 } /* end getplen() */
 
-//#endif
+#endif
 
 #ifdef MPI_Implementation
 

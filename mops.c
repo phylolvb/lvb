@@ -111,7 +111,7 @@ void *alloc(const size_t bytes, const char *const msg)
 
 }	/* end alloc() */
 
-//#ifdef NP_Implementation
+#ifdef NP_Implementation
 void alloc_memory_to_getplen(Dataptr matrix, long **p_todo_arr, long **p_todo_arr_sum_changes, int **p_runs){
 	*p_todo_arr = (long *) alloc((matrix->nbranches - matrix->n) * sizeof(long), "alloc to count runs");
     *p_todo_arr_sum_changes = (long *) alloc(matrix->n_threads_getplen * (1 + matrix->nbranches - matrix->n) * sizeof(long), "alloc to count runs");
@@ -123,7 +123,7 @@ void free_memory_to_getplen(long **p_todo_arr, long **p_todo_arr_sum_changes, in
 	free(*p_todo_arr_sum_changes);
 	free(*p_runs);
 }
-//#endif
+#endif
 
 #ifdef MPI_Implementation
 void alloc_memory_to_getplen(Dataptr matrix, long **p_todo_arr, long **p_todo_arr_sum_changes, int **p_runs) {

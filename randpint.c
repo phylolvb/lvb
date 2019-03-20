@@ -75,9 +75,9 @@ A random integer in the interval [0..C<upper>].
 
 **********/
 
-//#ifdef NP_Implementation
+#ifdef NP_Implementation
 int randpint(const long upper)
-//#endif
+#endif
 
 #ifdef MPI_Implementation
 long randpint(const long upper)
@@ -86,9 +86,9 @@ long randpint(const long upper)
 {
     double frand;	/* random real */
     double fupper;	/* upper limit */
-    //#ifdef NP_Implementation
+    #ifdef NP_Implementation
     int rand;		/* return value */
-    //#endif
+    #endif
 
     #ifdef MPI_Implementation
     long rand;		/* return value */
@@ -100,9 +100,9 @@ long randpint(const long upper)
     fupper = (double) upper;
     frand = uni();
     frand = frand * fupper;		/* scale to right range */
-    //#ifdef NP_Implementation
+    #ifdef NP_Implementation
     rand = (int) (frand + 0.5);	/* round to nearest integer */
-    //#endif
+    #endif
 
     #ifdef MPI_Implementation
     rand = (long) (frand + 0.5);	/* round to nearest integer */
@@ -110,10 +110,10 @@ long randpint(const long upper)
     
 
     /* guard against arithmetic inaccuracy */
-    //#ifdef NP_Implementation
+    #ifdef NP_Implementation
     if (rand < 0) rand = 0;
     else if (rand > upper) rand = upper;
-    //#endif
+    #endif
 
     #ifdef MPI_Implementation
     if (rand < 0)

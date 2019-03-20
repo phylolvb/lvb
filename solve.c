@@ -38,7 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== solve.c - solving functions ========== */
 
-//#ifdef NP_Implementation
+#ifdef NP_Implementation
 
 #include "lvb.h"
 
@@ -446,7 +446,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 
 } /* end anneal() */
 
-//#endif
+#endif
 
 #ifdef MPI_Implementation
 

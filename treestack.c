@@ -40,7 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lvb.h"
 
-//#ifdef NP_Implementation
+#ifdef NP_Implementation
 static void upsize(Dataptr restrict matrix, Treestack *sp)
 /* increase allocation for tree stack *sp */
 {
@@ -80,7 +80,7 @@ static void upsize(Dataptr restrict matrix, Treestack *sp)
  
 } /* end upsize() */
 
-//#endif
+#endif
 
 #ifdef MPI_Implementation
 #include "store_states.h"
@@ -116,9 +116,9 @@ static void upsize(Dataptr matrix, Treestack *sp)
 
 #endif
 
-//#ifdef NP_Implementation
+#ifdef NP_Implementation
 static void dopush(Dataptr matrix, Treestack *sp, const Branch *const barray, const int root, Lvb_bool b_with_sset)
-//#endif
+#endif
 
 #ifdef MPI_Implementation
 static void dopush(Dataptr matrix, Treestack *sp, const Branch *const barray, const long root, Lvb_bool b_with_sset)
@@ -132,9 +132,9 @@ static void dopush(Dataptr matrix, Treestack *sp, const Branch *const barray, co
     sp->stack[sp->next].root = root;
 
     /* need to copy the sset_2 to the sp->stack[sp->next].sset  */
-    //#ifdef NP_Implementation
+    #ifdef NP_Implementation
     copy_sset(matrix, sp->stack[sp->next].p_sset);
-    //#endif
+    #endif
     sp->next++;
  
 } /* end dopush() */
@@ -184,7 +184,7 @@ void checkpoint_treestack(FILE *fp, Treestack *s, Dataptr matrix, Lvb_bool b_wit
     unsigned long n_bytes_to_write = 2 * sizeof(long) + sizeof(unsigned short);
     /* size of tree stack element */
     if (b_with_sset == LVB_TRUE) n_bytes_to_write += trees * (matrix->tree_bytes + sizeof(long));
-    else n_bytes_to_write += trees * (matrix->tree_bytes_whitout_sset + sizeof(long));
+    else n_bytes_to_write += trees * (matrix->tree_bytes_without_sset + sizeof(long));
     unsigned long checksum = 0;
     unsigned short type_block = STATE_BLOCK_TREESTACK;
     fwrite(&n_bytes_to_write, sizeof(n_bytes_to_write), 1, fp); checksum = CalculateBlockCRC32(sizeof(n_bytes_to_write), (unsigned char *) &n_bytes_to_write, checksum);
@@ -204,8 +204,8 @@ void checkpoint_treestack(FILE *fp, Treestack *s, Dataptr matrix, Lvb_bool b_wit
 			checksum = CalculateBlockCRC32(matrix->tree_bytes, (unsigned char *) current_element.tree, checksum);
 		}
 		else{
-			fwrite(current_element.tree, matrix->tree_bytes_whitout_sset, 1, fp);
-			checksum = CalculateBlockCRC32(matrix->tree_bytes_whitout_sset, (unsigned char *) current_element.tree, checksum);
+			fwrite(current_element.tree, matrix->tree_bytes_without_sset, 1, fp);
+			checksum = CalculateBlockCRC32(matrix->tree_bytes_without_sset, (unsigned char *) current_element.tree, checksum);
 		}
     }
     fwrite(&checksum, sizeof(unsigned long), 1, fp);
@@ -235,7 +235,7 @@ void restore_treestack(FILE *fp, Treestack *sp, Dataptr matrix, Lvb_bool b_with_
     n_read_values = fread(&trees, sizeof(long), 1, fp); checksum = CalculateBlockCRC32(sizeof(trees), (unsigned char *) &trees, checksum);
     n_read_values = fread(&size, sizeof(long), 1, fp); checksum = CalculateBlockCRC32(sizeof(size), (unsigned char *) &size, checksum);
     if (b_with_sset == LVB_TRUE) n_bytes_to_write += trees * (matrix->tree_bytes + sizeof(long));
-    else n_bytes_to_write += trees * (matrix->tree_bytes_whitout_sset + sizeof(long));
+    else n_bytes_to_write += trees * (matrix->tree_bytes_without_sset + sizeof(long));
     for (i = 0; i < trees; i++) {
     	n_read_values = fread(&current_root, sizeof(long), 1, fp); checksum = CalculateBlockCRC32(sizeof(long), (unsigned char *) &current_root, checksum);
     	if (b_with_sset == LVB_TRUE){
@@ -243,8 +243,8 @@ void restore_treestack(FILE *fp, Treestack *sp, Dataptr matrix, Lvb_bool b_with_
     		checksum = CalculateBlockCRC32(matrix->tree_bytes, (unsigned char *) p_current_tree, checksum);
     	}
     	else{
-    		n_read_values = fread(p_current_tree, matrix->tree_bytes_whitout_sset, 1, fp);
-    		checksum = CalculateBlockCRC32(matrix->tree_bytes_whitout_sset, (unsigned char *) p_current_tree, checksum);
+    		n_read_values = fread(p_current_tree, matrix->tree_bytes_without_sset, 1, fp);
+    		checksum = CalculateBlockCRC32(matrix->tree_bytes_without_sset, (unsigned char *) p_current_tree, checksum);
     	}
     	lvb_assert(n_read_values == 1);
 		treestack_push_only(matrix, sp, p_current_tree, current_root, b_with_sset);
@@ -289,7 +289,7 @@ Returns a new, empty tree stack.
 
 **********/ 
 
-//#ifdef NP_Implementation
+#ifdef NP_Implementation
 Treestack treestack_new(void)
 {
     Treestack s;	/* return value */
@@ -298,7 +298,7 @@ Treestack treestack_new(void)
     s.next = 0;
     s.stack = NULL;
     return s;
-//#endif
+#endif
 
 #ifdef MPI_Implementation
 Treestack * treestack_new(void)
@@ -363,7 +363,7 @@ Returns 1 if the tree was pushed, or 0 if not.
 
 **********/
 
-//#ifdef NP_Implementation
+#ifdef NP_Implementation
 
 long treestack_push(Dataptr matrix, Treestack *sp, const Branch *const barray, const int root, Lvb_bool b_with_sset)
 {
@@ -427,7 +427,7 @@ long treestack_push(Dataptr matrix, Treestack *sp, const Branch *const barray, c
 
 } /* end treestack_push() */
 
-//#endif
+#endif
 
 #ifdef MPI_Implementation
 
@@ -550,7 +550,7 @@ long treestack_pop(Dataptr matrix, Branch *barray, long *root, Treestack *sp, Lv
 
 } /* end treestack_pop() */
 
-//#ifdef NP_Implementation
+#ifdef NP_Implementation
 
 int treestack_print(Dataptr matrix, Treestack *sp, FILE *const outfp, Lvb_bool onerandom)
 {
@@ -588,7 +588,7 @@ int treestack_print(Dataptr matrix, Treestack *sp, FILE *const outfp, Lvb_bool o
 
 } /* end treestack_print() */
 
-//#endif
+#endif
 
 #ifdef MPI_Implementation
 
@@ -732,7 +732,7 @@ None.
 
 **********/
 
-//#ifdef NP_Implementation
+#ifdef NP_Implementation
 
 void treestack_free(Dataptr restrict matrix, Treestack *sp)
 /* free all memory in tree stack *sp */
@@ -759,7 +759,7 @@ void treestack_free(Dataptr restrict matrix, Treestack *sp)
  
 } /* end bstfree() */
 
-//#endif
+#endif
 
 #ifdef MPI_Implementation
 

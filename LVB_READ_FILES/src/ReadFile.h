@@ -48,7 +48,7 @@ using namespace std;
 #ifndef READFILE_H_
 #define READFILE_H_
 
-//#ifdef NP_Implementation
+#ifdef NP_Implementation
 
 extern "C" void read_file(char *file_name, int n_file_type, Dataptr p_lvbmat);
 extern "C" void phylip_mat_dims_in_external(char *file_name, int n_file_type, long *species_ptr, long *sites_ptr, int *max_length_name);
@@ -60,7 +60,7 @@ void phylip_mat_dims_in_external(char *file_name, int n_file_type, long *species
 void free_lvbmat_structure(DataStructure *p_lvbmat);
 long brcnt(long n) { return (n << 1) - 3; }; /* return number of branches in unrooted binary tree structure containing n tips */
 
-//#endif
+#endif
 
 #ifdef MPI_Implementation
 #ifdef MAP_Reduce

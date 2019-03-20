@@ -42,9 +42,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <unistd.h>
 
 /* it is in ReadFile.cpp library */
-//#ifdef NP_Implementation
+#ifdef NP_Implementation
 void read_parameters(Params *prms, int argc, char **argv);
-//#endif
+#endif
 
 #ifdef MPI_Implementation
 #ifdef MAP_Reduce
@@ -63,9 +63,9 @@ long get_random_maxaccept(void)
 int get_default_seed(void)
 #endif
 
-//#ifdef NP_Implementation
+#ifdef NP_Implementation
 static int get_default_seed(void)
-//#endif
+#endif
 
 /* return a default integer in the interval [0..MAX_SEED], obtained from the
  * system clock, or exit with an error message if the system time is
@@ -76,10 +76,10 @@ static int get_default_seed(void)
 
     tim = time(NULL);
     lvb_assert(tim != -1);
-    //#ifdef NP_Implementation
+    #ifdef NP_Implementation
     ul_seed = (unsigned long) tim;
     ul_seed = ul_seed % (1UL + (unsigned long) MAX_SEED);
-    //#endif
+    #endif
     #ifdef MPI_Implementation
     srand(tim);
     ul_seed = (unsigned long) rand() % (1UL + (unsigned long) MAX_SEED);
@@ -94,9 +94,9 @@ void defaults_params(Params *const prms)
 /* set seed in *prms to unacceptable value, and other parameters to their
  * defaults_params from lvb.h */
 {
-    //#ifdef NP_Implementation
+    #ifdef NP_Implementation
     prms->bootstraps = 0;	/* sensible default */
-    //#endif
+    #endif
 
     #ifdef MPI_Implementation
     #ifndef MAP_Reduce
@@ -117,18 +117,18 @@ void defaults_params(Params *const prms)
     prms->cooling_schedule = 0;
     /* default value that will usually be used */
     prms->seed = get_default_seed();
-    //#ifdef NP_Implementation
+    #ifdef NP_Implementation
     /* original branch-swapping algorithm */
     prms->algorithm_selection = 0;
-    //#endif
+    #endif
 
     strcpy(prms->file_name_in, "infile");
     strcpy(prms->file_name_out, OUTTREEFNAM);
     prms->n_file_format = FORMAT_PHYLIP;
     prms->n_processors_available = 1;
-    //#ifdef NP_Implementation
+    #ifdef NP_Implementation
     prms->n_number_max_trees = 0;			/* by default keepall of them */
-    //#endif
+    #endif
 
     #ifdef MPI_Implementation
     /* it is olnly used for tests */
@@ -137,9 +137,9 @@ void defaults_params(Params *const prms)
 
 } /* end defaults_params() */
 
-//#ifdef NP_Implementation
+#ifdef NP_Implementation
 void getparam(Params *prms, int argc, char **argv)
-//#endif
+#endif
 
 #ifdef MPI_Implementation
 void getparam(Params *prms, int argc, char **argv)
@@ -150,9 +150,9 @@ void getparam(Params *prms, int argc, char **argv)
 {
 	defaults_params(prms);
  /*   user_adjust(prms);*/
-    //#ifdef NP_Implementation
+    #ifdef NP_Implementation
 	read_parameters(prms, argc, argv);
-    //#endif
+    #endif
 
     #ifdef MPI_Implementation
     #ifndef MAP_Reduce
