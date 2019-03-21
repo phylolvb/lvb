@@ -38,8 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== myuni.h - header for RNG functions in myuni.c ========== */
 
-#define NP_Implementation
-//#define MPI_Implementation
+#include "lvb.h"
 
 #ifdef NP_Implementation
 

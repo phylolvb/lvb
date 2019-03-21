@@ -38,8 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== mymaths.h - interface for mymaths.c ========== */
 
-#define NP_Implementation
-// #define MPI_Implementation
+#include "lvb.h"
 
 #ifdef NP_Implementation
 
