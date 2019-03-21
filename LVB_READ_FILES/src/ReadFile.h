@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <getopt.h>
 using namespace std;
 
-#define NP_Implementation
+//#define NP_Implementation
 // #define MPI_Implementation
 
 #ifdef NP_Implementation
