@@ -2,11 +2,11 @@
 
 (c) Copyright 2003-2012 by Daniel Barker
 (c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl
-(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
-(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
-and Chris Wood.
-(c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
-Fernando Guntoro, Maximilian Strobl and Chris Wood.
+(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro and Maximilian Strobl
+(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl
+and Chris Wood
+(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Chang Sik Kim,
+Maximilian Strobl and Martyn Winn
 All rights reserved.
  
 Redistribution and use in source and binary forms, with or without
@@ -36,10 +36,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== lvb.h - main header for lvb ========== */
+/* ********** lvb.h - main header for lvb ********** */
 
 #ifndef LVB_LVB_H
 #define LVB_LVB_H
+
+  #define NP_Implementation
+//#define MPI_Implementation
+
+#ifdef NP_Implementation
 
 #include "DataStructure.h"
 #include "mapreduce.h"
@@ -72,10 +77,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	#define COMPILE_64_BITS				/* the default is 32 bits */
 #endif
 
-#define NP_Implementation
-// #define MPI_Implementation
-
-#ifdef NP_Implementation
 /* use TBR branch-Swapping Algorithm? */
 /* #define TBR */ 
 
@@ -277,13 +278,30 @@ long words_per_row(const long);
 int count(Branch *const, int);
 int addtoarray(Branch *const, int, int *, int);
 
-#endif /* LVB_LVB_H */
-
-#endif // #ifdef NP_Implementation //
+#endif
 
 #ifdef MPI_Implementation
 
+#include "DataStructure.h"
 #include <mpi.h>
+#include "mapreduce.h"
+#include "blockmacros.h"
+#include "keyvalue.h"
+
+#include <ctype.h>
+#include <errno.h>
+#include <limits.h>
+#include <math.h>
+#include <omp.h>
+#include <stdarg.h>
+#include <stddef.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include "myuni.h"
+#include "mymaths.h"
 
 #ifdef MAP_REDUCE_SINGLE
 	#include <omp.h>
@@ -294,6 +312,16 @@ int addtoarray(Branch *const, int, int *, int);
 	#define __STDC_LIMIT_MACROS
 #endif
 
+/* the program */
+#define PROGNAM "lvb"			/* program file name */
+#define LVB_VERSION "IN DEVELOPMENT"	/* version of program */
+#define LVB_SUBVERSION "$Id: 2f1a0126358acf0a108b58851f7a368fcfe57f7f $"		/* version details e.g. date */
+
+
+/* set if is to compile with 64 or 32 bits */
+#ifndef COMPILE_32_BITS
+	#define COMPILE_64_BITS
+#endif
 #define	MPI_SEND_ONLY_MATRIX_NAMES	/* if defined only send the names of the matrix */
 									/* sometimes the data matrix are huge and it's only necessary to pass */
     								/* the names of the other process */
@@ -590,5 +618,6 @@ void treeswap(Branch **const, long *const, Branch **const, long *const);
 void uint32_dump(FILE *, Lvb_bit_lentgh);
 long words_per_row(const long);
 
+#endif // MPI_Implementation //
 
-#endif // #define MPI_Implementation //
+#endif /* LVB_LVB_H */
