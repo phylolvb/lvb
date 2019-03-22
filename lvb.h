@@ -41,8 +41,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef LVB_LVB_H
 #define LVB_LVB_H
 
-  #define NP_Implementation
-//#define MPI_Implementation
+//  #define NP_Implementation
+//    #define MPI_Implementation
 
 #ifdef NP_Implementation
 

@@ -39,8 +39,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== ReadFiles.h - interface for ReadFiles.cpp ========== */
 
-#define NP_Implementation
-// #define MPI_Implementation
+// #define NP_Implementation
+//   #define MPI_Implementation
 
 #ifndef CREADFILES_H_ 
 #define CREADFILES_H_

@@ -469,12 +469,14 @@ int main(int argc, char **argv)
 
 #endif
 
+//#endif
+
 #ifdef MPI_Implementation
 
 #include <inttypes.h>
 #include "store_states.h"
 
-#ifdef MAP_Reduce
+#ifdef MAP_REDUCE_SINGLE
 	static Treestack bstack_overall;	/* overall best tree stack */
 #endif
 
@@ -518,7 +520,7 @@ static void writeinf(Params prms, Dataptr matrix, int myMPIid, int n_process)
 			abort();
 		}
 		printf("threads                 = %d\n",  prms.n_processors_available);
-#ifndef MAP_Reduce
+#ifndef MAP_REDUCE_SINGLE
 		printf("#seeds to try           = %d\n", prms.n_seeds_need_to_try);
 		printf("checkpoint interval (s) = %d\n", prms.n_checkpoint_interval);
 #endif
@@ -551,7 +553,7 @@ static void logtree1(Dataptr matrix, DataSeqPtr restrict matrix_seq_data, const 
 } /* end logtree1() */
 
 
-#ifdef MAP_Reduce
+#ifdef MAP_REDUCE_SINGLE
 	static long getsoln(Dataptr restrict matrix, DataSeqPtr restrict matrix_seq_data, Params rcstruct, long *iter_p, Lvb_bool log_progress,
 				MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer)
 	/* get and output solution(s) according to parameters in rcstruct;
@@ -931,7 +933,7 @@ static void logstim(void)
 
 } /* end logstim() */
 
-#ifndef MAP_Reduce
+#ifndef MAP_REDUCE_SINGLE
 	void print_data(Dataptr p_lvbmat, int n_thread){
 		printf("###############################\n thread: %d\n", n_thread);
 		printf("n_threads_getplen: %d\n", p_lvbmat->n_threads_getplen);
@@ -1157,7 +1159,7 @@ static void logstim(void)
 	int main(int argc, char **argv)
 	{
 
-#ifndef MAP_Reduce
+#ifndef MAP_REDUCE_SINGLE
 	    Dataptr matrix;	/* data matrix */
 	    DataSeqPtr matrix_seq_data;
 	    Params rcstruct;		/* configurable parameters */
@@ -1295,14 +1297,14 @@ static void logstim(void)
 			printf("Download and support:\n"
 			"http://eggg.st-andrews.ac.uk/lvb\n\n");
 
-#ifdef MAP_Reduce
+#ifdef MAP_REDUCE_SINGLE
 		}
 #endif
 
 			/* test some static values */
 			lvb_initialize();
 
-#ifndef MAP_Reduce
+#ifndef MAP_REDUCE_SINGLE
 
 			n_error_code = getparam(&rcstruct, argc, argv);
 			if (n_error_code == EXIT_SUCCESS){

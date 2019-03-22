@@ -1,0 +1,252 @@
+# LVB
+# 
+# (c) Copyright 2003-2012 by Daniel Barker
+# (c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl
+# (c) Copyright 2014 by Daniel Barker, Miguel Pinheiro and Maximilian Strobl
+# (c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl
+# and Chris Wood
+# (c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Chang Sik Kim,
+# Maximilian Strobl and Martyn Winn
+# All rights reserved.
+#  
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+# 
+# 1. Redistributions of source code must retain the above copyright notice,
+# this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright notice,
+# this list of conditions and the following disclaimer in the documentation
+# and/or other materials provided with the distribution.
+# 
+# 3. Neither the name of the copyright holder nor the names of its contributors
+# may be used to endorse or promote products derived from this software without
+# specific prior written permission.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
+# Makefile - makefile for LVB
+
+# Requires GNU make
+# Requires pod2html (this will usually be present if Perl is installed)
+#
+# It is always safer to make from scratch after changing the source code
+# or Makefile, e.g.
+#
+# make clean
+#
+# first.
+#
+# For Linux, adjust options below then compile with
+#
+# make
+
+# AFTER BUILDING LVB, RUN TESTS IMMEDIATELY: do
+#
+# make test
+
+# Depending on how LVB is built, it may require the Map Reduce library.
+# Here are instructions on how to incorporate this library into LVB.
+#
+# 1) get the Map Reduce library:
+#
+# Download MapReduce-mpi from http://mapreduce.sandia.gov/
+# From download page select select "MR-MPI" and download
+#
+# 2) Compile Map Reduce library:
+#
+# cd <install directory>/mrmpi<version>/src
+# make mpicc
+# The last command creates a static library "libmrmpi_mpicc.a" in the same
+# path.
+#
+# 3) compile LVB Map Reduce
+#
+# Compile with WHICH_MAKE=MAKE_LVB_MPI_MR (see below).
+#
+# Change the line giving the actual path of MapReduce mpi, below:
+# LM = -lm <install directory>/mrmpi<version>/src/libmrmpi_mpicc.a
+#
+# In MARVIN it will be:
+#  LM = -lm /home/software/mrmpi-7Apr14/src/libmrmpi_mpicc.a
+#
+# 4) Compile LVB in the usual way:
+#
+# make
+#
+# If make returns:
+# 'make : mpicc: command not found'
+# 'make: *** [admin.o] ERROR 127'
+# add openmpi to PATH:
+#                     export PATH=/usr/lib64/openmpi/bin:$PATH
+
+
+# It is possible to make two different versions of LVB
+# One uses parallel search (MAKE_LVB_MPI) and the other uses Map Reduce
+# (MAKE_LVB_MPI_MR). Comment out precisely one of the below:
+#  WHICH_MAKE=MAKE_LVB_MPI
+   WHICH_MAKE=MAKE_LVB_MPI_MR
+
+# For compiling on x86_64 (AMD or Intel), uncomment these two lines:
+#CFLAGS += -msse4.2
+#CXXFLAGX += -msse4.2
+
+# Directories
+TEST_DIR = ./tests
+DOCS_PROG_DIR = ./docs_programmer
+LVB_READ_FILE_DIR = ./LVB_READ_FILES/src
+
+### define compilers and compiler options
+MPIC++ = mpic++
+CFLAGS += -Wall -O3 -fopenmp -ftree-loop-distribution -fvariable-expansion-in-unroller -I.
+#CFLAGS += -Wall -g -fopenmp
+CXXFLAGS += -Wall -O3 -fopenmp -ftree-loop-distribution -fvariable-expansion-in-unroller -I.
+#CXXFLAGS += -Wall -g -fopenmp
+
+ifeq ($(WHICH_MAKE),MAKE_LVB_MPI)
+	G++ = g++
+	CC=mpicc
+	CFLAGS += -std=c99 -DMPI_Implementation
+else
+	G++=mpic++
+	CXX=mpic++
+	CC=mpic++
+	CFLAGS += -DMPI_Implementation -DMAP_REDUCE_SINGLE
+	CXXFLAGS += -DMPI_Implementation -DMAP_REDUCE_SINGLE
+	## LM = -lm /gpfs/stfc/local/HCP006/mdw02/cxk42-mdw02/LIBs/mrmpi-22Nov13/src/libmrmpi_mpicc.a
+	LM = -lm /home/j_guscott/bin/mrmpi-7Apr14/src/libmrmpi_mpicc.a
+endif
+
+# System-dependent macros - OK for Linux and UNIX-like systems, for others will
+# require change
+RANLIB = ranlib	# UNIX
+EXE =			# UNIX
+OBJ = o			# UNIX
+LIB_EXT = a		# UNIX
+
+%.$(OBJ) : %.c
+	@echo 'Building file: $<'
+	$(CC) $(CFLAGS) -c $<
+
+DOCS_PROGRAMMER = 	$(DOCS_PROG_DIR)/treestack.html \
+					$(DOCS_PROG_DIR)/main.html \
+		  			$(DOCS_PROG_DIR)/cleanup.html \
+		  			$(DOCS_PROG_DIR)/datops.html \
+		  			$(DOCS_PROG_DIR)/err.html \
+		  			$(DOCS_PROG_DIR)/fops.html \
+		  			$(DOCS_PROG_DIR)/getparam.html \
+					  $(DOCS_PROG_DIR)/admin.html \
+					  $(DOCS_PROG_DIR)/mops.html \
+					  $(DOCS_PROG_DIR)/mymaths.html \
+					  $(DOCS_PROG_DIR)/myuni.html \
+					  $(DOCS_PROG_DIR)/parsim.html \
+					  $(DOCS_PROG_DIR)/randpint.html \
+					  $(DOCS_PROG_DIR)/solve.html \
+					  $(DOCS_PROG_DIR)/sops.html \
+					  $(DOCS_PROG_DIR)/trops.html \
+					  $(DOCS_PROG_DIR)/wrapper.html
+
+TEST_MANUAL = $(DOCS_PROG_DIR)/go.html
+
+# All documentation files
+
+DOCS = $(DOCS_PROGRAMMER) \
+       $(TEST_MANUAL)
+
+LVB_LIB_OBJS = admin.$(OBJ) \
+	treestack.$(OBJ) \
+	cleanup.$(OBJ) \
+	datops.$(OBJ) \
+	err.$(OBJ) \
+	fops.$(OBJ) \
+	getparam.$(OBJ) \
+	getstartt.$(OBJ) \
+	mops.$(OBJ) \
+	mymaths.$(OBJ) \
+	myuni.$(OBJ) \
+	parsim.$(OBJ) \
+	randpint.$(OBJ) \
+	solve.$(OBJ) \
+	store_states.$(OBJ) \
+	sops.$(OBJ) \
+	trops.$(OBJ) \
+    wrapper.$(OBJ)
+
+ifeq ($(WHICH_MAKE),MAKE_LVB_MPI)
+
+	# LVB library
+	LVB_LIB = liblvb.$(LIB_EXT)
+	LIBS += $(LVB_LIB)
+	LVB_PROG = lvb_mpi$(EXE)
+
+	# Object files that will go into the LVB library
+	LVB_LIB_OBJS += interaction_temperature.$(OBJ)
+else
+
+	# LVB library
+	LVB_LIB = libmrlvb.$(LIB_EXT)
+	LIBS += $(LVB_LIB)
+	LVB_PROG = lvb_mrmpi$(EXE)
+
+	# Object files that will go into the LVB library
+	LVB_LIB_OBJS += mrSubroutine.$(OBJ)
+endif
+
+LVB_READ_FILE_OBJS = 	$(LVB_READ_FILE_DIR)/CReadFiles.$(OBJ) \
+						$(LVB_READ_FILE_DIR)/ReadFile.$(OBJ)
+
+LVB_PROG_OBJS = main.$(OBJ)
+LVB_LIB_OBJS_OUTPUT = $(LVB_LIB_OBJS)
+
+
+# Object files that are used directly and will not go into the library
+%.html : $(LVB_LIB)
+	pod2html $(notdir $*).c > $@
+
+all : lvb_mpi			# allow 'make all' as synonym for 'make lvb'
+
+lvb_mpi : LVB_PROG $(DOCS)
+
+$(TEST_MANUAL) : $(TEST_DIR)/go
+		pod2html $< >$@
+
+LVB_PROG : $(LVB_LIB) $(LVB_PROG_OBJS)
+		$(MPIC++) $(CFLAGS) $(LDFLAGS) -o $(LVB_PROG) $(LVB_PROG_OBJS) $(LVB_READ_FILE_OBJS) $(LIBS) $(LM)
+
+$(LVB_LIB) : $(LVB_LIB_OBJS) $(LVB_READ_FILE_OBJS) 
+		ar rv $@ $(LVB_LIB_OBJS_OUTPUT) 
+		$(RANLIB) $(LVB_LIB)
+
+# If the main test script has changed, we should run the tests
+test : FORCE
+		cd tests ; env LVB_EXECUTABLE="`pwd`/../$(LVB_PROG)" LVB_LIBRARY="`pwd`/../$(LVB_LIB)" LVB_OTHERLIBS="$(LM)" LVB_HEADER_PATH=".." GPLUSPLUS="$(G++)" MPIC++="$(MPIC++)" CC="$(CC)" CFLAGS="$(CFLAGS)" ./go; cd ..;
+
+tests : test	# allow 'make tests' as synonym for 'make test'
+
+# make clean to remove files generated by a previous make, leaving
+# source files
+clean : FORCE
+	rm -f $(LVB_PROG) \
+	rm -f tests/test*/*.o \
+	rm -f tests/test*/testprog.exe \
+	rm pod2htmd.tmp \
+	rm pod2htmi.tmp \
+	$(LVB_LIB) \
+	$(LVB_LIB_OBJS) \
+	$(LVB_LIB_OBJS_OUTPUT) \
+	$(LVB_READ_FILE_OBJS) \
+	$(LVB_PROG_OBJS) \
+	$(DOCS)
+FORCE:
+
+

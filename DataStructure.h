@@ -40,7 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== DataStructure.h - definition of data structures ========== */
 
- #define NP_Implementation
+// #define NP_Implementation
 // #define MPI_Implementation
 
 #ifdef NP_Implementation
