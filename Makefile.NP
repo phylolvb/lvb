@@ -64,7 +64,7 @@
 # G++ and CFLAGS as instructed below, then compile as for Linux.
 
 # Directories
-TEST_DIR = ./tests
+TEST_DIR = ./tests/NP
 DOCS_PROG_DIR = ./docs_programmer
 LVB_READ_FILE_DIR = ./LVB_READ_FILES/src
 
@@ -195,7 +195,7 @@ $(TEST_MANUAL) : $(TEST_DIR)/go
 	pod2html $< >$@
 
 test : FORCE
-	cd tests ; env LVB_EXECUTABLE="`pwd`/../$(LVB_PROG)" LVB_LIBRARY="`pwd`/../$(LVB_LIB)" LVB_OTHERLIBS="$(LM)" LVB_HEADER_PATH=".." GPLUSPLUS="$(G++)" CC="$(CC)" CFLAGS="$(CFLAGS)" ./go; cd ..;
+	cd tests/NP ; env LVB_EXECUTABLE="`pwd`/../../$(LVB_PROG)" LVB_LIBRARY="`pwd`/../../$(LVB_LIB)" LVB_OTHERLIBS="$(LM)" LVB_HEADER_PATH=".." GPLUSPLUS="$(G++)" CC="$(CC)" CFLAGS="$(CFLAGS)" ./go; cd ../..;
 
 tests : test	# allow 'make tests' as synonym for 'make test'
 
