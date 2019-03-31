@@ -1,0 +1,257 @@
+#!/usr/bin/perl -w
+
+# LVB
+# 
+# (c) Copyright 2003-2012 by Daniel Barker
+# (c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl
+# (c) Copyright 2014 by Daniel Barker, Miguel Pinheiro and Maximilian Strobl
+# (c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl
+# and Chris Wood
+# (c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Chang Sik Kim,
+# Maximilian Strobl and Martyn Winn
+# All rights reserved.
+#  
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+# 
+# 1. Redistributions of source code must retain the above copyright notice,
+# this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright notice,
+# this list of conditions and the following disclaimer in the documentation
+# and/or other materials provided with the distribution.
+# 
+# 3. Neither the name of the copyright holder nor the names of its contributors
+# may be used to endorse or promote products derived from this software without
+# specific prior written permission.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
+=head1 NAME
+
+go - Run B<lvb> test suite.
+
+Version Tag $Id: go,v 1.21 2014/03/20 12:03:43 db60 Exp $
+
+=head1 SYNOPSIS
+
+    go [--test TESTNAME]
+
+=head1 DESCRIPTION
+
+Perl script to run the B<lvb> test suite and display a summary of
+results.
+
+Tests are assumed to be in subdirectories of the current directory
+whose names begin with C<test>, detected case-insensitively. Within
+each such directory, there should be a script named C<runtest> that
+will run the test and print C<test passed> to the standard output on
+success. The string C<test passed> is detected case-insensitively.
+
+A test may run the pre-built B<lvb> executable indicated by
+C<LVB_EXECUTABLE>.
+
+Alternatively, a test may use its own executable. Subdirectories of the
+current directory whose names begin with C<test_lib> are assumed to
+contain tests of this kind. They use an executable called
+C<testprog.exe>, which B<go> will build from all C<.c> files in the
+test directory prior to running the test. For building, <go> uses the
+LVB library indicated by C<LVB_LIBRARY>, any other libraries indicated
+by C<LVB_OTHERLIBS>, the extra header path C<LVB_HEADER_PATH> and the
+compiler C<CC> with options given by C<CFLAGS>. The test itself must
+launch C<testprog.exe> from its C<runtest> script.
+
+By convention, all tests should endeavour to print a message starting
+with (or consisting of) C<test failed> to the standard output on
+failure, but this is not required. No output, or any output that does
+not match the pattern C<"test passed">, is regarded as indicating
+failure.
+
+Tests do not have to remove temporary files. B<go> deletes all files
+in the test directory that were not present at the start of the test.
+
+=head1 OPTIONS
+
+=over 4
+
+=item --test TESTNAME
+
+Run only the test in the directory named B<TESTNAME>. The default is
+to run all tests.
+
+=back
+
+=head1 ENVIRONMENT
+
+The environment variables below must not contain spaces, with the
+exception that the space in the string "My Documents" is allowed.
+
+=over 4
+
+=item LVB_EXECUTABLE
+
+Must give the filename of the executable to test, including the full
+path.
+
+=item LVB_LIBRARY
+
+Must give the filename of the LVB library to test, including the full
+path.
+
+=item LVB_OTHERLIBS
+
+Must give any non-LVB-specific libraries to be used when building the
+test executable, either as full paths or as compiler options to appear
+at the end of the compiler command line. May be empty or unset. On Unix
+systems, C<LVB_OTHERLIBS> should usually be set to C<-lm>.
+
+=item LVB_HEADER_PATH
+
+Must give the full path to the directory containing the C<lvb.h> header
+describing the interface to the LVB library specified by
+C<LVB_LIBRARY>.
+
+=item CC
+
+Must give the name of the C compiler to use when testing the LVB
+library.
+
+=item CFLAGS
+
+Must give other the command-line options to use with the compiler
+specified by C<CC>. May be empty or unset.
+
+=back
+
+=head1 EXIT STATUS
+
+0 if all tests pass and there was no error, nonzero otherwise.
+
+=cut
+
+# $Id: go,v 1.21 2014/03/20 12:03:43 db60 Exp $
+
+# check expected filenames have been communicated through environment
+# and exist in suitable form
+
+$ENV{LVB_EXECUTABLE}
+ or die "error: LVB_EXECUTABLE environment variable is not set";
+-x $ENV{LVB_EXECUTABLE}
+ or die "error: no such executable '$ENV{LVB_EXECUTABLE}'";
+
+#$ENV{LVB_LIBRARY} or die "error: LVB_LIBRARY environment variable is not set";
+# -B $ENV{LVB_LIBRARY} or die "error: no such binary file '$ENV{LVB_LIBRARY}'";
+
+$ENV{LVB_HEADER_PATH}
+ or die "error: LVB_HEADER_PATH environment variable is not set";
+-d $ENV{LVB_HEADER_PATH}
+ or die "error: no such directory '$ENV{LVB_HEADER_PATH}'";
+
+##$ENV{CC} or die "error: CC environment variable is not set";
+
+# discover the names and total number of test directories
+if ($ARGV[0] and $ARGV[0] =~ /^--test$/)
+{
+    $ARGV[1] or die "error: option --test requires an argument";
+    @test_dirs = ( $ARGV[1] );
+    $test_cnt = 1;
+}
+else
+{
+    opendir(THIS_DIR, ".") or die "error";
+    $test_cnt = @test_dirs = grep { /^test/i } readdir THIS_DIR;
+    closedir(THIS_DIR);
+}
+
+# run the tests and log the results
+print "\nRUNNING TESTS ON LVB ...\n";
+$failed_cnt = 0;
+@failed_tests = ();
+foreach $test_dir (@test_dirs)
+{
+	print "Testing \"$test_dir\": ";
+    chdir "$test_dir" or die "error: can't change to directory $test_dir";
+
+    # get original test directory listing
+    opendir(THIS_DIR, ".") or die "error";
+    @orig_file_list = readdir THIS_DIR or die "error";
+    closedir THIS_DIR;
+
+    # build test executable if required
+    if ($test_dir =~ /^test_lib/){
+		$lvb_otherlibs = $ENV{LVB_OTHERLIBS};
+		#$lvb_otherlibs =~ s/ /\.\.\/\.\.\//g;
+		#$lvb_otherlibs =~ s/\.o/\.o /g;
+		$com = "$ENV{CC} $ENV{CFLAGS} -c main.c -I ../../$ENV{LVB_HEADER_PATH} -o main.o;"
+			. " $ENV{'MPIC++'} $ENV{CFLAGS} -I ../../$ENV{LVB_HEADER_PATH} -o testprog.exe main.o $ENV{LVB_LIBRARY} "
+			. "$lvb_otherlibs ../../../LVB_READ_FILES/src/CReadFiles.o ../../../LVB_READ_FILES/src/ReadFile.o";
+		# Build the executable
+		! `$com` or die "Cannot compile testprog.exe";
+    }
+
+    # run test
+    $result = `perl -w runtest` or die "error: can't execute 'runtest' in $test_dir";
+
+    # summarize results
+    if ($result =~ /test passed/i){
+    	print " test passed\n";
+    }
+    else{
+		$failed_cnt++;
+		print " test failed\n";
+		push @failed_tests, $test_dir;
+    }
+
+    # Remove files that are new since start of script
+    opendir(THIS_DIR, ".") or die "error";
+    @new_file_list = readdir THIS_DIR;
+    closedir THIS_DIR;
+    foreach $file (@new_file_list){
+        grep { /$file/ } @orig_file_list or unlink $file;
+    }
+
+    chdir ".." or die "error";
+}
+
+# summarize results
+print "\n";
+print "SUMMARY OF TEST RESULTS:\n";
+if ($test_cnt == 1)
+{
+    print "partial run: '@test_dirs' only\n";
+}
+else
+{
+    print "$test_cnt tests in test suite\n";
+}
+print $test_cnt - $failed_cnt, " tests passed\n";
+print "$failed_cnt tests failed\n";
+print "\n";
+
+if (scalar (@failed_tests) > 0){
+	print "Tests failed :\n";
+	$count = 1;
+	foreach $test_name (@failed_tests){
+		print "    $count) $test_name;\n";
+		$count += 1;
+	}
+}
+print "\n";
+
+# exit 0 on no failures, 1 otherwise
+if ($failed_cnt == 0){
+    exit 0;
+}
+else{
+    exit 1;
+}

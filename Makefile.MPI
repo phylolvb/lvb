@@ -218,7 +218,7 @@ all : lvb_mpi			# allow 'make all' as synonym for 'make lvb'
 
 lvb_mpi : LVB_PROG $(DOCS)
 
-$(TEST_MANUAL) : $(TEST_DIR)/go
+$(TEST_MANUAL) : $(TEST_DIR)/MPI/go
 		pod2html $< >$@
 
 LVB_PROG : $(LVB_LIB) $(LVB_PROG_OBJS)
@@ -230,7 +230,7 @@ $(LVB_LIB) : $(LVB_LIB_OBJS) $(LVB_READ_FILE_OBJS)
 
 # If the main test script has changed, we should run the tests
 test : FORCE
-		cd tests ; env LVB_EXECUTABLE="`pwd`/../$(LVB_PROG)" LVB_LIBRARY="`pwd`/../$(LVB_LIB)" LVB_OTHERLIBS="$(LM)" LVB_HEADER_PATH=".." GPLUSPLUS="$(G++)" MPIC++="$(MPIC++)" CC="$(CC)" CFLAGS="$(CFLAGS)" ./go; cd ..;
+		cd tests/MPI ; env LVB_EXECUTABLE="`pwd`/../../$(LVB_PROG)" LVB_LIBRARY="`pwd`/../../$(LVB_LIB)" LVB_OTHERLIBS="$(LM)" LVB_HEADER_PATH=".." GPLUSPLUS="$(G++)" MPIC++="$(MPIC++)" CC="$(CC)" CFLAGS="$(CFLAGS)" ./go; cd ..;
 
 tests : test	# allow 'make tests' as synonym for 'make test'
 
