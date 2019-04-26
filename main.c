@@ -513,7 +513,6 @@ static void writeinf(Params prms, Dataptr matrix, int myMPIid, int n_process)
 		if      (prms.n_file_format == FORMAT_PHYLIP)  printf("format input file       = phylip\n");
 		else if (prms.n_file_format == FORMAT_FASTA)   printf("format input file       = fasta\n");
 		else if (prms.n_file_format == FORMAT_NEXUS)   printf("format input file       = nexus\n");
-		else if (prms.n_file_format == FORMAT_MSF)     printf("format input file       = msf\n");
 		else if (prms.n_file_format == FORMAT_CLUSTAL) printf("format input file       = clustal\n");
 		else{
 			fprintf (stderr, "Error, input format file not recognized\n");

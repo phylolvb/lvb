@@ -531,9 +531,6 @@ int read_parameters(Params *prms, int argc, char **argv){
 				else if (strcmp(optarg, "nexus") == 0){
 					prms->n_file_format = FORMAT_NEXUS;
 				}
-				else if (strcmp(optarg, "msf") == 0){
-					prms->n_file_format = FORMAT_MSF;
-				}
 				else if (strcmp(optarg, "clustal") == 0){
 					prms->n_file_format = FORMAT_CLUSTAL;
 				}
