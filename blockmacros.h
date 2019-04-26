@@ -39,6 +39,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // macros to simplify use of multi-page KMVs
 // Karen Devine, March 2010
 
+#ifdef MAP_REDUCE_SINGLE
 
 	#ifndef _BLOCKMACROS_HPP
 	#define _BLOCKMACROS_HPP
@@ -67,3 +68,4 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 	#endif
 
+#endif
