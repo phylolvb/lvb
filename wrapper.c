@@ -40,9 +40,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lvb.h"
 
-#ifdef NP_Implementation
+#ifdef MPI_Implementation
+#ifdef MAP_REDUCE_SINGLE
+	#include "LVB_READ_FILES/src/ReadFile.h"
+#else
+	int read_file(char *file_name, int n_file_format, Dataptr p_lvbmat, DataSeqPtr lvbmat_seq);
+#endif
+#endif
 
+#ifdef NP_Implementation
 void read_file(char *file_name, int n_file_format, Dataptr p_lvbmat);
+#endif
 void phylip_mat_dims_in_external(char *file_name, int n_file_format, long *species_ptr, long *sites_ptr, int *max_length_name);
 
 
@@ -80,10 +88,18 @@ structure containing the data matrix.
 =cut
 
 **********/
-
+#ifdef NP_Implementation
 void phylip_dna_matrin(char *p_file_name, int n_file_format, Dataptr lvbmat)
 {
 	read_file(p_file_name, n_file_format, lvbmat);
+	#endif
+
+#ifdef MPI_Implementation
+int phylip_dna_matrin(char *p_file_name, int n_file_format, Dataptr lvbmat, DataSeqPtr lvbmat_seq)
+	{
+		int n_error_code = read_file(p_file_name, n_file_format, lvbmat, lvbmat_seq);
+		if (n_error_code != EXIT_SUCCESS) return n_error_code;
+	#endif
 
     /* check number of sequences is in range for LVB */
     if (lvbmat->n < MIN_N) crash("The data matrix must have at least %ld sequences.", MIN_N);
@@ -92,8 +108,14 @@ void phylip_dna_matrin(char *p_file_name, int n_file_format, Dataptr lvbmat)
     else if (lvbmat->m < MIN_M) crash("The data matrix must have at least %ld sites.", MIN_M);
     else if (lvbmat->m > MAX_M) crash("The data matrix must have no more than %ld sites.", MAX_M);
 
+#ifdef NP_Implementation
     /* maximum number of object sets per tree */
     lvb_assert (lvbmat->nsets <= (MAX_N - 3));
+#endif
+
+#ifdef MPI_Implementation
+return EXIT_SUCCESS;
+#endif
 
 } /* end phylip_dna_matrin() */
 
@@ -141,116 +163,3 @@ void phylip_mat_dims_in(char *p_file_name, int n_file_format, long *species_ptr,
 	phylip_mat_dims_in_external(p_file_name, n_file_format, species_ptr, sites_ptr, max_length_name);
 }
 
-#endif // #ifdef NP_Implementation //
-
-#ifdef MPI_Implementation
-
-#ifdef MAP_REDUCE_SINGLE
-	#include "LVB_READ_FILES/src/ReadFile.h"
-#else
-	int read_file(char *file_name, int n_file_format, Dataptr p_lvbmat, DataSeqPtr lvbmat_seq);
-	void phylip_mat_dims_in_external(char *file_name, int n_file_format, long *species_ptr, long *sites_ptr, int *max_length_name);
-#endif
-
-
-
-
-
-
-
-/**********
-
-=head1 phylip_dna_matrin - READ PHYLIP-FORMAT DNA DATA MATRIX
-
-=head2 SYNOPSIS
-
-    Dataptr phylip_dna_matrin(Lvb_bool ileaved);
-
-=head2 DESCRIPTION
-
-Read a DNA data matrix in PHYLIP 3.6 format from file. The file name is
-given by the macro MATFNAM in F<lvb.h>.
-
-=head2 PARAMETERS
-
-=head3 INPUT
-
-=over 4
-
-=item ileaved
-
-C<LVB_TRUE> indicates that the matrix is in PHYLIP interleaved format.
-Otherwise, it is assumed to be in PHYLIP sequential format.
-
-=back
-
-=head2 RETURN
-
-Returns a pointer to a new, dynamically allocated LVB data matrix
-structure containing the data matrix.
-
-=cut
-
-**********/
-
-	int phylip_dna_matrin(char *p_file_name, int n_file_format, Dataptr lvbmat, DataSeqPtr lvbmat_seq)
-	{
-		int n_error_code = read_file(p_file_name, n_file_format, lvbmat, lvbmat_seq);
-		if (n_error_code != EXIT_SUCCESS) return n_error_code;
-
-		/* check number of sequences is in range for LVB */
-	    if (lvbmat->n < MIN_N) crash("The data matrix must have at least %ld sequences.", MIN_N);
-	    else if (lvbmat->n > MAX_N) crash("The data matrix must have no more than %ld sequences.", MAX_N);
-	    /* check number of sites is in range for LVB */
-	    else if (lvbmat->m < MIN_M) crash("The data matrix must have at least %ld sites.", MIN_M);
-	    else if (lvbmat->m > MAX_M) crash("The data matrix must have no more than %ld sites.", MAX_M);
-
-	    return EXIT_SUCCESS;
-	} /* end phylip_dna_matrin() */
-
-
-/**********
-
-=head1 phylip_mat_dims_in - READ PHYLIP MATRIX DIMENSIONS
-
-=head2 SYNOPSIS
-
-void phylip_mat_dims_in(long *species_ptr, long *sites_ptr);
-
-=head2 DESCRIPTION
-
-Reads the number of sequences and number of sites per sequence in a
-PHYLIP-format matrix file.
-
-=head2 PARAMETERS
-
-=head3 OUTPUT
-
-=over 4
-
-=item species_ptr
-
-On return, *C<species_ptr> is set to the number of sequences.
-
-=item sites_ptr
-
-On return, *C<sites_ptr> is set to the number of sites per
-sequence.
-
-=back
-
-=head2 BUGS
-
-C<phylip_mat_dims_in()> should not be called if the matrix file is
-open.
-
-=cut
-
-**********/
-
-void phylip_mat_dims_in(char *p_file_name, int n_file_format, long *species_ptr, long *sites_ptr, int *max_length_name){
-
-	phylip_mat_dims_in_external(p_file_name, n_file_format, species_ptr, sites_ptr, max_length_name);
-}
-
-#endif
