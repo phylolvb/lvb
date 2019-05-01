@@ -1301,11 +1301,6 @@ int CReadFiles::read_file(std::string sz_file_name_temp, int n_file_type){
 		n_error_code = read_clustal(filetype);
 		if (n_error_code != EXIT_SUCCESS) return n_error_code;
 	}
-	else if (n_file_type == CReadFiles::FORMAT_MSF_) {          // MSF format
-		filetype=2;
-		n_error_code = read_clustal(filetype);
-		if (n_error_code != EXIT_SUCCESS) return n_error_code;
-	}
 	else if (n_file_type == CReadFiles::FORMAT_PHYLIP_) {          // Phylip format
 		n_error_code = read_phylip();
 		if (n_error_code != EXIT_SUCCESS) return n_error_code;

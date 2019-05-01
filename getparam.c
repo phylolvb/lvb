@@ -40,72 +40,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lvb.h"
 
-#ifdef NP_Implementation
-
 #include <unistd.h>
 
 /* it is in ReadFile.cpp library */
+#ifdef NP_Implementation
 void read_parameters(Params *prms, int argc, char **argv);
-
 static int get_default_seed(void)
-/* return a default integer in the interval [0..MAX_SEED], obtained from the
- * system clock, or exit with an error message if the system time is
- * unavailable */
-{
-    time_t tim;			/* system time */
-    unsigned long ul_seed;	/* seed value obtained from system time */
-
-    tim = time(NULL);
-    lvb_assert(tim != -1);
-    ul_seed = (unsigned long) tim;
-    ul_seed = ul_seed % (1UL + (unsigned long) MAX_SEED);
-    lvb_assert(ul_seed <= MAX_SEED);
-    return (int) ul_seed;
-
-} /* end get_default_seed() */
-
-
-void defaults_params(Params *const prms)
-/* set seed in *prms to unacceptable value, and other parameters to their
- * defaults_params from lvb.h */
-{
-    prms->bootstraps = 0;	/* sensible default */
-
-    /* meaningful value that is not user-configurable */
-    prms->verbose = LVB_FALSE;
-
-    /* cooling schecdule Generic */
-    prms->cooling_schedule = 0;
-    /* default value that will usually be used */
-    prms->seed = get_default_seed();
-    /* original branch-swapping algorithm */
-    prms->algorithm_selection = 0;
-
-    strcpy(prms->file_name_in, "infile");
-    strcpy(prms->file_name_out, OUTTREEFNAM);
-    prms->n_file_format = FORMAT_PHYLIP;
-    prms->n_processors_available = 1;
-    prms->n_number_max_trees = 0;			/* by default keepall of them */
-
-} /* end defaults_params() */
-
-void getparam(Params *prms, int argc, char **argv)
-/* Get configuration parameters. This function fills *prms with
- * run-time configuration parameters */
-{
-	defaults_params(prms);
- /*   user_adjust(prms);*/
-	read_parameters(prms, argc, argv);
-
-} /* end getparam() */
-
-#endif // #ifdef NP_Implementation //
+#endif
 
 #ifdef MPI_Implementation
-
-#include <unistd.h>
-
-/* it is in ReadFile.cpp library */
 #ifdef MAP_REDUCE_SINGLE
 	#include "LVB_READ_FILES/src/ReadFile.h"
 #else
@@ -118,38 +61,51 @@ long get_random_maxaccept(void)
 {
     return randpint(MAXACCEPT_MAX - MAXACCEPT_MIN) + MAXACCEPT_MIN;
 }
-
 int get_default_seed(void)
+#endif
 /* return a default integer in the interval [0..MAX_SEED], obtained from the
  * system clock, or exit with an error message if the system time is
  * unavailable */
 {
-    time_t tim;		/* system time */
-    unsigned long ul_seed;	/* seed */
+    time_t tim;			    /* system time */
+    unsigned long ul_seed;	/* seed value obtained from system time */
 
     tim = time(NULL);
     lvb_assert(tim != -1);
+    #ifdef NP_Implementation
+    ul_seed = (unsigned long) tim;
+    ul_seed = ul_seed % (1UL + (unsigned long) MAX_SEED);
+    #endif
+
+    #ifdef MPI_IMplementation
     srand(tim);
     ul_seed = (unsigned long) rand() % (1UL + (unsigned long) MAX_SEED);
+    #endif
     lvb_assert(ul_seed <= MAX_SEED);
     return (int) ul_seed;
 
 } /* end get_default_seed() */
 
+
 void defaults_params(Params *const prms)
 /* set seed in *prms to unacceptable value, and other parameters to their
  * defaults_params from lvb.h */
 {
-#ifndef MAP_REDUCE_SINGLE
+    #ifdef NP_Implementation
+    prms->bootstraps = 0;	/* sensible default */
+    #endif
+
+    #ifdef MPI_Implementation
+    #ifndef MAP_REDUCE_SINGLE
     prms->n_seeds_need_to_try = 1;
     prms->n_checkpoint_interval = CHECKPOINT_INTERVAL;
-#endif
+    #endif
 
     /* by default dont read and save states */
     prms->n_flag_save_read_states = DONT_SAVE_READ_STATES;
     prms->n_flag_is_finished_process = CHECK_POINT_PROCESS_NOT_FINISHED;
     prms->n_flag_is_possible_read_state_files = CHECK_POINT_NOT_READ_STATE_FILES;
-
+    #endif
     /* meaningful value that is not user-configurable */
     prms->verbose = LVB_FALSE;
 
@@ -157,22 +113,44 @@ void defaults_params(Params *const prms)
     prms->cooling_schedule = 0;
     /* default value that will usually be used */
     prms->seed = get_default_seed();
+    #ifdef NP_Implementation
+    /* original branch-swapping algorithm */
+    prms->algorithm_selection = 0;
+    #endif
+
+
 
     strcpy(prms->file_name_in, "infile");
     strcpy(prms->file_name_out, OUTTREEFNAM);
     prms->n_file_format = FORMAT_PHYLIP;
     prms->n_processors_available = 1;
-
+    #ifdef MPI_Implementation
     /* it is olnly used for tests */
     prms->n_make_test = 0;	/* by default is not making any test */
+    #endif
+
+    #ifdef NP_Implementation
+    prms->n_number_max_trees = 0;			/* by default keepall of them */
+    #endif
 } /* end defaults_params() */
 
-int getparam(Params *prms, int argc, char **argv)
-/* Get configuration parameters. This function fills *prms with
-   run-time configuration parameters */
-{
-        defaults_params(prms);
+#ifdef NP_Implementation
+void getparam(Params *prms, int argc, char **argv)
+#endif
 
+#ifdef MPI_Implementation
+int getparam(Params *prms, int argc, char **argv)
+#endif
+/* Get configuration parameters. This function fills *prms with
+  run-time configuration parameters */
+{
+	defaults_params(prms);
+ #ifdef NP_Implementation
+ /*   user_adjust(prms);*/
+	read_parameters(prms, argc, argv);
+ #endif
+
+ #ifdef MPI_Implementation
 #ifndef MAP_REDUCE_SINGLE
         int n_default_seed = prms->seed;
 #endif
@@ -185,6 +163,5 @@ int getparam(Params *prms, int argc, char **argv)
         }
 #endif
         return n_error_code;
+ #endif
 } /* end getparam() */
-
-#endif
