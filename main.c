@@ -40,10 +40,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lvb.h"
 
-#ifdef NP_Implementation
+#ifdef MPI_Implementation
 
+#include <inttypes.h>
+#include "store_states.h"
+
+#ifdef MAP_REDUCE_SINGLE
+	static Treestack bstack_overall;	/* overall best tree stack */
+#endif
+
+#endif
+
+#ifdef NP_Implementation
 static Treestack bstack_overall;	/* overall best tree stack */
 static Treestack stack_treevo;
+
+#endif
 
 static void check_stdout(void)
 /* Flush standard output, and crash verbosely on error. */
@@ -58,10 +70,14 @@ static void smessg(long start, long cycle)
 /* print cycle start message */
 {
     // printf("Beginning cycle \n\n");
+	#ifdef MPI_Implementation
+	printf("Beginning start %ld cycle %ld\n", start, cycle);
+	#endif
     check_stdout();
 
 } /* end smessg() */
 
+#ifdef NP_Implementation
 static void writeinf(Params prms, Dataptr matrix)
 /* write initial details to standard output */
 {
@@ -102,9 +118,55 @@ static void writeinf(Params prms, Dataptr matrix)
 
 
 } /* end writeinf() */
+#endif
 
+#ifdef MPI_Implementation
 
+static void writeinf(Params prms, Dataptr matrix, int myMPIid, int n_process)
+/* write initial details to standard output */
+{
+		printf("\n#########\nProcess ID: %d\n", myMPIid);
+
+		printf("cooling schedule        = ");
+		if(prms.cooling_schedule == 0) printf("GEOMETRIC\n");
+		else printf("LINEAR\n");
+
+		printf("main seed               = %d\n", prms.seed);
+		printf("input file name         = %s\n",  prms.file_name_in);
+		printf("output file name        = %s\n",  prms.file_name_out);
+		if      (prms.n_file_format == FORMAT_PHYLIP)  printf("format input file       = phylip\n");
+		else if (prms.n_file_format == FORMAT_FASTA)   printf("format input file       = fasta\n");
+		else if (prms.n_file_format == FORMAT_NEXUS)   printf("format input file       = nexus\n");
+		else if (prms.n_file_format == FORMAT_CLUSTAL) printf("format input file       = clustal\n");
+		else{
+			fprintf (stderr, "Error, input format file not recognized\n");
+			abort();
+		}
+		printf("threads                 = %d\n",  prms.n_processors_available);
+#ifndef MAP_REDUCE_SINGLE
+		printf("#seeds to try           = %d\n", prms.n_seeds_need_to_try);
+		printf("checkpoint interval (s) = %d\n", prms.n_checkpoint_interval);
+#endif
+		printf("mpi processes           = %d\n", n_process);
+		if (prms.n_flag_save_read_states == DONT_SAVE_READ_STATES) printf("Don't read and save states at a specific time points\n");
+		else printf("It is going to read and save states at a specific time points\n\n");
+
+		printf("\n#Species                = %ld\n", matrix->n);
+		printf("Lenght of Sequences:\n");
+		printf("    Before cut          = %ld\n", matrix->original_m);
+		printf("    After cut           = %ld\n", matrix->m);
+} /* end writeinf() */
+
+#endif
+
+#ifdef NP_Implementation
 static void logtree1(Dataptr matrix, const Branch *const barray, const long start, const long cycle, long root)
+#endif
+
+#ifdef MPI_Implementation
+static void logtree1(Dataptr matrix, DataSeqPtr restrict matrix_seq_data, const Branch *const barray, const long start, const long cycle, long root)
+#endif
+
 /* log initial tree for cycle cycle of start start (in barray) to outfp */
 {
     static char outfnam[LVB_FNAMSIZE]; 	/* current file name */
@@ -115,12 +177,20 @@ static void logtree1(Dataptr matrix, const Branch *const barray, const long star
     lvb_assert(fnamlen < LVB_FNAMSIZE);	/* shut door if horse bolted */
 
     /* create tree file */
-    outfp = clnopen(outfnam, "w");
-    lvb_treeprint(matrix, outfp, barray, root);
-    clnclose(outfp, outfnam);
+    
+	outfp = clnopen(outfnam, "w");
+    #ifdef NP_Implementation
+	lvb_treeprint(matrix, outfp, barray, root);
+    #endif
+
+	#ifdef MPI_Implementation
+	lvb_treeprint(matrix, matrix_seq_data, outfp, barray, root);
+	#endif
+	clnclose(outfp, outfnam);
 
 } /* end logtree1() */
 
+#ifdef NP_Implementation
 static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight_arr, long *iter_p, Lvb_bool log_progress)
 /* get and output solution(s) according to parameters in rcstruct;
  * return length of shortest tree(s) found, using weights in weight_arr */
@@ -237,320 +307,9 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
     return treelength;
 
 } /* end getsoln() */
-
-/* set the number of processors to use */
-void calc_distribution_processors(Dataptr matrix, Params rcstruct){
-	int n_threads_temp = 0;
-	if (matrix->nwords > MINIMUM_SIZE_NUMBER_WORDS_TO_ACTIVATE_THREADING){
-		do{
-			n_threads_temp ++;
-			matrix->n_slice_size_getplen = matrix->nwords / n_threads_temp;
-		}while (matrix->n_slice_size_getplen > MINIMUM_WORDS_PER_SLICE_GETPLEN && n_threads_temp != rcstruct.n_processors_available);
-
-		if (matrix->n_slice_size_getplen > MINIMUM_WORDS_PER_SLICE_GETPLEN){
-			matrix->n_slice_size_getplen = matrix->nwords / n_threads_temp;
-			matrix->n_threads_getplen = n_threads_temp;
-		}
-		else{
-			matrix->n_threads_getplen = n_threads_temp - 1;
-			matrix->n_slice_size_getplen = matrix->nwords / matrix->n_threads_getplen;
-		}
-	}
-	else{
-		matrix->n_threads_getplen = 1; /* need to pass for 1 thread because the number of words is to low */
-	}
-	// only to protect
-	if (matrix->n_threads_getplen < 1) matrix->n_threads_getplen = 1;
-
-	printf("Threads Available    = %d (possibly reduced due to limited availability)\n\n", matrix->n_threads_getplen);
-
-    printf("Begin cycle: \n\n");
-    if (rcstruct.verbose == LVB_FALSE && rcstruct.bootstraps == LVB_FALSE)
-        printf("Temperature:   Rearrangement: TreeStack size: Length:\n");
-	// if (rcstruct.n_processors_available != matrix->n_threads_getplen)
-	//	printf("Reduced based on the size of the dataset\n");
-}
-
-
-static void logstim(void)
-/* log start time with message */
-{
-    time_t tim;	/* time */
-
-    tim = time(NULL);
-    printf("Starting at: %s\n", ctime(&tim));
-
-} /* end logstim() */
-
-int main(int argc, char **argv)
-{
-    Dataptr matrix;	/* data matrix */
-    int val;			/* return value */
-    Params rcstruct;		/* configurable parameters */
-    long i;			/* loop counter */
-    long iter;			/* iterations of annealing algorithm */
-    long replicate_no = 0L;	/* current bootstrap replicate number */
-    long trees_output_total = 0L;	/* number of trees output, overall */
-    long trees_output;		/* number of trees output for current rep. */
-    double total_iter = 0.0;	/* total iterations across all replicates */
-    long final_length;		/* length of shortest tree(s) found */
-    FILE *outtreefp;		/* best trees found overall */
-    long *weight_arr;  		/* weights for sites */
-    Lvb_bool log_progress;	/* whether or not to log anneal search */
-
-    /* global files */
-
-    /* entitle standard output */
-    printf("\nLVB\n\n"
-	"(c) Copyright 2003-2012 by Daniel Barker\n"
-	"(c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl\n"
-	"(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro\n"
-	"and Maximilian Strobl\n"
-	"(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro,\n"
-	"Maximilian Strobl and Chris Wood.\n"
-	"All rights reserved.\n"
-	"\n"
-	"Redistribution and use in source and binary forms, with or without\n"
-	"modification, are permitted provided that the following conditions\n"
-	"are met:\n"
-	"\n"
-	"1. Redistributions of source code must retain the above copyright\n"
-	"notice, this list of conditions and the following disclaimer.\n"
-	"\n"
-	"2. Redistributions in binary form must reproduce the above\n"
-	"copyright notice, this list of conditions and the following\n"
-	"disclaimer in the documentation and/or other materials provided\n"
-	"with the distribution.\n"
-	"\n"
-	"3. Neither the name of the copyright holder nor the names of its\n"
-	"contributors may be used to endorse or promote products derived\n"
-	"from this software without specific prior written permission.\n"
-	"\n"
-	"THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS\n"
-	"\"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT\n"
-	"LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS\n"
-	"FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE\n"
-	"COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,\n"
-	"INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES\n"
-	"(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR\n"
-	"SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)\n"
-	"HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,\n"
-	"STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)\n"
-	"ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF\n"
-	"ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n\n");
-    printf("* This is %s version %s %s *\n\n", PROGNAM, LVB_VERSION, LVB_SUBVERSION);
-    printf("Literature reference:\n"
-	"Barker, D. 2004. LVB: Parsimony and simulated annealing in the\n"
-	"search for phylogenetic trees. Bioinformatics, 20, 274-275.\n\n");
-    printf("Download and support:\n"
-	"http://lvb.bio.ed.ac.uk/\n\n");
-
-    /* start timer */ 
-    clock_t Start, End;
-    double Overall_Time_taken;
-    double Overall_Time_taken_minutes;
-    double Overall_Time_taken_hours;
-
-    Start = clock();
-    lvb_initialize();
-    getparam(&rcstruct, argc, argv);
-    logstim();
-
-    /* read and alloc space to the data structure */
-    matrix = alloc(sizeof(DataStructure), "alloc data structure");
-    phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix);
-
-    /* "file-local" dynamic heap memory: set up best tree stacks, need to be by thread */
-    bstack_overall = treestack_new();
-    if(rcstruct.algorithm_selection ==2) 
-    stack_treevo = treestack_new();
-        
-    matchange(matrix, rcstruct);	/* cut columns */
-    writeinf(rcstruct, matrix);
-    calc_distribution_processors(matrix, rcstruct);
-
-    if (rcstruct.verbose == LVB_TRUE) {
-    	printf("Based on matrix provided, maximum parsimony tree length: %ld\n\n", getminlen(matrix));
-    }
-    rinit(rcstruct.seed);
-    if (rcstruct.bootstraps > 0) {
-    	log_progress = LVB_TRUE;
-    	printf("Temperature:   Rearrangement: TreeStack size: Length:\n");
-    }
-    else log_progress = LVB_TRUE;
-
-    weight_arr = (long*) alloc(sizeof(long) * matrix->m, "alloc data structure");
-    outtreefp = clnopen(rcstruct.file_name_out, "w");
-    FILE * treEvo;
-    if(rcstruct.algorithm_selection ==2)
-    treEvo = fopen ("treEvo.tre","w");
-    do{
-		iter = 0;
-		if (rcstruct.bootstraps > 0){
-			get_bootstrap_weights(weight_arr, matrix->m, matrix->original_m - matrix->m);
-		}
-		else{
-			for (i = 0; i < matrix->m; i++) weight_arr[i] = 1;
-		}
-        
-		final_length = getsoln(matrix, rcstruct, weight_arr, &iter, log_progress);
- 
-		if (rcstruct.bootstraps > 0) trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_TRUE);
-		else trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_FALSE);
-		
-		/* print in the screen */
-/*		for (i = 0; i < bstack_overall.next; i++) {
-			treedump_screen(matrix, bstack_overall.stack[i].tree);
-		}*/
-		
-		trees_output_total += trees_output;
-        if(rcstruct.algorithm_selection ==2)
-		treestack_print(matrix, &stack_treevo, treEvo, LVB_FALSE);
-        treestack_clear(&bstack_overall);
-		replicate_no++;
-		if (rcstruct.bootstraps > 0) {
-			printf("\n\nReplicate %ld complete:\n\nRearrangements tried: %-16ld\nTrees saved:          %-16ld\nLength:               %ld\n\n", replicate_no, iter, trees_output, final_length);
-            if (replicate_no < rcstruct.bootstraps)
-            printf("Temperature:   Rearrangement: TreeStack size: Length:\n");
-			total_iter += (double) iter;
-		}
-		else  printf("\nEnd cycle\n\nTotal rearrangements tried: %ld\n", iter);
-	} while (replicate_no < rcstruct.bootstraps);
-   if(rcstruct.algorithm_selection ==2)
-    fclose(treEvo);
-	clnclose(outtreefp, rcstruct.file_name_out);
-
-	printf("\n");
-	if (rcstruct.bootstraps > 0)
-		printf("\nEnd cycle\n\nTotal rearrangements tried across all replicates: %g\n\n", total_iter);
-
-	if ((trees_output_total == 1L) && (rcstruct.bootstraps == 0)) {
-		printf("1 most parsimonious tree of length %ld written to file '%s'\n", final_length, rcstruct.file_name_out);
-	}
-	else {
-		if (rcstruct.bootstraps > 0){
-			lvb_assert(trees_output_total == rcstruct.bootstraps);
-			printf("%ld trees written to file '%s'\n", trees_output_total, rcstruct.file_name_out);
-		}
-		else{
-			printf("%ld equally parsimonious trees of length %ld written to "
-			 "file '%s'\n", trees_output_total, final_length, rcstruct.file_name_out);
-		}
-    }
-    End = clock();
-
-    Overall_Time_taken = ((double) (End - Start)) /CLOCKS_PER_SEC;
-    Overall_Time_taken_minutes = Overall_Time_taken / 60;
-    Overall_Time_taken_hours = Overall_Time_taken_minutes / 60;
-    if (Overall_Time_taken <= 60)
-    printf("lvb took %.2lf seconds to complete\n", Overall_Time_taken);
-    if (Overall_Time_taken <= 3600) {
-            if (Overall_Time_taken >= 60)
-    printf("lvb took %.2lf minutes, (%.2lf seconds) to complete\n", Overall_Time_taken_minutes, Overall_Time_taken);
-    }
-    if (Overall_Time_taken >= 3600)
-         printf("lvb took %.2lf hours, (%.2lf minutes) to complete\n", Overall_Time_taken_hours, Overall_Time_taken_minutes);
-	/* "file-local" dynamic heap memory */
-    if (rcstruct.algorithm_selection ==2)
-    treestack_free(matrix, &stack_treevo);
-	treestack_free(matrix, &bstack_overall);
-    rowfree(matrix);
-    free(matrix);
-    free(weight_arr);
-
-    if (cleanup() == LVB_TRUE) val = EXIT_FAILURE;
-    else val = EXIT_SUCCESS;
-
-    return val;
-
-    
-
-} /* end main() */
-
 #endif
-
-//#endif
 
 #ifdef MPI_Implementation
-
-#include <inttypes.h>
-#include "store_states.h"
-
-#ifdef MAP_REDUCE_SINGLE
-	static Treestack bstack_overall;	/* overall best tree stack */
-#endif
-
-
-static void check_stdout(void)
-/* Flush standard output, and crash verbosely on error. */
-{
-    if (fflush(stdout) == EOF)
-        crash("write error on standard output");	/* may not work! */
-    if (ferror(stdout))
-    	crash("file error on standard output");		/* may not work! */
-}	/* end check_stdout() */
-
-static void smessg(long start, long cycle)
-/* print cycle start message */
-{
-    printf("Beginning start %ld cycle %ld\n", start, cycle);
-    check_stdout();
-
-} /* end smessg() */
-
-static void writeinf(Params prms, Dataptr matrix, int myMPIid, int n_process)
-/* write initial details to standard output */
-{
-		printf("\n#########\nProcess ID: %d\n", myMPIid);
-
-		printf("cooling schedule        = ");
-		if(prms.cooling_schedule == 0) printf("GEOMETRIC\n");
-		else printf("LINEAR\n");
-
-		printf("main seed               = %d\n", prms.seed);
-		printf("input file name         = %s\n",  prms.file_name_in);
-		printf("output file name        = %s\n",  prms.file_name_out);
-		if      (prms.n_file_format == FORMAT_PHYLIP)  printf("format input file       = phylip\n");
-		else if (prms.n_file_format == FORMAT_FASTA)   printf("format input file       = fasta\n");
-		else if (prms.n_file_format == FORMAT_NEXUS)   printf("format input file       = nexus\n");
-		else if (prms.n_file_format == FORMAT_CLUSTAL) printf("format input file       = clustal\n");
-		else{
-			fprintf (stderr, "Error, input format file not recognized\n");
-			abort();
-		}
-		printf("threads                 = %d\n",  prms.n_processors_available);
-#ifndef MAP_REDUCE_SINGLE
-		printf("#seeds to try           = %d\n", prms.n_seeds_need_to_try);
-		printf("checkpoint interval (s) = %d\n", prms.n_checkpoint_interval);
-#endif
-		printf("mpi processes           = %d\n", n_process);
-		if (prms.n_flag_save_read_states == DONT_SAVE_READ_STATES) printf("Don't read and save states at a specific time points\n");
-		else printf("It is going to read and save states at a specific time points\n\n");
-
-		printf("\n#Species                = %ld\n", matrix->n);
-		printf("Lenght of Sequences:\n");
-		printf("    Before cut          = %ld\n", matrix->original_m);
-		printf("    After cut           = %ld\n", matrix->m);
-} /* end writeinf() */
-
-
-static void logtree1(Dataptr matrix, DataSeqPtr restrict matrix_seq_data, const Branch *const barray, const long start, const long cycle, long root)
-/* log initial tree for cycle cycle of start start (in barray) to outfp */
-{
-    static char outfnam[LVB_FNAMSIZE]; 	/* current file name */
-    int fnamlen;			/* length of current file name */
-    FILE *outfp;			/* output file */
-
-    fnamlen = sprintf(outfnam, "%s_start%ld_cycle%ld", TREE1FNAM, start, cycle);
-    lvb_assert(fnamlen < LVB_FNAMSIZE);	/* shut door if horse bolted */
-
-    /* create tree file */
-    outfp = clnopen(outfnam, "w");
-    lvb_treeprint(matrix, matrix_seq_data, outfp, barray, root);
-    clnclose(outfp, outfnam);
-
-} /* end logtree1() */
-
 
 #ifdef MAP_REDUCE_SINGLE
 	static long getsoln(Dataptr restrict matrix, DataSeqPtr restrict matrix_seq_data, Params rcstruct, long *iter_p, Lvb_bool log_progress,
@@ -888,8 +647,8 @@ static void logtree1(Dataptr matrix, DataSeqPtr restrict matrix_seq_data, const 
 
 	} /* end getsoln() */
 #endif
+#endif
 
-	
 /* set the number of processors to use */
 void calc_distribution_processors(Dataptr matrix, Params rcstruct){
 	int n_threads_temp = 0;
@@ -909,6 +668,23 @@ void calc_distribution_processors(Dataptr matrix, Params rcstruct){
 		}
 	}
 	else{
+		#ifdef NP_Implementation
+		matrix->n_threads_getplen = 1; /* need to pass for 1 thread because the number of words is to low */
+	}
+	// only to protect
+	if (matrix->n_threads_getplen < 1) matrix->n_threads_getplen = 1;
+
+	printf("Threads Available    = %d (possibly reduced due to limited availability)\n\n", matrix->n_threads_getplen);
+
+    printf("Begin cycle: \n\n");
+    if (rcstruct.verbose == LVB_FALSE && rcstruct.bootstraps == LVB_FALSE)
+        printf("Temperature:   Rearrangement: TreeStack size: Length:\n");
+	// if (rcstruct.n_processors_available != matrix->n_threads_getplen)
+	//	printf("Reduced based on the size of the dataset\n");
+	#endif
+
+	#ifdef MPI_Implementation
+
 		matrix->n_slice_size_getplen = 0;	/* it doens't matter this value for 1 thread */
 		matrix->n_threads_getplen = 1; /* need to pass for 1 thread because the number of words is to low */
 	}
@@ -919,6 +695,7 @@ void calc_distribution_processors(Dataptr matrix, Params rcstruct){
 /* TODO, need to control the seeds that where processed*/
 int get_other_seed_to_run_a_process(){
 	return (int) (rand() % (unsigned long) MAX_SEED);
+	#endif
 }
 
 
@@ -928,9 +705,11 @@ static void logstim(void)
     time_t tim;	/* time */
 
     tim = time(NULL);
-    printf("Starting at: %s", ctime(&tim));
+    printf("Starting at: %s\n", ctime(&tim));
 
 } /* end logstim() */
+
+#ifdef MPI_Implementation
 
 #ifndef MAP_REDUCE_SINGLE
 	void print_data(Dataptr p_lvbmat, int n_thread){
@@ -1154,9 +933,30 @@ static void logstim(void)
 	}
 
 #endif
+#endif
 
-	int main(int argc, char **argv)
-	{
+int main(int argc, char **argv)
+{
+	#ifdef NP_Implementation
+    Dataptr matrix;	/* data matrix */
+    int val;			/* return value */
+    Params rcstruct;		/* configurable parameters */
+    long i;			/* loop counter */
+    long iter;			/* iterations of annealing algorithm */
+    long replicate_no = 0L;	/* current bootstrap replicate number */
+    long trees_output_total = 0L;	/* number of trees output, overall */
+    long trees_output;		/* number of trees output for current rep. */
+    double total_iter = 0.0;	/* total iterations across all replicates */
+    long final_length;		/* length of shortest tree(s) found */
+    FILE *outtreefp;		/* best trees found overall */
+    long *weight_arr;  		/* weights for sites */
+    Lvb_bool log_progress;	/* whether or not to log anneal search */
+
+    /* global files */
+
+	#endif
+
+	#ifdef MPI_Implementation
 
 #ifndef MAP_REDUCE_SINGLE
 	    Dataptr matrix;	/* data matrix */
@@ -1250,55 +1050,184 @@ static void logstim(void)
 		if(misc.rank == 0) {
 #endif
 
-			/* entitle standard output */
-			printf("\nLVB\n\n"
-			"(c) Copyright 2003-2012 by Daniel Barker\n"
-			"(c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl\n"
-			"(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro and Maximilian Strobl\n"
-			"(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl\n"
-			"and Chris Wood\n"
-			"(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Chang Sik Kim,\n"
-			"Maximilian Strobl and Martyn Winn\n"
-			"All rights reserved.\n"
-			"\n"
-			"Redistribution and use in source and binary forms, with or without\n"
-			"modification, are permitted provided that the following conditions\n"
-			"are met:\n"
-			"\n"
-			"1. Redistributions of source code must retain the above copyright\n"
-			"notice, this list of conditions and the following disclaimer.\n"
-			"\n"
-			"2. Redistributions in binary form must reproduce the above\n"
-			"copyright notice, this list of conditions and the following\n"
-			"disclaimer in the documentation and/or other materials provided\n"
-			"with the distribution.\n"
-			"\n"
-			"3. Neither the name of the copyright holder nor the names of its\n"
-			"contributors may be used to endorse or promote products derived\n"
-			"from this software without specific prior written permission.\n"
-			"\n"
-			"THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS\n"
-			"\"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT\n"
-			"LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS\n"
-			"FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE\n"
-			"COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,\n"
-			"INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES\n"
-			"(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR\n"
-			"SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)\n"
-			"HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,\n"
-			"STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)\n"
-			"ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF\n"
-			"ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n\n");
-			printf("* This is %s version %s %s *\n\n", PROGNAM, LVB_VERSION, LVB_SUBVERSION);
-			printf("Literature reference:\n"
-			"Barker, D. 2004. LVB: Parsimony and simulated annealing in the\n"
-			"search for phylogenetic trees. Bioinformatics, 20, 274-275.\n\n");
-			printf("Download and support:\n"
-			"http://eggg.st-andrews.ac.uk/lvb\n\n");
+	#endif
+    /* entitle standard output */
+    printf("\nLVB\n\n"
+	"(c) Copyright 2003-2012 by Daniel Barker\n"
+	"(c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl\n"
+	"(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro\n"
+	"and Maximilian Strobl\n"
+	"(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro,\n"
+	"Maximilian Strobl and Chris Wood.\n"
+	"All rights reserved.\n"
+	"\n"
+	"Redistribution and use in source and binary forms, with or without\n"
+	"modification, are permitted provided that the following conditions\n"
+	"are met:\n"
+	"\n"
+	"1. Redistributions of source code must retain the above copyright\n"
+	"notice, this list of conditions and the following disclaimer.\n"
+	"\n"
+	"2. Redistributions in binary form must reproduce the above\n"
+	"copyright notice, this list of conditions and the following\n"
+	"disclaimer in the documentation and/or other materials provided\n"
+	"with the distribution.\n"
+	"\n"
+	"3. Neither the name of the copyright holder nor the names of its\n"
+	"contributors may be used to endorse or promote products derived\n"
+	"from this software without specific prior written permission.\n"
+	"\n"
+	"THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS\n"
+	"\"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT\n"
+	"LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS\n"
+	"FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE\n"
+	"COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,\n"
+	"INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES\n"
+	"(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR\n"
+	"SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)\n"
+	"HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,\n"
+	"STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)\n"
+	"ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF\n"
+	"ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n\n");
+    printf("* This is %s version %s %s *\n\n", PROGNAM, LVB_VERSION, LVB_SUBVERSION);
+    printf("Literature reference:\n"
+	"Barker, D. 2004. LVB: Parsimony and simulated annealing in the\n"
+	"search for phylogenetic trees. Bioinformatics, 20, 274-275.\n\n");
+    printf("Download and support:\n"
+	"http://lvb.bio.ed.ac.uk/\n\n");
 
-#ifdef MAP_REDUCE_SINGLE
+	#ifdef MPI_Implementation
+	#ifdef MAP_REDUCE_SINGLE
 		}
+	#endif
+	#endif
+
+	#ifdef NP_Implementation
+    /* start timer */ 
+    clock_t Start, End;
+    double Overall_Time_taken;
+    double Overall_Time_taken_minutes;
+    double Overall_Time_taken_hours;
+
+    Start = clock();
+    lvb_initialize();
+    getparam(&rcstruct, argc, argv);
+    logstim();
+
+    /* read and alloc space to the data structure */
+    matrix = alloc(sizeof(DataStructure), "alloc data structure");
+    phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix);
+
+    /* "file-local" dynamic heap memory: set up best tree stacks, need to be by thread */
+    bstack_overall = treestack_new();
+    if(rcstruct.algorithm_selection ==2) 
+    stack_treevo = treestack_new();
+        
+    matchange(matrix, rcstruct);	/* cut columns */
+    writeinf(rcstruct, matrix);
+    calc_distribution_processors(matrix, rcstruct);
+
+    if (rcstruct.verbose == LVB_TRUE) {
+    	printf("Based on matrix provided, maximum parsimony tree length: %ld\n\n", getminlen(matrix));
+    }
+    rinit(rcstruct.seed);
+    if (rcstruct.bootstraps > 0) {
+    	log_progress = LVB_TRUE;
+    	printf("Temperature:   Rearrangement: TreeStack size: Length:\n");
+    }
+    else log_progress = LVB_TRUE;
+
+    weight_arr = (long*) alloc(sizeof(long) * matrix->m, "alloc data structure");
+    outtreefp = clnopen(rcstruct.file_name_out, "w");
+    FILE * treEvo;
+    if(rcstruct.algorithm_selection ==2)
+    treEvo = fopen ("treEvo.tre","w");
+    do{
+		iter = 0;
+		if (rcstruct.bootstraps > 0){
+			get_bootstrap_weights(weight_arr, matrix->m, matrix->original_m - matrix->m);
+		}
+		else{
+			for (i = 0; i < matrix->m; i++) weight_arr[i] = 1;
+		}
+        
+		final_length = getsoln(matrix, rcstruct, weight_arr, &iter, log_progress);
+ 
+		if (rcstruct.bootstraps > 0) trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_TRUE);
+		else trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_FALSE);
+		
+		/* print in the screen */
+/*		for (i = 0; i < bstack_overall.next; i++) {
+			treedump_screen(matrix, bstack_overall.stack[i].tree);
+		}*/
+		
+		trees_output_total += trees_output;
+        if(rcstruct.algorithm_selection ==2)
+		treestack_print(matrix, &stack_treevo, treEvo, LVB_FALSE);
+        treestack_clear(&bstack_overall);
+		replicate_no++;
+		if (rcstruct.bootstraps > 0) {
+			printf("\n\nReplicate %ld complete:\n\nRearrangements tried: %-16ld\nTrees saved:          %-16ld\nLength:               %ld\n\n", replicate_no, iter, trees_output, final_length);
+            if (replicate_no < rcstruct.bootstraps)
+            printf("Temperature:   Rearrangement: TreeStack size: Length:\n");
+			total_iter += (double) iter;
+		}
+		else  printf("\nEnd cycle\n\nTotal rearrangements tried: %ld\n", iter);
+	} while (replicate_no < rcstruct.bootstraps);
+   if(rcstruct.algorithm_selection ==2)
+    fclose(treEvo);
+	clnclose(outtreefp, rcstruct.file_name_out);
+
+	printf("\n");
+	if (rcstruct.bootstraps > 0)
+		printf("\nEnd cycle\n\nTotal rearrangements tried across all replicates: %g\n\n", total_iter);
+
+	if ((trees_output_total == 1L) && (rcstruct.bootstraps == 0)) {
+		printf("1 most parsimonious tree of length %ld written to file '%s'\n", final_length, rcstruct.file_name_out);
+	}
+	else {
+		if (rcstruct.bootstraps > 0){
+			lvb_assert(trees_output_total == rcstruct.bootstraps);
+			printf("%ld trees written to file '%s'\n", trees_output_total, rcstruct.file_name_out);
+		}
+		else{
+			printf("%ld equally parsimonious trees of length %ld written to "
+			 "file '%s'\n", trees_output_total, final_length, rcstruct.file_name_out);
+		}
+    }
+    End = clock();
+
+    Overall_Time_taken = ((double) (End - Start)) /CLOCKS_PER_SEC;
+    Overall_Time_taken_minutes = Overall_Time_taken / 60;
+    Overall_Time_taken_hours = Overall_Time_taken_minutes / 60;
+    if (Overall_Time_taken <= 60)
+    printf("lvb took %.2lf seconds to complete\n", Overall_Time_taken);
+    if (Overall_Time_taken <= 3600) {
+            if (Overall_Time_taken >= 60)
+    printf("lvb took %.2lf minutes, (%.2lf seconds) to complete\n", Overall_Time_taken_minutes, Overall_Time_taken);
+    }
+    if (Overall_Time_taken >= 3600)
+         printf("lvb took %.2lf hours, (%.2lf minutes) to complete\n", Overall_Time_taken_hours, Overall_Time_taken_minutes);
+	/* "file-local" dynamic heap memory */
+    if (rcstruct.algorithm_selection ==2)
+    treestack_free(matrix, &stack_treevo);
+	treestack_free(matrix, &bstack_overall);
+    rowfree(matrix);
+    free(matrix);
+    free(weight_arr);
+
+    if (cleanup() == LVB_TRUE) val = EXIT_FAILURE;
+    else val = EXIT_SUCCESS;
+
+    return val;
+
+    
+
+} /* end main() */
+
 #endif
+
+#ifdef MPI_Implementation
 
 			/* test some static values */
 			lvb_initialize();
