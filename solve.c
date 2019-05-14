@@ -41,7 +41,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lvb.h"
 
 #ifdef NP_Implementation
-
 static void lenlog(FILE *lengthfp, Treestack *bstackp, long iteration, long length, double temperature)
 /* write a message to file pointer lengthfp; iteration gives current iteration;
  * crash verbosely on write error */
@@ -52,10 +51,51 @@ static void lenlog(FILE *lengthfp, Treestack *bstackp, long iteration, long leng
     }
 
 } /* end lenlog() */
+#endif
 
+#ifdef MPI_Implementation
+#include "store_states.h"
+
+#ifdef MAP_REDUCE_SINGLE
+	static void lenlog(FILE *lengthfp, long iteration, long length, double temperature)
+#else
+	static void lenlog(FILE *lengthfp, Treestack *bstackp, int myMPIid, long iteration, long length, double temperature)
+#endif
+	/* write a message to file pointer lengthfp; iteration gives current iteration;
+	 * crash verbosely on write error */
+	{
+#ifdef MAP_REDUCE_SINGLE
+		fprintf(lengthfp, "%-15.8g%-15ld%-15ld\n", temperature, iteration, length);
+#else
+		fprintf(lengthfp, "%-15d%-15.8g%-15ld%-16ld%-15ld\n", myMPIid, temperature, iteration, bstackp->next, length);
+#endif
+		if (ferror(lengthfp)){
+			crash("file error when logging search progress");
+		}
+
+	} /* end lenlog() */
+
+#endif
+
+#ifdef NP_Implementation
 long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *const inittree,
 		Params rcstruct, long root, FILE * const lenfp, const long *weights,
 		long *current_iter, Lvb_bool log_progress)
+#endif
+
+#ifdef MPI_Implementation
+
+#ifdef MAP_REDUCE_SINGLE
+	long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *const inittree,
+			Params rcstruct, long root, FILE * const lenfp,
+			long *current_iter, Lvb_bool log_progress, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer)
+#else
+	long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *const inittree,
+					Params rcstruct, long root, FILE * const lenfp,  long *current_iter, int myMPIid,
+					Lvb_bool log_progress)
+#endif
+
+#endif
 /* perform a deterministic hill-climbing optimization on the tree in inittree,
  * using NNI on all internal branches until no changes are accepted; return the
  * length of the best tree found; current_iter should give the iteration number
@@ -72,21 +112,41 @@ long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *c
     Lvb_bool newtree;				/* accepted a new configuration */
     Branch *p_current_tree;			/* current configuration */
     Branch *p_proposed_tree;		/* proposed new configuration */
+		#ifdef NP_Implementation
     unsigned int *todo;				/* array of internal branch numbers */
     Lvb_bool leftright[] = { LVB_FALSE, LVB_TRUE }; /* to loop through left and right */
-    long *p_todo_arr; /* [MAX_BRANCHES + 1];	 list of "dirty" branch nos */
+    #endif
+
+		#ifdef MPI_Implementation
+		static long todo[MAX_BRANCHES];	/* array of internal branch numbers */
+	    static Lvb_bool leftright[] = {	LVB_FALSE, LVB_TRUE }; /* to loop through left and right */
+		#endif
+		long *p_todo_arr; /* [MAX_BRANCHES + 1];	 list of "dirty" branch nos */
     long *p_todo_arr_sum_changes; /*used in openMP, to sum the partial changes */
     int *p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */
 
+#ifdef MPI_Implementation
+#ifdef MAP_REDUCE_SINGLE
+	    int  *total_count;
+	    int check_cmp;
+#endif
+#endif
     /* "local" dynamic heap memory */
     p_current_tree = treealloc(matrix, LVB_TRUE);
     p_proposed_tree = treealloc(matrix, LVB_TRUE);
+		#ifdef NP_Implementation
     todo = alloc(matrix->nbranches * sizeof(unsigned int), "old parent alloc");
+		#endif
 
     treecopy(matrix, p_current_tree, inittree, LVB_TRUE);      /* current configuration */
 	alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
+	#ifdef NP_Implementation
 	len = getplen(matrix, p_current_tree, rcstruct, root, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+	#endif
 
+	#ifdef MPI_Implementation
+	len = getplen(matrix, p_current_tree, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+	#endif
     /* identify internal branches */
     for (i = matrix->n; i < matrix->nbranches; i++) todo[todo_cnt++] = i;
     lvb_assert(todo_cnt == matrix->nbranches - matrix->n);
@@ -96,6 +156,7 @@ long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *c
 		for (i = 0; i < todo_cnt; i++) {
 			for (j = 0; j < 2; j++) {
 				mutate_deterministic(matrix, p_proposed_tree, p_current_tree, root, todo[i], leftright[j]);
+				#ifdef NP_Implementation
 				lendash = getplen(matrix, p_proposed_tree, rcstruct, rootdash, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 				lvb_assert (lendash >= 1L);
 				deltalen = lendash - len;
@@ -127,10 +188,130 @@ long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *c
     return len;
 }
 
+#endif
+
+#ifdef MPI_Implementation
+
+lendash = getplen(matrix, p_proposed_tree, rcstruct, rootdash, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+
+					lvb_assert (lendash >= 1L);
+					deltalen = lendash - len;
+
+#ifdef MAP_REDUCE_SINGLE
+					MPI_Bcast(&deltalen, 1, MPI_LONG, 0,    MPI_COMM_WORLD);
+					MPI_Bcast(&lendash,  1, MPI_LONG, 0,    MPI_COMM_WORLD);
+
+					if (deltalen <= 0) {
+						if (deltalen < 0)  /* very best so far */
+						{
+							treestack_clear(bstackp);
+							treestack_push_only(matrix, bstackp, p_proposed_tree, rootdash, LVB_FALSE);
+							misc->ID = bstackp->next;
+							misc->SB = 1;
+							tree_setpush(matrix, p_proposed_tree, rootdash, mrTreeStack, misc);
+							len = lendash;
+						} else {
+
+						  misc->SB = 0;
+						  tree_setpush(matrix, p_proposed_tree, rootdash, mrBuffer, misc);
+						  mrBuffer->add(mrTreeStack);
+						  mrBuffer->collate(NULL);
+
+						  misc->count = (int *) alloc( (bstackp->next+1) * sizeof(int), "int array for tree comp using MR");
+						  total_count = (int *) alloc( (bstackp->next+1) * sizeof(int), "int array for tree comp using MR");
+						  for(int i=0; i<=bstackp->next; i++) misc->count[i] = 0;
+						  mrBuffer->reduce(reduce_count, misc);
+
+						  for(int i=0; i<=bstackp->next; i++) total_count[i] = 0;
+						  MPI_Reduce( misc->count, total_count, bstackp->next+1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD );
+
+						  check_cmp = 1;
+						  if (misc->rank == 0) { /* sum to root process */
+							for(int i=1; i<=bstackp->next; i++) {
+								if (misc->nsets == total_count[i]) {
+									check_cmp = 0; /* different */
+									break;
+								}
+							}
+						  }
+
+						  MPI_Barrier(MPI_COMM_WORLD);
+						  MPI_Bcast(&check_cmp, 1, MPI_INT, 0,    MPI_COMM_WORLD);
+						  if (check_cmp == 0) {
+								misc->SB = 1;
+								tree_setpush(matrix, p_proposed_tree, rootdash, mrBuffer, misc);
+								mrTreeStack->add(mrBuffer);
+								treestack_push_only(matrix, bstackp, p_proposed_tree, rootdash, LVB_FALSE);
+								misc->ID = bstackp->next;
+
+								newtree = LVB_TRUE;
+								treeswap(&p_current_tree, &root, &p_proposed_tree, &rootdash);
+						  }
+						  free(misc->count);
+						  free(total_count);
+
+						}
+
+					}
+					if ((log_progress == LVB_TRUE) && ((*current_iter % STAT_LOG_INTERVAL) == 0)) {
+					   if(misc->rank == 0) lenlog(lenfp, *current_iter, len, 0);
+					}
+#else
+					if (deltalen <= 0) {
+						if (deltalen < 0)  /* very best so far */
+						{
+							treestack_clear(bstackp);
+							len = lendash;
+						}
+						if (treestack_push(matrix, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1) {
+							newtree = LVB_TRUE;
+							treeswap(&p_current_tree, &root, &p_proposed_tree, &rootdash);
+						}
+					}
+					if ((log_progress == LVB_TRUE) && ((*current_iter % STAT_LOG_INTERVAL) == 0)) {
+						lenlog(lenfp, bstackp, myMPIid, *current_iter, len, 0);
+					}
+#endif
+					*current_iter += 1;
+				}
+#ifdef MAP_REDUCE_SINGLE
+				if(misc->rank == 0) cerr << *current_iter << " " << i << " " << newtree << endl;
+#endif
+			}
+	    } while (newtree == LVB_TRUE);
+
+	    /* free "local" dynamic heap memory */
+	    free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
+	    free(p_current_tree);
+	    free(p_proposed_tree);
+
+	    return len;
+	}
+
+
+#endif
+
+#ifdef NP_Implementation
 long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch *const inittree, Params rcstruct,
 		long root, const double t0, const long maxaccept, const long maxpropose,
 		const long maxfail, FILE *const lenfp, const long *weights, long *current_iter,
 		Lvb_bool log_progress)
+#endif
+
+#ifdef MPI_Implementation
+#ifdef MAP_REDUCE_SINGLE
+	long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Params *p_rcstruct,
+			long root, const double t0, const long maxaccept, const long maxpropose,
+			const long maxfail, FILE *const lenfp, long *current_iter,
+			Lvb_bool log_progress, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer)
+#else
+
+	long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Params *p_rcstruct,
+				long root, double t0, const long maxaccept, const long maxpropose,
+				const long maxfail, FILE *const lenfp, long *current_iter, int myMPIid,
+				int *p_n_state_progress, int *p_n_number_tried_seed, Lvb_bool log_progress)
+#endif
+#endif
 /* seek parsimonious tree from initial tree in inittree (of root root)
  * with initial temperature t0, and subsequent temperatures obtained by
  * multiplying the current temperature by (t1 / t0) ** n * t0 where n is
@@ -142,7 +323,12 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
  * lenfp is for output of current tree length and associated details;
  * *current_iter should give the iteration number at the start of this call and
  * will be used in any statistics sent to lenfp, and will be updated on
- * return */
+ * return
+ * (MPI v)
+ * return;
+ * if this is a restart after checkpointing, restore_fnam must
+ * give the file name of the checkpoint file; if it is not a restart, restore_fnam
+ * should be NULL */
 {
     long accepted = 0;		/* changes accepted */
     Lvb_bool dect;		/* should decrease temperature */
@@ -153,7 +339,9 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
     long len;			/* length of current tree */
     long lenbest;		/* bet length found so far */
     long lendash;		/* length of proposed new tree */
+		#ifdef NP_Implementation
     long lenmin;		/* minimum length for any tree */
+		#endif
     double ln_t;		/* ln(current temperature) */
     long t_n = 0;		/* ordinal number of current temperature */
     double pacc;		/* prob. of accepting new config. */
@@ -169,6 +357,8 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
     long *p_todo_arr; /* [MAX_BRANCHES + 1];	 list of "dirty" branch nos */
     long *p_todo_arr_sum_changes; /*used in openMP, to sum the partial changes */
     int *p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */
+
+#ifdef NP_Implementation
 
     /* variables that could calculate immediately */
     const double log_wrapper_LVB_EPS = log_wrapper(LVB_EPS);
@@ -450,229 +640,6 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 #endif // #ifdef NP_Implementation //
 
 #ifdef MPI_Implementation
-
-#include "store_states.h"
-
-#ifdef MAP_REDUCE_SINGLE
-	static void lenlog(FILE *lengthfp, long iteration, long length, double temperature)
-#else
-	static void lenlog(FILE *lengthfp, Treestack *bstackp, int myMPIid, long iteration, long length, double temperature)
-#endif
-	/* write a message to file pointer lengthfp; iteration gives current iteration;
-	 * crash verbosely on write error */
-	{
-#ifdef MAP_REDUCE_SINGLE
-		fprintf(lengthfp, "%-15.8g%-15ld%-15ld\n", temperature, iteration, length);
-#else
-		fprintf(lengthfp, "%-15d%-15.8g%-15ld%-16ld%-15ld\n", myMPIid, temperature, iteration, bstackp->next, length);
-#endif
-		if (ferror(lengthfp)){
-			crash("file error when logging search progress");
-		}
-
-	} /* end lenlog() */
-
-
-
-#ifdef MAP_REDUCE_SINGLE
-	long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *const inittree,
-			Params rcstruct, long root, FILE * const lenfp,
-			long *current_iter, Lvb_bool log_progress, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer)
-#else
-	long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *const inittree,
-					Params rcstruct, long root, FILE * const lenfp,  long *current_iter, int myMPIid,
-					Lvb_bool log_progress)
-#endif
-	/* perform a deterministic hill-climbing optimization on the tree in inittree,
-	 * using NNI on all internal branches until no changes are accepted; return the
-	 * length of the best tree found; current_iter should give the iteration number
-	 * at the start of this call and will be used in any statistics sent to lenfp,
-	 * and will be updated on return */
-	{
-	    long i;				/* loop counter */
-	    long j;				/* loop counter */
-	    long todo_cnt = 0;			/* count of internal branches */
-	    long len;				/* current length */
-	    long lendash;			/* length of proposed new config */
-	    long rootdash = root;		/* root of proposed new config */
-	    long deltalen;			/* change in length */
-	    Lvb_bool newtree;			/* accepted a new configuration */
-	    Branch *p_current_tree;				/* current configuration */
-	    Branch *p_proposed_tree;			/* proposed new configuration */
-	    static long todo[MAX_BRANCHES];	/* array of internal branch numbers */
-	    static Lvb_bool leftright[] = {	LVB_FALSE, LVB_TRUE }; /* to loop through left and right */
-	    long *p_todo_arr; /* [MAX_BRANCHES + 1];	 list of "dirty" branch nos */
-	    long *p_todo_arr_sum_changes; /*used in openMP, to sum the partial changes */
-	    int *p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */
-
-#ifdef MAP_REDUCE_SINGLE
-	    int  *total_count;
-	    int check_cmp;
-#endif
-
-	    /* "local" dynamic heap memory */
-	    p_current_tree  = treealloc(matrix, LVB_TRUE);
-	    p_proposed_tree = treealloc(matrix, LVB_TRUE);
-	    treecopy(matrix, p_current_tree, inittree, LVB_TRUE);      /* current configuration */
-	    alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-	    len = getplen(matrix, p_current_tree, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
-
-	    /* identify internal branches */
-	    for (i = matrix->n; i < matrix->nbranches; i++) todo[todo_cnt++] = i;
-	    lvb_assert(todo_cnt == matrix->nbranches - matrix->n);
-	    do {
-			newtree = LVB_FALSE;
-			for (i = 0; i < todo_cnt; i++) {
-				for (j = 0; j < 2; j++) {
-					mutate_deterministic(matrix, p_proposed_tree, p_current_tree, root, todo[i], leftright[j]);
-					lendash = getplen(matrix, p_proposed_tree, rcstruct, rootdash, p_todo_arr, p_todo_arr_sum_changes, p_runs);
-
-					lvb_assert (lendash >= 1L);
-					deltalen = lendash - len;
-
-#ifdef MAP_REDUCE_SINGLE
-					MPI_Bcast(&deltalen, 1, MPI_LONG, 0,    MPI_COMM_WORLD);
-					MPI_Bcast(&lendash,  1, MPI_LONG, 0,    MPI_COMM_WORLD);
-
-					if (deltalen <= 0) {
-						if (deltalen < 0)  /* very best so far */
-						{
-							treestack_clear(bstackp);
-							treestack_push_only(matrix, bstackp, p_proposed_tree, rootdash, LVB_FALSE);
-							misc->ID = bstackp->next;
-							misc->SB = 1;
-							tree_setpush(matrix, p_proposed_tree, rootdash, mrTreeStack, misc);
-							len = lendash;
-						} else {
-
-						  misc->SB = 0;
-						  tree_setpush(matrix, p_proposed_tree, rootdash, mrBuffer, misc);
-						  mrBuffer->add(mrTreeStack);
-						  mrBuffer->collate(NULL);
-
-						  misc->count = (int *) alloc( (bstackp->next+1) * sizeof(int), "int array for tree comp using MR");
-						  total_count = (int *) alloc( (bstackp->next+1) * sizeof(int), "int array for tree comp using MR");
-						  for(int i=0; i<=bstackp->next; i++) misc->count[i] = 0;
-						  mrBuffer->reduce(reduce_count, misc);
-
-						  for(int i=0; i<=bstackp->next; i++) total_count[i] = 0;
-						  MPI_Reduce( misc->count, total_count, bstackp->next+1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD );
-
-						  check_cmp = 1;
-						  if (misc->rank == 0) { /* sum to root process */
-							for(int i=1; i<=bstackp->next; i++) {
-								if (misc->nsets == total_count[i]) {
-									check_cmp = 0; /* different */
-									break;
-								}
-							}
-						  }
-
-						  MPI_Barrier(MPI_COMM_WORLD);
-						  MPI_Bcast(&check_cmp, 1, MPI_INT, 0,    MPI_COMM_WORLD);
-						  if (check_cmp == 0) {
-								misc->SB = 1;
-								tree_setpush(matrix, p_proposed_tree, rootdash, mrBuffer, misc);
-								mrTreeStack->add(mrBuffer);
-								treestack_push_only(matrix, bstackp, p_proposed_tree, rootdash, LVB_FALSE);
-								misc->ID = bstackp->next;
-
-								newtree = LVB_TRUE;
-								treeswap(&p_current_tree, &root, &p_proposed_tree, &rootdash);
-						  }
-						  free(misc->count);
-						  free(total_count);
-
-						}
-
-					}
-					if ((log_progress == LVB_TRUE) && ((*current_iter % STAT_LOG_INTERVAL) == 0)) {
-					   if(misc->rank == 0) lenlog(lenfp, *current_iter, len, 0);
-					}
-#else
-					if (deltalen <= 0) {
-						if (deltalen < 0)  /* very best so far */
-						{
-							treestack_clear(bstackp);
-							len = lendash;
-						}
-						if (treestack_push(matrix, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1) {
-							newtree = LVB_TRUE;
-							treeswap(&p_current_tree, &root, &p_proposed_tree, &rootdash);
-						}
-					}
-					if ((log_progress == LVB_TRUE) && ((*current_iter % STAT_LOG_INTERVAL) == 0)) {
-						lenlog(lenfp, bstackp, myMPIid, *current_iter, len, 0);
-					}
-#endif
-					*current_iter += 1;
-				}
-#ifdef MAP_REDUCE_SINGLE
-				if(misc->rank == 0) cerr << *current_iter << " " << i << " " << newtree << endl;
-#endif
-			}
-	    } while (newtree == LVB_TRUE);
-
-	    /* free "local" dynamic heap memory */
-	    free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-	    free(p_current_tree);
-	    free(p_proposed_tree);
-
-	    return len;
-	}
-
-
-#ifdef MAP_REDUCE_SINGLE
-	long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Params *p_rcstruct,
-			long root, const double t0, const long maxaccept, const long maxpropose,
-			const long maxfail, FILE *const lenfp, long *current_iter,
-			Lvb_bool log_progress, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer)
-#else
-
-	long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Params *p_rcstruct,
-				long root, double t0, const long maxaccept, const long maxpropose,
-				const long maxfail, FILE *const lenfp, long *current_iter, int myMPIid,
-				int *p_n_state_progress, int *p_n_number_tried_seed, Lvb_bool log_progress)
-#endif
-	/* seek parsimonious tree from initial tree in inittree (of root root)
-	 * with initial temperature t0, and subsequent temperatures obtained by
-	 * multiplying the current temperature by (t1 / t0) ** n * t0 where n is
-	 * the ordinal number of this temperature, after at least maxaccept changes
-	 * have been accepted or maxpropose changes have been proposed, whichever is
-	 * sooner;
-	 * return the length of the best tree(s) found after maxfail consecutive
-	 * temperatures have led to no new accepted solution;
-	 * lenfp is for output of current tree length and associated details;
-	 * *current_iter should give the iteration number at the start of this call and
-	 * will be used in any statistics sent to lenfp, and will be updated on
-	 * return;
-	 * if this is a restart after checkpointing, restore_fnam must
-	 * give the file name of the checkpoint file; if it is not a restart, restore_fnam
-	 * should be NULL */
-	{
-	    long accepted = 0;		/* changes accepted */
-	    Lvb_bool dect;		/* should decrease temperature */
-	    double deltah;		/* change in energy (1 - C.I.) */
-	    long deltalen;		/* change in length with new tree */
-	    long failedcnt = 0; 	/* "failed count" for temperatures */
-	    long iter = 0;		/* iteration of mutate/evaluate loop */
-	    long len;			/* length of current tree */
-	    long lenbest;		/* bet length found so far */
-	    long lendash;		/* length of proposed new tree */
-	    double ln_t;		/* ln(current temperature) */
-	    long t_n = 0;		/* ordinal number of current temperature */
-	    double pacc;		/* prob. of accepting new config. */
-	    long proposed = 0;		/* trees proposed */
-	    double r_lenmin;		/* minimum length for any tree */
-	    long rootdash;		/* root of new configuration */
-	    double t = t0;				/* current temperature */
-	    double grad_geom = GRAD_GEOM;			/* "gradient" of the geometric schedule */
-	    double grad_linear = GRAD_LINEAR; 	/* gradient of the linear schedule */
-	    Branch *p_current_tree;			/* current configuration */
-	    Branch *p_proposed_tree;			/* proposed new configuration */
-	    long *p_todo_arr; 				/* [MAX_BRANCHES + 1];	 list of "dirty" branch nos */
-	    long *p_todo_arr_sum_changes; 		/*used in openMP, to sum the partial changes */
-	    int *p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */
 
 #ifndef MAP_REDUCE_SINGLE
 	    time_t curr_time;				/* current time */
