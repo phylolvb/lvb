@@ -48,6 +48,7 @@ interaction_temperature.c - decide which processes continue their search
 
 #include "lvb.h"
 
+#ifdef MPI_Implementation
 	/* release memory to the structrure */
 	IterationTemperature *get_alloc_main_calc_iterations(void){
 		IterationTemperature *p_temp;
@@ -179,3 +180,4 @@ interaction_temperature.c - decide which processes continue their search
 		free(p_data);
 	}
 
+#endif
