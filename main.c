@@ -85,7 +85,15 @@ static void writeinf(Params prms, Dataptr matrix)
 
 
     printf("Input File           = %s\n", prms.file_name_in);
-    printf("Output File          = %s\n", prms.file_name_out);
+	if (prms.n_file_format == FORMAT_PHYLIP) printf("File Format          = PHYLIP\n");
+    else if (prms.n_file_format == FORMAT_FASTA) printf("File Format          = FASTA\n");
+    else if (prms.n_file_format == FORMAT_NEXUS) printf("File Format         = NEXUS\n");
+    else if (prms.n_file_format == FORMAT_CLUSTAL) printf("File Format          = CLUSTAL\n");
+    else{
+    	fprintf (stderr, "Error, input format file not recognized\n");
+    	abort();
+    }
+    printf("Output File          = %s\n\n", prms.file_name_out);
     printf("Number of Taxa       = %ld\n", matrix->n);
     printf("Length of Sequences:\n");
     printf("    Before cut       = %ld\n", matrix->original_m);
@@ -102,15 +110,6 @@ static void writeinf(Params prms, Dataptr matrix)
     if(prms.cooling_schedule == 0) printf("GEOMETRIC\n");
     else printf("LINEAR\n");
 
-    if (prms.n_file_format == FORMAT_PHYLIP) printf("Format Input File    = PHYLIP\n");
-    else if (prms.n_file_format == FORMAT_FASTA) printf("Format Input File    = FASTA\n");
-    else if (prms.n_file_format == FORMAT_NEXUS) printf("Format Input File    = NEXUS\n");
-    else if (prms.n_file_format == FORMAT_CLUSTAL) printf("Format Input File    = CLUSTAL\n");
-    else{
-    	fprintf (stderr, "Error, input format file not recognized\n");
-    	abort();
-    }
-
     printf("Seed                 = %d\n", prms.seed);
     printf("Threads Requested    = %d\n", prms.n_processors_available);
 
@@ -125,36 +124,47 @@ static void writeinf(Params prms, Dataptr matrix)
 static void writeinf(Params prms, Dataptr matrix, int myMPIid, int n_process)
 /* write initial details to standard output */
 {
-		printf("\n#########\nProcess ID: %d\n", myMPIid);
+	printf("LVB was called as follows:\n\n");
 
-		printf("cooling schedule        = ");
-		if(prms.cooling_schedule == 0) printf("GEOMETRIC\n");
-		else printf("LINEAR\n");
-
-		printf("main seed               = %d\n", prms.seed);
-		printf("input file name         = %s\n",  prms.file_name_in);
-		printf("output file name        = %s\n",  prms.file_name_out);
-		if      (prms.n_file_format == FORMAT_PHYLIP)  printf("format input file       = phylip\n");
-		else if (prms.n_file_format == FORMAT_FASTA)   printf("format input file       = fasta\n");
-		else if (prms.n_file_format == FORMAT_NEXUS)   printf("format input file       = nexus\n");
-		else if (prms.n_file_format == FORMAT_CLUSTAL) printf("format input file       = clustal\n");
+	printf("Input File              = %s\n", prms.file_name_in);
+	if      (prms.n_file_format == FORMAT_PHYLIP)  printf("File Format             = phylip\n");
+		else if (prms.n_file_format == FORMAT_FASTA)   printf("File Format           = fasta\n");
+		else if (prms.n_file_format == FORMAT_NEXUS)   printf("File Format          = nexus\n");
+		else if (prms.n_file_format == FORMAT_CLUSTAL) printf("File Format            = clustal\n");
 		else{
 			fprintf (stderr, "Error, input format file not recognized\n");
 			abort();
 		}
-		printf("threads                 = %d\n",  prms.n_processors_available);
+		printf("Output File             = %s\n\n",  prms.file_name_out);
+		printf("Number of Taxa          = %ld\n", matrix->n);
+		printf("Length of Sequences:\n");
+		printf("    Before cut          = %ld\n", matrix->original_m);
+		printf("    After cut           = %ld\n\n", matrix->m);
+
+		printf("Algorithm Selection     = N/A\n");
+    	// if(prms.algorithm_selection == 0) printf("Algorithm 0 (SN)\n");
+    	// else if(prms.algorithm_selection == 1) printf("Algorithm 1 (SEQ-TNS)\n");
+    	// else if(prms.algorithm_selection == 2) printf("Algorithm 2 (PBS)\n");
+		
+		printf("Bootstrap Replicates    = N/A\n");
+		// printf("Bootstrap Replicates = %ld\n", prms.bootstraps);
+
+		printf("Cooling Schedule        = ");
+		if(prms.cooling_schedule == 0) printf("GEOMETRIC\n");
+		else printf("LINEAR\n");
+		printf("Seed                    = %d\n\n", prms.seed);	
+	
+		printf("Number of MPI Processes = %d\n", n_process);
+		printf("Process ID              = %d\n", myMPIid);
 #ifndef MAP_REDUCE_SINGLE
 		printf("#seeds to try           = %d\n", prms.n_seeds_need_to_try);
 		printf("checkpoint interval (s) = %d\n", prms.n_checkpoint_interval);
 #endif
-		printf("mpi processes           = %d\n", n_process);
-		if (prms.n_flag_save_read_states == DONT_SAVE_READ_STATES) printf("Don't read and save states at a specific time points\n");
-		else printf("It is going to read and save states at a specific time points\n\n");
+		
+		if (prms.n_flag_save_read_states == DONT_SAVE_READ_STATES) printf("Checkpoint              = Disabled\n");
+		else printf("Checkpointing              = Enabled\n\n");
 
-		printf("\n#Species                = %ld\n", matrix->n);
-		printf("Lenght of Sequences:\n");
-		printf("    Before cut          = %ld\n", matrix->original_m);
-		printf("    After cut           = %ld\n", matrix->m);
+		printf("\nThreads Requested       = %d",  prms.n_processors_available);
 } /* end writeinf() */
 
 #endif
@@ -688,8 +698,8 @@ void calc_distribution_processors(Dataptr matrix, Params rcstruct){
 		matrix->n_slice_size_getplen = 0;	/* it doens't matter this value for 1 thread */
 		matrix->n_threads_getplen = 1; /* need to pass for 1 thread because the number of words is to low */
 	}
-	printf("\nthreads that will be used  = %d\n", matrix->n_threads_getplen);
-	printf("(because it is related with the size of the data)\n");
+	printf("\nThreads available       = %d ", matrix->n_threads_getplen);
+	printf("(possibly reduced due to limited availability)\n");
 }
 
 /* TODO, need to control the seeds that where processed*/
