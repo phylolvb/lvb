@@ -77,7 +77,7 @@ int get_default_seed(void)
     ul_seed = ul_seed % (1UL + (unsigned long) MAX_SEED);
     #endif
 
-    #ifdef MPI_IMplementation
+    #ifdef MPI_Implementation
     srand(tim);
     ul_seed = (unsigned long) rand() % (1UL + (unsigned long) MAX_SEED);
     #endif
