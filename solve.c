@@ -848,11 +848,11 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 						total_count = (int *) alloc( (bstackp->next+1) * sizeof(int), "int array for tree comp using MR");
 
 						for(int i=0; i<=misc->ID; i++) misc->count[i] = 0;
-	/*					cerr << "Reduce ********************* " << endl;
+						cerr << "Reduce ********************* " << endl;
 						cerr << "Reduce ********************* " << endl;
 						mrBuffer->reduce(reduce_count, misc);
 						cerr << "END Reduce ********************* " << endl;
-						cerr << "END Reduce ********************* " << endl;*/
+						cerr << "END Reduce ********************* " << endl;
 						for(int i=0; i<=misc->ID; i++) total_count[i] = 0;
 						MPI_Reduce( misc->count, total_count, misc->ID+1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD );
 
