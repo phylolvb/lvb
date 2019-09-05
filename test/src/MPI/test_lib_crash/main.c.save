@@ -38,20 +38,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <lvb.h>
 
-/* check pow_wrapper crashes verbosely on domain error if both
- * parameters are zero */
+/* test for crash() */
 
 int main(int argc, char **argv)
 {
+    long i = 32447881;
+
 	MPI_Init(&argc, &argv);
     lvb_initialize();
 
-    pow_wrapper(0, 0);	/* should cause domain error */
+    crash("%ld is causing trouble", i);
 
-    /* if we get this far, pow_wrapper() has failed to crash so the
-     * test has failed */
+    /* if we reach here, crash() isn't working */
     printf("test failed\n");
+    return 0;	/* program success indicates crash()'s failure */
 
-    exit(EXIT_SUCCESS);	/* we want failure: so program success
-                         * indicates test failed */
-}

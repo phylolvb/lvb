@@ -102,7 +102,7 @@
 #CXXFLAGX += -msse4.2
 
 # Directories
-TEST_DIR = ./tests
+TEST_DIR = ./test/src
 DOCS_PROG_DIR = ./docs_programmer
 LVB_READ_FILE_DIR = ./LVB_READ_FILES/src
 
@@ -126,7 +126,7 @@ else
 	CXXFLAGS += -DMPI_Implementation -DMAP_REDUCE_SINGLE
 	## LM = -lm /gpfs/stfc/local/HCP006/mdw02/cxk42-mdw02/LIBs/mrmpi-22Nov13/src/libmrmpi_mpicc.a
 	## LM = -lm /home/s1880345/bin/libmrmpi_mpicc.a
-	LM = -lm /home/j_guscott/bin/libmrmpi_mpicc.a	
+	LM = -lm /home/joe/Packages/mrmpi-7Apr14/src/libmrmpi_mpicc.a
 endif
 
 # System-dependent macros - OK for Linux and UNIX-like systems, for others will
@@ -231,7 +231,7 @@ $(LVB_LIB) : $(LVB_LIB_OBJS) $(LVB_READ_FILE_OBJS)
 
 # If the main test script has changed, we should run the tests
 test : FORCE
-		cd tests/MPI ; env LVB_EXECUTABLE="`pwd`/../../$(LVB_PROG)" LVB_LIBRARY="`pwd`/../../$(LVB_LIB)" LVB_OTHERLIBS="$(LM)" LVB_HEADER_PATH=".." GPLUSPLUS="$(G++)" MPIC++="$(MPIC++)" CC="$(CC)" CFLAGS="$(CFLAGS)" ./go; cd ..;
+		cd test/src/MPI ; env LVB_EXECUTABLE="`pwd`/../../../$(LVB_PROG)" LVB_LIBRARY="`pwd`/../../../$(LVB_LIB)" LVB_OTHERLIBS="$(LM)" LVB_HEADER_PATH=".." GPLUSPLUS="$(G++)" MPIC++="$(MPIC++)" CC="$(CC)" CFLAGS="$(CFLAGS)" ./go; cd ..;
 
 tests : test	# allow 'make tests' as synonym for 'make test'
 
@@ -239,8 +239,8 @@ tests : test	# allow 'make tests' as synonym for 'make test'
 # source files
 clean : FORCE
 	rm -f $(LVB_PROG) \
-	rm -f tests/test*/*.o \
-	rm -f tests/test*/testprog.exe \
+	rm -f test/test*/*.o \
+	rm -f test/test*/testprog.exe \
 	rm pod2htmd.tmp \
 	rm pod2htmi.tmp \
 	$(LVB_LIB) \
@@ -250,5 +250,5 @@ clean : FORCE
 	$(LVB_PROG_OBJS) \
 	$(DOCS)
 FORCE:
-
+ 
 

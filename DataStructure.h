@@ -43,8 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // #define NP_Implementation
 // #define MPI_Implementation
 
-#ifndef DATASTRUCTURE_H
-#define DATASTRUCTURE_H
+#ifdef NP_Implementation
 
 #define FORMAT_PHYLIP 		0
 #define FORMAT_FASTA 		1
@@ -54,25 +53,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 typedef enum { LVB_FALSE, LVB_TRUE } Lvb_bool;	/* boolean type */
 #define LVB_FNAMSIZE 2000		/* maximum bytes for file names */
 
-#ifdef NP_Implementation
 #define MAX_BOOTSTRAPS 1000000	/* max. bootstrap replicates */
-#endif
 
-#ifdef MPI_Implementation
-/* these flags is to read and save states in specfic time points */
-#define DONT_SAVE_READ_STATES				0		/* dont read and save states, default parameter */
-#define DO_SAVE_READ_STATES					1		/* try to read and save states */
-
-#define CHECK_POINT_PROCESS_FINISHED		1		/* process is finished, don't need to run again */
-#define CHECK_POINT_PROCESS_NOT_FINISHED	0		/* process not finished yet, need to load states and run */
-
-#define CHECK_POINT_READ_STATE_FILES		1		/* the state files exist and are OK */
-#define CHECK_POINT_NOT_READ_STATE_FILES	0		/* the state files don't exist and are corrupted */
-/* END save read states flags */
-#endif
 
 /* matrix and associated information */
-#ifdef NP_Implementation
 typedef struct data
 {
     int n_threads_getplen;  /* number of possible threads in getplen function */
@@ -90,9 +74,57 @@ typedef struct data
     char **row;			/* array of row strings */
     char **rowtitle;	/* array of row title strings */
 } *Dataptr, DataStructure;
-#endif
+
+/* unchangeable types */
+
+/* user- or programmer-configurable parameters */
+typedef struct
+{
+    int seed;							/* seed for random number generator */
+    int cooling_schedule;   			/* cooling schedule: 0 is geometric, 1 is linear */
+    int algorithm_selection;             /* algorithm selection: 0 is original, 1 is no SEQ-TNS, and 2 is PBS */
+    int n_file_format;					/* number of file format, must be FORMAT_PHYLIP, FORMAT_FASTA, FORMAT_NEXUS, FORMAT_CLUSTAL*/
+    int n_processors_available;			/* number of processors available */
+    long verbose;						/* verboseness level */
+    long bootstraps;					/* number of bootstrap replicates */
+    int n_number_max_trees;				/* number of bootstrap replicates */
+    char file_name_in[LVB_FNAMSIZE];	/* input file name */
+    char file_name_out[LVB_FNAMSIZE];	/* output file name */
+} Params;
+
+#endif // #ifdef NP_Implementation //
 
 #ifdef MPI_Implementation
+
+#ifndef DATASTRUCTURE_H
+#define DATASTRUCTURE_H
+
+/* define to MR_SINGLE, otherwise is MPI */
+//#define	MAP_REDUCE_SINGLE
+
+
+#define FORMAT_PHYLIP 		0
+#define FORMAT_FASTA 		1
+#define FORMAT_NEXUS 		2
+#define FORMAT_MSF 		3
+#define FORMAT_CLUSTAL 		4
+
+
+#define LVB_FNAMSIZE 2000		/* maximum bytes for file names */
+
+/* these flags is to read and save states in specfic time points */
+#define DONT_SAVE_READ_STATES				0		/* dont read and save states, default parameter */
+#define DO_SAVE_READ_STATES					1		/* try to read and save states */
+
+#define CHECK_POINT_PROCESS_FINISHED		1		/* process is finished, don't need to run again */
+#define CHECK_POINT_PROCESS_NOT_FINISHED	0		/* process not finished yet, need to load states and run */
+
+#define CHECK_POINT_READ_STATE_FILES		1		/* the state files exist and are OK */
+#define CHECK_POINT_NOT_READ_STATE_FILES	0		/* the state files don't exist and are corrupted */
+/* END save read states flags */
+
+typedef enum { LVB_FALSE, LVB_TRUE } Lvb_bool;	/* boolean type */
+
 typedef struct data
 {
      long m;				/* number of columns */
@@ -110,28 +142,7 @@ typedef struct data
      int n_threads_getplen;  	/* number of possible threads in getplen function */
      int n_slice_size_getplen;   /* slice size in getplen function, usually m/n_threads_getplen  */
 } *Dataptr, DataStructure;
-#endif
 
-/* unchangeable types */
-
-/* user- or programmer-configurable parameters */
-#ifdef NP_Implementation
-typedef struct
-{
-    int seed;							/* seed for random number generator */
-    int cooling_schedule;   			/* cooling schedule: 0 is geometric, 1 is linear */
-    int algorithm_selection;             /* algorithm selection: 0 is original, 1 is no SEQ-TNS, and 2 is PBS */
-    int n_file_format;					/* number of file format, must be FORMAT_PHYLIP, FORMAT_FASTA, FORMAT_NEXUS, FORMAT_CLUSTAL*/
-    int n_processors_available;			/* number of processors available */
-    long verbose;						/* verboseness level */
-    long bootstraps;					/* number of bootstrap replicates */
-    int n_number_max_trees;				/* number of bootstrap replicates */
-    char file_name_in[LVB_FNAMSIZE];	/* input file name */
-    char file_name_out[LVB_FNAMSIZE];	/* output file name */
-} Params;
-#endif
-
-#ifdef MPI_Implementation
 typedef struct seq_data
 {
      char **row;

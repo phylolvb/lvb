@@ -2,11 +2,11 @@
 
 (c) Copyright 2003-2012 by Daniel Barker
 (c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl
-(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
-(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
-and Chris Wood.
-(c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
-Fernando Guntoro, Maximilian Strobl and Chris Wood.
+(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro and Maximilian Strobl
+(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl
+and Chris Wood
+(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Chang Sik Kim,
+Maximilian Strobl and Martyn Winn
 All rights reserved.
  
 Redistribution and use in source and binary forms, with or without
@@ -36,56 +36,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== cleanup.c - prepare for exit ========== */
+#include <lvb.h>
 
-#include "lvb.h"
+/* check pow_wrapper crashes verbosely on domain error if both
+ * parameters are zero */
 
-#ifdef NP_Implementation
-
-Lvb_bool cleanup(void)
-/* prevent apparent memory leaks to help debugging, log end time; return
- * LVB_TRUE on write error to stdout, LVB_FALSE otherwise */
+int main(int argc, char **argv)
 {
-    time_t endtim;	/* time at end of run */
-    Lvb_bool val;	/* return value */
+	MPI_Init(&argc, &argv);
+    lvb_initialize();
 
-    endtim = time(NULL);
-    printf("\n");
-    printf("Ending at: %s", ctime(&endtim));
-    printf("\n");
+    pow_wrapper(0, 0);	/* should cause domain error */
 
-    /* log file won't be used again */
-    fflush(stdout);
-    if (ferror(stdout) != 0) val = LVB_TRUE;
-    else val = LVB_FALSE;
-    return val;
-} /* end cleanup() */
+    /* if we get this far, pow_wrapper() has failed to crash so the
+     * test has failed */
+    printf("test failed\n");
 
-#endif // #ifdef NP_Implementation //
-
-#ifdef MPI_Implementation
-
-Lvb_bool cleanup(void)
-/* prevent apparent memory leaks to help debugging, log end time; return
- * LVB_TRUE on write error to stdout, LVB_FALSE otherwise */
-{
-    time_t endtim;	/* time at end of run */
-    Lvb_bool val = LVB_TRUE;	/* return value */
-
-    endtim = time(NULL);
-    printf("\n");
-    printf("Ending at: %s", ctime(&endtim));
-    printf("\n");
-
-    /* log file won't be used again */
-#ifdef MAP_REDUCE_SINGLE
-    fflush(stdout);
-    if (ferror(stdout) != 0) val = LVB_TRUE;
-    else val = LVB_FALSE;
-#endif
-
-    return val;
-} /* end cleanup() */
-
-#endif
-
+    return 0;	/* we want failure: so program success
+                         * indicates test failed */
+}

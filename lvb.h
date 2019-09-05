@@ -41,6 +41,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef LVB_LVB_H
 #define LVB_LVB_H
 
+//  #define NP_Implementation
+//    #define MPI_Implementation
+
+#ifdef NP_Implementation
+
 #include "DataStructure.h"
 #include "mapreduce.h"
 #include "blockmacros.h"
@@ -61,7 +66,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "myuni.h"
 #include "mymaths.h"
 
-#ifdef NP_Implementation
+
 /* the program */
 #define PROGNAM "lvb"			/* program file name */
 #define LVB_VERSION "3.5"		/* version of program */
@@ -70,40 +75,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* set if is to compile with 64 or 32 */
 #ifndef COMPILE_32_BITS
 	#define COMPILE_64_BITS				/* the default is 32 bits */
-#endif // COMPILE_32_BITS //
+#endif
 
 /* use TBR branch-Swapping Algorithm? */
 /* #define TBR */ 
-
-#endif // NP_Implementation //
-
-#ifdef MPI_Implementation
-
-#include <mpi.h>
-#ifdef MAP_REDUCE_SINGLE
-	#include <omp.h>
-	#include "sys/stat.h"
-
-	using namespace MAPREDUCE_NS;
-	using namespace std;
-	#define __STDC_LIMIT_MACROS
-#endif // MAP_REDUCE_SINGLE
-
-/* the program */
-#define PROGNAM "lvb"			/* program file name */
-#define LVB_VERSION "IN DEVELOPMENT"	/* version of program */
-#define LVB_SUBVERSION "$Id: 2f1a0126358acf0a108b58851f7a368fcfe57f7f $"		/* version details e.g. date */
-
-
-/* set if is to compile with 64 or 32 bits */
-#ifndef COMPILE_32_BITS
-	#define COMPILE_64_BITS
-#endif // COMPILE_32_BITS
-#define	MPI_SEND_ONLY_MATRIX_NAMES	/* if defined only send the names of the matrix */
-									/* sometimes the data matrix are huge and it's only necessary to pass */
-    								/* the names of the other process */
-
-#endif // MPI_Implementation
 
 /* DNA bases: bits to set in statesets */
 #define A_BIT 0b0001		/* (1U << 0) */
@@ -114,8 +89,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define NIBBLE_MASK 		017			/* space for one stateset, all bits set to 1 */
 #define NIBBLE_WIDTH 		4			/* width of nibble in bits */
 #define NIBBLE_WIDTH_BITS	2			/* bitwise multiply the NIBBLE_WIDTH */
-
-#ifdef NP_Implementation
 
 #ifdef COMPILE_64_BITS
 	typedef uint64_t Lvb_bit_lentgh;								/* define 64 bits */
@@ -146,35 +119,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	#define MAX_N 15000		/* max. rows */
 	#define MAX_M 30000		/* max. cols */
 
-#endif // COMPILE_64_BITS
-
-#endif // NP_Implementation
-
-#ifdef MPI_Implementation
-
-#ifdef COMPILE_64_BITS
-	typedef uint64_t Lvb_bit_lentgh;							/* define 64 bits */
-	#define NUMBER_OF_BITS										64
-	#define LENGTH_WORD											16			/* length of number packed bases */
-	#define LENGTH_WORD_BITS_MULTIPLY							4			/* multiply of number packed bases */
-	#define MINIMUM_WORDS_PER_SLICE_GETPLEN						30  			/* minimum words per slice that run gplen threading */
-	#define MINIMUM_SIZE_NUMBER_WORDS_TO_ACTIVATE_THREADING		60 			/* need to have this size to activate the threading */
-	#define MASK_SEVEN											0x7777777777777777U
-	#define MASK_EIGHT											0x8888888888888888U
-#else		/* default 32 bits */
-	typedef uint32_t Lvb_bit_lentgh;							/* define 32 bits */
-	#define NUMBER_OF_BITS										32
-	#define LENGTH_WORD											8			/* length of number packed bases */
-	#define LENGTH_WORD_BITS_MULTIPLY							3			/* multiply of number packed bases */
-	#define MINIMUM_WORDS_PER_SLICE_GETPLEN						30			/* minimum words per slice that run gplen threading */
-	#define MINIMUM_SIZE_NUMBER_WORDS_TO_ACTIVATE_THREADING		60 			/* need to have this size to activate the threading */
-	#define MASK_SEVEN											0x77777777U
-	#define MASK_EIGHT											0x88888888U
-#endif // COMPILE_64_BITS
-
-#endif // MPI_Implementation
-
-#ifdef NP_Implementation
+#endif
 
 /* values some people may feel the dangerous urge to change */
 #define LVB_INPUTSTRING_SIZE 2000	/* max. bytes for interactive input */
@@ -201,131 +146,32 @@ typedef	struct	/* object set derived from a cladogram */
 	int cnt;	/* sizes of object sets */
 }	Objset;
 
-#endif // NP_Implementation
-
-#ifdef MPI_Implementation
-
-/* values some people may feel the dangerous urge to change */
-#define LVB_INPUTSTRING_SIZE 2000	/* max. bytes for interactive input */
-#define UNSET (-1)			/* value of integral vars when unset */
-#define CHECKPOINT_INTERVAL 1800	/* checkpoint ~every ... seconds */
-#define CHECKPOINT_FNAM_BASE "lvb_checkpoint"
-#define STAT_LOG_INTERVAL 50000	/* min. interval for progress log */
-#define REROOT_INTERVAL 1000		/* change root every ... updates */
-
-
-/* limits that could be changed but, if increased enormously, might lead to
- * some trouble at some point */
-#define MAX_N 1000000	/* max. rows */
-#define MAX_M 5000000	/* max. cols */
-
-/* implementation-independent limits */
-#define LVB_EPS 1E-11		/* 0.0 < DBL_EPSILON < LVB_EPS */
-#define MIN_M 1L		/* min. no. of characters for any analysis */
-#define MAX_BRANCHES (2 * MAX_N - 3)	/* max. branches per tree */
-#define MIN_BRANCHES (2 * MIN_N - 3)	/* max. branches per tree */
-#define MIN_N 5L		/* min. no. of objs, for rearrangeable tree */
-#define MAX_ALLOC ((size_t) (INT_MAX - 2))	/* max. bytes per dyn. alloc. */
-#define MAXSTATES 5		/* max. "true" states in data matrix */
-
-/* limits that could be changed but are likely to be OK */
-#define INITIAL_INCREMENT 0.00001	/* step size to get initial temp. */
-#define FROZEN_T 0.0001		/* helps to decide whether system is frozen */
-
-
-/* MPI definitions... */
-#define MPI_MAIN_PROCESS	0		/* main process */
-
-#define	MPI_TAG_MATRIX					1
-#define	MPI_TAG_NAME_AND_SEQ_DATA		2
-#define	MPI_TAG_BINARY_DATA				3
-#define MPI_TAG_PARAMS					4
-#define MPI_TAG_SEND_TEMP_MASTER		5
-#define MPI_TAG_SEND_FINISHED			6
-#define MPI_TAG_SEND_RESTART			7
-#define MPI_TAG_MANAGEMENT_MASTER		8
-
-
-#define MPI_FINISHED							0x00
-#define MPI_IS_TO_RESTART_ANNEAL				0x01
-#define MPI_IS_TO_CONTINUE_ANNEAL				0x02
-#define MPI_IS_NOT_TO_RESTART					0x03
-#define MPI_IS_TO_CONTINUE						0x04
-
-/* END MPI definitions... */
-
-/* anneal state */
-#define MESSAGE_ANNEAL_IS_RUNNING_OR_WAIT_TO_RUN			0x00
-#define MESSAGE_ANNEAL_FINISHED_AND_NOT_REPEAT				0x01
-#define MESSAGE_ANNEAL_FINISHED_AND_REPEAT					0x02
-#define MESSAGE_ANNEAL_KILLED								0x03
-#define MESSAGE_ANNEAL_KILLED_AND_REPEAT					0x04
-#define MESSAGE_ANNEAL_KILLED_AND_NOT_REPEAT				0x05
-#define MESSAGE_ANNEAL_STOP_PROCESS_WAIT_FINAL_MESSAGE		0x06
-#define MESSAGE_ANNEAL_STOP_PROCESS							0x07
-#define MESSAGE_BEGIN_CONTROL								0x08
-/* anneal state */
-
-
-/* Define calc iterations algorithm */
-#define CALC_ITERATION_ONLY_RELEASE_AFTER_NUMBER_CHUNCHS		5	/* the number of chunk of iterations that need to be */
-																	/* to start release */
-																	/* Ex: if 3 the algorithm doesn't kill the process in the first three chunk of temperatures */
-#define CALC_ITERATION_NUMBER_STD_TO_RESTART_PROCESS			1	/* if for a specific process the length exceeds this many SD from the mean */
-																	/* then the process need to restart with other seed */
-/* END  Define calc iterations algorithm */
-
-#endif
-
 /* branch of tree */
 typedef struct
 {
-	#ifdef NP_Implementation
     int parent;		/* parent branch number, UNSET in root */
     int left;			/* index of first child in tree array */
     int right;			/* index of second child in tree array */
     int changes;		/* changes associated with this branch */
-    #endif
-
-	#ifdef MPI_Implementation
-    long parent;		/* parent branch number, UNSET in root */
-    long left;			/* index of first child in tree array */
-    long right;			/* index of second child in tree array */
-    long changes;		/* changes associated with this branch */
-    #endif
-
-	Lvb_bit_lentgh *sset;	/* statesets for all sites */
-	
+    Lvb_bit_lentgh *sset;	/* statesets for all sites */
 } Branch;
 
 /* tree stacks */
 typedef struct
 {
-	#ifdef NP_Implementation
 	int root;		/* root of tree */
-	Branch *tree;	/* pointer to first branch in tree array */
-	Objset *p_sset;	/* array with sset with the root always on zero */
-	#endif
-	#ifdef MPI_Implementation
-	Branch *tree;	/* pointer to first branch in tree array */
-	long root;		/* root of tree */
-	#endif
-    } Treestack_element;
+    Branch *tree;	/* pointer to first branch in tree array */
+    Objset *p_sset;	/* array with sset with the root always on zero */
+} Treestack_element;
 
 typedef struct
 {
-	#ifdef NP_Implementation
 	int size;			/* number of trees currently allocated for */
 	int next;			/* next unused element of stack */
-    #endif
-	#ifdef MPI_Implementation
-	long size;			/* number of trees currently allocated for */
-	long next;			/* next unused element of stack */
-	#endif
-	Treestack_element *stack;	/* pointer to first element in stack */
+    Treestack_element *stack;	/* pointer to first element in stack */
 } Treestack;
 
-#ifdef NP_Implementation
+
 /* simulated annealing parameters */
 #define MAXACCEPT_SLOW 5L	/* maxaccept for "slow" searches */
 #define MAXPROPOSE_SLOW 2000L	/* maxpropose for "slow" searches */
@@ -435,6 +281,178 @@ int addtoarray(Branch *const, int, int *, int);
 #endif
 
 #ifdef MPI_Implementation
+
+#include "DataStructure.h"
+#include <mpi.h>
+#include "mapreduce.h"
+#include "blockmacros.h"
+#include "keyvalue.h"
+
+#include <ctype.h>
+#include <errno.h>
+#include <limits.h>
+#include <math.h>
+#include <omp.h>
+#include <stdarg.h>
+#include <stddef.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include "myuni.h"
+#include "mymaths.h"
+
+#ifdef MAP_REDUCE_SINGLE
+	#include <omp.h>
+	#include "sys/stat.h"
+	#include <iostream>
+
+	using namespace MAPREDUCE_NS;
+	using namespace std;
+	#define __STDC_LIMIT_MACROS
+#endif
+
+/* the program */
+#define PROGNAM "lvb"			/* program file name */
+#define LVB_VERSION "IN DEVELOPMENT"	/* version of program */
+#define LVB_SUBVERSION "$Id: 2f1a0126358acf0a108b58851f7a368fcfe57f7f $"		/* version details e.g. date */
+
+
+/* set if is to compile with 64 or 32 bits */
+#ifndef COMPILE_32_BITS
+	#define COMPILE_64_BITS
+#endif
+#define	MPI_SEND_ONLY_MATRIX_NAMES	/* if defined only send the names of the matrix */
+									/* sometimes the data matrix are huge and it's only necessary to pass */
+    								/* the names of the other process */
+
+
+/* DNA bases: bits to set in statesets */
+#define A_BIT 0b0001		/* (1U << 0) */
+#define C_BIT 0b0010		/* (1U << 1) */
+#define G_BIT 0b0100		/* (1U << 2) */
+#define T_BIT 0b1000		/* (1U << 3) */
+
+#define NIBBLE_MASK 		017			/* space for one stateset, all bits set to 1 */
+#define NIBBLE_WIDTH 		4			/* width of nibble in bits */
+#define NIBBLE_WIDTH_BITS	2			/* bitwise multiply the NIBBLE_WIDTH */
+
+#ifdef COMPILE_64_BITS
+	typedef uint64_t Lvb_bit_lentgh;							/* define 64 bits */
+	#define NUMBER_OF_BITS										64
+	#define LENGTH_WORD											16			/* length of number packed bases */
+	#define LENGTH_WORD_BITS_MULTIPLY							4			/* multiply of number packed bases */
+	#define MINIMUM_WORDS_PER_SLICE_GETPLEN						30  			/* minimum words per slice that run gplen threading */
+	#define MINIMUM_SIZE_NUMBER_WORDS_TO_ACTIVATE_THREADING		60 			/* need to have this size to activate the threading */
+	#define MASK_SEVEN											0x7777777777777777U
+	#define MASK_EIGHT											0x8888888888888888U
+#else		/* default 32 bits */
+	typedef uint32_t Lvb_bit_lentgh;							/* define 32 bits */
+	#define NUMBER_OF_BITS										32
+	#define LENGTH_WORD											8			/* length of number packed bases */
+	#define LENGTH_WORD_BITS_MULTIPLY							3			/* multiply of number packed bases */
+	#define MINIMUM_WORDS_PER_SLICE_GETPLEN						30			/* minimum words per slice that run gplen threading */
+	#define MINIMUM_SIZE_NUMBER_WORDS_TO_ACTIVATE_THREADING		60 			/* need to have this size to activate the threading */
+	#define MASK_SEVEN											0x77777777U
+	#define MASK_EIGHT											0x88888888U
+#endif
+
+/* values some people may feel the dangerous urge to change */
+#define LVB_INPUTSTRING_SIZE 2000	/* max. bytes for interactive input */
+#define UNSET (-1)			/* value of integral vars when unset */
+#define CHECKPOINT_INTERVAL 1800	/* checkpoint ~every ... seconds */
+#define CHECKPOINT_FNAM_BASE "lvb_checkpoint"
+#define STAT_LOG_INTERVAL 50000	/* min. interval for progress log */
+#define REROOT_INTERVAL 1000		/* change root every ... updates */
+
+
+/* limits that could be changed but, if increased enormously, might lead to
+ * some trouble at some point */
+#define MAX_N 1000000	/* max. rows */
+#define MAX_M 5000000	/* max. cols */
+
+/* implementation-independent limits */
+#define LVB_EPS 1E-11		/* 0.0 < DBL_EPSILON < LVB_EPS */
+#define MIN_M 1L		/* min. no. of characters for any analysis */
+#define MAX_BRANCHES (2 * MAX_N - 3)	/* max. branches per tree */
+#define MIN_BRANCHES (2 * MIN_N - 3)	/* max. branches per tree */
+#define MIN_N 5L		/* min. no. of objs, for rearrangeable tree */
+#define MAX_ALLOC ((size_t) (INT_MAX - 2))	/* max. bytes per dyn. alloc. */
+#define MAXSTATES 5		/* max. "true" states in data matrix */
+
+/* limits that could be changed but are likely to be OK */
+#define INITIAL_INCREMENT 0.00001	/* step size to get initial temp. */
+#define FROZEN_T 0.0001		/* helps to decide whether system is frozen */
+
+
+/* MPI definitions... */
+#define MPI_MAIN_PROCESS	0		/* main process */
+
+#define	MPI_TAG_MATRIX					1
+#define	MPI_TAG_NAME_AND_SEQ_DATA		2
+#define	MPI_TAG_BINARY_DATA				3
+#define MPI_TAG_PARAMS					4
+#define MPI_TAG_SEND_TEMP_MASTER		5
+#define MPI_TAG_SEND_FINISHED			6
+#define MPI_TAG_SEND_RESTART			7
+#define MPI_TAG_MANAGEMENT_MASTER		8
+
+
+#define MPI_FINISHED							0x00
+#define MPI_IS_TO_RESTART_ANNEAL				0x01
+#define MPI_IS_TO_CONTINUE_ANNEAL				0x02
+#define MPI_IS_NOT_TO_RESTART					0x03
+#define MPI_IS_TO_CONTINUE						0x04
+
+/* END MPI definitions... */
+
+/* anneal state */
+#define MESSAGE_ANNEAL_IS_RUNNING_OR_WAIT_TO_RUN			0x00
+#define MESSAGE_ANNEAL_FINISHED_AND_NOT_REPEAT				0x01
+#define MESSAGE_ANNEAL_FINISHED_AND_REPEAT					0x02
+#define MESSAGE_ANNEAL_KILLED								0x03
+#define MESSAGE_ANNEAL_KILLED_AND_REPEAT					0x04
+#define MESSAGE_ANNEAL_KILLED_AND_NOT_REPEAT				0x05
+#define MESSAGE_ANNEAL_STOP_PROCESS_WAIT_FINAL_MESSAGE		0x06
+#define MESSAGE_ANNEAL_STOP_PROCESS							0x07
+#define MESSAGE_BEGIN_CONTROL								0x08
+/* anneal state */
+
+
+/* Define calc iterations algorithm */
+#define CALC_ITERATION_ONLY_RELEASE_AFTER_NUMBER_CHUNCHS		5	/* the number of chunk of iterations that need to be */
+																	/* to start release */
+																	/* Ex: if 3 the algorithm doesn't kill the process in the first three chunk of temperatures */
+#define CALC_ITERATION_NUMBER_STD_TO_RESTART_PROCESS			1	/* if for a specific process the length exceeds this many SD from the mean */
+																	/* then the process need to restart with other seed */
+/* END  Define calc iterations algorithm */
+
+
+/* branch of tree */
+typedef struct
+{
+    long parent;		/* parent branch number, UNSET in root */
+    long left;			/* index of first child in tree array */
+    long right;			/* index of second child in tree array */
+    long changes;		/* changes associated with this branch */
+    Lvb_bit_lentgh *sset;	/* statesets for all sites */
+} Branch;
+
+/* tree stacks */
+typedef struct
+{
+    Branch *tree;	/* pointer to first branch in tree array */
+    long root;		/* root of tree */
+} Treestack_element;
+
+typedef struct
+{
+    long size;			/* number of trees currently allocated for */
+    long next;			/* next unused element of stack */
+    Treestack_element *stack;	/* pointer to first element in stack */
+} Treestack;
+
 
 /* simulated annealing parameters */
 #define MAXACCEPT_MIN 5L		/* minimum value for maxaccept */

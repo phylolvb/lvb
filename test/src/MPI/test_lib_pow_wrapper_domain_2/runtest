@@ -35,15 +35,15 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-# test for crash().
+# Negative test for pow_wrapper().
 
 # run testprog.exe
-$output = `./testprog.exe 2>/dev/null`;
+$output = `mpirun ./testprog.exe 2>/dev/null`;
 $status = $?;
 
 # check output
-if (($output =~ /FATAL ERROR: 32447881 is causing trouble/)
- && ($status != 0) && ($output !~ /test failed/))
+if (($output =~ /FATAL ERROR: internal error detected in function pow_wrapper/)
+ && ($status != 0))
 {
     print "test passed\n";
 }

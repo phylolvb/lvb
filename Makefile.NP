@@ -64,7 +64,7 @@
 # G++ and CFLAGS as instructed below, then compile as for Linux.
 
 # Directories
-TEST_DIR = ./tests
+TEST_DIR = ./test/src
 DOCS_PROG_DIR = ./docs_programmer
 LVB_READ_FILE_DIR = ./LVB_READ_FILES/src
 
@@ -195,7 +195,7 @@ $(TEST_MANUAL) : $(TEST_DIR)/NP/go
 	pod2html $< >$@
 
 test : FORCE
-	cd tests/NP ; env LVB_EXECUTABLE="`pwd`/../../$(LVB_PROG)" LVB_LIBRARY="`pwd`/../../$(LVB_LIB)" LVB_OTHERLIBS="$(LM)" LVB_HEADER_PATH=".." GPLUSPLUS="$(G++)" CC="$(CC)" CFLAGS="$(CFLAGS)" ./go; cd ..;
+	cd test/src/NP ; env LVB_EXECUTABLE="`pwd`/../../../$(LVB_PROG)" LVB_LIBRARY="`pwd`/../../../$(LVB_LIB)" LVB_OTHERLIBS="$(LM)" LVB_HEADER_PATH=".." GPLUSPLUS="$(G++)" CC="$(CC)" CFLAGS="$(CFLAGS)" ./go; cd ..;
 
 tests : test	# allow 'make tests' as synonym for 'make test'
 
@@ -203,8 +203,8 @@ tests : test	# allow 'make tests' as synonym for 'make test'
 # source files
 clean : FORCE
 	rm -f $(LVB_PROG) \
-	rm -f tests/test*/*.o \
-	rm -f tests/test*/testprog.exe \
+	rm -f test/test*/*.o \
+	rm -f test/test*/testprog.exe \
 	rm pod2htmd.tmp \
 	rm pod2htmi.tmp \
 	$(LVB_LIB) \
