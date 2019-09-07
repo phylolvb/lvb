@@ -6,8 +6,6 @@
 ![Date](https://img.shields.io/badge/Date-February%202019-blue?style=for-the-badge)
 [![DOI](https://img.shields.io/badge/DOI-10.1093/bioinformatics/btg402-blue?style=for-the-badge)](https://dx.doi.org/10.1093/bioinformatics/btg402)
 
-</br>
-
 ## Introduction
 LVB is a maximum-parsimony (MP) phylogenetic inference tool developed at the University of Edinburgh. LVB utilises a simulated annealing algorithm to aid searches within tree space.
 
