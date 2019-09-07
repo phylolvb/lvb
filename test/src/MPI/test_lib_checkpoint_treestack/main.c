@@ -36,8 +36,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include "lvb.h"
-#include "store_states.h"
+#include "Lvb.h"
+#include "Store_states.h"
 
 /* test of checkpoint_treestack() and restore_treestack() */
 

@@ -38,7 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== admin.c - LVB library data and administration ========== */
 
-#include "lvb.h"
+#include "Lvb.h"
 
 #ifdef NP_Implementation
 

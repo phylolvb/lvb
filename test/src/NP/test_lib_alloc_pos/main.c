@@ -36,7 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include "lvb.h"
+#include "Lvb.h"
 
 /* An array of TEST_ALLOC_LONGS long ints is allocated and the
  * test expects this allocation to succeed. */

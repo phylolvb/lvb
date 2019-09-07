@@ -36,7 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include <lvb.h>
+#include <Lvb.h>
 
 /* Test for randpint(). Simply checks it works and doesn't always give
  * the same answer. (There's perhaps a miniscule chance it would give
