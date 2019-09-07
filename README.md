@@ -11,8 +11,9 @@ LVB is a maximum-parsimony (MP) phylogenetic inference tool developed at the Uni
 
 LVB is currently under active development. The latest stable release is available [here](https://github.com/phylolvb/lvb/releases/tag/3.5).
 
-LVB phylogeny reconstruction software. For further details see:
-http://lvb.bio.ed.ac.uk
+## Documentation
+
+[LVB Website](http://lvb.bio.ed.ac.uk)
 
 ## References
 
