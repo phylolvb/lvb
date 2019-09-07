@@ -1,0 +1,112 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title></title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body>
+
+
+
+<ul id="index">
+  <li><a href="#NAME">NAME</a></li>
+  <li><a href="#SYNOPSIS">SYNOPSIS</a></li>
+  <li><a href="#DESCRIPTION">DESCRIPTION</a></li>
+  <li><a href="#OPTIONS">OPTIONS</a></li>
+  <li><a href="#ENVIRONMENT">ENVIRONMENT</a></li>
+  <li><a href="#EXIT-STATUS">EXIT STATUS</a></li>
+</ul>
+
+<h1 id="NAME">NAME</h1>
+
+<p>go - Run <b>lvb</b> test suite.</p>
+
+<p>Version Tag $Id: go,v 1.21 2014/03/20 12:03:43 db60 Exp $</p>
+
+<h1 id="SYNOPSIS">SYNOPSIS</h1>
+
+<pre><code>    go [--test TESTNAME]</code></pre>
+
+<h1 id="DESCRIPTION">DESCRIPTION</h1>
+
+<p>Perl script to run the <b>lvb</b> test suite and display a summary of results.</p>
+
+<p>Tests are assumed to be in subdirectories of the current directory whose names begin with <code>test</code>, detected case-insensitively. Within each such directory, there should be a script named <code>runtest</code> that will run the test and print <code>test passed</code> to the standard output on success. The string <code>test passed</code> is detected case-insensitively.</p>
+
+<p>A test may run the pre-built <b>lvb</b> executable indicated by <code>LVB_EXECUTABLE</code>.</p>
+
+<p>Alternatively, a test may use its own executable. Subdirectories of the current directory whose names begin with <code>test_lib</code> are assumed to contain tests of this kind. They use an executable called <code>testprog.exe</code>, which <b>go</b> will build from all <code>.c</code> files in the test directory prior to running the test. For building, &lt;go&gt; uses the LVB library indicated by <code>LVB_LIBRARY</code>, any other libraries indicated by <code>LVB_OTHERLIBS</code>, the extra header path <code>LVB_HEADER_PATH</code> and the compiler <code>CC</code> with options given by <code>CFLAGS</code>. The test itself must launch <code>testprog.exe</code> from its <code>runtest</code> script.</p>
+
+<p>By convention, all tests should endeavour to print a message starting with (or consisting of) <code>test failed</code> to the standard output on failure, but this is not required. No output, or any output that does not match the pattern <code>&quot;test passed&quot;</code>, is regarded as indicating failure.</p>
+
+<p>Tests do not have to remove temporary files. <b>go</b> deletes all files in the test directory that were not present at the start of the test.</p>
+
+<h1 id="OPTIONS">OPTIONS</h1>
+
+<dl>
+
+<dt id="test-TESTNAME">--test TESTNAME</dt>
+<dd>
+
+<p>Run only the test in the directory named <b>TESTNAME</b>. The default is to run all tests.</p>
+
+</dd>
+</dl>
+
+<h1 id="ENVIRONMENT">ENVIRONMENT</h1>
+
+<p>The environment variables below must not contain spaces, with the exception that the space in the string &quot;My Documents&quot; is allowed.</p>
+
+<dl>
+
+<dt id="LVB_EXECUTABLE">LVB_EXECUTABLE</dt>
+<dd>
+
+<p>Must give the filename of the executable to test, including the full path.</p>
+
+</dd>
+<dt id="LVB_LIBRARY">LVB_LIBRARY</dt>
+<dd>
+
+<p>Must give the filename of the LVB library to test, including the full path.</p>
+
+</dd>
+<dt id="LVB_OTHERLIBS">LVB_OTHERLIBS</dt>
+<dd>
+
+<p>Must give any non-LVB-specific libraries to be used when building the test executable, either as full paths or as compiler options to appear at the end of the compiler command line. May be empty or unset. On Unix systems, <code>LVB_OTHERLIBS</code> should usually be set to <code>-lm</code>.</p>
+
+</dd>
+<dt id="LVB_HEADER_PATH">LVB_HEADER_PATH</dt>
+<dd>
+
+<p>Must give the full path to the directory containing the <code>lvb.h</code> header describing the interface to the LVB library specified by <code>LVB_LIBRARY</code>.</p>
+
+</dd>
+<dt id="CC">CC</dt>
+<dd>
+
+<p>Must give the name of the C compiler to use when testing the LVB library.</p>
+
+</dd>
+<dt id="CFLAGS">CFLAGS</dt>
+<dd>
+
+<p>Must give other the command-line options to use with the compiler specified by <code>CC</code>. May be empty or unset.</p>
+
+</dd>
+</dl>
+
+<h1 id="EXIT-STATUS">EXIT STATUS</h1>
+
+<p>0 if all tests pass and there was no error, nonzero otherwise.</p>
+
+
+</body>
+
+</html>
+
+

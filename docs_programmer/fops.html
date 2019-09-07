@@ -1,0 +1,488 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title></title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body>
+
+
+
+<ul id="index">
+  <li><a href="#file_exists---CHECK-A-FILE-EXISTS">file_exists - CHECK A FILE EXISTS</a>
+    <ul>
+      <li><a href="#SYNOPSIS">SYNOPSIS</a></li>
+      <li><a href="#DESCRIPTION">DESCRIPTION</a></li>
+      <li><a href="#PARAMETERS">PARAMETERS</a>
+        <ul>
+          <li><a href="#INPUT">INPUT</a></li>
+        </ul>
+      </li>
+      <li><a href="#RETURN">RETURN</a></li>
+    </ul>
+  </li>
+  <li><a href="#clnopen---OPEN-FILE-WITH-ERROR-CHECKING">clnopen - OPEN FILE WITH ERROR CHECKING</a>
+    <ul>
+      <li><a href="#SYNOPSIS1">SYNOPSIS</a></li>
+      <li><a href="#DESCRIPTION1">DESCRIPTION</a></li>
+      <li><a href="#PARAMETERS1">PARAMETERS</a>
+        <ul>
+          <li><a href="#INPUT1">INPUT</a></li>
+        </ul>
+      </li>
+      <li><a href="#RETURN1">RETURN</a></li>
+    </ul>
+  </li>
+  <li><a href="#clnclose---CLOSE-FILE-WITH-ERROR-CHECKING">clnclose - CLOSE FILE WITH ERROR CHECKING</a>
+    <ul>
+      <li><a href="#SYNOPSIS2">SYNOPSIS</a></li>
+      <li><a href="#DESCRIPTION2">DESCRIPTION</a></li>
+      <li><a href="#PARAMETERS2">PARAMETERS</a>
+        <ul>
+          <li><a href="#INPUT2">INPUT</a></li>
+          <li><a href="#INOUT">INOUT</a></li>
+        </ul>
+      </li>
+      <li><a href="#RETURN2">RETURN</a></li>
+    </ul>
+  </li>
+  <li><a href="#clnremove---DELETE-FILE-WITH-ERROR-CHECKING">clnremove - DELETE FILE WITH ERROR CHECKING</a>
+    <ul>
+      <li><a href="#SYNOPSIS3">SYNOPSIS</a></li>
+      <li><a href="#DESCRIPTION3">DESCRIPTION</a></li>
+      <li><a href="#PARAMETERS3">PARAMETERS</a>
+        <ul>
+          <li><a href="#INPUT3">INPUT</a></li>
+        </ul>
+      </li>
+      <li><a href="#RETURN3">RETURN</a></li>
+      <li><a href="#BUGS">BUGS</a></li>
+    </ul>
+  </li>
+  <li><a href="#f2str---READ-FILE-INTO-STRING">f2str - READ FILE INTO STRING</a>
+    <ul>
+      <li><a href="#SYNOPSIS4">SYNOPSIS</a></li>
+      <li><a href="#DESCRIPTION4">DESCRIPTION</a></li>
+      <li><a href="#PARAMETERS4">PARAMETERS</a>
+        <ul>
+          <li><a href="#INOUT1">INOUT</a></li>
+        </ul>
+      </li>
+      <li><a href="#RETURN4">RETURN</a></li>
+      <li><a href="#BUGS1">BUGS</a></li>
+    </ul>
+  </li>
+  <li><a href="#file_exists---CHECK-A-FILE-EXISTS1">file_exists - CHECK A FILE EXISTS</a>
+    <ul>
+      <li><a href="#SYNOPSIS5">SYNOPSIS</a></li>
+      <li><a href="#DESCRIPTION5">DESCRIPTION</a></li>
+      <li><a href="#PARAMETERS5">PARAMETERS</a>
+        <ul>
+          <li><a href="#INPUT4">INPUT</a></li>
+        </ul>
+      </li>
+      <li><a href="#RETURN5">RETURN</a></li>
+    </ul>
+  </li>
+  <li><a href="#clnopen---OPEN-FILE-WITH-ERROR-CHECKING1">clnopen - OPEN FILE WITH ERROR CHECKING</a>
+    <ul>
+      <li><a href="#SYNOPSIS6">SYNOPSIS</a></li>
+      <li><a href="#DESCRIPTION6">DESCRIPTION</a></li>
+      <li><a href="#PARAMETERS6">PARAMETERS</a>
+        <ul>
+          <li><a href="#INPUT5">INPUT</a></li>
+        </ul>
+      </li>
+      <li><a href="#RETURN6">RETURN</a></li>
+    </ul>
+  </li>
+  <li><a href="#clnclose---CLOSE-FILE-WITH-ERROR-CHECKING1">clnclose - CLOSE FILE WITH ERROR CHECKING</a>
+    <ul>
+      <li><a href="#SYNOPSIS7">SYNOPSIS</a></li>
+      <li><a href="#DESCRIPTION7">DESCRIPTION</a></li>
+      <li><a href="#PARAMETERS7">PARAMETERS</a>
+        <ul>
+          <li><a href="#INPUT6">INPUT</a></li>
+          <li><a href="#INOUT2">INOUT</a></li>
+        </ul>
+      </li>
+      <li><a href="#RETURN7">RETURN</a></li>
+    </ul>
+  </li>
+  <li><a href="#clnremove---DELETE-FILE-WITH-ERROR-CHECKING1">clnremove - DELETE FILE WITH ERROR CHECKING</a>
+    <ul>
+      <li><a href="#SYNOPSIS8">SYNOPSIS</a></li>
+      <li><a href="#DESCRIPTION8">DESCRIPTION</a></li>
+      <li><a href="#PARAMETERS8">PARAMETERS</a>
+        <ul>
+          <li><a href="#INPUT7">INPUT</a></li>
+        </ul>
+      </li>
+      <li><a href="#RETURN8">RETURN</a></li>
+      <li><a href="#BUGS2">BUGS</a></li>
+    </ul>
+  </li>
+  <li><a href="#f2str---READ-FILE-INTO-STRING1">f2str - READ FILE INTO STRING</a>
+    <ul>
+      <li><a href="#SYNOPSIS9">SYNOPSIS</a></li>
+      <li><a href="#DESCRIPTION9">DESCRIPTION</a></li>
+      <li><a href="#PARAMETERS9">PARAMETERS</a>
+        <ul>
+          <li><a href="#INOUT3">INOUT</a></li>
+        </ul>
+      </li>
+      <li><a href="#RETURN9">RETURN</a></li>
+      <li><a href="#BUGS3">BUGS</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="file_exists---CHECK-A-FILE-EXISTS">file_exists - CHECK A FILE EXISTS</h1>
+
+<h2 id="SYNOPSIS">SYNOPSIS</h2>
+
+<pre><code>    Lvb_bool file_exists(const char *const nam);</code></pre>
+
+<h2 id="DESCRIPTION">DESCRIPTION</h2>
+
+<p>Checks whether a file may be opened for reading. This actually tests both the presence of the file and its permissions.</p>
+
+<h2 id="PARAMETERS">PARAMETERS</h2>
+
+<h3 id="INPUT">INPUT</h3>
+
+<dl>
+
+<dt id="nam">nam</dt>
+<dd>
+
+<p>Pointer to first byte of a string giving the name of the file to check.</p>
+
+</dd>
+</dl>
+
+<h2 id="RETURN">RETURN</h2>
+
+<p>Returns LVB_TRUE if the file exists and may be opened for reading, LVB_FALSE otherwise.</p>
+
+<h1 id="clnopen---OPEN-FILE-WITH-ERROR-CHECKING">clnopen - OPEN FILE WITH ERROR CHECKING</h1>
+
+<h2 id="SYNOPSIS1">SYNOPSIS</h2>
+
+<pre><code>    FILE *clnopen(const char *const nam, const char *const mod);</code></pre>
+
+<h2 id="DESCRIPTION1">DESCRIPTION</h2>
+
+<p>Open a file, or crash verbosely on failure.</p>
+
+<h2 id="PARAMETERS1">PARAMETERS</h2>
+
+<h3 id="INPUT1">INPUT</h3>
+
+<dl>
+
+<dt id="nam1">nam</dt>
+<dd>
+
+<p>Pointer to first byte of a string giving the name of the file to open.</p>
+
+</dd>
+<dt id="mod">mod</dt>
+<dd>
+
+<p>Mode to open the file with. Values are as for the standard C library function <code>fopen</code>.</p>
+
+</dd>
+</dl>
+
+<h2 id="RETURN1">RETURN</h2>
+
+<p>Returns a pointer to the newly opened file structure.</p>
+
+<h1 id="clnclose---CLOSE-FILE-WITH-ERROR-CHECKING">clnclose - CLOSE FILE WITH ERROR CHECKING</h1>
+
+<h2 id="SYNOPSIS2">SYNOPSIS</h2>
+
+<pre><code>    void clnclose(FILE *const fp, const char *const fnam);</code></pre>
+
+<h2 id="DESCRIPTION2">DESCRIPTION</h2>
+
+<p>Close a file, crashing verbosely on file error or failure. Or, if passed a NULL file pointer, do nothing.</p>
+
+<h2 id="PARAMETERS2">PARAMETERS</h2>
+
+<h3 id="INPUT2">INPUT</h3>
+
+<dl>
+
+<dt id="fnam">fnam</dt>
+<dd>
+
+<p>Pointer to first byte of a string giving the name of the file to close.</p>
+
+</dd>
+</dl>
+
+<h3 id="INOUT">INOUT</h3>
+
+<dl>
+
+<dt id="fp">fp</dt>
+<dd>
+
+<p>Pointer to the file to check for errors and close, or NULL.</p>
+
+</dd>
+</dl>
+
+<h2 id="RETURN2">RETURN</h2>
+
+<p>Returns a pointer to the newly opened file structure.</p>
+
+<h1 id="clnremove---DELETE-FILE-WITH-ERROR-CHECKING">clnremove - DELETE FILE WITH ERROR CHECKING</h1>
+
+<h2 id="SYNOPSIS3">SYNOPSIS</h2>
+
+<pre><code>    void clnremove(const char *const fnam);</code></pre>
+
+<h2 id="DESCRIPTION3">DESCRIPTION</h2>
+
+<p>Delete a file, logging a strong warning on failure.</p>
+
+<h2 id="PARAMETERS3">PARAMETERS</h2>
+
+<h3 id="INPUT3">INPUT</h3>
+
+<dl>
+
+<dt id="fnam1">fnam</dt>
+<dd>
+
+<p>Pointer to first byte of a string giving the name of the file to delete.</p>
+
+</dd>
+</dl>
+
+<h2 id="RETURN3">RETURN</h2>
+
+<p>None.</p>
+
+<h2 id="BUGS">BUGS</h2>
+
+<p>For portability, the file should not be open on calling <code>clnremove</code>.</p>
+
+<h1 id="f2str---READ-FILE-INTO-STRING">f2str - READ FILE INTO STRING</h1>
+
+<h2 id="SYNOPSIS4">SYNOPSIS</h2>
+
+<pre><code>    char *f2str(FILE *const stream);</code></pre>
+
+<h2 id="DESCRIPTION4">DESCRIPTION</h2>
+
+<p>Read contents of a file into a new string. The text read is terminated by newline if not already present, and finally by &#39;\0&#39;. The file is treated as text. One may deallocate memory for the new string using the standard library function <code>free</code>.</p>
+
+<h2 id="PARAMETERS4">PARAMETERS</h2>
+
+<h3 id="INOUT1">INOUT</h3>
+
+<dl>
+
+<dt id="stream">stream</dt>
+<dd>
+
+<p>Pointer to file, which must be open in a readable mode and positioned at the start.</p>
+
+</dd>
+</dl>
+
+<h2 id="RETURN4">RETURN</h2>
+
+<p>Pointer to first byte in string containing the contents of the file when read as text.</p>
+
+<h2 id="BUGS1">BUGS</h2>
+
+<p>Does not know how to interpret newlines if the file has a different representation of newline to that used by the current system.</p>
+
+<p>Will not work correctly if the file size alters during the call to <code>f2str</code>.</p>
+
+<p>Does not work correctly if the stream is positioned anywhere other than at the start of the file on calling <code>f2str</code>.</p>
+
+<h1 id="file_exists---CHECK-A-FILE-EXISTS1">file_exists - CHECK A FILE EXISTS</h1>
+
+<h2 id="SYNOPSIS5">SYNOPSIS</h2>
+
+<pre><code>    Lvb_bool file_exists(const char *const nam);</code></pre>
+
+<h2 id="DESCRIPTION5">DESCRIPTION</h2>
+
+<p>Checks whether a file may be opened for reading. This actually tests both the presence of the file and its permissions.</p>
+
+<h2 id="PARAMETERS5">PARAMETERS</h2>
+
+<h3 id="INPUT4">INPUT</h3>
+
+<dl>
+
+<dt id="nam2">nam</dt>
+<dd>
+
+<p>Pointer to first byte of a string giving the name of the file to check.</p>
+
+</dd>
+</dl>
+
+<h2 id="RETURN5">RETURN</h2>
+
+<p>Returns LVB_TRUE if the file exists and may be opened for reading, LVB_FALSE otherwise.</p>
+
+<h1 id="clnopen---OPEN-FILE-WITH-ERROR-CHECKING1">clnopen - OPEN FILE WITH ERROR CHECKING</h1>
+
+<h2 id="SYNOPSIS6">SYNOPSIS</h2>
+
+<pre><code>    FILE *clnopen(const char *const nam, const char *const mod);</code></pre>
+
+<h2 id="DESCRIPTION6">DESCRIPTION</h2>
+
+<p>Open a file, or crash verbosely on failure.</p>
+
+<h2 id="PARAMETERS6">PARAMETERS</h2>
+
+<h3 id="INPUT5">INPUT</h3>
+
+<dl>
+
+<dt id="nam3">nam</dt>
+<dd>
+
+<p>Pointer to first byte of a string giving the name of the file to open.</p>
+
+</dd>
+<dt id="mod1">mod</dt>
+<dd>
+
+<p>Mode to open the file with. Values are as for the standard C library function <code>fopen</code>.</p>
+
+</dd>
+</dl>
+
+<h2 id="RETURN6">RETURN</h2>
+
+<p>Returns a pointer to the newly opened file structure.</p>
+
+<h1 id="clnclose---CLOSE-FILE-WITH-ERROR-CHECKING1">clnclose - CLOSE FILE WITH ERROR CHECKING</h1>
+
+<h2 id="SYNOPSIS7">SYNOPSIS</h2>
+
+<pre><code>    void clnclose(FILE *const fp, const char *const fnam);</code></pre>
+
+<h2 id="DESCRIPTION7">DESCRIPTION</h2>
+
+<p>Close a file, crashing verbosely on file error or failure. Or, if passed a NULL file pointer, do nothing.</p>
+
+<h2 id="PARAMETERS7">PARAMETERS</h2>
+
+<h3 id="INPUT6">INPUT</h3>
+
+<dl>
+
+<dt id="fnam2">fnam</dt>
+<dd>
+
+<p>Pointer to first byte of a string giving the name of the file to close.</p>
+
+</dd>
+</dl>
+
+<h3 id="INOUT2">INOUT</h3>
+
+<dl>
+
+<dt id="fp1">fp</dt>
+<dd>
+
+<p>Pointer to the file to check for errors and close, or NULL.</p>
+
+</dd>
+</dl>
+
+<h2 id="RETURN7">RETURN</h2>
+
+<p>Returns a pointer to the newly opened file structure.</p>
+
+<h1 id="clnremove---DELETE-FILE-WITH-ERROR-CHECKING1">clnremove - DELETE FILE WITH ERROR CHECKING</h1>
+
+<h2 id="SYNOPSIS8">SYNOPSIS</h2>
+
+<pre><code>    void clnremove(const char *const fnam);</code></pre>
+
+<h2 id="DESCRIPTION8">DESCRIPTION</h2>
+
+<p>Delete a file, logging a strong warning on failure.</p>
+
+<h2 id="PARAMETERS8">PARAMETERS</h2>
+
+<h3 id="INPUT7">INPUT</h3>
+
+<dl>
+
+<dt id="fnam3">fnam</dt>
+<dd>
+
+<p>Pointer to first byte of a string giving the name of the file to delete.</p>
+
+</dd>
+</dl>
+
+<h2 id="RETURN8">RETURN</h2>
+
+<p>None.</p>
+
+<h2 id="BUGS2">BUGS</h2>
+
+<p>For portability, the file should not be open on calling <code>clnremove</code>.</p>
+
+<h1 id="f2str---READ-FILE-INTO-STRING1">f2str - READ FILE INTO STRING</h1>
+
+<h2 id="SYNOPSIS9">SYNOPSIS</h2>
+
+<pre><code>    char *f2str(FILE *const stream);</code></pre>
+
+<h2 id="DESCRIPTION9">DESCRIPTION</h2>
+
+<p>Read contents of a file into a new string. The text read is terminated by newline if not already present, and finally by &#39;\0&#39;. The file is treated as text. One may deallocate memory for the new string using the standard library function <code>free</code>.</p>
+
+<h2 id="PARAMETERS9">PARAMETERS</h2>
+
+<h3 id="INOUT3">INOUT</h3>
+
+<dl>
+
+<dt id="stream1">stream</dt>
+<dd>
+
+<p>Pointer to file, which must be open in a readable mode and positioned at the start.</p>
+
+</dd>
+</dl>
+
+<h2 id="RETURN9">RETURN</h2>
+
+<p>Pointer to first byte in string containing the contents of the file when read as text.</p>
+
+<h2 id="BUGS3">BUGS</h2>
+
+<p>Does not know how to interpret newlines if the file has a different representation of newline to that used by the current system.</p>
+
+<p>Will not work correctly if the file size alters during the call to <code>f2str</code>.</p>
+
+<p>Does not work correctly if the stream is positioned anywhere other than at the start of the file on calling <code>f2str</code>.</p>
+
+
+</body>
+
+</html>
+
+

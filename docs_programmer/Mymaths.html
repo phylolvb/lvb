@@ -1,0 +1,331 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title></title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body>
+
+
+
+<ul id="index">
+  <li><a href="#exp_wrapper---INTERFACE-TO-exp">exp_wrapper - INTERFACE TO exp()</a>
+    <ul>
+      <li><a href="#SYNOPSIS">SYNOPSIS</a></li>
+      <li><a href="#DESCRIPTION">DESCRIPTION</a></li>
+      <li><a href="#PARAMETERS">PARAMETERS</a>
+        <ul>
+          <li><a href="#INPUT">INPUT</a></li>
+        </ul>
+      </li>
+      <li><a href="#RETURN">RETURN</a></li>
+    </ul>
+  </li>
+  <li><a href="#log_wrapper---INTERFACE-TO-log">log_wrapper - INTERFACE TO log()</a>
+    <ul>
+      <li><a href="#SYNOPSIS1">SYNOPSIS</a></li>
+      <li><a href="#DESCRIPTION1">DESCRIPTION</a></li>
+      <li><a href="#PARAMETERS1">PARAMETERS</a>
+        <ul>
+          <li><a href="#INPUT1">INPUT</a></li>
+        </ul>
+      </li>
+      <li><a href="#RETURN1">RETURN</a></li>
+    </ul>
+  </li>
+  <li><a href="#pow_wrapper---interface-to-pow">pow_wrapper - interface to pow()</a>
+    <ul>
+      <li><a href="#SYNOPSIS2">SYNOPSIS</a></li>
+      <li><a href="#DESCRIPTION2">DESCRIPTION</a></li>
+      <li><a href="#PARAMETERS2">PARAMETERS</a>
+        <ul>
+          <li><a href="#INPUT2">INPUT</a></li>
+        </ul>
+      </li>
+      <li><a href="#RETURN2">RETURN</a></li>
+    </ul>
+  </li>
+  <li><a href="#exp_wrapper---INTERFACE-TO-exp1">exp_wrapper - INTERFACE TO exp()</a>
+    <ul>
+      <li><a href="#SYNOPSIS3">SYNOPSIS</a></li>
+      <li><a href="#DESCRIPTION3">DESCRIPTION</a></li>
+      <li><a href="#PARAMETERS3">PARAMETERS</a>
+        <ul>
+          <li><a href="#INPUT3">INPUT</a></li>
+        </ul>
+      </li>
+      <li><a href="#RETURN3">RETURN</a></li>
+    </ul>
+  </li>
+  <li><a href="#log_wrapper---INTERFACE-TO-log1">log_wrapper - INTERFACE TO log()</a>
+    <ul>
+      <li><a href="#SYNOPSIS4">SYNOPSIS</a></li>
+      <li><a href="#DESCRIPTION4">DESCRIPTION</a></li>
+      <li><a href="#PARAMETERS4">PARAMETERS</a>
+        <ul>
+          <li><a href="#INPUT4">INPUT</a></li>
+        </ul>
+      </li>
+      <li><a href="#RETURN4">RETURN</a></li>
+    </ul>
+  </li>
+  <li><a href="#pow_wrapper---interface-to-pow1">pow_wrapper - interface to pow()</a>
+    <ul>
+      <li><a href="#SYNOPSIS5">SYNOPSIS</a></li>
+      <li><a href="#DESCRIPTION5">DESCRIPTION</a></li>
+      <li><a href="#PARAMETERS5">PARAMETERS</a>
+        <ul>
+          <li><a href="#INPUT5">INPUT</a></li>
+        </ul>
+      </li>
+      <li><a href="#RETURN5">RETURN</a></li>
+    </ul>
+  </li>
+  <li><a href="#POD-ERRORS">POD ERRORS</a></li>
+</ul>
+
+<h1 id="exp_wrapper---INTERFACE-TO-exp">exp_wrapper - INTERFACE TO exp()</h1>
+
+<h2 id="SYNOPSIS">SYNOPSIS</h2>
+
+<pre><code>    double exp_wrapper(double x1);</code></pre>
+
+<h2 id="DESCRIPTION">DESCRIPTION</h2>
+
+<p>Calculates natural antilog of a number, or crashes verbosely on underflow, overflow or domain error.</p>
+
+<h2 id="PARAMETERS">PARAMETERS</h2>
+
+<h3 id="INPUT">INPUT</h3>
+
+<dl>
+
+<dt id="x1">x1</dt>
+<dd>
+
+<p>The number whose antilogarithm we wish to calculate.</p>
+
+</dd>
+</dl>
+
+<h2 id="RETURN">RETURN</h2>
+
+<p>Returns <i>e</i>**<code>x1</code>.</p>
+
+<h1 id="log_wrapper---INTERFACE-TO-log">log_wrapper - INTERFACE TO log()</h1>
+
+<h2 id="SYNOPSIS1">SYNOPSIS</h2>
+
+<pre><code>    double log_wrapper(double x2);</code></pre>
+
+<h2 id="DESCRIPTION1">DESCRIPTION</h2>
+
+<p>Calculates natural logarithm of a number, or crashes verbosely on domain error.</p>
+
+<h2 id="PARAMETERS1">PARAMETERS</h2>
+
+<h3 id="INPUT1">INPUT</h3>
+
+<dl>
+
+<dt id="x2">x2</dt>
+<dd>
+
+<p>The number whose natural logarithm we wish to calculate.</p>
+
+</dd>
+</dl>
+
+<h2 id="RETURN1">RETURN</h2>
+
+<p>Returns <i>ln</i>(<code>x2</code>).</p>
+
+<h1 id="pow_wrapper---interface-to-pow">pow_wrapper - interface to pow()</h1>
+
+<h2 id="SYNOPSIS2">SYNOPSIS</h2>
+
+<pre><code>    double pow_wrapper(double x3, double y);</code></pre>
+
+<h2 id="DESCRIPTION2">DESCRIPTION</h2>
+
+<p>Raises one number to the power of another, or crashes verbosely on domain error, range error or underflow.</p>
+
+<h2 id="PARAMETERS2">PARAMETERS</h2>
+
+<h3 id="INPUT2">INPUT</h3>
+
+<dl>
+
+<dt id="x3">x3</dt>
+<dd>
+
+<p>The number to be raised to the power of <code>y</code>.</p>
+
+</dd>
+<dt id="y">y</dt>
+<dd>
+
+<p>The number to the power of which <code>x3</code> is to be raised.</p>
+
+</dd>
+</dl>
+
+<h2 id="RETURN2">RETURN</h2>
+
+<p>Returns <code>x3</code>**<code>y</code>.</p>
+
+<h1 id="exp_wrapper---INTERFACE-TO-exp1">exp_wrapper - INTERFACE TO exp()</h1>
+
+<h2 id="SYNOPSIS3">SYNOPSIS</h2>
+
+<pre><code>    double exp_wrapper(double x1);</code></pre>
+
+<h2 id="DESCRIPTION3">DESCRIPTION</h2>
+
+<p>Calculates natural antilog of a number, or crashes verbosely on underflow, overflow or domain error.</p>
+
+<h2 id="PARAMETERS3">PARAMETERS</h2>
+
+<h3 id="INPUT3">INPUT</h3>
+
+<dl>
+
+<dt id="x11">x1</dt>
+<dd>
+
+<p>The number whose antilogarithm we wish to calculate.</p>
+
+</dd>
+</dl>
+
+<h2 id="RETURN3">RETURN</h2>
+
+<p>Returns <i>e</i>**<code>x1</code>.</p>
+
+<h1 id="log_wrapper---INTERFACE-TO-log1">log_wrapper - INTERFACE TO log()</h1>
+
+<h2 id="SYNOPSIS4">SYNOPSIS</h2>
+
+<pre><code>    double log_wrapper(double x2);</code></pre>
+
+<h2 id="DESCRIPTION4">DESCRIPTION</h2>
+
+<p>Calculates natural logarithm of a number, or crashes verbosely on domain error.</p>
+
+<h2 id="PARAMETERS4">PARAMETERS</h2>
+
+<h3 id="INPUT4">INPUT</h3>
+
+<dl>
+
+<dt id="x21">x2</dt>
+<dd>
+
+<p>The number whose natural logarithm we wish to calculate.</p>
+
+</dd>
+</dl>
+
+<h2 id="RETURN4">RETURN</h2>
+
+<p>Returns <i>ln</i>(<code>x2</code>).</p>
+
+<h1 id="pow_wrapper---interface-to-pow1">pow_wrapper - interface to pow()</h1>
+
+<h2 id="SYNOPSIS5">SYNOPSIS</h2>
+
+<pre><code>    double pow_wrapper(double x3, double y);</code></pre>
+
+<h2 id="DESCRIPTION5">DESCRIPTION</h2>
+
+<p>Raises one number to the power of another, or crashes verbosely on domain error, range error or underflow.</p>
+
+<h2 id="PARAMETERS5">PARAMETERS</h2>
+
+<h3 id="INPUT5">INPUT</h3>
+
+<dl>
+
+<dt id="x31">x3</dt>
+<dd>
+
+<p>The number to be raised to the power of <code>y</code>.</p>
+
+</dd>
+<dt id="y1">y</dt>
+<dd>
+
+<p>The number to the power of which <code>x3</code> is to be raised.</p>
+
+</dd>
+</dl>
+
+<h2 id="RETURN5">RETURN</h2>
+
+<p>Returns <code>x3</code>**<code>y</code>.</p>
+
+<h1 id="POD-ERRORS">POD ERRORS</h1>
+
+<p>Hey! <b>The above document had some coding errors, which are explained below:</b></p>
+
+<dl>
+
+<dt id="Around-line-123">Around line 123:</dt>
+<dd>
+
+<p>Unknown directive: =over4</p>
+
+</dd>
+<dt id="Around-line-125">Around line 125:</dt>
+<dd>
+
+<p>&#39;=item&#39; outside of any &#39;=over&#39;</p>
+
+</dd>
+<dt id="Around-line-174">Around line 174:</dt>
+<dd>
+
+<p>Unknown directive: =over4</p>
+
+</dd>
+<dt id="Around-line-176">Around line 176:</dt>
+<dd>
+
+<p>&#39;=item&#39; outside of any &#39;=over&#39;</p>
+
+</dd>
+<dt id="Around-line-305">Around line 305:</dt>
+<dd>
+
+<p>Unknown directive: =over4</p>
+
+</dd>
+<dt id="Around-line-307">Around line 307:</dt>
+<dd>
+
+<p>&#39;=item&#39; outside of any &#39;=over&#39;</p>
+
+</dd>
+<dt id="Around-line-356">Around line 356:</dt>
+<dd>
+
+<p>Unknown directive: =over4</p>
+
+</dd>
+<dt id="Around-line-358">Around line 358:</dt>
+<dd>
+
+<p>&#39;=item&#39; outside of any &#39;=over&#39;</p>
+
+</dd>
+</dl>
+
+
+</body>
+
+</html>
+
+

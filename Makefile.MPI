@@ -140,23 +140,23 @@ LIB_EXT = a		# UNIX
 	@echo 'Building file: $<'
 	$(CC) $(CFLAGS) -c $<
 
-DOCS_PROGRAMMER = 	$(DOCS_PROG_DIR)/treestack.html \
-					$(DOCS_PROG_DIR)/main.html \
-		  			$(DOCS_PROG_DIR)/cleanup.html \
-		  			$(DOCS_PROG_DIR)/datops.html \
-		  			$(DOCS_PROG_DIR)/err.html \
-		  			$(DOCS_PROG_DIR)/fops.html \
-		  			$(DOCS_PROG_DIR)/getparam.html \
-					  $(DOCS_PROG_DIR)/admin.html \
-					  $(DOCS_PROG_DIR)/mops.html \
-					  $(DOCS_PROG_DIR)/mymaths.html \
-					  $(DOCS_PROG_DIR)/myuni.html \
-					  $(DOCS_PROG_DIR)/parsim.html \
-					  $(DOCS_PROG_DIR)/randpint.html \
-					  $(DOCS_PROG_DIR)/solve.html \
-					  $(DOCS_PROG_DIR)/sops.html \
-					  $(DOCS_PROG_DIR)/trops.html \
-					  $(DOCS_PROG_DIR)/wrapper.html
+DOCS_PROGRAMMER = 	$(DOCS_PROG_DIR)/Treestack.html \
+					$(DOCS_PROG_DIR)/Main.html \
+		  			$(DOCS_PROG_DIR)/Cleanup.html \
+		  			$(DOCS_PROG_DIR)/Datops.html \
+		  			$(DOCS_PROG_DIR)/Err.html \
+		  			$(DOCS_PROG_DIR)/Fops.html \
+		  			$(DOCS_PROG_DIR)/Getparam.html \
+					  $(DOCS_PROG_DIR)/Admin.html \
+					  $(DOCS_PROG_DIR)/Mops.html \
+					  $(DOCS_PROG_DIR)/Mymaths.html \
+					  $(DOCS_PROG_DIR)/Myuni.html \
+					  $(DOCS_PROG_DIR)/Parsim.html \
+					  $(DOCS_PROG_DIR)/Randpint.html \
+					  $(DOCS_PROG_DIR)/Solve.html \
+					  $(DOCS_PROG_DIR)/Sops.html \
+					  $(DOCS_PROG_DIR)/Trops.html \
+					  $(DOCS_PROG_DIR)/Wrapper.html
 
 TEST_MANUAL = $(DOCS_PROG_DIR)/go.html
 
@@ -165,24 +165,24 @@ TEST_MANUAL = $(DOCS_PROG_DIR)/go.html
 DOCS = $(DOCS_PROGRAMMER) \
        $(TEST_MANUAL)
 
-LVB_LIB_OBJS = admin.$(OBJ) \
-	treestack.$(OBJ) \
-	cleanup.$(OBJ) \
-	datops.$(OBJ) \
-	err.$(OBJ) \
-	fops.$(OBJ) \
-	getparam.$(OBJ) \
-	getstartt.$(OBJ) \
-	mops.$(OBJ) \
-	mymaths.$(OBJ) \
-	myuni.$(OBJ) \
-	parsim.$(OBJ) \
-	randpint.$(OBJ) \
-	solve.$(OBJ) \
-	store_states.$(OBJ) \
-	sops.$(OBJ) \
-	trops.$(OBJ) \
-    wrapper.$(OBJ)
+LVB_LIB_OBJS = Admin.$(OBJ) \
+	Treestack.$(OBJ) \
+	Cleanup.$(OBJ) \
+	Datops.$(OBJ) \
+	Err.$(OBJ) \
+	Fops.$(OBJ) \
+	Getparam.$(OBJ) \
+	Getstartt.$(OBJ) \
+	Mops.$(OBJ) \
+	Mymaths.$(OBJ) \
+	Myuni.$(OBJ) \
+	Parsim.$(OBJ) \
+	Randpint.$(OBJ) \
+	Solve.$(OBJ) \
+	Store_states.$(OBJ) \
+	Sops.$(OBJ) \
+	Trops.$(OBJ) \
+    Wrapper.$(OBJ)
 
 ifeq ($(WHICH_MAKE),MAKE_LVB_MPI)
 
@@ -192,7 +192,7 @@ ifeq ($(WHICH_MAKE),MAKE_LVB_MPI)
 	LVB_PROG = lvb_mpi$(EXE)
 
 	# Object files that will go into the LVB library
-	LVB_LIB_OBJS += interaction_temperature.$(OBJ)
+	LVB_LIB_OBJS += Interaction_temperature.$(OBJ)
 else
 
 	# LVB library
@@ -201,13 +201,13 @@ else
 	LVB_PROG = lvb_mrmpi$(EXE)
 
 	# Object files that will go into the LVB library
-	LVB_LIB_OBJS += mrSubroutine.$(OBJ)
+	LVB_LIB_OBJS += MRsubroutine.$(OBJ)
 endif
 
 LVB_READ_FILE_OBJS = 	$(LVB_READ_FILE_DIR)/CReadFiles.$(OBJ) \
 						$(LVB_READ_FILE_DIR)/ReadFile.$(OBJ)
 
-LVB_PROG_OBJS = main.$(OBJ)
+LVB_PROG_OBJS = Main.$(OBJ)
 LVB_LIB_OBJS_OUTPUT = $(LVB_LIB_OBJS)
 
 

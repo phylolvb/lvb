@@ -1,0 +1,159 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title></title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body>
+
+
+
+<ul id="index">
+  <li><a href="#alloc---ALLOCATE-DYNAMIC-HEAP-MEMORY">alloc - ALLOCATE DYNAMIC HEAP MEMORY</a>
+    <ul>
+      <li><a href="#SYNOPSIS">SYNOPSIS</a></li>
+      <li><a href="#DESCRIPTION">DESCRIPTION</a></li>
+      <li><a href="#PARAMETERS">PARAMETERS</a>
+        <ul>
+          <li><a href="#INPUT">INPUT</a></li>
+        </ul>
+      </li>
+      <li><a href="#RETURN">RETURN</a></li>
+    </ul>
+  </li>
+  <li><a href="#alloc---ALLOCATE-DYNAMIC-HEAP-MEMORY1">alloc - ALLOCATE DYNAMIC HEAP MEMORY</a>
+    <ul>
+      <li><a href="#SYNOPSIS1">SYNOPSIS</a></li>
+      <li><a href="#DESCRIPTION1">DESCRIPTION</a></li>
+      <li><a href="#PARAMETERS1">PARAMETERS</a>
+        <ul>
+          <li><a href="#INPUT1">INPUT</a></li>
+        </ul>
+      </li>
+      <li><a href="#RETURN1">RETURN</a></li>
+    </ul>
+  </li>
+  <li><a href="#POD-ERRORS">POD ERRORS</a></li>
+</ul>
+
+<h1 id="alloc---ALLOCATE-DYNAMIC-HEAP-MEMORY">alloc - ALLOCATE DYNAMIC HEAP MEMORY</h1>
+
+<h2 id="SYNOPSIS">SYNOPSIS</h2>
+
+<p>void *alloc(const size_t bytes, const char *const msg);</p>
+
+<h2 id="DESCRIPTION">DESCRIPTION</h2>
+
+<p><b>alloc</b> is a wrapper for the standard library function <code>malloc</code>. It allocates new memory, or, on failure, crashes with an error message. It also assures a system-independent return value, <code>NULL</code>, if a zero-byte allocation is requested.</p>
+
+<p><b>alloc</b> will always fail without calling <code>malloc</code> if the request exceeds <code>MAX_ALLOC</code> bytes, where <code>MAX_ALLOC</code> is defined in <code>lvb.h</code>. This avoids straining <code>malloc</code> beyond typical use. <code>MAX_ALLOC</code> is a large number that will comfortably fit in a 32-bit signed integer.</p>
+
+<p>The allocated memory may be freed with the standard library function <code>free</code>.</p>
+
+<p>The new memory is not initialized.</p>
+
+<h2 id="PARAMETERS">PARAMETERS</h2>
+
+<h3 id="INPUT">INPUT</h3>
+
+<dl>
+
+<dt id="bytes">bytes</dt>
+<dd>
+
+<p>The number of bytes to allocate. If <code>bytes</code> is zero, no memory is allocated.</p>
+
+</dd>
+<dt id="msg">msg</dt>
+<dd>
+
+<p>Pointer to the first text character in a string that describes the object being allocated. On allocation failure, <b>alloc</b> will crash with an error message of &#39;FATAL ERROR: out of memory: cannot allocate for &#39;, followed by this string.</p>
+
+</dd>
+</dl>
+
+<h2 id="RETURN">RETURN</h2>
+
+<p>Returns pointer to the first byte of the newly allocated memory, which is suitably aligned for storage of any object, or <code>NULL</code> if a zero-byte allocation was requested.</p>
+
+<h1 id="alloc---ALLOCATE-DYNAMIC-HEAP-MEMORY1">alloc - ALLOCATE DYNAMIC HEAP MEMORY</h1>
+
+<h2 id="SYNOPSIS1">SYNOPSIS</h2>
+
+<p>void *alloc(const size_t bytes, const char *const msg);</p>
+
+<h2 id="DESCRIPTION1">DESCRIPTION</h2>
+
+<p><b>alloc</b> is a wrapper for the standard library function <code>malloc</code>. It allocates new memory, or, on failure, crashes with an error message. It also assures a system-independent return value, <code>NULL</code>, if a zero-byte allocation is requested.</p>
+
+<p><b>alloc</b> will always fail without calling <code>malloc</code> if the request exceeds <code>MAX_ALLOC</code> bytes, where <code>MAX_ALLOC</code> is defined in <code>lvb.h</code>. This avoids straining <code>malloc</code> beyond typical use. <code>MAX_ALLOC</code> is a large number that will comfortably fit in a 32-bit signed integer.</p>
+
+<p>The allocated memory may be freed with the standard library function <code>free</code>.</p>
+
+<p>The new memory is not initialized.</p>
+
+<h2 id="PARAMETERS1">PARAMETERS</h2>
+
+<h3 id="INPUT1">INPUT</h3>
+
+<dl>
+
+<dt id="bytes1">bytes</dt>
+<dd>
+
+<p>The number of bytes to allocate. If <code>bytes</code> is zero, no memory is allocated.</p>
+
+</dd>
+<dt id="msg1">msg</dt>
+<dd>
+
+<p>Pointer to the first text character in a string that describes the object being allocated. On allocation failure, <b>alloc</b> will crash with an error message of &#39;FATAL ERROR: out of memory: cannot allocate for &#39;, followed by this string.</p>
+
+</dd>
+</dl>
+
+<h2 id="RETURN1">RETURN</h2>
+
+<p>Returns pointer to the first byte of the newly allocated memory, which is suitably aligned for storage of any object, or <code>NULL</code> if a zero-byte allocation was requested.</p>
+
+<h1 id="POD-ERRORS">POD ERRORS</h1>
+
+<p>Hey! <b>The above document had some coding errors, which are explained below:</b></p>
+
+<dl>
+
+<dt id="Around-line-74">Around line 74:</dt>
+<dd>
+
+<p>Unknown directive: =over4</p>
+
+</dd>
+<dt id="Around-line-76">Around line 76:</dt>
+<dd>
+
+<p>&#39;=item&#39; outside of any &#39;=over&#39;</p>
+
+</dd>
+<dt id="Around-line-161">Around line 161:</dt>
+<dd>
+
+<p>Unknown directive: =over4</p>
+
+</dd>
+<dt id="Around-line-163">Around line 163:</dt>
+<dd>
+
+<p>&#39;=item&#39; outside of any &#39;=over&#39;</p>
+
+</dd>
+</dl>
+
+
+</body>
+
+</html>
+
+
