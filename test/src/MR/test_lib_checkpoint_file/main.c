@@ -37,8 +37,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-#include "lvb.h"
-#include "store_states.h"
+#include "Lvb.h"
+#include "Store_states.h"
 
 #define RAND_TREES 705		/* compare treestacks of this many trees */
 #define SEED 40291989		/* arbitrary */
