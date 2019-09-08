@@ -146,7 +146,7 @@ void phylip_mat_dims_in(char *p_file_name, int n_file_format, long *species_ptr,
 #ifdef MPI_Implementation
 
 #ifdef MAP_REDUCE_SINGLE
-	#include "LVB_READ_FILES/src/ReadFile.h"
+	#include "LVB_READ_FILES/src/InputOptions.h"
 #else
 	int read_file(char *file_name, int n_file_format, Dataptr p_lvbmat, DataSeqPtr lvbmat_seq);
 	void phylip_mat_dims_in_external(char *file_name, int n_file_format, long *species_ptr, long *sites_ptr, int *max_length_name);

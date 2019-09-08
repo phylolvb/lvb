@@ -107,7 +107,7 @@ void getparam(Params *prms, int argc, char **argv)
 
 /* it is in ReadFile.cpp library */
 #ifdef MAP_REDUCE_SINGLE
-	#include "LVB_READ_FILES/src/ReadFile.h"
+	#include "LVB_READ_FILES/src/InputOptions.h"
 #else
 	int read_parameters(Params *prms, int argc, char **argv);
 #endif

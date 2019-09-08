@@ -38,7 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== ReadFile.cpp - command-line inputs ========== */
 
-#include "ReadFile.h"
+#include "InputOptions.h"
 
 #ifdef NP_Implementation
 

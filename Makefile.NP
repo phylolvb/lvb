@@ -130,7 +130,7 @@ LVB_LIB_OBJS = Admin.$(OBJ) \
                Wrapper.$(OBJ)
 
 LVB_READ_FILE_OBJS = 	$(LVB_READ_FILE_DIR)/CReadFiles.$(OBJ) \
-			$(LVB_READ_FILE_DIR)/ReadFile.$(OBJ)
+			$(LVB_READ_FILE_DIR)/InputOptions.$(OBJ)
 
 LVB_LIB_OBJS_OUTPUT = $(LVB_LIB_OBJS)
 
