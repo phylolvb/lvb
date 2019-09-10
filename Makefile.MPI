@@ -204,7 +204,7 @@ else
 	LVB_LIB_OBJS += MRsubroutine.$(OBJ)
 endif
 
-LVB_READ_FILE_OBJS = 	$(LVB_READ_FILE_DIR)/CReadFiles.$(OBJ) \
+LVB_READ_FILE_OBJS = 	$(LVB_READ_FILE_DIR)/MSAInput.$(OBJ) \
 						$(LVB_READ_FILE_DIR)/InputOptions.$(OBJ)
 
 LVB_PROG_OBJS = Main.$(OBJ)

@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef READFILE_H_
 #define READFILE_H_
 
-#include "CReadFiles.h"
+#include "MSAInput.h"
 #include "../../DataStructure.h"
 #include <stdio.h>
 #include <string.h>

@@ -38,7 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== CReadFiles.cpp - data matrix inputs ========== */
 
-#include "CReadFiles.h"
+#include "MSAInput.h"
 
 #ifdef NP_Implementation
 

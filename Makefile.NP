@@ -129,7 +129,7 @@ LVB_LIB_OBJS = Admin.$(OBJ) \
                Trops.$(OBJ) \
                Wrapper.$(OBJ)
 
-LVB_READ_FILE_OBJS = 	$(LVB_READ_FILE_DIR)/CReadFiles.$(OBJ) \
+LVB_READ_FILE_OBJS = 	$(LVB_READ_FILE_DIR)/MSAInput.$(OBJ) \
 			$(LVB_READ_FILE_DIR)/InputOptions.$(OBJ)
 
 LVB_LIB_OBJS_OUTPUT = $(LVB_LIB_OBJS)
