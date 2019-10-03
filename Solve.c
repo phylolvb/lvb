@@ -34,7 +34,7 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-*/ 
+*/
 
 /* ========== solve.c - solving functions ========== */
 
@@ -177,7 +177,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
     /* REND variables that could calculate immediately */
 
 	 long w_changes_prop = 0;
-    	long w_changes_acc = 0;  
+    	long w_changes_acc = 0;
     p_proposed_tree = treealloc(matrix, LVB_TRUE);
     p_current_tree = treealloc(matrix, LVB_TRUE);
 
@@ -198,9 +198,9 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 	double trops_probs[3] = {0,0,0};
 	long trops_total = trops_counter[0]+trops_counter[1]+trops_counter[2];
 	long trops_id;
-	
 
-    if ((log_progress == LVB_TRUE) && (*current_iter == 0)) 
+
+    if ((log_progress == LVB_TRUE) && (*current_iter == 0))
 	if (rcstruct.verbose == LVB_TRUE && rcstruct.bootstraps == LVB_FALSE)
         fprintf(lenfp, "Temperature:   Rearrangement: TreeStack size: Length:\n");
 
@@ -217,11 +217,11 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 	}
     lenmin = getminlen(matrix);
     r_lenmin = (double) lenmin;
-    
-    
+
+
   /* int mutate_counter = 1; */
   /* double trops_probs[3] = {0,0,1}; */
-  
+
     /* while (iter<=1000000) { */
 	   while (1) {
         int changeAcc = 0;
@@ -243,7 +243,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 			trops_total = trops_counter[0]+trops_counter[1]+trops_counter[2];
 		trops_probs[0]=trops_counter[0]/trops_total;
 		trops_probs[1]=trops_counter[1]/trops_total;
-		trops_probs[2]=trops_counter[2]/trops_total; 
+		trops_probs[2]=trops_counter[2]/trops_total;
 		}
 
 		  if (rcstruct.algorithm_selection >= 1)
@@ -275,8 +275,8 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 		else { mutate_nni (matrix, p_proposed_tree, p_current_tree, root);	/* local change */
 		strcpy(change,"NNI"); }
 		}
-		
-		
+
+
 		lendash = getplen(matrix, p_proposed_tree, rcstruct, rootdash, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 		lvb_assert (lendash >= 1L);
 		deltalen = lendash - len;
@@ -311,7 +311,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 		else	/* poss. accept change for the worse */
 		{
 			if (rcstruct.algorithm_selection == 2)
-			w_changes_prop ++; 
+			w_changes_prop ++;
 			/* Mathematically,
 			 *     Pacc = e ** (-1/T * deltaH)
 			 *     therefore ln Pacc = -1/T * deltaH
@@ -347,19 +347,19 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 				{
 					treeswap(&p_current_tree, &root, &p_proposed_tree, &rootdash);
 				if (rcstruct.algorithm_selection == 2)
-				w_changes_acc++; 
+				w_changes_acc++;
 					len = lendash;
 					if (rcstruct.algorithm_selection == 1)
-					changeAcc = 1; 
+					changeAcc = 1;
 				}
 			}
 		}
 		proposed++;
 
-		
+
 		/* decide whether to reduce temperature */
 		if (accepted >= maxaccept){	/* enough new trees */
-      
+
 			failedcnt = 0;  /* this temperature a 'success' */
 			dect = LVB_TRUE;
 		}
@@ -410,7 +410,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 			dect = LVB_FALSE;
 		if (rcstruct.algorithm_selection == 2)
 			{ w_changes_prop = 0;
-        w_changes_acc = 0; 
+        w_changes_acc = 0;
 			}
 		}
 
@@ -454,7 +454,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 #include "Store_states.h"
 
 #ifdef MAP_REDUCE_SINGLE
-	static void lenlog(FILE *lengthfp, long iteration, long length, double temperature)
+	static void lenlog(FILE *lengthfp, Treestack *bstackp, long iteration, long length, double temperature)
 #else
 	static void lenlog(FILE *lengthfp, Treestack *bstackp, int myMPIid, long iteration, long length, double temperature)
 #endif
@@ -462,7 +462,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 	 * crash verbosely on write error */
 	{
 #ifdef MAP_REDUCE_SINGLE
-		fprintf(lengthfp, "%-15.8g%-15ld%-15ld\n", temperature, iteration, length);
+		fprintf(lengthfp, "%-15.8g%-15ld%-16ld%-15ld\n", temperature, iteration, bstackp->next, length);
 #else
 		fprintf(lengthfp, "%-15d%-15.8g%-15ld%-16ld%-15ld\n", myMPIid, temperature, iteration, bstackp->next, length);
 #endif
@@ -587,7 +587,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 
 					}
 					if ((log_progress == LVB_TRUE) && ((*current_iter % STAT_LOG_INTERVAL) == 0)) {
-					   if(misc->rank == 0) lenlog(lenfp, *current_iter, len, 0);
+					   if(misc->rank == 0) lenlog(lenfp, bstackp, *current_iter, len, 0);
 					}
 #else
 					if (deltalen <= 0) {
@@ -768,7 +768,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 			tree_setpush(matrix, inittree, root, mrTreeStack, misc);
 
 			if ((log_progress == LVB_TRUE) && (*current_iter == 0)) {
-				 if(misc->rank == 0) fprintf(lenfp, "\nTemperature:   Rearrangement: Length:\n");
+				 if(misc->rank == 0) fprintf(lenfp, "\nTemperature:   Rearrangement: TreeStack size: Length:\n");
 			}
 			r_lenmin = (double) matrix->min_len_tree;
 	#else
@@ -789,7 +789,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 			if ((*current_iter % REROOT_INTERVAL) == 0) {
 				root = arbreroot(matrix, p_current_tree, root);
 				if ((log_progress == LVB_TRUE) && ((*current_iter % STAT_LOG_INTERVAL) == 0)) {
-	        		   if(misc->rank == 0)  lenlog(lenfp, *current_iter, len, t);
+	        		   if(misc->rank == 0)  lenlog(lenfp, bstackp, *current_iter, len, t);
 	        		}
 			}
 #else
@@ -898,9 +898,9 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 									break;
 								}
 							}
-	//	cerr << "Sanity Check = " << endl;
-	//	cerr << "Sanity Check = " << endl;
-	//	for(int i=0; i<=misc->ID; i++) cerr << "Sanity Check = " << i << " " << check_cmp << " " << total_count[i] << " " << total_count[0] << endl;
+	  	cerr << "Sanity Check = " << endl;
+	  	cerr << "Sanity Check = " << endl;
+		for(int i=0; i<=misc->ID; i++) cerr << "Sanity Check = " << i << " " << check_cmp << " " << total_count[i] << " " << total_count[0] << endl;
 
 						}
 

@@ -8,7 +8,7 @@ and Chris Wood.
 (c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
 Fernando Guntoro, Maximilian Strobl and Chris Wood.
 All rights reserved.
- 
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
@@ -74,12 +74,12 @@ static void writeinf(Params prms, Dataptr matrix)
     printf("Length of Sequences:\n");
     printf("    Before cut       = %ld\n", matrix->original_m);
     printf("    After cut        = %ld\n\n", matrix->m);
-    
+
     printf("Algorithm Selection  = ");
     if(prms.algorithm_selection == 0) printf("Algorithm 0 (SN)\n");
     else if(prms.algorithm_selection == 1) printf("Algorithm 1 (SEQ-TNS)\n");
     else if(prms.algorithm_selection == 2) printf("Algorithm 2 (PBS)\n");
-    
+
     printf("Bootstrap Replicates = %ld\n", prms.bootstraps);
 
     printf("Cooling Schedule     = ");
@@ -98,7 +98,7 @@ static void writeinf(Params prms, Dataptr matrix)
     printf("Seed                 = %d\n", prms.seed);
     printf("Threads Requested    = %d\n", prms.n_processors_available);
 
-    
+
 
 
 } /* end writeinf() */
@@ -150,7 +150,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
      * files.  */
     long cyc = 0;	/* current cycle number */
     long start = 0;	/* current random (re)start number */
- 
+
     /* dynamic "local" heap memory */
     tree = treealloc(matrix, LVB_TRUE);
 
@@ -172,7 +172,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
     else{
         sumfp = NULL;
     }
-	
+
     /* determine starting temperature */
     randtree(matrix, tree);	/* initialise required variables */
     ss_init(matrix, tree, enc_mat);
@@ -199,12 +199,12 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
     }
 
     /* find solution(s) */
-    treelength = anneal(matrix, &bstack_overall, &stack_treevo, tree, rcstruct, initroot, t0, maxaccept, 
+    treelength = anneal(matrix, &bstack_overall, &stack_treevo, tree, rcstruct, initroot, t0, maxaccept,
     maxpropose, maxfail, stdout, weight_arr, iter_p, log_progress);
     treestack_pop(matrix, tree, &initroot, &bstack_overall, LVB_FALSE);
     treestack_push(matrix, &bstack_overall, tree, initroot, LVB_FALSE);
 
-	/* log this cycle's solution and its details 
+	/* log this cycle's solution and its details
 	 * NOTE: There are no cycles anymore in the current version
      * of LVB. The code bellow is purely to keep the output consistent
      * with that of previous versions. */
@@ -345,7 +345,7 @@ int main(int argc, char **argv)
     printf("Download and support:\n"
 	"http://lvb.bio.ed.ac.uk/\n\n");
 
-    /* start timer */ 
+    /* start timer */
     clock_t Start, End;
     double Overall_Time_taken;
     double Overall_Time_taken_minutes;
@@ -362,9 +362,9 @@ int main(int argc, char **argv)
 
     /* "file-local" dynamic heap memory: set up best tree stacks, need to be by thread */
     bstack_overall = treestack_new();
-    if(rcstruct.algorithm_selection ==2) 
+    if(rcstruct.algorithm_selection ==2)
     stack_treevo = treestack_new();
-        
+
     matchange(matrix, rcstruct);	/* cut columns */
     writeinf(rcstruct, matrix);
     calc_distribution_processors(matrix, rcstruct);
@@ -392,17 +392,17 @@ int main(int argc, char **argv)
 		else{
 			for (i = 0; i < matrix->m; i++) weight_arr[i] = 1;
 		}
-        
+
 		final_length = getsoln(matrix, rcstruct, weight_arr, &iter, log_progress);
- 
+
 		if (rcstruct.bootstraps > 0) trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_TRUE);
 		else trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_FALSE);
-		
+
 		/* print in the screen */
 /*		for (i = 0; i < bstack_overall.next; i++) {
 			treedump_screen(matrix, bstack_overall.stack[i].tree);
 		}*/
-		
+
 		trees_output_total += trees_output;
         if(rcstruct.algorithm_selection ==2)
 		treestack_print(matrix, &stack_treevo, treEvo, LVB_FALSE);
@@ -463,7 +463,7 @@ int main(int argc, char **argv)
 
     return val;
 
-    
+
 
 } /* end main() */
 
@@ -501,6 +501,8 @@ static void smessg(long start, long cycle)
 static void writeinf(Params prms, Dataptr matrix, int myMPIid, int n_process)
 /* write initial details to standard output */
 {
+    printf("LVB was called as follows:\n\n");
+    
 		printf("\n#########\nProcess ID: %d\n", myMPIid);
 
 		printf("cooling schedule        = ");
@@ -890,7 +892,7 @@ static void logtree1(Dataptr matrix, DataSeqPtr restrict matrix_seq_data, const 
 	} /* end getsoln() */
 #endif
 
-	
+
 /* set the number of processors to use */
 void calc_distribution_processors(Dataptr matrix, Params rcstruct){
 	int n_threads_temp = 0;
@@ -1295,7 +1297,7 @@ static void logstim(void)
 			"Barker, D. 2004. LVB: Parsimony and simulated annealing in the\n"
 			"search for phylogenetic trees. Bioinformatics, 20, 274-275.\n\n");
 			printf("Download and support:\n"
-			"http://eggg.st-andrews.ac.uk/lvb\n\n");
+			"http://lvb.bio.ed.ac.uk/\n\n");
 
 #ifdef MAP_REDUCE_SINGLE
 		}
