@@ -308,6 +308,8 @@ int main(int argc, char **argv)
 	"and Maximilian Strobl\n"
 	"(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro,\n"
 	"Maximilian Strobl and Chris Wood.\n"
+  "(c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,\n"
+  "Fernando Guntoro, Maximilian Strobl and Chris Wood.\n"
 	"All rights reserved.\n"
 	"\n"
 	"Redistribution and use in source and binary forms, with or without\n"
@@ -502,7 +504,7 @@ static void writeinf(Params prms, Dataptr matrix, int myMPIid, int n_process)
 /* write initial details to standard output */
 {
     printf("LVB was called as follows:\n\n");
-    
+
 		printf("\n#########\nProcess ID: %d\n", myMPIid);
 
 		printf("cooling schedule        = ");
@@ -1262,6 +1264,8 @@ static void logstim(void)
 			"and Chris Wood\n"
 			"(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Chang Sik Kim,\n"
 			"Maximilian Strobl and Martyn Winn\n"
+      "(c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,\n"
+      "Fernando Guntoro, Maximilian Strobl and Chris Wood.\n"
 			"All rights reserved.\n"
 			"\n"
 			"Redistribution and use in source and binary forms, with or without\n"
