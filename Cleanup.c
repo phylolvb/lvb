@@ -8,7 +8,7 @@ and Chris Wood.
 (c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
 Fernando Guntoro, Maximilian Strobl and Chris Wood.
 All rights reserved.
- 
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
@@ -50,8 +50,8 @@ Lvb_bool cleanup(void)
     Lvb_bool val;	/* return value */
 
     endtim = time(NULL);
-    printf("\n");
-    printf("Ending at: %s", ctime(&endtim));
+    // printf("\n");
+    // printf("Ending at: %s", ctime(&endtim));
     printf("\n");
 
     /* log file won't be used again */
@@ -88,4 +88,3 @@ Lvb_bool cleanup(void)
 } /* end cleanup() */
 
 #endif
-
