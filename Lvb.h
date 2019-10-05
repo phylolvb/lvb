@@ -8,7 +8,7 @@ and Chris Wood
 (c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Chang Sik Kim,
 Maximilian Strobl and Martyn Winn
 All rights reserved.
- 
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
@@ -65,6 +65,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <time.h>
 #include "Myuni.h"
 #include "Mymaths.h"
+#include <sys/utsname.h>
 
 
 /* the program */
@@ -78,7 +79,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 /* use TBR branch-Swapping Algorithm? */
-/* #define TBR */ 
+/* #define TBR */
 
 /* DNA bases: bits to set in statesets */
 #define A_BIT 0b0001		/* (1U << 0) */

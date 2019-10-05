@@ -62,46 +62,66 @@ static void smessg(long start, long cycle)
 
 } /* end smessg() */
 
+// static void machineinf()
+// {
+
+// }
+
 static void writeinf(Params prms, Dataptr matrix)
 /* write initial details to standard output */
 {
-    printf("LVB was called as follows:\n\n");
+  printf("                 LVB Settings \n");
+  printf("  -----------------------------------------\n\n");
 
+  struct utsname buffer;
+  errno = 0;
+  if (uname(&buffer) !=0) {
+    perror("uname");
+    exit(EXIT_FAILURE);
+  }
 
-    printf("Input File           = %s\n", prms.file_name_in);
-    printf("Output File          = %s\n", prms.file_name_out);
-    printf("Number of Taxa       = %ld\n", matrix->n);
-    printf("Length of Sequences:\n");
-    printf("    Before cut       = %ld\n", matrix->original_m);
-    printf("    After cut        = %ld\n\n", matrix->m);
+  printf("Host machine: %s %s, %s (%d processors available)\n\n", buffer.nodename, buffer.machine, buffer.sysname, get_nprocs());
 
-    printf("Algorithm Selection  = ");
+  #ifdef _GNU_SOURCE
+  pritnf("domain name = %s\n", buffer.domainname);
+  #endif
+
+    printf("Parsing alignement file: \"%s\"\n", prms.file_name_in);
+    printf(" Dataset properties: \n");
+    printf(" Number of Taxa       = %ld\n", matrix->n);
+    printf(" Length of Sequences:\n");
+    printf("    Before cut        = %ld\n", matrix->original_m);
+    printf("    After cut         = %ld\n\n", matrix->m);
+
+    printf("Analysis properties: \n");
+    printf(" Algorithm Selection  = ");
     if(prms.algorithm_selection == 0) printf("Algorithm 0 (SN)\n");
     else if(prms.algorithm_selection == 1) printf("Algorithm 1 (SEQ-TNS)\n");
     else if(prms.algorithm_selection == 2) printf("Algorithm 2 (PBS)\n");
 
-    printf("Bootstrap Replicates = %ld\n", prms.bootstraps);
+    printf(" Bootstrap Replicates = %ld\n", prms.bootstraps);
 
-    printf("Cooling Schedule     = ");
+    printf(" Cooling Schedule     = ");
     if(prms.cooling_schedule == 0) printf("GEOMETRIC\n");
     else printf("LINEAR\n");
 
-    if (prms.n_file_format == FORMAT_PHYLIP) printf("Format Input File    = PHYLIP\n");
-    else if (prms.n_file_format == FORMAT_FASTA) printf("Format Input File    = FASTA\n");
-    else if (prms.n_file_format == FORMAT_NEXUS) printf("Format Input File    = NEXUS\n");
-    else if (prms.n_file_format == FORMAT_CLUSTAL) printf("Format Input File    = CLUSTAL\n");
+    if (prms.n_file_format == FORMAT_PHYLIP) printf(" Format Input File    = PHYLIP\n");
+    else if (prms.n_file_format == FORMAT_FASTA) printf(" Format Input File    = FASTA\n");
+    else if (prms.n_file_format == FORMAT_NEXUS) printf(" Format Input File    = NEXUS\n");
+    else if (prms.n_file_format == FORMAT_CLUSTAL) printf(" Format Input File    = CLUSTAL\n");
     else{
     	fprintf (stderr, "Error, input format file not recognized\n");
     	abort();
     }
 
-    printf("Seed                 = %d\n", prms.seed);
-    printf("Threads Requested    = %d\n", prms.n_processors_available);
-
-
-
+    printf(" Seed                 = %d\n", prms.seed);
+    printf(" Threads Requested    = %d\n\n", prms.n_processors_available);
+    printf("Ouput properties: \n");
+    printf(" Log                  =\n"); // %s.log\n", prms.file_name_in);
+    printf(" Treestack            =\n\n"); // %s.treestack\n", prms.file_name_in);
 
 } /* end writeinf() */
+
 
 
 static void logtree1(Dataptr matrix, const Branch *const barray, const long start, const long cycle, long root)
@@ -262,25 +282,30 @@ void calc_distribution_processors(Dataptr matrix, Params rcstruct){
 	// only to protect
 	if (matrix->n_threads_getplen < 1) matrix->n_threads_getplen = 1;
 
-	printf("Threads Available    = %d (possibly reduced due to limited availability)\n\n", matrix->n_threads_getplen);
+	// printf("Threads Available    = %d (possibly reduced due to limited availability)\n\n", matrix->n_threads_getplen);
 
-    printf("Begin cycle: \n\n");
     if (rcstruct.verbose == LVB_FALSE && rcstruct.bootstraps == LVB_FALSE)
-        printf("Temperature:   Rearrangement: TreeStack size: Length:\n");
+        printf("Temperature    Rearrangement    TreeStack size    Length    \n");
 	// if (rcstruct.n_processors_available != matrix->n_threads_getplen)
 	//	printf("Reduced based on the size of the dataset\n");
 }
 
-
-static void logstim(void)
+static void logtime(void)
 /* log start time with message */
 {
     time_t tim;	/* time */
+    char buffer[26];
+    struct tm* tm_info;
 
-    tim = time(NULL);
-    printf("Starting at: %s\n", ctime(&tim));
+    time(&tim);
+    tm_info = localtime(&tim);
 
-} /* end logstim() */
+    strftime(buffer, 26, "[%H:%M:%S]", tm_info);
+    puts(buffer);
+    //tim = time(NULL);
+    //printf(" on %s\n", ctime(&tim));
+
+} /* end logtime() */
 
 int main(int argc, char **argv)
 {
@@ -340,12 +365,23 @@ int main(int argc, char **argv)
 	"STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)\n"
 	"ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF\n"
 	"ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n\n");
-    printf("* This is %s version %s %s *\n\n", PROGNAM, LVB_VERSION, LVB_SUBVERSION);
-    printf("Literature reference:\n"
-	"Barker, D. 2004. LVB: Parsimony and simulated annealing in the\n"
-	"search for phylogenetic trees. Bioinformatics, 20, 274-275.\n\n");
-    printf("Download and support:\n"
-	"http://lvb.bio.ed.ac.uk/\n\n");
+    printf("     %s %s released: %s \n", PROGNAM, LVB_VERSION, LVB_SUBVERSION);
+    printf("  -----------------------------------------\n\n");
+
+    printf("Current developers:     Daniel Barker and Joseph Guscott\n");
+    // printf("Previous collaborators: Miguel Pinheiro, Martyn Winn, Chang Sik Kim, Fernando Guntoro, Maximilian Strobl and Chris Wood\n");
+    printf("Developed at:           University of Edinburgh\n");
+    printf("GitHub repository:      https://github.com/phylolvb/lvb\n");
+    printf("Support available at:   http://lvb.bio.ed.ac.uk/\n\n");
+
+    printf("LVB sequential version was called using: ");
+    // printf("    ");
+    printf("\" ");
+    for (int i = 0; i < argc; ++i)
+    printf("%s ", argv[i]);
+    printf("\"\n\n");
+
+    // printf("This system has %d processors configured and %d processors available.\n", get_nprocs_conf(), get_nprocs());
 
     /* start timer */
     clock_t Start, End;
@@ -356,7 +392,6 @@ int main(int argc, char **argv)
     Start = clock();
     lvb_initialize();
     getparam(&rcstruct, argc, argv);
-    logstim();
 
     /* read and alloc space to the data structure */
     matrix = alloc(sizeof(DataStructure), "alloc data structure");
@@ -369,6 +404,9 @@ int main(int argc, char **argv)
 
     matchange(matrix, rcstruct);	/* cut columns */
     writeinf(rcstruct, matrix);
+    printf("Initiating tree search ");
+    logtime();
+    printf("\n");
     calc_distribution_processors(matrix, rcstruct);
 
     if (rcstruct.verbose == LVB_TRUE) {
@@ -416,7 +454,13 @@ int main(int argc, char **argv)
             printf("Temperature:   Rearrangement: TreeStack size: Length:\n");
 			total_iter += (double) iter;
 		}
-		else  printf("\nEnd cycle\n\nTotal rearrangements tried: %ld\n", iter);
+		else  printf("\nSearch complete ");
+    logtime();
+    printf("\n");
+    printf("             LVB Search Stastics \n");
+    printf("  -----------------------------------------\n\n");
+
+    printf("Rearrangements assessed: %ld", iter);
 	} while (replicate_no < rcstruct.bootstraps);
    if(rcstruct.algorithm_selection ==2)
     fclose(treEvo);
@@ -424,7 +468,7 @@ int main(int argc, char **argv)
 
 	printf("\n");
 	if (rcstruct.bootstraps > 0)
-		printf("\nEnd cycle\n\nTotal rearrangements tried across all replicates: %g\n\n", total_iter);
+		printf("\nRearrangments assessed: %g", total_iter);
 
 	if ((trees_output_total == 1L) && (rcstruct.bootstraps == 0)) {
 		printf("1 most parsimonious tree of length %ld written to file '%s'\n", final_length, rcstruct.file_name_out);
@@ -435,8 +479,10 @@ int main(int argc, char **argv)
 			printf("%ld trees written to file '%s'\n", trees_output_total, rcstruct.file_name_out);
 		}
 		else{
-			printf("%ld equally parsimonious trees of length %ld written to "
-			 "file '%s'\n", trees_output_total, final_length, rcstruct.file_name_out);
+      printf("Topologies recovered: %ld\n", trees_output_total);
+      printf("Maximum parsimony Score: %ld\n", final_length);
+      // printf("%ld equally parsimonious trees of length %ld written to "
+			// "file '%s'\n", trees_output_total, final_length, rcstruct.file_name_out);
 		}
     }
     End = clock();
@@ -445,13 +491,14 @@ int main(int argc, char **argv)
     Overall_Time_taken_minutes = Overall_Time_taken / 60;
     Overall_Time_taken_hours = Overall_Time_taken_minutes / 60;
     if (Overall_Time_taken <= 60)
-    printf("lvb took %.2lf seconds to complete\n", Overall_Time_taken);
+    printf("Search runtime: %.2lf seconds\n", Overall_Time_taken);
     if (Overall_Time_taken <= 3600) {
             if (Overall_Time_taken >= 60)
     printf("lvb took %.2lf minutes, (%.2lf seconds) to complete\n", Overall_Time_taken_minutes, Overall_Time_taken);
     }
     if (Overall_Time_taken >= 3600)
          printf("lvb took %.2lf hours, (%.2lf minutes) to complete\n", Overall_Time_taken_hours, Overall_Time_taken_minutes);
+
 	/* "file-local" dynamic heap memory */
     if (rcstruct.algorithm_selection ==2)
     treestack_free(matrix, &stack_treevo);
@@ -503,7 +550,8 @@ static void smessg(long start, long cycle)
 static void writeinf(Params prms, Dataptr matrix, int myMPIid, int n_process)
 /* write initial details to standard output */
 {
-    printf("LVB was called as follows:\n\n");
+    printf("LVB was called on ");
+    printf("Program settings:\n\n");
 
 		printf("\n#########\nProcess ID: %d\n", myMPIid);
 
@@ -933,7 +981,7 @@ static void logstim(void)
     time_t tim;	/* time */
 
     tim = time(NULL);
-    printf("Starting at: %s", ctime(&tim));
+    printf("LVB was called as follows on %s:", ctime(&tim));
 
 } /* end logstim() */
 
@@ -1297,9 +1345,6 @@ static void logstim(void)
 			"ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF\n"
 			"ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n\n");
 			printf("* This is %s version %s %s *\n\n", PROGNAM, LVB_VERSION, LVB_SUBVERSION);
-			printf("Literature reference:\n"
-			"Barker, D. 2004. LVB: Parsimony and simulated annealing in the\n"
-			"search for phylogenetic trees. Bioinformatics, 20, 274-275.\n\n");
 			printf("Download and support:\n"
 			"http://lvb.bio.ed.ac.uk/\n\n");
 
