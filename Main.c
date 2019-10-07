@@ -82,12 +82,8 @@ static void writeinf(Params prms, Dataptr matrix)
 
   printf("Host machine: %s %s, %s (%d processors available)\n\n", buffer.nodename, buffer.machine, buffer.sysname, get_nprocs());
 
-  #ifdef _GNU_SOURCE
-  pritnf("domain name = %s\n", buffer.domainname);
-  #endif
-
-    printf("Parsing alignement file: \"%s\"\n", prms.file_name_in);
-    printf(" Dataset properties: \n");
+    printf("Parsing alignment file: \"%s\"\n", prms.file_name_in);
+    printf("Dataset properties: \n");
     printf(" Number of Taxa       = %ld\n", matrix->n);
     printf(" Length of Sequences:\n");
     printf("    Before cut        = %ld\n", matrix->original_m);
@@ -550,40 +546,78 @@ static void smessg(long start, long cycle)
 static void writeinf(Params prms, Dataptr matrix, int myMPIid, int n_process)
 /* write initial details to standard output */
 {
-    printf("LVB was called on ");
-    printf("Program settings:\n\n");
+    printf("                 LVB Settings \n");
+    printf("  -----------------------------------------\n\n");
 
-		printf("\n#########\nProcess ID: %d\n", myMPIid);
+    struct utsname buffer;
+    errno = 0;
+    if (uname(&buffer) !=0) {
+      perror("uname");
+      exit(EXIT_FAILURE);
+    }
 
-		printf("cooling schedule        = ");
-		if(prms.cooling_schedule == 0) printf("GEOMETRIC\n");
-		else printf("LINEAR\n");
+      printf("Host machine: ERROR \n\n");
+    // printf("Host machine: %s %s, %s (%d processors available)\n\n", buffer.nodename, buffer.machine, buffer.sysname, get_nprocs());
+      // Main.c:563:118: error: ‘get_nprocs’ was not declared in this scope
+        // printf("Host machine: %s %s, %s (%d processors available)\n\n", buffer.nodename, buffer.machine, buffer.sysname, get_nprocs());
 
-		printf("main seed               = %d\n", prms.seed);
-		printf("input file name         = %s\n",  prms.file_name_in);
-		printf("output file name        = %s\n",  prms.file_name_out);
-		if      (prms.n_file_format == FORMAT_PHYLIP)  printf("format input file       = phylip\n");
-		else if (prms.n_file_format == FORMAT_FASTA)   printf("format input file       = fasta\n");
-		else if (prms.n_file_format == FORMAT_NEXUS)   printf("format input file       = nexus\n");
-		else if (prms.n_file_format == FORMAT_MSF)     printf("format input file       = msf\n");
-		else if (prms.n_file_format == FORMAT_CLUSTAL) printf("format input file       = clustal\n");
-		else{
-			fprintf (stderr, "Error, input format file not recognized\n");
-			abort();
-		}
-		printf("threads                 = %d\n",  prms.n_processors_available);
+    printf("Parsing alignment file: \"%s\"\n", prms.file_name_in);
+    // printf("LVB was called on ");
+    // printf("Program settings:\n\n");
+    printf("Dataset properties: \n");
+    printf(" Number of Taxa       = %ld\n", matrix->n);
+    printf(" Length of Sequences:\n");
+    printf("    Before cut        = %ld\n", matrix->original_m);
+    printf("    After cut         = %ld\n\n", matrix->m);
+
+    printf("Analysis properties: \n");
+    printf(" Algorithm Selection  = N/A\n");
+
+    printf(" Bootstrap Replicates = N/A\n");
+
+    printf(" Cooling Schedule     = ");
+    if(prms.cooling_schedule == 0) printf("GEOMETRIC\n");
+    else printf("LINEAR\n");
+
+    if (prms.n_file_format == FORMAT_PHYLIP) printf(" Format Input File    = PHYLIP\n");
+    else if (prms.n_file_format == FORMAT_FASTA) printf(" Format Input File    = FASTA\n");
+    else if (prms.n_file_format == FORMAT_NEXUS) printf(" Format Input File    = NEXUS\n");
+    else if (prms.n_file_format == FORMAT_CLUSTAL) printf(" Format Input File    = CLUSTAL\n");
+    else{
+    	fprintf (stderr, "Error, input format file not recognized\n");
+    	abort();
+    }
+
+    printf(" Seed                 = %d\n\n", prms.seed);
+    printf("Parallel properties: \n");
+    // printf(" Process ID: %d\n", myMPIid);
+    printf(" MPI processes        = %d\n", n_process);
+    printf(" Threads Requested    = %d\n\n", prms.n_processors_available);
+
+    printf("Ouput properties: \n");
+    printf(" Log                  =\n"); // %s.log\n", prms.file_name_in);
+    printf(" Treestack            =\n\n"); // %s.treestack\n", prms.file_name_in);
+
+		// printf("main seed               = %d\n", prms.seed);
+		// printf("input file name         = %s\n",  prms.file_name_in);
+		// printf("output file name        = %s\n",  prms.file_name_out);
+		// if      (prms.n_file_format == FORMAT_PHYLIP)  printf("format input file       = phylip\n");
+		// else if (prms.n_file_format == FORMAT_FASTA)   printf("format input file       = fasta\n");
+		// else if (prms.n_file_format == FORMAT_NEXUS)   printf("format input file       = nexus\n");
+		// else if (prms.n_file_format == FORMAT_MSF)     printf("format input file       = msf\n");
+		// else if (prms.n_file_format == FORMAT_CLUSTAL) printf("format input file       = clustal\n");
+		// else{
+			// fprintf (stderr, "Error, input format file not recognized\n");
+			// abort();
+		// }
+		// printf("threads                 = %d\n",  prms.n_processors_available);
 #ifndef MAP_REDUCE_SINGLE
 		printf("#seeds to try           = %d\n", prms.n_seeds_need_to_try);
 		printf("checkpoint interval (s) = %d\n", prms.n_checkpoint_interval);
 #endif
-		printf("mpi processes           = %d\n", n_process);
-		if (prms.n_flag_save_read_states == DONT_SAVE_READ_STATES) printf("Don't read and save states at a specific time points\n");
-		else printf("It is going to read and save states at a specific time points\n\n");
 
-		printf("\n#Species                = %ld\n", matrix->n);
-		printf("Lenght of Sequences:\n");
-		printf("    Before cut          = %ld\n", matrix->original_m);
-		printf("    After cut           = %ld\n", matrix->m);
+		// if (prms.n_flag_save_read_states == DONT_SAVE_READ_STATES) printf("Don't read and save states at a specific time points\n");
+		// else printf("It is going to read and save states at a specific time points\n\n");
 } /* end writeinf() */
 
 
@@ -697,7 +731,7 @@ static void logtree1(Dataptr matrix, DataSeqPtr restrict matrix_seq_data, const 
 		MPI_Barrier(MPI_COMM_WORLD);
 		/* find solution(s) */
 		maxaccept = get_random_maxaccept();
-		printf("\nmaxaccept:%ld\n", maxaccept);
+		// printf("\nmaxaccept:%ld\n", maxaccept);
 		treelength = anneal(matrix, &bstack_overall, tree, &rcstruct, initroot, t0, maxaccept,
 				maxpropose, maxfail, stdout, iter_p, log_progress, misc, mrTreeStack, mrBuffer );
 
@@ -965,8 +999,8 @@ void calc_distribution_processors(Dataptr matrix, Params rcstruct){
 		matrix->n_slice_size_getplen = 0;	/* it doens't matter this value for 1 thread */
 		matrix->n_threads_getplen = 1; /* need to pass for 1 thread because the number of words is to low */
 	}
-	printf("\nthreads that will be used  = %d\n", matrix->n_threads_getplen);
-	printf("(because it is related with the size of the data)\n");
+	// printf("\nthreads that will be used  = %d\n", matrix->n_threads_getplen);
+	// printf("(because it is related with the size of the data)\n");
 }
 
 /* TODO, need to control the seeds that where processed*/
@@ -1208,6 +1242,23 @@ static void logstim(void)
 
 #endif
 
+static void logtime(void)
+/* log start time with message */
+{
+    time_t tim;	/* time */
+    char buffer[26];
+    struct tm* tm_info;
+
+    time(&tim);
+    tm_info = localtime(&tim);
+
+    strftime(buffer, 26, "[%H:%M:%S]", tm_info);
+    puts(buffer);
+    //tim = time(NULL);
+    //printf(" on %s\n", ctime(&tim));
+
+} /* end logtime() */
+
 	int main(int argc, char **argv)
 	{
 
@@ -1344,9 +1395,21 @@ static void logstim(void)
 			"STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)\n"
 			"ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF\n"
 			"ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n\n");
-			printf("* This is %s version %s %s *\n\n", PROGNAM, LVB_VERSION, LVB_SUBVERSION);
-			printf("Download and support:\n"
-			"http://lvb.bio.ed.ac.uk/\n\n");
+			printf("     %s %s released: %s \n", PROGNAM, LVB_VERSION, LVB_SUBVERSION);
+      printf("  -----------------------------------------\n\n");
+      printf("Current developers:     Daniel Barker and Joseph Guscott\n");
+      // printf("Previous collaborators: Miguel Pinheiro, Martyn Winn, Chang Sik Kim, Fernando Guntoro, Maximilian Strobl and Chris Wood\n");
+      printf("Developed at:           University of Edinburgh\n");
+      printf("GitHub repository:      https://github.com/phylolvb/lvb\n");
+      printf("Support available at:   http://lvb.bio.ed.ac.uk/\n\n");
+
+      printf("LVB MapReduce version was called using: ");
+
+      // printf("    ");
+      printf("\" ");
+      for (int i = 0; i < argc; ++i)
+      printf("%s ", argv[i]);
+      printf("\"\n\n");
 
 #ifdef MAP_REDUCE_SINGLE
 		}
@@ -1359,7 +1422,7 @@ static void logstim(void)
 
 			n_error_code = getparam(&rcstruct, argc, argv);
 			if (n_error_code == EXIT_SUCCESS){
-				logstim();
+				// logstim();
 				/* read and alloc space to the data structure */
 				n_error_code = phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix, matrix_seq_data);
 				if (n_error_code == EXIT_SUCCESS){
@@ -1371,6 +1434,9 @@ static void logstim(void)
 					matchange(matrix, matrix_seq_data, rcstruct);	/* cut columns */
 					if (rcstruct.n_seeds_need_to_try < (num_procs - 1)) { rcstruct.n_seeds_need_to_try = num_procs - 1; }
 					writeinf(rcstruct, matrix, myMPIid, num_procs);
+          printf("Initiating tree search ");
+          logtime();
+          printf("\n");
 					calc_distribution_processors(matrix, rcstruct);
 
 					/* Allocation of the initial encoded matrix is non-contiguous because
@@ -1580,7 +1646,7 @@ static void logstim(void)
 #else
 	/* MapReduce version */
 		n_error_code = getparam(&rcstruct, argc, argv);
-		logstim();
+		// logstim();
 	    /* read and alloc space to the data structure */
 	    matrix = (data *) alloc(sizeof(DataStructure), "alloc data structure");
 	    matrix_seq_data = (seq_data *) alloc(sizeof(DataSeqStructure), "alloc data structure");
@@ -1591,6 +1657,9 @@ static void logstim(void)
 	    bstack_overall = *(treestack_new());
 	    matchange(matrix, matrix_seq_data, rcstruct);	/* cut columns */
             writeinf(rcstruct, matrix, misc.rank, misc.nprocs);
+      printf("Initiating tree search ");
+      logtime();
+      printf("\n");
 	    calc_distribution_processors(matrix, rcstruct);
 
 	    if (rcstruct.verbose == LVB_TRUE) {

@@ -44,6 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //  #define NP_Implementation
 //    #define MPI_Implementation
 
+#include <sys/utsname.h>
+
 #ifdef NP_Implementation
 
 #include "DataStructure.h"
@@ -70,8 +72,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* the program */
 #define PROGNAM "lvb"			/* program file name */
-#define LVB_VERSION "3.5"		/* version of program */
-#define LVB_SUBVERSION "(February 2019)"	/* version details e.g. date */
+#define LVB_VERSION "3.6"		/* version of program */
+#define LVB_SUBVERSION "(IN DEVELOPMENT)"	/* version details e.g. date */
 
 /* set if is to compile with 64 or 32 */
 #ifndef COMPILE_32_BITS
@@ -303,6 +305,7 @@ int addtoarray(Branch *const, int, int *, int);
 #include <time.h>
 #include "Myuni.h"
 #include "Mymaths.h"
+#include <sys/utsname.h>
 
 #ifdef MAP_REDUCE_SINGLE
 	#include <omp.h>
@@ -316,8 +319,8 @@ int addtoarray(Branch *const, int, int *, int);
 
 /* the program */
 #define PROGNAM "lvb"			/* program file name */
-#define LVB_VERSION "IN DEVELOPMENT"	/* version of program */
-#define LVB_SUBVERSION "$Id: 2f1a0126358acf0a108b58851f7a368fcfe57f7f $"		/* version details e.g. date */
+#define LVB_VERSION "3.6"	/* version of program */
+#define LVB_SUBVERSION "(In Development)"		/* version details e.g. date */
 
 
 /* set if is to compile with 64 or 32 bits */

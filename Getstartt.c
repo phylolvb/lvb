@@ -8,7 +8,7 @@ and Chris Wood.
 (c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
 Fernando Guntoro, Maximilian Strobl and Chris Wood.
 All rights reserved.
- 
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
@@ -44,19 +44,19 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstruct, long root,
 		const long *weights, Lvb_bool log_progress)
-/* Determine the starting temperature for the annealing search 
- * by finding the temperature T at which 65% of proposed 
+/* Determine the starting temperature for the annealing search
+ * by finding the temperature T at which 65% of proposed
  * positive transitions (changes in the tree structure which increase
  * the tree length) are accepted. Starting at t = LVB_EPS, the
- * algorithm will gradually increase the temperature, estimating the 
+ * algorithm will gradually increase the temperature, estimating the
  * ratio of accepted to proposed postive transitions at each step
- * using a sample of sample_size transitions. When the ratio reaches the 
- * desired value the search stops and the current temperature is 
+ * using a sample of sample_size transitions. When the ratio reaches the
+ * desired value the search stops and the current temperature is
  * returned as starting temperature.
- * Note: The procedures for creating mutations and deciding on 
+ * Note: The procedures for creating mutations and deciding on
  * whether to accept them have been adopted from the anneal()
  * function.
-*/ 
+*/
 {
 	/* Variables for the generation of transitions (adopted from anneal()) */
     double deltah;		/* change in energy (1 - C.I.) */
@@ -83,7 +83,7 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstru
     int *p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */
     const double log_wrapper_LVB_EPS = log_wrapper(LVB_EPS);
 
-    /* Create "local" dynamic heap memory and initialise tree 
+    /* Create "local" dynamic heap memory and initialise tree
      * structures like in anneal() */
     x = treealloc(matrix, LVB_TRUE);
     xdash = treealloc(matrix, LVB_TRUE);
@@ -91,17 +91,18 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstru
     treecopy(matrix, x, inittree, LVB_TRUE);	/* current configuration */
     alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
     len = getplen(matrix, x, rcstruct, root, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs);
-    
+
     lenmin = getminlen(matrix);
     r_lenmin = (double) lenmin;
-    
+
     /* Log progress to standard output if chosen*/
-    if (log_progress) printf("\nDetermining the Starting Temperature ...\n");
+    if (log_progress);
+    // if (log_progress) printf("\nDetermining the Starting Temperature ...\n");
 
     while (r_acc_to_prop <= 0.65)
     {
 
-		/* Collect a sample of sample_size permutations at the current temperature 
+		/* Collect a sample of sample_size permutations at the current temperature
 		* and compute the ratio of proposed vs accepted worse changes*/
 		for (iter = 0; iter <= sample_size; iter++)
 		{
@@ -121,7 +122,7 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstru
 			lvb_assert (lendash >= 1L);
 			deltalen = lendash - len;
 			deltah = (r_lenmin / (double) len) - (r_lenmin / (double) lendash);
-			
+
 			if (deltah > 1.0)	/* getminlen() problem with ambiguous sites */
 				deltah = 1.0;
 
@@ -131,7 +132,7 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstru
 				/* update current tree and its stats */
 				len = lendash;
 				treeswap(&x, &root, &xdash, &rootdash);
-			}	
+			}
 			else {
 				prop_pos_trans++; /* Another positive transition has been generated*/
 
@@ -156,11 +157,11 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstru
 			}
 		}
 
-		/* Calculate the ratio of accepted to proposed positve transitions 
+		/* Calculate the ratio of accepted to proposed positve transitions
 		 * at the current temperature*/
 		r_acc_to_prop = (double) acc_pos_trans / prop_pos_trans;
 
-		/* Increase t and make sure it stays within range*/      
+		/* Increase t and make sure it stays within range*/
 		t += increment_size;
 		if (t >= 1 || t <= 0) return 1;
 
@@ -168,16 +169,16 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstru
 		prop_pos_trans = 0;
 		acc_pos_trans = 0;
     }
-    
+
     /* free "local" dynamic heap memory */
     free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
     free(x);
     free(xdash);
-    
+
     /* Log progress if chosen*/
     if (log_progress)
         printf("Starting Temperature is: %-.8f\n", (t - increment_size));
-    
+
     /* Return the temperature last used */
     return (t - increment_size);
 
@@ -189,19 +190,19 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstru
 
 double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstruct, long root, int myMPIid, Lvb_bool log_progress)
 
-/* Determine the starting temperature for the annealing search 
- * by finding the temperature T at which 65% of proposed 
+/* Determine the starting temperature for the annealing search
+ * by finding the temperature T at which 65% of proposed
  * positive transitions (changes in the tree structure which increase
  * the tree length) are accepted. Starting at t = LVB_EPS, the
- * algorithm will gradually increase the temperature, estimating the 
+ * algorithm will gradually increase the temperature, estimating the
  * ratio of accepted to proposed postive transitions at each step
- * using a sample of sample_size transitions. When the ratio reaches the 
- * desired value the search stops and the current temperature is 
+ * using a sample of sample_size transitions. When the ratio reaches the
+ * desired value the search stops and the current temperature is
  * returned as starting temperature.
- * Note: The procedures for creating mutations and deciding on 
+ * Note: The procedures for creating mutations and deciding on
  * whether to accept them have been adopted from the anneal()
  * function.
-*/ 
+*/
 {
 	/* Variables for the generation of transitions (adopted from anneal()) */
     double deltah;		/* change in energy (1 - C.I.) */
@@ -227,7 +228,7 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstru
     int *p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */
     const double log_wrapper_LVB_EPS = log_wrapper(LVB_EPS);
 
-    /* Create "local" dynamic heap memory and initialise tree 
+    /* Create "local" dynamic heap memory and initialise tree
      * structures like in anneal() */
     x = treealloc(matrix, LVB_TRUE);
     xdash = treealloc(matrix, LVB_TRUE);
@@ -240,11 +241,12 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstru
     r_lenmin = (double) matrix->min_len_tree;
 
     /* Log progress to standard output if chosen*/
-    if (log_progress) printf("\nDetermining the Starting Temperature ...\n");
+    if (log_progress)
+    // if (log_progress) printf("\nDetermining the Starting Temperature ...\n");
     while (r_acc_to_prop <= 0.65)
     {
 
-		/* Collect a sample of sample_size permutations at the current temperature 
+		/* Collect a sample of sample_size permutations at the current temperature
 		* and compute the ratio of proposed vs accepted worse changes*/
 		for (iter = 0; iter <= sample_size; iter++)
 		{
@@ -265,7 +267,7 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstru
 			lvb_assert (lendash >= 1L);
 			deltalen = lendash - len;
 			deltah = (r_lenmin / (double) len) - (r_lenmin / (double) lendash);
-			
+
 			if (deltah > 1.0)	/* getminlen() problem with ambiguous sites */
 				deltah = 1.0;
 
@@ -275,7 +277,7 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstru
 				/* update current tree and its stats */
 				len = lendash;
 				treeswap(&x, &root, &xdash, &rootdash);
-			}	
+			}
 			else {
 				prop_pos_trans++; /* Another positive transition has been generated*/
 
@@ -300,11 +302,11 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstru
 			}
 		}
 
-		/* Calculate the ratio of accepted to proposed positve transitions 
+		/* Calculate the ratio of accepted to proposed positve transitions
 		 * at the current temperature*/
 		r_acc_to_prop = (double) acc_pos_trans / prop_pos_trans;
 
-		/* Increase t and make sure it stays within range*/      
+		/* Increase t and make sure it stays within range*/
 		t += increment_size;
 		if (t >= 1 || t <= 0) return 1;
 
@@ -316,16 +318,16 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstru
     free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
     free(x);
     free(xdash);
-    
+
     /* Log progress if chosen*/
 #ifdef MAP_REDUCE_SINGLE
     if (log_progress)
-    	printf("Starting Temperature is: %-.8g   Process: %d\n", (t - increment_size), myMPIid);
+    	// printf("Starting Temperature is: %-.8g   Process: %d\n", (t - increment_size), myMPIid);
 #else
     if (log_progress)
-        printf("Starting Temperature is:%-.8g   Process:%d   Seed:%d\n", (t - increment_size), myMPIid, rcstruct.seed);
+        // printf("Starting Temperature is:%-.8g   Process:%d   Seed:%d\n", (t - increment_size), myMPIid, rcstruct.seed);
 #endif
-    
+
     /* Return the temperature last used */
     return (t - increment_size);
 
