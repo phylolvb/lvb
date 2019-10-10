@@ -364,7 +364,7 @@ int main(int argc, char **argv)
     printf("     %s %s released: %s \n", PROGNAM, LVB_VERSION, LVB_SUBVERSION);
     printf("  -----------------------------------------\n\n");
 
-    printf("Current developers:     Joseph Guscott and Daniel Barker\n");
+    printf("Current developers:     Daniel Barker and Joseph Guscott\n");
     // printf("Previous collaborators: Miguel Pinheiro, Martyn Winn, Chang Sik Kim, Fernando Guntoro, Maximilian Strobl and Chris Wood\n");
     printf("Developed at:           University of Edinburgh\n");
     printf("GitHub repository:      https://github.com/phylolvb/lvb\n");
@@ -1337,7 +1337,6 @@ static void logtime(void)
 		long iter;			/* iterations of annealing algorithm */
 		long trees_output_total = 0L;	/* number of trees output, overall */
 		long trees_output;		/* number of trees output for current rep. */
-    double total_iter = 0.0;	/* total iterations across all replicates */
 		long final_length;		/* length of shortest tree(s) found */
 		FILE *outtreefp;		/* best trees found overall */
 		Lvb_bool log_progress;	/* whether or not to log anneal search */
@@ -1398,7 +1397,7 @@ static void logtime(void)
 			"ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n\n");
 			printf("     %s %s released: %s \n", PROGNAM, LVB_VERSION, LVB_SUBVERSION);
       printf("  -----------------------------------------\n\n");
-      printf("Current developers:     Joseph Guscott and Daniel Barker\n");
+      printf("Current developers:     Daniel Barker and Joseph Guscott\n");
       // printf("Previous collaborators: Miguel Pinheiro, Martyn Winn, Chang Sik Kim, Fernando Guntoro, Maximilian Strobl and Chris Wood\n");
       printf("Developed at:           University of Edinburgh\n");
       printf("GitHub repository:      https://github.com/phylolvb/lvb\n");
@@ -1693,7 +1692,6 @@ static void logtime(void)
 			else {
 			   printf("%ld equally parsimonious trees of length %ld written to "
 			     "file '%s'\n", trees_output_total, final_length, rcstruct.file_name_out);
-         printf("\nRearrangments assessed: %ld", iter);
 			}
 		}
 
