@@ -249,7 +249,7 @@ char *nextnonwspc(const char *);
 void nodeclear(Branch *const, const long);
 long objreroot(Branch *const, const long, const long);
 void params_change(Params *);
-int phylip_dna_matrin(char *, int, Dataptr);
+void phylip_dna_matrin(char *, int, Dataptr);
 void phylip_mat_dims_in(char *, int, long *, long *, int *);
 void randtree(Dataptr, Branch *const);
 int randpint(const long);
