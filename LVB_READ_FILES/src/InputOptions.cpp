@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef NP_Implementation
 
-void read_file(char *file_name, int n_file_type, Dataptr p_lvbmat){
+int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat){
 
 	CReadFiles readFiles = CReadFiles();
 	/// read file
@@ -343,7 +343,7 @@ int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat, DataSeqPtr p_l
 		return EXIT_SUCCESS;
 	}
 
-	void free_lvbmat_structure(DataSeqStructure *p_lvbmat_seq, int n_size){
+void free_lvbmat_structure(DataSeqStructure *p_lvbmat_seq, int n_size){
 
 		if (p_lvbmat_seq->row != NULL){
 			for(int i = 0; i < n_size; ++i) free(p_lvbmat_seq->row[i]);

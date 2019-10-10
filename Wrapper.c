@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef NP_Implementation
 
-void read_file(char *file_name, int n_file_format, Dataptr p_lvbmat);
+int read_file(char *file_name, int n_file_format, Dataptr p_lvbmat);
 void phylip_mat_dims_in_external(char *file_name, int n_file_format, long *species_ptr, long *sites_ptr, int *max_length_name);
 
 
@@ -81,7 +81,7 @@ structure containing the data matrix.
 
 **********/
 
-void phylip_dna_matrin(char *p_file_name, int n_file_format, Dataptr lvbmat)
+int phylip_dna_matrin(char *p_file_name, int n_file_format, Dataptr lvbmat)
 {
 	read_file(p_file_name, n_file_format, lvbmat);
 
