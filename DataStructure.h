@@ -40,81 +40,27 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== DataStructure.h - definition of data structures ========== */
 
-// #define NP_Implementation
-// #define MPI_Implementation
-
-#ifdef NP_Implementation
-
-#define FORMAT_PHYLIP 		0
-#define FORMAT_FASTA 		1
-#define FORMAT_NEXUS 		2
-#define FORMAT_CLUSTAL 		3
-
-typedef enum { LVB_FALSE, LVB_TRUE } Lvb_bool;	/* boolean type */
-#define LVB_FNAMSIZE 2000		/* maximum bytes for file names */
-
-#define MAX_BOOTSTRAPS 1000000	/* max. bootstrap replicates */
-
-
-/* matrix and associated information */
-typedef struct data
-{
-    int n_threads_getplen;  /* number of possible threads in getplen function */
-    int n_slice_size_getplen;  /* slice size in getplen function, usually m/n_threads_getplen  */
-    long m;				/* number of columns */
-    long original_m;	/* number of columns read from matrix*/
-    long n;				/* number of rows */
-    long nbranches; 	/* number of possible branches */
-    long bytes;
-    long tree_bytes;	/* length the tree in bytes */
-    long tree_bytes_without_sset;	/* length the tree in bytes without sset */
-    long nwords;
-    long nsets;			/* sets per tree */
-    long mssz;			/* maximum objects per set */
-    char **row;			/* array of row strings */
-    char **rowtitle;	/* array of row title strings */
-} *Dataptr, DataStructure;
-
-/* unchangeable types */
-
-/* user- or programmer-configurable parameters */
-typedef struct
-{
-    int seed;							/* seed for random number generator */
-    int cooling_schedule;   			/* cooling schedule: 0 is geometric, 1 is linear */
-    int algorithm_selection;             /* algorithm selection: 0 is original, 1 is no SEQ-TNS, and 2 is PBS */
-    int n_file_format;					/* number of file format, must be FORMAT_PHYLIP, FORMAT_FASTA, FORMAT_NEXUS, FORMAT_CLUSTAL*/
-    int n_processors_available;			/* number of processors available */
-    long verbose;						/* verboseness level */
-    long bootstraps;					/* number of bootstrap replicates */
-    int n_number_max_trees;				/* number of bootstrap replicates */
-    char file_name_in[LVB_FNAMSIZE];	/* input file name */
-    char file_name_out[LVB_FNAMSIZE];	/* output file name */
-} Params;
-
-#endif // #ifdef NP_Implementation //
-
-#ifdef MPI_Implementation
-
 #ifndef DATASTRUCTURE_H
 #define DATASTRUCTURE_H
 
-/* define to MR_SINGLE, otherwise is MPI */
-//#define	MAP_REDUCE_SINGLE
-
-
 #define FORMAT_PHYLIP 		0
 #define FORMAT_FASTA 		1
 #define FORMAT_NEXUS 		2
+
+#ifndef NP_Implementation
 #define FORMAT_MSF 		3
 #define FORMAT_CLUSTAL 		4
+#else
+#define FORMAT_CLUSTAL          3
 
+#define MAX_BOOTSTRAPS 1000000 // max bootstrap replicates
+#endif
 
 #define LVB_FNAMSIZE 2000		/* maximum bytes for file names */
 
 /* these flags is to read and save states in specfic time points */
-#define DONT_SAVE_READ_STATES				0		/* dont read and save states, default parameter */
-#define DO_SAVE_READ_STATES					1		/* try to read and save states */
+#define DONT_SAVE_READ_STATES		        0		/* dont read and save states, default parameter */
+#define DO_SAVE_READ_STATES			1		/* try to read and save states */
 
 #define CHECK_POINT_PROCESS_FINISHED		1		/* process is finished, don't need to run again */
 #define CHECK_POINT_PROCESS_NOT_FINISHED	0		/* process not finished yet, need to load states and run */
@@ -128,53 +74,72 @@ typedef enum { LVB_FALSE, LVB_TRUE } Lvb_bool;	/* boolean type */
 typedef struct data
 {
      long m;				/* number of columns */
-     long original_m;	/* number of columns read from matrix*/
+     long original_m;	                /* number of columns read from matrix*/
      long n;				/* number of rows */
-     long max_length_seq_name; 	/* length of the sequence names */
-     long nbranches; 	/* number of possible braches */
+     
+     long nbranches; 	                /* number of possible braches */
      long bytes;
-     long tree_bytes;	/* length the tree in bytes */
-     long tree_bytes_whitout_sset;	/* length the tree in bytes whitout sset */
+     long tree_bytes;	                /* length the tree in bytes */
+     
      long nwords;
-     long min_len_tree;	     /*  minimum length of any tree based on matrix */
-     long nsets;	/* sets per tree */
-     long mssz;	/* maximum objects per set */
-     int n_threads_getplen;  	/* number of possible threads in getplen function */
-     int n_slice_size_getplen;   /* slice size in getplen function, usually m/n_threads_getplen  */
+     long nsets;	                /* sets per tree */
+     long mssz;	                        /* maximum objects per set */
+     int n_threads_getplen;  	        /* number of possible threads in getplen function */
+     int n_slice_size_getplen;          /* slice size in getplen function, usually m/n_threads_getplen  */
+
+     #ifndef NP_Implementation
+     long max_length_seq_name; 	        /* length of the sequence names */
+     long tree_bytes_whitout_sset;	/* length the tree in bytes whitout sset */
+     long min_len_tree;                 // minimum length of tree given matrix
+     #else
+     long tree_bytes_without_sset;	/* length the tree in bytes whitout sset */
+     char **row;                        // array of row strings
+     char **rowtitle;                   // array of row title strings
+     #endif
 } *Dataptr, DataStructure;
 
+#ifndef NP_Implementation
 typedef struct seq_data
 {
      char **row;
      char **rowtitle;
 }*DataSeqPtr, DataSeqStructure;
+#endif
 
 /* user- or programmer-configurable parameters */
 typedef struct
 {
-     long verbose;		/* verboseness level */
-     int seed;			/* seed for random number generator */
-     int cooling_schedule;   /* cooling schedule: 0 is geometric, 1 is linear */
-     int n_file_format;		/* number of file format, must be FORMAT_PHYLIP, FORMAT_FASTA, FORMAT_NEXUS, FORMAT_MSF, FORMAT_CLUSTAL*/
-     int n_processors_available;	/* number of processors available */
-     int n_seeds_need_to_try;	/* number of seeds that go to try, minimum is the number of mpi process */
+     long verbose;		                /* verboseness level */
+     int seed;			                /* seed for random number generator */
+     int cooling_schedule;                      /* cooling schedule: 0 is geometric, 1 is linear */
+     int n_file_format;		                /* number of file format, must be FORMAT_PHYLIP, FORMAT_FASTA, FORMAT_NEXUS, FORMAT_MSF, FORMAT_CLUSTAL*/
+     int n_processors_available;	        /* number of processors available */
+
+      #ifndef NP_Implementation
+      int n_seeds_need_to_try;	                /* number of seeds that go to try, minimum is the number of mpi process */
      int n_flag_save_read_states;		/* flag to save/read the states, if 1 when starts try to read the last states, if not find */
-											/* start from the begin and is going to save the states each pre-defined time schedule */
-											/* it can go to 0 when file is zero or corrupted */
+							/* start from the begin and is going to save the states each pre-defined time schedule */
+							/* it can go to 0 when file is zero or corrupted */
       int n_flag_is_finished_process;		/* is set to one when the process is finished  */
-											/* 	set to zero is necessary to start from a specific state */
+							/* 	set to zero is necessary to start from a specific state */
       int n_flag_is_possible_read_state_files;	/* if is possible to read the states or not. */
-      int n_checkpoint_interval;			/* value in seconds when a checkpoint file is going to be saved, default(CHECKPOINT_INTERVAL)*/
-      int n_make_test;					/* it is only used for tests */
-      char file_name_in[LVB_FNAMSIZE];	/* input file name */
-      char file_name_out[LVB_FNAMSIZE];	/* output file name */
+      int n_checkpoint_interval;		/* value in seconds when a checkpoint file is going to be saved, default(CHECKPOINT_INTERVAL)*/
+      int n_make_test;				/* it is only used for tests */      
+      #else
+      int algorithm_selection;                  // algorithm selection: 0 = SPR+NNI, 2 = SPR+NNI+TBR, 3 = SPR+NNI+TBR
+      long bootstraps;                          // number of bootstrap replicates
+      long n_number_max_trees;                  //maximum number of trees saved?
+      #endif
+      char file_name_in[LVB_FNAMSIZE];	        /* input file name */
+      char file_name_out[LVB_FNAMSIZE];	        /* output file name */
 } Params;
 
+#ifndef NP_Implemenation
 /* structure to use sending temperature and number of iterations to master process */
 typedef struct
 {
         int n_iterations;		/* number of iterations */
-        int n_seed;				/* seed for this temperature and iteration */
+        int n_seed;			/* seed for this temperature and iteration */
         long l_length;			/* length of the tree */
         double temperature;		/* temperature */
 } SendInfoToMaster;
@@ -183,19 +148,19 @@ typedef struct
 typedef struct
 {
         int n_seed;				/* new seed to start the process again */
-        int n_is_to_continue;	/* if it is to start the process */
-        int n_process_tried;	/* id of the seed tried */
+        int n_is_to_continue;	                /* if it is to start the process */
+        int n_process_tried;	                /* id of the seed tried */
 } RecvInfoFromMaster;
 
 /* structures for calculation of averages temperatures and std */
 typedef struct IndividualTemperature
 {
-        double d_temperature;	/* temperature */
-        int n_try_process;		/* number of process tried, is sequential...*/
-        int n_seed;				/* seed for this temperature and iteration */
-								/* the seed is here because it's easier to perform the algorithm */
-        long l_length;			/* length of the tree */
-        struct IndividualTemperature *p_next_temperature; /* next memory structure */
+        double d_temperature;	                                /* temperature */
+        int n_try_process;		                        /* number of process tried, is sequential...*/
+        int n_seed;				                /* seed for this temperature and iteration */
+							                /* the seed is here because it's easier to perform the algorithm */
+        long l_length;			                        /* length of the tree */
+        struct IndividualTemperature *p_next_temperature;       /* next memory structure */
 }IndividualTemperature;
 
 typedef struct IterationTemperature
@@ -205,6 +170,6 @@ typedef struct IterationTemperature
         struct IterationTemperature *p_next_iteration;
 }IterationTemperature;
 
-#endif /* DATASTRUCTURE_H */
+#endif
 
-#endif // MPI_Implementation //
+#endif /* DATASTRUCTURE_H */
