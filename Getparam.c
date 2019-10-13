@@ -83,7 +83,7 @@ void defaults_params(Params *const prms)
 /* set seed in *prms to unacceptable value, and other parameters to their
  * defaults_params from lvb.h */
 {
-#ifndef MAP_REDUCE_SINGLE
+#ifdef MPI_Implementation 
     prms->n_seeds_need_to_try = 1;
     prms->n_checkpoint_interval = CHECKPOINT_INTERVAL;
 #endif
