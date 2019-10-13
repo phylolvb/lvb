@@ -166,7 +166,7 @@ void usage(char *p_file_name){
 }
 
 
-void read_parameters(Params *prms, int argc, char **argv){
+int read_parameters(Params *prms, int argc, char **argv){
 
 	int c;
 	opterr = 0;

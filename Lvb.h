@@ -222,7 +222,7 @@ Lvb_bool file_exists(const char *const);
 void get_bootstrap_weights(long *, long, long);
 double get_initial_t(Dataptr, const Branch *const, Params rcstruct, long, const long *, Lvb_bool);
 long getminlen(const Dataptr);
-void getparam(Params *, int argc, char **argv);
+int getparam(Params *, int argc, char **argv);
 long getplen(Dataptr restrict, Branch *, Params rcstruct, const long, const long *restrict, long *restrict p_todo_arr,
 			long *p_todo_arr_sum_changes, int *p_runs);
 void alloc_memory_to_getplen(Dataptr matrix, long **p_todo_arr, long **p_todo_arr_sum_changes, int **p_runs);
