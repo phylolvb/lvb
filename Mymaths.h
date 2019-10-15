@@ -40,8 +40,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Lvb.h"
 
-#ifdef NP_Implementation
-
 #ifndef LVB_MYMATHS_H
 #define LVB_MYMATHS_H
 
@@ -50,18 +48,3 @@ double log_wrapper(double) /*@globals errno@*/ /*@modifies nothing@*/ ;
 double pow_wrapper(double, double) /*@globals errno@*/ /*@modifies nothing@*/ ;
 
 #endif /* LVB_MYMATHS_H */
-
-#endif // #ifdef NP_Implementation //
-
-#ifdef MPI_Implementation
-
-#ifndef LVB_MYMATHS_H
-#define LVB_MYMATHS_H
-
-double exp_wrapper(double) /*@globals errno@*/ /*@modifies nothing@*/ ;
-double log_wrapper(double) /*@globals errno@*/ /*@modifies nothing@*/ ;
-double pow_wrapper(double, double) /*@globals errno@*/ /*@modifies nothing@*/ ;
-
-#endif /* LVB_MYMATHS_H */
-
-#endif // MPI_Implementation //

@@ -40,8 +40,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Lvb.h"
 
-#ifdef NP_Implementation
-
 #include <float.h>
 #include <limits.h>
 
@@ -55,23 +53,3 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* external uni functions */
 double uni(void);
 void rinit(int ijkl);
-
-#endif // #ifdef NP_Implementation //
-
-#ifdef MPI_Implementation
-
-#include <float.h>
-#include <limits.h>
-
-/* set max. random number seed value suitable for rinit() */
-#if 900000001L > INT_MAX
-#error LVB WARNING: type int not suitable, try with a 32-bit or larger system
-#else
-#define MAX_SEED 900000000
-#endif  /* if 900000001L > INT_MAX */
-
-/* external uni functions */
-double uni(void);
-void rinit(int ijkl);
-
-#endif // #ifdef MPI_Implementation //
