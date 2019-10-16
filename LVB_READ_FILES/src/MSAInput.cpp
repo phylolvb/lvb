@@ -115,7 +115,7 @@ std::vector<std::string> CReadFiles::split(const std::string &s, char delim) {
     return elems;
 }
 
-void CReadFiles::read_clustal(int filetype)
+int CReadFiles::read_clustal(int filetype)
 {
 	std::string sz_line = "";
 	std::vector< std::string > lst_strings;
@@ -217,7 +217,7 @@ std::string CReadFiles::get_string_from_list(std::vector< std::string > lst_stri
 /// src/phylip.h:#define nmlngth         10   /* number of characters in species name    */
 /// src/phylip.h:#define MAXNCH          20   /* must be greater than or equal to nmlngth */
 /// need to remove numbers from the sequences...
-void CReadFiles::read_phylip()
+int CReadFiles::read_phylip()
 {
 /// interleaved example, examples from the phylip web site
 //	  5    42
@@ -444,7 +444,7 @@ bool CReadFiles::is_phylip_line_sequential(int &n_total_lines){
 
 
 
-void CReadFiles::read_fasta()
+int CReadFiles::read_fasta()
 {
 	std::string sz_line;
 	int n_count_sequence = -1;
@@ -483,7 +483,7 @@ void CReadFiles::get_dimensions_nexus_format(std::string sz_line, int &n_seqs, i
 }
 
 /// read nexus format
-void CReadFiles::read_nexus()
+int CReadFiles::read_nexus()
 {
 
 	//// get the number of sequences and length of sequences...
@@ -568,7 +568,7 @@ void CReadFiles::read_nexus()
 }
 
 
-void CReadFiles::clean_data(){
+int CReadFiles::clean_data(){
 	std::string error;
 
 	/// test if the file exist
@@ -609,7 +609,7 @@ void CReadFiles::clean_data(){
 }
 
 
-void CReadFiles::read_file(std::string sz_file_name_temp, int n_file_type){
+int CReadFiles::read_file(std::string sz_file_name_temp, int n_file_type){
 
 	std::string error;
 	int filetype = 0;

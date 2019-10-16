@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef NP_Implementation
 
-void read_file(char *file_name, int n_file_type, Dataptr p_lvbmat){
+int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat){
 
 	CReadFiles readFiles = CReadFiles();
 	/// read file
