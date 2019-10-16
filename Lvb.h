@@ -249,7 +249,7 @@ void params_change(Params *);
 void phylip_dna_matrin(char *, int, Dataptr);
 void phylip_mat_dims_in(char *, int, long *, long *, int *);
 void randtree(Dataptr, Branch *const);
-int randpint(const long);
+long randpint(const long);
 void rowfree(Dataptr);
 void scream(const char *const, ...);
 long setstcmp_with_sset2(Dataptr matrix, Objset *const oset_1);
