@@ -57,7 +57,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 #define LVB_FNAMSIZE 2000		/* maximum bytes for file names */
+typedef enum { LVB_FALSE, LVB_TRUE } Lvb_bool;	/* boolean type */
 
+#ifndef NP_Implementation
 /* these flags is to read and save states in specfic time points */
 #define DONT_SAVE_READ_STATES		        0		/* dont read and save states, default parameter */
 #define DO_SAVE_READ_STATES			1		/* try to read and save states */
@@ -69,41 +71,48 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define CHECK_POINT_NOT_READ_STATE_FILES	0		/* the state files don't exist and are corrupted */
 /* END save read states flags */
 
-typedef enum { LVB_FALSE, LVB_TRUE } Lvb_bool;	/* boolean type */
-
 typedef struct data
 {
      long m;				/* number of columns */
-     long original_m;	                /* number of columns read from matrix*/
+     long original_m;	/* number of columns read from matrix*/
      long n;				/* number of rows */
-     
-     long nbranches; 	                /* number of possible braches */
+     long max_length_seq_name; 	/* length of the sequence names */
+     long nbranches; 	/* number of possible braches */
      long bytes;
-     long tree_bytes;	                /* length the tree in bytes */
-     
+     long tree_bytes;	/* length the tree in bytes */
+     long tree_bytes_without_sset;	/* length the tree in bytes without sset */
      long nwords;
-     long nsets;	                /* sets per tree */
-     long mssz;	                        /* maximum objects per set */
-     int n_threads_getplen;  	        /* number of possible threads in getplen function */
-     int n_slice_size_getplen;          /* slice size in getplen function, usually m/n_threads_getplen  */
-
-     #ifndef NP_Implementation
-     long max_length_seq_name; 	        /* length of the sequence names */
-     long tree_bytes_without_sset;	/* length the tree in bytes without sset */
-     long min_len_tree;                 // minimum length of tree given matrix
-     #else
-     long tree_bytes_without_sset;	/* length the tree in bytes without sset */
-     char **row;                        // array of row strings
-     char **rowtitle;                   // array of row title strings
-     #endif
+     long min_len_tree;	     /*  minimum length of any tree based on matrix */
+     long nsets;	/* sets per tree */
+     long mssz;	/* maximum objects per set */
+     int n_threads_getplen;  	/* number of possible threads in getplen function */
+     int n_slice_size_getplen;   /* slice size in getplen function, usually m/n_threads_getplen  */
 } *Dataptr, DataStructure;
 
-#ifndef NP_Implementation
 typedef struct seq_data
 {
      char **row;
      char **rowtitle;
 }*DataSeqPtr, DataSeqStructure;
+
+#else
+typedef struct data
+{
+    int n_threads_getplen;  /* number of possible threads in getplen function */
+    int n_slice_size_getplen;  /* slice size in getplen function, usually m/n_threads_getplen  */
+    long m;				/* number of columns */
+    long original_m;	/* number of columns read from matrix*/
+    long n;				/* number of rows */
+    long nbranches; 	/* number of possible branches */
+    long bytes;
+    long tree_bytes;	/* length the tree in bytes */
+    long tree_bytes_without_sset;	/* length the tree in bytes without sset */
+    long nwords;
+    long nsets;			/* sets per tree */
+    long mssz;			/* maximum objects per set */
+    char **row;			/* array of row strings */
+    char **rowtitle;	/* array of row title strings */
+} *Dataptr, DataStructure;
 #endif
 
 /* user- or programmer-configurable parameters */
