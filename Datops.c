@@ -389,7 +389,7 @@ void dna_makebin(Dataptr restrict mat, Lvb_bit_lentgh **enc_mat)
 		matrix->nwords = words_per_row(matrix->m);
 		matrix->tree_bytes = tree_bytes(matrix);
 		#ifndef NP_Implementation
-		matrix->tree_bytes_whitout_sset = tree_bytes_whitout_sset(matrix);
+		matrix->tree_bytes_without_sset = tree_bytes_without_sset(matrix);
 		matrix->min_len_tree = getminlen(matrix, matrix_seq);
 		#else
 		matrix->tree_bytes_without_sset = tree_bytes_without_sset(matrix);
@@ -460,7 +460,7 @@ return the number of columns cut */
     matrix->nwords = words_per_row(matrix->m);
     matrix->tree_bytes = tree_bytes(matrix);
 	#ifndef NP_Implementation
-    matrix->tree_bytes_whitout_sset = tree_bytes_whitout_sset(matrix);
+    matrix->tree_bytes_without_sset = tree_bytes_without_sset(matrix);
     matrix_seq->row = newrow;
     matrix->min_len_tree = getminlen(matrix, matrix_seq);
 	#else

@@ -125,7 +125,7 @@ long tree_bytes(Dataptr restrict matrix)
 } /* end tree_bytes() */
 
 #ifndef NP_Implementation
-long tree_bytes_whitout_sset(Dataptr restrict matrix)
+long tree_bytes_without_sset(Dataptr restrict matrix)
 #else
 long tree_bytes_without_sset(Dataptr restrict matrix)
 #endif
@@ -1030,7 +1030,7 @@ Branch *treealloc(Dataptr restrict matrix, Lvb_bool b_with_sset)
 	#ifndef NP_Implementation
     if (b_with_sset) barray = (Branch *) alloc(matrix->tree_bytes, "tree with statesets");
     else{ /* don't need to do anything else */
-    	barray = (Branch *) alloc(matrix->tree_bytes_whitout_sset, "tree without statesets");
+    	barray = (Branch *) alloc(matrix->tree_bytes_without_sset, "tree without statesets");
 	#else
 	if (b_with_sset) barray = alloc(matrix->tree_bytes, "tree with statesets");
     else{ /* don't need to do anything else */
@@ -1235,7 +1235,7 @@ void treedump_b(Dataptr matrix, FILE *const stream, const Branch *const tree, Lv
 /* dump tree as binary data to file pointed to by stream */
 {
     lvb_assert(b_with_sset == LVB_FALSE);	/* not implemented for ssets */
-    fwrite(tree, matrix->tree_bytes_whitout_sset, 1, stream);
+    fwrite(tree, matrix->tree_bytes_without_sset, 1, stream);
     lvb_assert(ferror(stream) == 0);
 }
 #endif
@@ -1645,7 +1645,7 @@ static void ssarralloc(Dataptr matrix, Objset *nobjset_2)
 } /* end ssarralloc() */
 #endif
 
-#ifndef NP_Implemenation
+#ifndef NP_Implementation
 #ifdef MAP_REDUCE_SINGLE
 	void print_sets(Dataptr matrix, Treestack *sp, MISC *misc)
 	{

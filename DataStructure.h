@@ -89,10 +89,10 @@ typedef struct data
 
      #ifndef NP_Implementation
      long max_length_seq_name; 	        /* length of the sequence names */
-     long tree_bytes_whitout_sset;	/* length the tree in bytes whitout sset */
+     long tree_bytes_without_sset;	/* length the tree in bytes without sset */
      long min_len_tree;                 // minimum length of tree given matrix
      #else
-     long tree_bytes_without_sset;	/* length the tree in bytes whitout sset */
+     long tree_bytes_without_sset;	/* length the tree in bytes without sset */
      char **row;                        // array of row strings
      char **rowtitle;                   // array of row title strings
      #endif
@@ -134,7 +134,7 @@ typedef struct
       char file_name_out[LVB_FNAMSIZE];	        /* output file name */
 } Params;
 
-#ifndef NP_Implemenation
+#ifndef NP_Implementation
 /* structure to use sending temperature and number of iterations to master process */
 typedef struct
 {

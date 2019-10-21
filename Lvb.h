@@ -400,7 +400,7 @@ void mutate_nni(Dataptr restrict, Branch *const, const Branch *const, long);
 void mutate_spr(Dataptr restrict, Branch *const, const Branch *const, long);
 void rowfree(DataSeqPtr, int n_lines);
 int phylip_dna_matrin(char *, int, Dataptr, DataSeqPtr);
-long tree_bytes_whitout_sset(Dataptr restrict matrix);
+long tree_bytes_without_sset(Dataptr restrict matrix);
 long treecmp(Dataptr matrix, const Branch *const tree_1, const Branch *const tree_2, long root, Lvb_bool b_First);
 void treedump_b(Dataptr, FILE *const, const Branch *const, Lvb_bool);
 void treestack_free(Treestack *);

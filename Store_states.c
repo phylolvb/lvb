@@ -290,9 +290,9 @@ unsigned long checkpoint_anneal(FILE *fp, Dataptr matrix, long accepted, Lvb_boo
 	unsigned short type_block = STATE_BLOCK_ANNEAL;
 
 	if (b_with_sset_current_tree == LVB_TRUE) n_bytes_to_write += matrix->tree_bytes;
-	else n_bytes_to_write += matrix->tree_bytes_whitout_sset;
+	else n_bytes_to_write += matrix->tree_bytes_without_sset;
 	if (b_with_sset_proposed_tree == LVB_TRUE) n_bytes_to_write += matrix->tree_bytes;
-	else n_bytes_to_write += matrix->tree_bytes_whitout_sset;
+	else n_bytes_to_write += matrix->tree_bytes_without_sset;
 	fwrite(&n_bytes_to_write, sizeof(n_bytes_to_write), 1, fp); checksum = CalculateBlockCRC32(sizeof(n_bytes_to_write), (unsigned char *) &n_bytes_to_write, checksum);
 	fwrite(&type_block, sizeof(type_block), 1, fp); checksum = CalculateBlockCRC32(sizeof(type_block), (unsigned char *) &type_block, checksum);
     fwrite(&accepted, sizeof(accepted), 1, fp); checksum = CalculateBlockCRC32(sizeof(accepted), (unsigned char *) &accepted, checksum);
@@ -322,8 +322,8 @@ unsigned long checkpoint_anneal(FILE *fp, Dataptr matrix, long accepted, Lvb_boo
     	checksum = CalculateBlockCRC32(matrix->tree_bytes, (unsigned char *) p_current_tree, checksum);
     }
     else{
-    	fwrite(p_current_tree, matrix->tree_bytes_whitout_sset, 1, fp);
-    	checksum = CalculateBlockCRC32(matrix->tree_bytes_whitout_sset, (unsigned char *) p_current_tree, checksum);
+    	fwrite(p_current_tree, matrix->tree_bytes_without_sset, 1, fp);
+    	checksum = CalculateBlockCRC32(matrix->tree_bytes_without_sset, (unsigned char *) p_current_tree, checksum);
     }
 
     if (b_with_sset_proposed_tree == LVB_TRUE){
@@ -331,8 +331,8 @@ unsigned long checkpoint_anneal(FILE *fp, Dataptr matrix, long accepted, Lvb_boo
     	checksum = CalculateBlockCRC32(matrix->tree_bytes, (unsigned char *) p_proposed_tree, checksum);
     }
     else{
-    	fwrite(p_proposed_tree, matrix->tree_bytes_whitout_sset, 1, fp);
-    	checksum = CalculateBlockCRC32(matrix->tree_bytes_whitout_sset, (unsigned char *) p_proposed_tree, checksum);
+    	fwrite(p_proposed_tree, matrix->tree_bytes_without_sset, 1, fp);
+    	checksum = CalculateBlockCRC32(matrix->tree_bytes_without_sset, (unsigned char *) p_proposed_tree, checksum);
     }
     fwrite(&checksum, sizeof(unsigned long), 1, fp);
     lvb_assert(ferror(fp) == 0);
@@ -357,9 +357,9 @@ unsigned long restore_anneal(FILE *fp, Dataptr matrix, long *accepted, Lvb_bool 
 	}
 
 	if (b_with_sset_current_tree == LVB_TRUE) n_bytes_to_write += matrix->tree_bytes;
-	else n_bytes_to_write += matrix->tree_bytes_whitout_sset;
+	else n_bytes_to_write += matrix->tree_bytes_without_sset;
 	if (b_with_sset_proposed_tree == LVB_TRUE) n_bytes_to_write += matrix->tree_bytes;
-	else n_bytes_to_write += matrix->tree_bytes_whitout_sset;
+	else n_bytes_to_write += matrix->tree_bytes_without_sset;
 
 	n_read_values = fread(&n_bytes_to_read, sizeof(n_bytes_to_read), 1, fp); checksum = CalculateBlockCRC32(sizeof(n_bytes_to_read), (unsigned char *) &n_bytes_to_read, checksum);
 	n_read_values = fread(&type_block, sizeof(type_block), 1, fp); checksum = CalculateBlockCRC32(sizeof(type_block), (unsigned char *) &type_block, checksum);
@@ -391,8 +391,8 @@ unsigned long restore_anneal(FILE *fp, Dataptr matrix, long *accepted, Lvb_bool 
 		for (int i = 0; i < matrix->nbranches; i++) p_current_tree[i].sset = *(p_array + i);
 	}
 	else{
-		n_read_values = fread(p_current_tree, matrix->tree_bytes_whitout_sset, 1, fp);
-		checksum = CalculateBlockCRC32(matrix->tree_bytes_whitout_sset, (unsigned char *) p_current_tree, checksum);
+		n_read_values = fread(p_current_tree, matrix->tree_bytes_without_sset, 1, fp);
+		checksum = CalculateBlockCRC32(matrix->tree_bytes_without_sset, (unsigned char *) p_current_tree, checksum);
 	}
 	if (b_with_sset_proposed_tree == LVB_TRUE){
 		for (int i = 0; i < matrix->nbranches; i++) *(p_array + i) = p_proposed_tree[i].sset;
@@ -401,8 +401,8 @@ unsigned long restore_anneal(FILE *fp, Dataptr matrix, long *accepted, Lvb_bool 
 		for (int i = 0; i < matrix->nbranches; i++) p_proposed_tree[i].sset = *(p_array + i);
 	}
 	else{
-		n_read_values = fread(p_proposed_tree, matrix->tree_bytes_whitout_sset, 1, fp);
-		checksum = CalculateBlockCRC32(matrix->tree_bytes_whitout_sset, (unsigned char *) p_proposed_tree, checksum);
+		n_read_values = fread(p_proposed_tree, matrix->tree_bytes_without_sset, 1, fp);
+		checksum = CalculateBlockCRC32(matrix->tree_bytes_without_sset, (unsigned char *) p_proposed_tree, checksum);
 	}
 	n_read_values = fread(&checksum_read, sizeof(unsigned long), 1, fp);
 
