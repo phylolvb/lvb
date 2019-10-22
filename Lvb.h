@@ -106,7 +106,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define NIBBLE_WIDTH_BITS	2			/* bitwise multiply the NIBBLE_WIDTH */
 
 #ifdef COMPILE_64_BITS
-	typedef uint64_t Lvb_bit_lentgh;							/* define 64 bits */
+	typedef uint64_t Lvb_bit_length;							/* define 64 bits */
 	#define NUMBER_OF_BITS										64
 	#define LENGTH_WORD											16			/* length of number packed bases */
 	#define LENGTH_WORD_BITS_MULTIPLY							4			/* multiply of number packed bases */
@@ -115,7 +115,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	#define MASK_SEVEN											0x7777777777777777U
 	#define MASK_EIGHT											0x8888888888888888U
 #else		/* default 32 bits */
-	typedef uint32_t Lvb_bit_lentgh;							/* define 32 bits */
+	typedef uint32_t Lvb_bit_length;							/* define 32 bits */
 	#define NUMBER_OF_BITS										32
 	#define LENGTH_WORD											8			/* length of number packed bases */
 	#define LENGTH_WORD_BITS_MULTIPLY							3			/* multiply of number packed bases */
@@ -219,7 +219,7 @@ typedef struct
     long left;			/* index of first child in tree array */
     long right;			/* index of second child in tree array */
     long changes;		/* changes associated with this branch */
-    Lvb_bit_lentgh *sset;	/* statesets for all sites */
+    Lvb_bit_length *sset;	/* statesets for all sites */
 } Branch;
 #else
 typedef struct
@@ -228,7 +228,7 @@ typedef struct
     int left;			/* index of first child in tree array */
     int right;			/* index of second child in tree array */
     int changes;		/* changes associated with this branch */
-    Lvb_bit_lentgh *sset;	/* statesets for all sites */
+    Lvb_bit_length *sset;	/* statesets for all sites */
 } Branch;
 #endif
 
@@ -350,7 +350,7 @@ void randtree(Dataptr, Branch *const);
 long randpint(const long);
 
 void scream(const char *const, ...);
-void ss_init(Dataptr, Branch *, Lvb_bit_lentgh **);
+void ss_init(Dataptr, Branch *, Lvb_bit_length **);
 char *supper(char *const s);
 Branch *treealloc(Dataptr restrict, Lvb_bool b_with_sset);
 long tree_bytes(Dataptr restrict matrix);
@@ -364,7 +364,7 @@ long treestack_dump(Dataptr, Treestack *, FILE *const);
 long treestack_transfer(Dataptr, Treestack *, Treestack *, Lvb_bool b_with_sset);
 long treestack_pop(Dataptr, Branch *, long *, Treestack *, Lvb_bool b_with_sset);
 void treeswap(Branch **const, long *const, Branch **const, long *const);
-void uint32_dump(FILE *, Lvb_bit_lentgh);
+void uint32_dump(FILE *, Lvb_bit_length);
 long words_per_row(const long);
 
 #ifndef NP_Implementation
@@ -382,7 +382,7 @@ unsigned long checkpoint_uni(FILE *);
 unsigned long restore_uni(FILE *);
 void checkpoint_treestack(FILE *, Treestack *, Dataptr, Lvb_bool b_with_sset);
 void restore_treestack(FILE *, Treestack *, Dataptr, Lvb_bool b_with_sset);
-void dna_makebin(Dataptr restrict, DataSeqPtr matrix_seq, Lvb_bit_lentgh **);
+void dna_makebin(Dataptr restrict, DataSeqPtr matrix_seq, Lvb_bit_length **);
 #ifdef MAP_REDUCE_SINGLE
 	long deterministic_hillclimb(Dataptr, Treestack *, const Branch *const, Params rcstruct,
 			long, FILE * const, long *, Lvb_bool, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer);
@@ -431,7 +431,7 @@ void copy_sset(Dataptr restrict matrix, Objset *p_sset_1);
 void defaults_params(Params *const prms);
 long deterministic_hillclimb(Dataptr, Treestack *, const Branch *const, Params rcstruct,
 long, FILE * const, const long *, long *, Lvb_bool);
-void dna_makebin(Dataptr restrict, Lvb_bit_lentgh **);
+void dna_makebin(Dataptr restrict, Lvb_bit_length **);
 void dump_stack_to_screen(Dataptr matrix, Treestack *sp);
 void dump_objset_to_screen(Dataptr matrix, Objset *oset_1);
 void dump_objset_to_screen_sset_2(Dataptr matrix);

@@ -96,12 +96,12 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct,
 			long j;								/* loop counter */
 			long ch;							/* partial changes */
 			#ifdef NP_Implementation
-			Lvb_bit_lentgh not_u;				// complement of u
-			Lvb_bit_lentgh shifted;				// ~u, shifted in partial len calcs
+			Lvb_bit_length not_u;				// complement of u
+			Lvb_bit_length shifted;				// ~u, shifted in partial len calcs
 			#endif
-			Lvb_bit_lentgh u;					/* for s. set and length calcs */
-			Lvb_bit_lentgh x;					/* batch of 8 left state sets */
-			Lvb_bit_lentgh y;					/* batch of 8 right state sets */
+			Lvb_bit_length u;					/* for s. set and length calcs */
+			Lvb_bit_length x;					/* batch of 8 left state sets */
+			Lvb_bit_length y;					/* batch of 8 right state sets */
 
 			done = 0;
 			l_end = matrix->n_slice_size_getplen * (omp_get_thread_num() + 1);
@@ -131,8 +131,8 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct,
 				printf("1 : Thread# %d: make branch: %d\n", omp_get_thread_num(), branch);
 #endif
 							n_changes_temp = 0;
-							Lvb_bit_lentgh *restrict l_ssets = barray[left].sset;
-							Lvb_bit_lentgh *restrict r_ssets = barray[right].sset;
+							Lvb_bit_length *restrict l_ssets = barray[left].sset;
+							Lvb_bit_length *restrict r_ssets = barray[right].sset;
 							for (j = matrix->n_slice_size_getplen * omp_get_thread_num(); j < l_end; j++){
 								x = l_ssets[j];
 								y = r_ssets[j];
@@ -296,15 +296,15 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct,
 		long j;						/* loop counter */
 
 		#ifndef NP_Implementation
-		Lvb_bit_lentgh u;				/* for s. set and length calcs */
-		Lvb_bit_lentgh x;				/* batch of 8 left state sets */
-		Lvb_bit_lentgh y;				/* batch of 8 right state sets */
+		Lvb_bit_length u;				/* for s. set and length calcs */
+		Lvb_bit_length x;				/* batch of 8 left state sets */
+		Lvb_bit_length y;				/* batch of 8 right state sets */
 		#else
-		Lvb_bit_lentgh not_u;				/* complement of u */
-		Lvb_bit_lentgh shifted;			/* ~u, shifted in partial len calcs */
-		Lvb_bit_lentgh u;					/* for s. set and length calcs */
-		Lvb_bit_lentgh x;					/* batch of 8 left state sets */
-		Lvb_bit_lentgh y;					/* batch of 8 right state sets */
+		Lvb_bit_length not_u;				/* complement of u */
+		Lvb_bit_length shifted;			/* ~u, shifted in partial len calcs */
+		Lvb_bit_length u;					/* for s. set and length calcs */
+		Lvb_bit_length x;					/* batch of 8 left state sets */
+		Lvb_bit_length y;					/* batch of 8 right state sets */
 		#endif
 
 		for (i = matrix->n; i < matrix->nbranches; i++) {
@@ -329,8 +329,8 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct,
 					right = barray[branch].right;
 					if (barray[left].sset[0] && barray[right].sset[0])
 					{
-						Lvb_bit_lentgh *restrict l_ssets = barray[left].sset;
-						Lvb_bit_lentgh *restrict r_ssets = barray[right].sset;
+						Lvb_bit_length *restrict l_ssets = barray[left].sset;
+						Lvb_bit_length *restrict r_ssets = barray[right].sset;
 						for (j = 0; j < matrix->nwords; j++){
 							x = l_ssets[j];
 							y = r_ssets[j];

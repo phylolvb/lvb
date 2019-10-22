@@ -176,9 +176,9 @@ C<mat>C<->E<gt>C<row>[I<i>][I<j>], where I<i> is in the interval
 **********/
 
 #ifndef NP_Implementation
-void dna_makebin(Dataptr restrict mat, DataSeqPtr matrix_seq, Lvb_bit_lentgh **enc_mat)
+void dna_makebin(Dataptr restrict mat, DataSeqPtr matrix_seq, Lvb_bit_length **enc_mat)
 #else
-void dna_makebin(Dataptr restrict mat, Lvb_bit_lentgh **enc_mat)
+void dna_makebin(Dataptr restrict mat, Lvb_bit_length **enc_mat)
 #endif
 
 /* convert matrix from string form to binary-encoded form, in which each
@@ -192,8 +192,8 @@ void dna_makebin(Dataptr restrict mat, Lvb_bit_lentgh **enc_mat)
     long k;		/* loop counter */
     long mat_offset;	/* current position within matrix row */
     char base;		/* current base as text character */
-    Lvb_bit_lentgh sset = 0U;	/* binary-encoded single state set */
-    Lvb_bit_lentgh enc_ssets;	/* set of four binary-encoded state sets */
+    Lvb_bit_length sset = 0U;	/* binary-encoded single state set */
+    Lvb_bit_length enc_ssets;	/* set of four binary-encoded state sets */
 
     for (i = 0; i < mat->n; i++)
     {
@@ -530,12 +530,12 @@ static void logcut(const Lvb_bool *const cut, const long m)
 } /* end logcut() */
 
 
-void uint32_dump(FILE *stream, Lvb_bit_lentgh u)
+void uint32_dump(FILE *stream, Lvb_bit_length u)
 /* output a uint32 in binary format */
 {
 	long i;			/* loop counter */
-	Lvb_bit_lentgh mask;		/* to obtain current bit */
-	Lvb_bit_lentgh output_as_int;
+	Lvb_bit_length mask;		/* to obtain current bit */
+	Lvb_bit_length output_as_int;
     static char buffer[NUMBER_OF_BITS + 2];
 
     for (i = 0; i < NUMBER_OF_BITS; i++){
@@ -571,5 +571,5 @@ long bytes_per_row(const long m)
  * to the nearest 32-bit word - which allows for the optimization of White and
  * Holland (2011, Bioinformatics 27:1359-1367, specifically Section 2.10) */
 {
-	return words_per_row(m) * sizeof(Lvb_bit_lentgh);
+	return words_per_row(m) * sizeof(Lvb_bit_length);
 }

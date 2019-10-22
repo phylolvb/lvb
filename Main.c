@@ -198,7 +198,7 @@ static void logtree1(Dataptr matrix, const Branch *const barray, const long star
 		FILE *sumfp;			/* best length file */
 		FILE *resfp;			/* results file */
 		Branch *tree;			/* initial tree */
-		Lvb_bit_lentgh **enc_mat;		/* encoded data mat. */
+		Lvb_bit_length **enc_mat;		/* encoded data mat. */
 		long *p_todo_arr; 			/* [MAX_BRANCHES + 1];	 list of "dirty" branch nos */
 		long *p_todo_arr_sum_changes; 	/*used in openMP, to sum the partial changes */
 		int *p_runs; 			/*used in openMP, 0 if not run yet, 1 if it was processed */
@@ -219,9 +219,9 @@ static void logtree1(Dataptr matrix, const Branch *const barray, const long star
 
 		/* Allocation of the initial encoded matrix is non-contiguous because
 		 * this matrix isn't used much, so any performance penalty won't matter. */
-		enc_mat = (Lvb_bit_lentgh **) malloc((matrix->n) * sizeof(Lvb_bit_lentgh *));
+		enc_mat = (Lvb_bit_length **) malloc((matrix->n) * sizeof(Lvb_bit_length *));
 		for (i = 0; i < matrix->n; i++)
-			enc_mat[i] = (Lvb_bit_lentgh *) alloc(matrix->bytes, "state sets");
+			enc_mat[i] = (Lvb_bit_length *) alloc(matrix->bytes, "state sets");
 		dna_makebin(matrix, matrix_seq_data, enc_mat);
 
 		/* open and entitle statistics file shared by all cycles
@@ -369,7 +369,7 @@ static void logtree1(Dataptr matrix, const Branch *const barray, const long star
 #else
 
 	static long getsoln(Dataptr restrict matrix, DataSeqPtr restrict matrix_seq_data, Params rcstruct,
-			Treestack* bstack_overall, Lvb_bit_lentgh **enc_mat, int myMPIid, Lvb_bool log_progress)
+			Treestack* bstack_overall, Lvb_bit_length **enc_mat, int myMPIid, Lvb_bool log_progress)
 	/* get and output solution(s) according to parameters in rcstruct;
 	 * return length of shortest tree(s) found  */
 	{
@@ -534,7 +534,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
     FILE *sumfp;			/* best length file */
     FILE *resfp;			/* results file */
     Branch *tree;			/* initial tree */
-    Lvb_bit_lentgh **enc_mat;	/* encoded data mat. */
+    Lvb_bit_length **enc_mat;	/* encoded data mat. */
     long *p_todo_arr; /* [MAX_BRANCHES + 1];	 list of "dirty" branch nos */
     long *p_todo_arr_sum_changes; /*used in openMP, to sum the partial changes */
     int *p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */
@@ -552,7 +552,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
 
     /* Allocation of the initial encoded matrix is non-contiguous because
      * this matrix isn't used much, so any performance penalty won't matter. */
-    enc_mat = (Lvb_bit_lentgh **) malloc((matrix->n) * sizeof(Lvb_bit_lentgh *));
+    enc_mat = (Lvb_bit_length **) malloc((matrix->n) * sizeof(Lvb_bit_length *));
     for (i = 0; i < matrix->n; i++) enc_mat[i] = alloc(matrix->bytes, "state sets");
     dna_makebin(matrix, enc_mat);
 
@@ -715,7 +715,7 @@ static void logstim(void)
 		}
 	}
 
-	void print_binary_data(Lvb_bit_lentgh **p_enc_data, int n_size, int nwords, int n_thread){
+	void print_binary_data(Lvb_bit_length **p_enc_data, int n_size, int nwords, int n_thread){
 
 		printf("########### SEQ ####################\n thread: %d\n", n_thread);
 		int i, x;
@@ -927,11 +927,11 @@ static void logstim(void)
 	    Params rcstruct;		/* configurable parameters */
 	    long i, n_buffer_size_matrix, n_buffer_size_binary;			/* loop counter */
 	    int position, n_error_code = EXIT_SUCCESS; /* return value */
-	    Lvb_bit_lentgh **enc_mat = NULL;/* encoded data mat. */
+	    Lvb_bit_length **enc_mat = NULL;/* encoded data mat. */
 	    Lvb_bool log_progress;	/* whether or not to log anneal search */
 	    Treestack *p_bstack_overall = NULL;	/* overall best tree stack */
 	    char *pack_data = NULL;
-	    Lvb_bit_lentgh *p_pack_data_binary = NULL;
+	    Lvb_bit_length *p_pack_data_binary = NULL;
 	    /* global files */
 
 	    /* define mpi */
@@ -1103,7 +1103,7 @@ static void logstim(void)
 
 					/* Allocation of the initial encoded matrix is non-contiguous because
 					 * this matrix isn't used much, so any performance penalty won't matter. */
-					enc_mat = (Lvb_bit_lentgh **) alloc((matrix->n) * sizeof(Lvb_bit_lentgh *), "state sets");
+					enc_mat = (Lvb_bit_length **) alloc((matrix->n) * sizeof(Lvb_bit_length *), "state sets");
 					for (i = 0; i < matrix->n; i++) enc_mat[i] = alloc(matrix->bytes, "state sets");
 					dna_makebin(matrix, matrix_seq_data, enc_mat);
 
@@ -1126,7 +1126,7 @@ static void logstim(void)
 
 					/* pack binary for seq data */
 					n_buffer_size_binary = matrix->bytes * matrix->n;
-					p_pack_data_binary = (Lvb_bit_lentgh *) alloc(n_buffer_size_binary, "binary packing");
+					p_pack_data_binary = (Lvb_bit_length *) alloc(n_buffer_size_binary, "binary packing");
 					position = 0;
 					for (i = 0; i < matrix->n; i++){
 						MPI_Pack(enc_mat[i], matrix->bytes, MPI_CHAR, p_pack_data_binary, n_buffer_size_binary, &position, MPI_COMM_WORLD);
@@ -1211,13 +1211,13 @@ static void logstim(void)
 
 				/* send binary data */
 				n_buffer_size_binary = matrix->bytes * matrix->n;
-				p_pack_data_binary = (Lvb_bit_lentgh *) alloc(n_buffer_size_binary, "binary packing");
+				p_pack_data_binary = (Lvb_bit_length *) alloc(n_buffer_size_binary, "binary packing");
 				MPI_Recv(p_pack_data_binary, n_buffer_size_binary, MPI_CHAR, MPI_MAIN_PROCESS, MPI_TAG_BINARY_DATA, MPI_COMM_WORLD, &status);
 
-				enc_mat = (Lvb_bit_lentgh **) alloc((matrix->n) * sizeof(Lvb_bit_lentgh *), "state sets");
+				enc_mat = (Lvb_bit_length **) alloc((matrix->n) * sizeof(Lvb_bit_length *), "state sets");
 				for (i = 0; i < matrix->n; i++){
-					enc_mat[i] = (Lvb_bit_lentgh *) alloc(sizeof(char) * matrix->bytes, "binary packing");
-					memcpy((Lvb_bit_lentgh *) (enc_mat[i]), p_pack_data_binary + i * matrix->nwords, matrix->bytes);
+					enc_mat[i] = (Lvb_bit_length *) alloc(sizeof(char) * matrix->bytes, "binary packing");
+					memcpy((Lvb_bit_length *) (enc_mat[i]), p_pack_data_binary + i * matrix->nwords, matrix->bytes);
 				}
 		//		print_binary_data(enc_mat, matrix->n, matrix->nwords, myMPIid);
 				/* END send binary data */

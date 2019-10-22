@@ -350,10 +350,10 @@ unsigned long restore_anneal(FILE *fp, Dataptr matrix, long *accepted, Lvb_bool 
 	unsigned long n_bytes_to_write = 11 * sizeof(long) + 8 * sizeof(double) + sizeof(unsigned short) + sizeof(Lvb_bool), n_bytes_to_read = 0;
 	unsigned long checksum = 0, checksum_read, n_read_values;
 	unsigned short type_block;
-	Lvb_bit_lentgh **p_array;
+	Lvb_bit_length **p_array;
 
 	if (b_with_sset_current_tree == LVB_TRUE || b_with_sset_proposed_tree == LVB_TRUE){
-		p_array = (Lvb_bit_lentgh **) alloc(matrix->nbranches * sizeof(Lvb_bit_lentgh *), "alloc array Lvb_bit_lentgh");
+		p_array = (Lvb_bit_length **) alloc(matrix->nbranches * sizeof(Lvb_bit_length *), "alloc array Lvb_bit_length");
 	}
 
 	if (b_with_sset_current_tree == LVB_TRUE) n_bytes_to_write += matrix->tree_bytes;

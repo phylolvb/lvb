@@ -810,7 +810,7 @@ Branch *mvBranch(long nbranches, Branch *const dest, const Branch *const src)
 #endif
 {
 	long i;
-	Lvb_bit_lentgh *tmp_sset;
+	Lvb_bit_length *tmp_sset;
 	for(i = 0; i < nbranches; i++){
 		tmp_sset = dest[i].sset;
 		dest[i] = src[i];
@@ -827,7 +827,7 @@ void treecopy(Dataptr restrict matrix, Branch *const dest, const Branch *const s
  * treealloc() is changed */
 {
     long i;				/* loop counter */
-    Lvb_bit_lentgh *tmp_sset;		/* temporary variable used in copy */
+    Lvb_bit_length *tmp_sset;		/* temporary variable used in copy */
     unsigned char *src_statesets_all;	/* start of source's statesets */
     unsigned char *dest_statesets_all;	/* start of dest's statesets */
 
@@ -981,7 +981,7 @@ static void tree_make_canonical(Dataptr restrict matrix, Branch *const barray, i
 	for (i = 0; i < matrix->nbranches; i++)
 	#endif
 	{
-    	barray[i].sset = (Lvb_bit_lentgh *) (ss0_start + i * matrix->bytes);
+    	barray[i].sset = (Lvb_bit_length *) (ss0_start + i * matrix->bytes);
     }
 
     for (i = 0; i < n_lines; i++) {
@@ -1047,7 +1047,7 @@ Branch *treealloc(Dataptr restrict matrix, Lvb_bool b_with_sset)
     lvb_assert((matrix->bytes % NIBBLE_WIDTH) == 0);
 
     for (i = 0; i < matrix->nbranches; i++){
-    	barray[i].sset = (Lvb_bit_lentgh *) (ss0_start + i * matrix->bytes);
+    	barray[i].sset = (Lvb_bit_length *) (ss0_start + i * matrix->bytes);
     	*barray[i].sset = 0U;  /* make durty */
     }
 
@@ -1856,7 +1856,7 @@ static int objnocmp(const void *o1, const void *o2)
 } /* end objnocmp() */
 #endif
 
-void ss_init(Dataptr matrix, Branch *tree, Lvb_bit_lentgh **enc_mat)
+void ss_init(Dataptr matrix, Branch *tree, Lvb_bit_length **enc_mat)
 /* copy m states from enc_mat to the stateset arrays for the leaves in tree,
  * including padding at the end; the nth entry in enc_mat is assumed to be the
  * encoded state sets for object number n in the tree; non-leaf branches in the
