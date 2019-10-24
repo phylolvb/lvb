@@ -105,6 +105,9 @@ void defaults_params(Params *const prms)
     /* default value that will usually be used */
     prms->seed = get_default_seed();
 
+    // original branch-swapping algorithm
+    prms->algorithm_selection = 0;
+
 #ifdef NP_Implementation
     // original branch-swapping algorithm
     prms->algorithm_selection = 0;
