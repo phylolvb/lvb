@@ -211,6 +211,9 @@ void usage(char *p_file_name)
 			"       but may produce lower quality results. The LINEAR (l) schedule may\n"
 			"       produce higher quality results, at the cost of increased runtime.\n"
 			"       default (g), is the GEOMETRIC schedule.\n");
+	printf("\n    -a algorithm zero (0) NNI + SPR,\n"
+	        "       algorithm one (1) NNI + SPR + TBR.\n"
+			"		algorithm two (2) Point based calculations.\n");
 	printf("    -i input file name.\n"
 			"       default: 'infile'\n");
 	printf("    -o output file name.\n"
@@ -279,7 +282,7 @@ int read_parameters(Params *prms, int argc, char **argv){
 	opterr = 0;
 
 	#ifndef NP_Implementation
-	while ((c = getopt (argc, argv, "t:c:vs:i:o:f:p:N:SC:h?")) != -1)
+	while ((c = getopt (argc, argv, "t:c:vs:i:o:f:p:a:N:SC:h?")) != -1)
 	#else
 	while ((c = getopt (argc, argv, "t:c:b:vs:i:o:f:p:a:")) != -1)
 	#endif
@@ -437,6 +440,20 @@ int read_parameters(Params *prms, int argc, char **argv){
 					return 1;
 				}
 				prms->n_make_test = atoi(optarg);
+				break;
+			case 'a':	/* algorithm selection */
+				if (optarg == NULL){
+					fprintf (stderr, "Option -%a requires an argument -a [0|1]\n", optopt);
+					usage(argv[0]);
+					exit(1);
+				}
+				if (strcmp(optarg, "0") == 0 || strcmp(optarg, "0") == 0) prms->algorithm_selection = 0;
+				else if (strcmp(optarg, "1") == 0 || strcmp(optarg, "1") == 0) prms->algorithm_selection = 1;
+				else if (strcmp(optarg, "2") == 0 || strcmp(optarg, "2") == 0) prms->algorithm_selection = 2;
+				else{
+					fprintf (stderr, "Unknown algorithm option\nPlease, choose between SN (0) or SEQ-TNS (1).");
+					exit(1);
+				}
 				break;
 #endif
 #else

@@ -121,6 +121,7 @@ typedef struct
      long verbose;		                /* verboseness level */
      int seed;			                /* seed for random number generator */
      int cooling_schedule;                      /* cooling schedule: 0 is geometric, 1 is linear */
+     int algorithm_selection;                  // algorithm selection: 0 = SPR+NNI, 2 = SPR+NNI+TBR, 3 = SPR+NNI+TBR
      int n_file_format;		                /* number of file format, must be FORMAT_PHYLIP, FORMAT_FASTA, FORMAT_NEXUS, FORMAT_MSF, FORMAT_CLUSTAL*/
      int n_processors_available;	        /* number of processors available */
 
