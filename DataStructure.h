@@ -136,7 +136,7 @@ typedef struct
       int n_checkpoint_interval;		/* value in seconds when a checkpoint file is going to be saved, default(CHECKPOINT_INTERVAL)*/
       int n_make_test;				/* it is only used for tests */      
       #else
-      // int algorithm_selection;                  // algorithm selection: 0 = SPR+NNI, 2 = SPR+NNI+TBR, 3 = SPR+NNI+TBR
+      int algorithm_selection;                  // algorithm selection: 0 = SPR+NNI, 2 = SPR+NNI+TBR, 3 = SPR+NNI+TBR
       long bootstraps;                          // number of bootstrap replicates
       long n_number_max_trees;                  //maximum number of trees saved?
       #endif
