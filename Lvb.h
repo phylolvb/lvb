@@ -369,10 +369,10 @@ long words_per_row(const long);
 
 #ifndef NP_Implementation
 #ifdef MAP_REDUCE_SINGLE
-	long anneal(Dataptr restrict, Treestack *, Treestack *, const Branch *const, Params *p_rcstruct, long, const double,
+	long anneal(Dataptr restrict, Treestack *, const Branch *const, Params *p_rcstruct, long, const double,
 		const long, const long, const long, FILE *const, long *, Lvb_bool, MISC *misc, MapReduce *mrStackTree, MapReduce *mrBuffer);
 #else
-	long anneal(Dataptr restrict, Treestack *, Treestack *, const Branch *const, Params *p_rcstruct, long, const double,
+	long anneal(Dataptr restrict, Treestack *, const Branch *const, Params *p_rcstruct, long, const double,
 		const long, const long, const long, FILE *const, long *, int, int *p_n_state_progress, int *p_n_number_tried_seed, Lvb_bool);
 #endif
 long arbreroot(Dataptr, Branch *const, const long);
@@ -398,7 +398,6 @@ void lvb_treeprint (Dataptr, DataSeqPtr restrict matrix_seq_data, FILE *const, c
 void matchange(Dataptr, DataSeqPtr, const Params);
 void mutate_nni(Dataptr restrict, Branch *const, const Branch *const, long);
 void mutate_spr(Dataptr restrict, Branch *const, const Branch *const, long);
-void mutate_tbr(Dataptr restrict, Branch *const, const Branch *const, long);
 void rowfree(DataSeqPtr, int n_lines);
 int phylip_dna_matrin(char *, int, Dataptr, DataSeqPtr);
 long tree_bytes_without_sset(Dataptr restrict matrix);
@@ -422,8 +421,6 @@ Lvb_bool is_possible_to_continue(IterationTemperature *p_data, double d_temperat
 void release_main_calc_iterations(IterationTemperature *p_data);
 long treestack_push_only(Dataptr matrix, Treestack *sp, const Branch *const barray, const long root, Lvb_bool b_with_sset);
 long treestack_push(Dataptr, Treestack *, const Branch *const, long, Lvb_bool b_with_sset);
-int count(Branch *const, int);
-int addtoarray(Branch *const, int, int *, int);
 
 #else
 long anneal(Dataptr restrict, Treestack *, Treestack *, const Branch *const, Params rcstruct, long, const double,
