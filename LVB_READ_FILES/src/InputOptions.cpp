@@ -442,7 +442,7 @@ int read_parameters(Params *prms, int argc, char **argv){
 #else
 			case 'a':	/* algorithm selection */
 				if (optarg == NULL){
-					fprintf (stderr, "Option -%a requires an argument -a [0|1]\n", optopt);
+					fprintf (stderr, "Option -%d requires an argument -a [0|1]\n", optopt);
 					usage(argv[0]);
 					exit(1);
 				}

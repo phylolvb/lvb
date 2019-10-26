@@ -911,7 +911,7 @@ while (1) {
 	}
 	}
 	if (rcstruct.verbose == LVB_TRUE)
-	fprintf (pFile, "%ld\t%s\t%d\t%ld\t%lf\n", iter, change, changeAcc, len, t*10000, (float) r_lenmin/len);
+	fprintf (pFile, "%ld\t%s\t%d\t%ld\t%lf\t%f\n", iter, change, changeAcc, len, t*10000, (float) r_lenmin/len);
     }
 
     /* free "local" dynamic heap memory */
