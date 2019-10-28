@@ -332,7 +332,7 @@ if (deltalen <= 0) {
 #ifndef NP_Implementation
 		double grad_geom = GRAD_GEOM;			/* "gradient" of the geometric schedule */
 	    double grad_linear = GRAD_LINEAR; 	/* gradient of the linear schedule */
-#ifdef MPI_Implementation
+#ifndef MAP_REDUCE_SINGLE
 	    time_t curr_time;				/* current time */
 	    double elapsed_time;			/* approximate time since last checkpoint (in seconds) */
 	    time_t last_checkpoint_time;		/* approximate time of last checkpoint */
