@@ -122,6 +122,7 @@ typedef struct
      int seed;			                /* seed for random number generator */
      int cooling_schedule;                      /* cooling schedule: 0 is geometric, 1 is linear */
      int n_file_format;		                /* number of file format, must be FORMAT_PHYLIP, FORMAT_FASTA, FORMAT_NEXUS, FORMAT_MSF, FORMAT_CLUSTAL*/
+     int algorithm_selection;                  // algorithm selection: 0 = SPR+NNI, 2 = SPR+NNI+TBR, 3 = SPR+NNI+TBR
      int n_processors_available;	        /* number of processors available */
 
       #ifndef NP_Implementation
@@ -135,7 +136,6 @@ typedef struct
       int n_checkpoint_interval;		/* value in seconds when a checkpoint file is going to be saved, default(CHECKPOINT_INTERVAL)*/
       int n_make_test;				/* it is only used for tests */      
       #else
-      int algorithm_selection;                  // algorithm selection: 0 = SPR+NNI, 2 = SPR+NNI+TBR, 3 = SPR+NNI+TBR
       long bootstraps;                          // number of bootstrap replicates
       long n_number_max_trees;                  //maximum number of trees saved?
       #endif

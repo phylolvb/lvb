@@ -217,6 +217,9 @@ void usage(char *p_file_name)
 			"       default: 'outfile'\n");
 	printf("    -s specify a random number seed, or use default.\n"
 			"       default: it is taken from the system clock.\n");
+	printf("\n    -a algorithm zero (0) NNI + SPR,\n"
+	        "       algorithm one (1) NNI + SPR + TBR.\n"
+			"		algorithm two (2) Point based calculations.\n");
 #ifndef MAP_REDUCE_SINGLE
 	printf("    -N specify the number of seeds to try, need to be greater than number of mpi process.\n"
 			"       default: it is the number of mpi process.\n");
@@ -244,9 +247,6 @@ void usage(char *p_file_name)
 	printf("\n    -b (0) bootstrap replicates, as an integer in the range 1 to %ld"
 	"\n       inclusive.", (long) MAX_BOOTSTRAPS);
 	printf("\n       Default (0).");
-	printf("\n    -a algorithm zero (0) NNI + SPR,\n"
-	        "       algorithm one (1) NNI + SPR + TBR.\n"
-			"		algorithm two (2) Point based calculations.\n");
 	printf("\n    -c [g|l] (g) cooling schedule. The schedule chosen will\n"
 			"       affect the quality and speed of the simulated annealing search.\n"
 			"       The GEOMETRIC (g) schedule will take significantly less time,\n"
@@ -279,7 +279,7 @@ int read_parameters(Params *prms, int argc, char **argv){
 	opterr = 0;
 
 	#ifndef NP_Implementation
-	while ((c = getopt (argc, argv, "t:c:vs:i:o:f:p:N:SC:h?")) != -1)
+	while ((c = getopt (argc, argv, "t:c:vs:i:o:f:p:N:SC:a:h?")) != -1)
 	#else
 	while ((c = getopt (argc, argv, "t:c:b:vs:i:o:f:p:a:")) != -1)
 	#endif
@@ -412,6 +412,20 @@ int read_parameters(Params *prms, int argc, char **argv){
 			case 'S':	/* number of seeds to try */
 				prms->n_flag_save_read_states = DO_SAVE_READ_STATES;
 				break;
+			case 'a':	/* algorithm selection */
+				if (optarg == NULL){
+					fprintf (stderr, "Option -%d requires an argument -a [0|1]\n", optopt);
+					usage(argv[0]);
+					exit(1);
+				}
+				if (strcmp(optarg, "0") == 0 || strcmp(optarg, "0") == 0) prms->algorithm_selection = 0;
+				else if (strcmp(optarg, "1") == 0 || strcmp(optarg, "1") == 0) prms->algorithm_selection = 1;
+				else if (strcmp(optarg, "2") == 0 || strcmp(optarg, "2") == 0) prms->algorithm_selection = 2;
+				else{
+					fprintf (stderr, "Unknown algorithm option\nPlease, choose between SN (0) or SEQ-TNS (1).");
+					exit(1);
+				}
+				break;
 #ifndef MAP_REDUCE_SINGLE
 			case 'N':	/* number of seeds to try */
 				if (optarg == NULL){
@@ -440,20 +454,6 @@ int read_parameters(Params *prms, int argc, char **argv){
 				break;
 #endif
 #else
-			case 'a':	/* algorithm selection */
-				if (optarg == NULL){
-					fprintf (stderr, "Option -%d requires an argument -a [0|1]\n", optopt);
-					usage(argv[0]);
-					exit(1);
-				}
-				if (strcmp(optarg, "0") == 0 || strcmp(optarg, "0") == 0) prms->algorithm_selection = 0;
-				else if (strcmp(optarg, "1") == 0 || strcmp(optarg, "1") == 0) prms->algorithm_selection = 1;
-				else if (strcmp(optarg, "2") == 0 || strcmp(optarg, "2") == 0) prms->algorithm_selection = 2;
-				else{
-					fprintf (stderr, "Unknown algorithm option\nPlease, choose between SN (0) or SEQ-TNS (1).");
-					exit(1);
-				}
-				break;
 			case 'b':	/* bootstrap */
 				if (optarg == NULL){
 					fprintf (stderr, "Option -%c requires an argument -b <int>\n", optopt);

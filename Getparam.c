@@ -104,10 +104,10 @@ void defaults_params(Params *const prms)
     prms->cooling_schedule = 0;
     /* default value that will usually be used */
     prms->seed = get_default_seed();
-
-#ifdef NP_Implementation
     // original branch-swapping algorithm
     prms->algorithm_selection = 0;
+
+#ifdef NP_Implementation
     prms->n_number_max_trees = 0; //keep all by default
 #endif
 
