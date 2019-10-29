@@ -279,13 +279,27 @@ int read_parameters(Params *prms, int argc, char **argv){
 	opterr = 0;
 
 	#ifndef NP_Implementation
-	while ((c = getopt (argc, argv, "t:c:vs:i:o:f:p:N:SC:a:h?")) != -1)
+	while ((c = getopt (argc, argv, "t:c:vs:i:o:f:p:N:SC:a:")) != -1)
 	#else
 	while ((c = getopt (argc, argv, "t:c:b:vs:i:o:f:p:a:")) != -1)
 	#endif
 	{
 		switch (c)
 		{
+			case 'a':	/* algorithm selection */
+				if (optarg == NULL){
+					fprintf (stderr, "Option -%d requires an argument -a [0|1]\n", optopt);
+					usage(argv[0]);
+					exit(1);
+				}
+				if (strcmp(optarg, "0") == 0 || strcmp(optarg, "0") == 0) prms->algorithm_selection = 0;
+				else if (strcmp(optarg, "1") == 0 || strcmp(optarg, "1") == 0) prms->algorithm_selection = 1;
+				else if (strcmp(optarg, "2") == 0 || strcmp(optarg, "2") == 0) prms->algorithm_selection = 2;
+				else{
+					fprintf (stderr, "Unknown algorithm option\nPlease, choose between SN (0) or SEQ-TNS (1).\n");
+					exit(1);
+				}
+				break;
 			case 'c':	/* cooling schedule */
 				if (optarg == NULL){
 					fprintf (stderr, "Option -%c requires an argument -c [g|l]\n", optopt);
@@ -411,20 +425,6 @@ int read_parameters(Params *prms, int argc, char **argv){
 				#ifndef NP_Implementation
 			case 'S':	/* number of seeds to try */
 				prms->n_flag_save_read_states = DO_SAVE_READ_STATES;
-				break;
-			case 'a':	/* algorithm selection */
-				if (optarg == NULL){
-					fprintf (stderr, "Option -%d requires an argument -a [0|1]\n", optopt);
-					usage(argv[0]);
-					exit(1);
-				}
-				if (strcmp(optarg, "0") == 0 || strcmp(optarg, "0") == 0) prms->algorithm_selection = 0;
-				else if (strcmp(optarg, "1") == 0 || strcmp(optarg, "1") == 0) prms->algorithm_selection = 1;
-				else if (strcmp(optarg, "2") == 0 || strcmp(optarg, "2") == 0) prms->algorithm_selection = 2;
-				else{
-					fprintf (stderr, "Unknown algorithm option\nPlease, choose between SN (0) or SEQ-TNS (1).");
-					exit(1);
-				}
 				break;
 #ifndef MAP_REDUCE_SINGLE
 			case 'N':	/* number of seeds to try */
