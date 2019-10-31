@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define READFILE_H_
 
 #include "MSAInput.h"
-#include "../../DataStructure.h"
+#include "DataStructure.h"
 #include <stdio.h>
 #include <string.h>
 #include <getopt.h>
@@ -68,7 +68,7 @@ long brcnt(long n) { return (n << 1) - 3; }; /* return number of branches in unr
 #ifdef MPI_Implementation
 
 #ifdef MAP_REDUCE_SINGLE
-    #include "../../Lvb.h"
+    #include "Lvb.h"
 	#ifdef __cplusplus
 		extern "C" int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat, DataSeqPtr lvbmat_seq);
 		extern "C" void phylip_mat_dims_in_external(char *file_name, int n_file_type, long *species_ptr, long *sites_ptr, int *max_length_name);

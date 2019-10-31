@@ -49,10 +49,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	static Treestack bstack_overall;	/* overall best tree stack */
 #endif
 #ifdef NP_Implementation
-static Treestack stack_treevo;
-static Treestack bstack_overall;
+	static Treestack bstack_overall;
 #endif
-
+	static Treestack stack_treevo;
 
 static void check_stdout(void)
 /* Flush standard output, and crash verbosely on error. */
@@ -98,6 +97,10 @@ static void writeinf(Params prms, Dataptr matrix, int myMPIid, int n_process)
 			abort();
 		}
 		printf("threads                 = %d\n",  prms.n_processors_available);
+		printf("Algorithm Selection  = ");
+	    if(prms.algorithm_selection == 0) printf("Algorithm 0 (SN)\n");
+    	else if(prms.algorithm_selection == 1) printf("Algorithm 1 (SEQ-TNS)\n");
+    	else if(prms.algorithm_selection == 2) printf("Algorithm 2 (PBS)\n");
 #ifndef MAP_REDUCE_SINGLE
 		printf("#seeds to try           = %d\n", prms.n_seeds_need_to_try);
 		printf("checkpoint interval (s) = %d\n", prms.n_checkpoint_interval);
@@ -272,7 +275,7 @@ static void logtree1(Dataptr matrix, const Branch *const barray, const long star
 		/* find solution(s) */
 		maxaccept = get_random_maxaccept();
 		printf("\nmaxaccept:%ld\n", maxaccept);
-		treelength = anneal(matrix, &bstack_overall, tree, &rcstruct, initroot, t0, maxaccept,
+		treelength = anneal(matrix, &bstack_overall, &stack_treevo, tree, rcstruct, &rcstruct, initroot, t0, maxaccept,
 				maxpropose, maxfail, stdout, iter_p, log_progress, misc, mrTreeStack, mrBuffer );
 
 
@@ -458,7 +461,7 @@ static void logtree1(Dataptr matrix, const Branch *const barray, const long star
 			n_number_tried_seed = n_number_tried_seed_next;
 			maxaccept = get_random_maxaccept();
 			printf("\nProcess:%d    maxaccept:%ld\n", myMPIid, maxaccept);
-			treelength = anneal(matrix, bstack_overall, tree, &rcstruct, initroot, t0, maxaccept,
+			treelength = anneal(matrix, bstack_overall, &stack_treevo, tree, rcstruct, &rcstruct, initroot, t0, maxaccept,
 					maxpropose, maxfail, stdout, &l_iterations, myMPIid, &n_state_progress, &n_number_tried_seed_next,
 					log_progress);
 
@@ -482,7 +485,12 @@ static void logtree1(Dataptr matrix, const Branch *const barray, const long star
 					/* save it */
 					sprintf(file_name_output, "%s_%d", rcstruct.file_name_out, n_number_tried_seed); /* name of output file for this process */
 					outtreefp = clnopen(file_name_output, "w");
+					FILE * treEvo;
+					if(rcstruct.algorithm_selection ==2)
+					treEvo = fopen ("treEvo.tre","w");
 					trees_output = treestack_print(matrix, matrix_seq_data, bstack_overall, outtreefp, LVB_FALSE);
+					if(rcstruct.algorithm_selection ==2)
+					fclose(treEvo);
 					clnclose(outtreefp, file_name_output);
 					printf("\nProcess:%d   Rearrangements tried: %ld\n", myMPIid, l_iterations);
 					if (trees_output == 1L) { printf("1 most parsimonious tree of length %ld written to file '%s'\n", treelength, file_name_output); }
@@ -492,6 +500,8 @@ static void logtree1(Dataptr matrix, const Branch *const barray, const long star
 			if (n_state_progress == MESSAGE_ANNEAL_FINISHED_AND_REPEAT || n_state_progress == MESSAGE_ANNEAL_KILLED_AND_REPEAT){
 				l_iterations = 0;		/* start iterations from zero */
 				free(tree);
+				if(rcstruct.algorithm_selection ==2)
+				treestack_free(&stack_treevo);
 				treestack_free(bstack_overall);
 				printf("Process:%d   try seed number process:%d   new seed:%d", myMPIid, n_number_tried_seed_next, rcstruct.seed);
 				rinit(rcstruct.seed); /* at this point the structure has a need see passed by master process */
@@ -1263,10 +1273,16 @@ static void logstim(void)
 
 					rinit(rcstruct.seed);
 					p_bstack_overall = treestack_new();
+					if(rcstruct.algorithm_selection ==2)
+ 	 	 	 		stack_treevo = *(treestack_new());
 					log_progress = LVB_TRUE;
 					/* get the length and the tree */
 					getsoln(matrix, matrix_seq_data, rcstruct, p_bstack_overall, enc_mat, myMPIid, log_progress);
 					/* "file-local" dynamic heap memory */
+					//if(rcstruct.algorithm_selection ==2)
+					//treestack_print(matrix, &stack_treevo, treEvo, LVB_FALSE);
+					if(rcstruct.algorithm_selection ==2)
+					treestack_free(&stack_treevo);
 					treestack_free(p_bstack_overall);
 
 					/* only print the time end the process finish */
@@ -1317,6 +1333,8 @@ static void logstim(void)
 	    phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix, matrix_seq_data);
 	    /* "file-local" dynamic heap memory: set up best tree stacks, need to be by thread */
 	    bstack_overall = *(treestack_new());
+		if(rcstruct.algorithm_selection ==2)
+ 	 	stack_treevo = *(treestack_new());
 	    matchange(matrix, matrix_seq_data, rcstruct);	/* cut columns */
             writeinf(rcstruct, matrix, misc.rank, misc.nprocs);
 	    calc_distribution_processors(matrix, rcstruct);
@@ -1328,12 +1346,17 @@ static void logstim(void)
             log_progress = LVB_TRUE;
 
 	    if (misc.rank == 0) outtreefp = clnopen(rcstruct.file_name_out, "w");
+		FILE * treEvo;
+		if(rcstruct.algorithm_selection ==2)
+		treEvo = fopen ("treEvo.tre","w");
 	    iter = 0;
 	    final_length = getsoln(matrix, matrix_seq_data, rcstruct, &iter, log_progress, &misc, mrTreeStack, mrBuffer);
 	    if (misc.rank == 0) {
 	       trees_output = treestack_print(matrix, matrix_seq_data, &bstack_overall, outtreefp, LVB_FALSE);
 	    }
 	    trees_output_total += trees_output;
+		//if(rcstruct.algorithm_selection ==2)
+		//treestack_print(matrix, &stack_treevo, treEvo, LVB_FALSE);
 	    treestack_clear(&bstack_overall);
 
 	    /* clean the TreeStack and buffer */
@@ -1342,6 +1365,8 @@ static void logstim(void)
 	    /* END clean the TreeStack and buffer */
 
 	    if (misc.rank == 0) {
+			if(rcstruct.algorithm_selection ==2)
+			fclose(treEvo);
 	    	clnclose(outtreefp, rcstruct.file_name_out);
 			printf("\n");
 
@@ -1358,6 +1383,8 @@ static void logstim(void)
 	    free(matrix);
 
 	    /* "file-local" dynamic heap memory */
+		if(rcstruct.algorithm_selection ==2)
+		// treestack_free(matrix, &stack_treevo);
 	    treestack_free(&bstack_overall);
 
 	    if (cleanup() == LVB_TRUE) val = EXIT_FAILURE;

@@ -193,7 +193,7 @@ foreach $test_dir (@test_dirs)
 		@obj_files = grep { /\.o$/ } @orig_file_list;
 		$com = "$ENV{CC} $ENV{CFLAGS} -c main.c -I ../../../$ENV{LVB_HEADER_PATH} -o main.o;"
 			. " $ENV{GPLUSPLUS} $ENV{CFLAGS} -I ../../../$ENV{LVB_HEADER_PATH} -o testprog.exe main.o @obj_files $ENV{LVB_LIBRARY} "
-			. "$ENV{LVB_OTHERLIBS} ../../../../LVB_READ_FILES/src/MSAInput.o ../../../../LVB_READ_FILES/src/InputOptions.o";
+			. "$ENV{LVB_OTHERLIBS} ../../../MSAInput.o ../../../InputOptions.o";
 		$com =~ s/My Documents/'My Documents'/g;
 		# Change DOS directory separator to Unix-style directory separator
 		$com =~ s/\\/\//g;

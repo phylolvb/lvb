@@ -194,7 +194,7 @@ foreach $test_dir (@test_dirs)
 		#$lvb_otherlibs =~ s/\.o/\.o /g;
 		$com = "$ENV{CC} $ENV{CFLAGS} -c main.c -I ../../../$ENV{LVB_HEADER_PATH} -o main.o;"
 			. " $ENV{'MPIC++'} $ENV{CFLAGS} -I ../../../$ENV{LVB_HEADER_PATH} -o testprog.exe main.o $ENV{LVB_LIBRARY} "
-			. "$lvb_otherlibs ../../../../LVB_READ_FILES/src/MSAInput.o ../../../../LVB_READ_FILES/src/InputOptions.o";
+			. "$lvb_otherlibs ../../../MSAInput.o ../../../InputOptions.o";
 		# Build the executable
 		! `$com` or die "Cannot compile testprog.exe";
     }

@@ -66,7 +66,7 @@
 # Directories
 TEST_DIR = ./test/src
 DOCS_PROG_DIR = ./docs_programmer
-LVB_READ_FILE_DIR = ./LVB_READ_FILES/src
+# LVB_READ_FILE_DIR = ./LVB_READ_FILES/src
 
 ### define a c++ compiler to your platform 
 G++ = g++
@@ -129,8 +129,8 @@ LVB_LIB_OBJS = Admin.$(OBJ) \
                Trops.$(OBJ) \
                Wrapper.$(OBJ)
 
-LVB_READ_FILE_OBJS = 	$(LVB_READ_FILE_DIR)/MSAInput.$(OBJ) \
-			$(LVB_READ_FILE_DIR)/InputOptions.$(OBJ)
+LVB_READ_FILE_OBJS = 	$(LVB_READ_FILE_DIR)MSAInput.$(OBJ) \
+			$(LVB_READ_FILE_DIR)InputOptions.$(OBJ)
 
 LVB_LIB_OBJS_OUTPUT = $(LVB_LIB_OBJS)
 

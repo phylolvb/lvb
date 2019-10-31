@@ -104,7 +104,7 @@
 # Directories
 TEST_DIR = ./test/src
 DOCS_PROG_DIR = ./docs_programmer
-LVB_READ_FILE_DIR = ./LVB_READ_FILES/src
+# LVB_READ_FILE_DIR = ./LVB_READ_FILES/src
 
 ### define compilers and compiler options
 MPIC++ = mpic++
@@ -126,7 +126,7 @@ else
 	CXXFLAGS += -DMPI_Implementation -DMAP_REDUCE_SINGLE
 	## LM = -lm /gpfs/stfc/local/HCP006/mdw02/cxk42-mdw02/LIBs/mrmpi-22Nov13/src/libmrmpi_mpicc.a
 	## LM = -lm /home/s1880345/bin/libmrmpi_mpicc.a
-	LM = -lm /home/joe/Packages/mrmpi-7Apr14/src/libmrmpi_mpicc.a
+	 LM = -lm /home/joe/Packages/mrmpi-7Apr14/src/libmrmpi_mpicc.a
 endif
 
 # System-dependent macros - OK for Linux and UNIX-like systems, for others will
@@ -204,8 +204,8 @@ else
 	LVB_LIB_OBJS += MRsubroutine.$(OBJ)
 endif
 
-LVB_READ_FILE_OBJS = 	$(LVB_READ_FILE_DIR)/MSAInput.$(OBJ) \
-						$(LVB_READ_FILE_DIR)/InputOptions.$(OBJ)
+LVB_READ_FILE_OBJS = 	$(LVB_READ_FILE_DIR)MSAInput.$(OBJ) \
+						$(LVB_READ_FILE_DIR)InputOptions.$(OBJ)
 
 LVB_PROG_OBJS = Main.$(OBJ)
 LVB_LIB_OBJS_OUTPUT = $(LVB_LIB_OBJS)

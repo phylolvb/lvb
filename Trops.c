@@ -416,21 +416,36 @@ void mutate_spr(Dataptr restrict matrix, Branch *const desttree, const Branch *c
 
 } /* end mutate_spr() */
 
-#ifdef NP_Implementation
+#ifndef NP_Implementation
+void mutate_tbr(Dataptr restrict matrix, Branch *const desttree, const Branch *const sourcetree, long root)
+#else
 void mutate_tbr(Dataptr restrict matrix, Branch *const desttree, const Branch *const sourcetree, int root)
+#endif
 /* make a copy of the tree sourcetree (of root root) in desttree,
  * with a random change in topology, the change being caused by subtree
  * pruning and regrafting (SPR) rearrangement */
 {
-    int src;				/* branch to move */
-    int dest;				/* destination of branch to move */
+    #ifndef NP_Implementation
+    long src;					/* branch to move */
+    long dest;					/* destination of branch to move */
+    long dest_parent;			/* parent of destination branch */
+    long src_parent;			/* parent of branch to move */
+    long excess_br;				/* branch temporarily excised */
+    long orig_child = UNSET;	/* original child of destination */
+    long parents_par;			/* parent of parent of br. to move */
+    long src_sister;			/* sister of branch to move */
+    Branch *tree;				/* destination tree */
+	#else
+	int src;					/* branch to move */
+    int dest;					/* destination of branch to move */
     int dest_parent;			/* parent of destination branch */
     int src_parent;			/* parent of branch to move */
-    int excess_br;			/* branch temporarily excised */
-    int orig_child = UNSET;		/* original child of destination */
+    int excess_br;				/* branch temporarily excised */
+    int orig_child = UNSET;	/* original child of destination */
     int parents_par;			/* parent of parent of br. to move */
     int src_sister;			/* sister of branch to move */
-    Branch *tree;			/* destination tree */
+    Branch *tree;				/* destination tree */
+	#endif
 
 		int oldroot;	
 		int current;							/* current branch */
@@ -507,14 +522,14 @@ void mutate_tbr(Dataptr restrict matrix, Branch *const desttree, const Branch *c
     lvb_assert(orig_child != UNSET);
     tree[orig_child].parent = excess_br;
 
-		if (oldparent == NULL) oldparent = alloc(matrix->nbranches * sizeof(int), "old parent alloc");
+		if (oldparent == NULL) oldparent = (int *) alloc(matrix->nbranches * sizeof(int), "old parent alloc");
 
 		int size = count(tree, src);
 		int *arr=NULL;
-		if (arr == NULL) arr = malloc(size * sizeof(*arr));
+		if (arr == NULL) arr = (int *) malloc(size * sizeof(*arr));
 
 		int *mid_nodes=NULL;
-		if (mid_nodes == NULL) mid_nodes = malloc(size * sizeof(*mid_nodes));
+		if (mid_nodes == NULL) mid_nodes = (int *) malloc(size * sizeof(*mid_nodes));
 		int i = 0;
 
 	/*reroot source branch (only if size of subtree > than 2) */
@@ -627,7 +642,6 @@ int addtoarray(Branch *const tree, int current, int arr[], int i)
 		i = addtoarray(tree, tree[current].right, arr, i);
 	return i;
 }
-#endif
 
 #ifndef NP_Implementation
 long lvb_reroot(Dataptr restrict matrix, Branch *const barray, const long oldroot, const long newroot, Lvb_bool b_with_sset)

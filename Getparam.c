@@ -43,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <unistd.h>
 
 #ifdef MAP_REDUCE_SINGLE
-	#include "LVB_READ_FILES/src/InputOptions.h"
+	#include "InputOptions.h"
 #else
 	int read_parameters(Params *prms, int argc, char **argv);
 #endif
