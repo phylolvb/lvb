@@ -268,8 +268,8 @@ void usage(char *p_file_name)
 				"          Default: all of them will be saved.\n");
 	printf("    -h print help.\n");
 	printf("    -? print help.\n");
-	exit(0);
 	#endif
+	exit(0);
 }
 
 

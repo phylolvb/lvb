@@ -58,14 +58,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 		int macro_nblocks = 1;
 		totalnvalues = nvalues;
-		cerr << "totalnvalues 1 = " << totalnvalues << endl;
+	//	cerr << "totalnvalues 1 = " << totalnvalues << endl;
 
 		MapReduce *macro_mr = NULL;
 		if (!(multivalue)) {
 			macro_mr = (MapReduce *) (valuebytes);
 			totalnvalues = macro_mr->multivalue_blocks(macro_nblocks);
 		}
-		cerr << "totalnvalues 2 = " << totalnvalues << endl;
+	//	cerr << "totalnvalues 2 = " << totalnvalues << endl;
 
 		for (int macro_iblock = 0; macro_iblock < macro_nblocks; macro_iblock++) {
 			if (macro_mr)
@@ -73,7 +73,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 			check = 0;
 		   value = multivalue;
-		   cerr << "value 2 0 = " << *value << " " << nvalues << endl;
+		//   cerr << "value 2 0 = " << *value << " " << nvalues << endl;
 		   for (int i=0; i<nvalues; i++) {
 				ID = *(int *) value;
 				if(ID == 0) {
@@ -82,18 +82,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 				}
 				value += valuebytes[i];
 				ID = *(int *) value;
-				cerr << "value 2 = " << i << " " << ID << endl;
+		//		cerr << "value 2 = " << i << " " << ID << endl;
 		   }
 
 		   if (check == 1) {
 				value = multivalue;
-				cerr << "value 3 0 = " << *value << endl;
+		//		cerr << "value 3 0 = " << *value << endl;
 				for (int i=0; i<nvalues; i++) {
 					ID = *(int *) value;
 					misc->count[ID]++;
 					value += valuebytes[i];
 					ID = *(int *) value;
-					cerr << "value 3 = " << i << " " << ID << " " << valuebytes[i] << endl;
+		//			cerr << "value 3 = " << i << " " << ID << " " << valuebytes[i] << endl;
 				}
 		   }
 

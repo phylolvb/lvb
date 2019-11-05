@@ -511,14 +511,15 @@ int CReadFiles::read_fasta()
 			n_count_sequence += 1;
 		}
 		else{
-			#ifdef NP_Implementation
+			// #ifndef NP_Implementation
 			if (n_count_sequence == -1) { continue; }
-			#endif
+			// #endif
 			if (n_count_sequence == (int) lst_sequences.size()) lst_sequences.push_back(sz_line);
 			else lst_sequences[n_count_sequence] += sz_line;
 		}
 	}
 	filein.close();
+	//possibly here v?
 	#ifndef NP_Implementation
 	return 0;
 	#endif

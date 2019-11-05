@@ -10,7 +10,7 @@ Fernando Guntoro, Maximilian Strobl and Chris Wood.
 All rights reserved.
  
 Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
+modification, are permitted provided that the following conditions are met: 
 
 1. Redistributions of source code must retain the above copyright notice, this
 list of conditions and the following disclaimer.
@@ -522,6 +522,7 @@ void mutate_tbr(Dataptr restrict matrix, Branch *const desttree, const Branch *c
     lvb_assert(orig_child != UNSET);
     tree[orig_child].parent = excess_br;
 
+		#ifdef MAP_REDUCE_SINGLE
 		if (oldparent == NULL) oldparent = (int *) alloc(matrix->nbranches * sizeof(int), "old parent alloc");
 
 		int size = count(tree, src);
@@ -531,6 +532,17 @@ void mutate_tbr(Dataptr restrict matrix, Branch *const desttree, const Branch *c
 		int *mid_nodes=NULL;
 		if (mid_nodes == NULL) mid_nodes = (int *) malloc(size * sizeof(*mid_nodes));
 		int i = 0;
+		#else
+		if (oldparent == NULL) oldparent = alloc(matrix->nbranches * sizeof(int), "old parent alloc");
+
+		int size = count(tree, src);
+		int *arr=NULL;
+		if (arr == NULL) arr = malloc(size * sizeof(*arr));
+
+		int *mid_nodes=NULL;
+		if (mid_nodes == NULL) mid_nodes = malloc(size * sizeof(*mid_nodes));
+		int i = 0;
+		#endif
 
 	/*reroot source branch (only if size of subtree > than 2) */
 	if (size > 2) {
@@ -1696,12 +1708,12 @@ static void ssarralloc(Dataptr matrix, Objset *nobjset_2)
 				  set = (long *) alloc( sset_2[j].cnt * sizeof(long), "int array for tree comp using MR");
 				  memcpy( set, sset_2[j].set, sset_2[j].cnt * sizeof(long) );
 
-				  for (int k = 0; k < sset_2[j].cnt; k++) cerr << set[k] << "\t";
-				  cerr <<endl;
+		//		  for (int k = 0; k < sset_2[j].cnt; k++) cerr << set[k] << "\t";
+		//		  cerr <<endl;
 
 				  free(set);
 			  }
-			  cerr << " --------------------------------- " << endl;
+		//	  cerr << " --------------------------------- " << endl;
 
 		   }
 	   }
