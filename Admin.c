@@ -40,8 +40,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Lvb.h"
 
-
-
 static void functionality_check(void)
 /* To the extent possible, check that standard functions and data types match
  * LVB's expectations. Crash verbosely if they are found not to. */

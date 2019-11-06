@@ -1044,52 +1044,9 @@ static void logstim(void)
     Lvb_bool log_progress;	/* whether or not to log anneal search */
 #endif
 
-			/* entitle standard output */
-			printf("\nLVB\n\n"
-			"(c) Copyright 2003-2012 by Daniel Barker\n"
-			"(c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl\n"
-			"(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro\n"
-			"and Maximilian Strobl\n"
-			"(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro,\n"
-			"Maximilian Strobl and Chris Wood.\n"
-  			"(c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,\n"
-  			"Fernando Guntoro, Maximilian Strobl and Chris Wood.\n"
-			"All rights reserved.\n"
-			"\n"
-			"Redistribution and use in source and binary forms, with or without\n"
-			"modification, are permitted provided that the following conditions\n"
-			"are met:\n"
-			"\n"
-			"1. Redistributions of source code must retain the above copyright\n"
-			"notice, this list of conditions and the following disclaimer.\n"
-			"\n"
-			"2. Redistributions in binary form must reproduce the above\n"
-			"copyright notice, this list of conditions and the following\n"
-			"disclaimer in the documentation and/or other materials provided\n"
-			"with the distribution.\n"
-			"\n"
-			"3. Neither the name of the copyright holder nor the names of its\n"
-			"contributors may be used to endorse or promote products derived\n"
-			"from this software without specific prior written permission.\n"
-			"\n"
-			"THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS\n"
-			"\"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT\n"
-			"LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS\n"
-			"FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE\n"
-			"COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,\n"
-			"INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES\n"
-			"(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR\n"
-			"SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)\n"
-			"HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,\n"
-			"STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)\n"
-			"ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF\n"
-			"ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n\n");
-			printf("* This is %s version %s %s *\n\n", PROGNAM, LVB_VERSION, LVB_SUBVERSION);
-			printf("Literature reference:\n"
-			"Barker, D. 2004. LVB: Parsimony and simulated annealing in the\n"
-			"search for phylogenetic trees. Bioinformatics, 20, 274-275.\n\n");
-			printf("Download and support:\n"
-			"http://lvb.bio.ed.ac.uk/\n\n");
+			// entitle standard output
+			print_LVB_COPYRIGHT();
+			print_LVB_INFO();
 
 #ifdef MAP_REDUCE_SINGLE
 		}

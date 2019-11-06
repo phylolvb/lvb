@@ -341,6 +341,7 @@ Dataptr lvb_matrin(const char *);
 Dataptr matrin(const char *const);
 void mutate_deterministic(Dataptr restrict, Branch *const, const Branch *const, long, long, Lvb_bool);
 
+
 char *nextnonwspc(const char *);
 void nodeclear(Branch *const, const long);
 long objreroot(Branch *const, const long, const long);
@@ -366,6 +367,9 @@ long treestack_pop(Dataptr, Branch *, long *, Treestack *, Lvb_bool b_with_sset)
 void treeswap(Branch **const, long *const, Branch **const, long *const);
 void uint32_dump(FILE *, Lvb_bit_length);
 long words_per_row(const long);
+// info.h functions
+void print_LVB_COPYRIGHT();
+void print_LVB_INFO();
 
 #ifndef NP_Implementation
 #ifdef MAP_REDUCE_SINGLE
