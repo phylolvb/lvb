@@ -66,6 +66,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <time.h>
 #include "Myuni.h"
 #include "Mymaths.h"
+#include "clock.h"
 
 #ifdef MAP_REDUCE_SINGLE
 	#include <omp.h>
@@ -370,6 +371,9 @@ long words_per_row(const long);
 // info.h functions
 void print_LVB_COPYRIGHT();
 void print_LVB_INFO();
+//clock.h functions
+void log_Time();
+void logstim(void);
 
 #ifndef NP_Implementation
 #ifdef MAP_REDUCE_SINGLE

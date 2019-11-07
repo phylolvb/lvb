@@ -49,8 +49,8 @@ Lvb_bool cleanup(void)
 
     endtim = time(NULL);
     printf("\n");
-    printf("Ending at: %s", ctime(&endtim));
-    printf("\n");
+    // printf("Ending at: %s", ctime(&endtim));
+    // printf("\n");
 
     /* log file won't be used again */
 #ifndef MPI_Implementation

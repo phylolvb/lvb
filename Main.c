@@ -77,7 +77,7 @@ static void writeinf(Params prms, Dataptr matrix, int myMPIid, int n_process)
 /* write initial details to standard output */
 {
     printf("LVB was called as follows:\n\n");
-
+		log_Time();
 		printf("\n#########\nProcess ID: %d\n", myMPIid);
 
 		printf("cooling schedule        = ");
@@ -117,8 +117,15 @@ static void writeinf(Params prms, Dataptr matrix, int myMPIid, int n_process)
 #else
 static void writeinf(Params prms, Dataptr matrix)
 {
-    printf("LVB was called as follows:\n\n");
+    // printf("LVB was called as follows:\n\n");
+	printf("Executing: 'command line options' \n");
+	printf("Parsing MSA: '%s' \n", prms.file_name_in);
+	printf("  Taxa identified: %ld \n", matrix->n);
+	printf("  Sequences identified: %ld \n\n", matrix->original_m);
+	// printf(" %s and %s have been identified as identical \n");
+	// printf("")
 
+	log_Time();
 
     printf("Input File           = %s\n", prms.file_name_in);
     printf("Output File          = %s\n", prms.file_name_out);
@@ -697,16 +704,6 @@ int get_other_seed_to_run_a_process(){
 	#endif
 }
 
-
-static void logstim(void)
-/* log start time with message */
-{
-    time_t tim;	/* time */
-
-    tim = time(NULL);
-    printf("Starting at: %s\n", ctime(&tim));
-
-} /* end logstim() */
 
 #ifndef NP_Implementation
 #ifndef MAP_REDUCE_SINGLE
@@ -1378,7 +1375,7 @@ static void logstim(void)
     Start = clock();
     lvb_initialize();
     getparam(&rcstruct, argc, argv);
-    logstim();
+    // logstim();
 
     /* read and alloc space to the data structure */
     matrix = alloc(sizeof(DataStructure), "alloc data structure");

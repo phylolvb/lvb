@@ -2,6 +2,7 @@
 
 void print_LVB_INFO()
 {
+	cout << "================================================================================\n\n";
     cout << "LVB v." << LVB_VERSION << " ";
 	#ifdef MAP_REDUCE_SINGLE 
 		cout << LVB_MAP_REDUCE; 
@@ -12,6 +13,7 @@ void print_LVB_INFO()
             "Developed by: Joseph Guscott and Daniel Barker\n"
             "For help, see the GitHub Wiki page at: " << LVB_WIKI "\n"
             "Please send any questions to joseph.guscott@ed.ac.uk or daniel.barker.ed.ac.uk\n\n";
+	cout << "================================================================================\n\n";
 }
 
 void print_LVB_COPYRIGHT()

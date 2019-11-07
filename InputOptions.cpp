@@ -197,9 +197,9 @@ void usage(char *p_file_name)
 {
 	#ifndef NP_Implementation
 #ifdef MAP_REDUCE_SINGLE
-	printf("Usage: lvb [cvsSCiofph]\n");
+	printf("Usage: lvb -i <alignment> [options]\n");
 #else
-	printf("Usage: lvb [cvsSCNiofph]\n");
+	printf("Usage: lvb -i <alignment> [options]\n");
 #endif
 
 	printf("lvb seeks parsimonious trees from an aligned nucleotide data matrix.\n"
@@ -243,7 +243,7 @@ void usage(char *p_file_name)
 			"It uses heuristic searches consisting of simulated annealing followed\n"
 			"by hill-climbing.\n\n");
 
-	printf("Usage: lvb [dcbvsioftp]\n");
+	printf("Usage: lvb -i <alignment> [options]\n");
 	printf("\n    -b (0) bootstrap replicates, as an integer in the range 1 to %ld"
 	"\n       inclusive.", (long) MAX_BOOTSTRAPS);
 	printf("\n       Default (0).");
