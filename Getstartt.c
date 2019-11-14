@@ -46,8 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef NP_Implementation
 double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstruct, long root, int myMPIid, Lvb_bool log_progress)
 #else
-double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstruct, long root,
-		const long *weights, Lvb_bool log_progress)
+double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstruct, long root, const long *weights, Lvb_bool log_progress)
 #endif
 
 /* Determine the starting temperature for the annealing search 
@@ -112,7 +111,7 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstru
 	#endif
 
     /* Log progress to standard output if chosen*/
-    if (log_progress) printf("\nDetermining the Starting Temperature ...\n");
+	if (log_progress) printf(" Starting temperature: ");
     while (r_acc_to_prop <= 0.65)
     {
 
@@ -197,14 +196,15 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstru
 #ifndef NP_Implementation
 #ifdef MAP_REDUCE_SINGLE
     if (log_progress)
-    	printf("Starting Temperature is: %-.8g   Process: %d\n", (t - increment_size), myMPIid);
+    	// printf("%-.8g   Process: %d\n", (t - increment_size), myMPIid);
+		printf(" %-.8g\n", (t - increment_size));
 #else
     if (log_progress)
         printf("Starting Temperature is:%-.8g   Process:%d   Seed:%d\n", (t - increment_size), myMPIid, rcstruct.seed);
 #endif
 #else
 	if (log_progress)
-		printf("Starting Temperature is: %-.8f\n", (t - increment_size));
+		printf(" %-.8f\n", (t - increment_size));
 #endif
     
     /* Return the temperature last used */

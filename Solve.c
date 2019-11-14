@@ -521,6 +521,9 @@ treecopy(matrix, p_current_tree, inittree, LVB_TRUE);	/* current configuration *
 	if (rcstruct.verbose == LVB_TRUE && rcstruct.bootstraps == LVB_FALSE)
         fprintf(lenfp, "Temperature:   Rearrangement: TreeStack size: Length:\n");
 
+	if (rcstruct.verbose == LVB_FALSE && rcstruct.bootstraps == LVB_FALSE)
+        fprintf(lenfp, "\nTemperature:   Rearrangement: TreeStack size: Length:\n");
+	
 		/*Writing output to table.tsv*/
     FILE * pFile;
     char change[10]="";

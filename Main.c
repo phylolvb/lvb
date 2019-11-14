@@ -76,93 +76,114 @@ static void smessg(long start, long cycle)
 } /* end smessg() */
 
 #ifndef NP_Implementation
-static void writeinf(Params prms, Dataptr matrix, int myMPIid, int n_process)
+static void writeinf(Params prms, Dataptr matrix, int myMPIid, int n_process, int argc, char **argv)
 /* write initial details to standard output */
 {
-    printf("LVB was called as follows:\n\n");
-		log_Time();
-		printf("\n#########\nProcess ID: %d\n", myMPIid);
+	struct utsname buffer;
+	errno = 0;
+	if (uname(&buffer) !=0) 
+	{
+		perror("uname");
+		exit(EXIT_FAILURE);
+	}
 
-		printf("cooling schedule        = ");
-		if(prms.cooling_schedule == 0) printf("GEOMETRIC\n");
-		else printf("LINEAR\n");
 
-		printf("main seed               = %d\n", prms.seed);
-		printf("input file name         = %s\n",  prms.file_name_in);
-		printf("output file name        = %s\n",  prms.file_name_out);
-		if      (prms.n_file_format == FORMAT_PHYLIP)  printf("format input file       = phylip\n");
-		else if (prms.n_file_format == FORMAT_FASTA)   printf("format input file       = fasta\n");
-		else if (prms.n_file_format == FORMAT_NEXUS)   printf("format input file       = nexus\n");
-		else if (prms.n_file_format == FORMAT_MSF)     printf("format input file       = msf\n");
-		else if (prms.n_file_format == FORMAT_CLUSTAL) printf("format input file       = clustal\n");
-		else{
-			fprintf (stderr, "Error, input format file not recognized\n");
-			abort();
-		}
-		printf("threads                 = %d\n",  prms.n_processors_available);
-#ifndef MAP_REDUCE_SINGLE
-		printf("Algorithm Selection  = ");
-	    if(prms.algorithm_selection == 0) printf("Algorithm 0 (SN)\n");
-    	else if(prms.algorithm_selection == 1) printf("Algorithm 1 (SEQ-TNS)\n");
-    	else if(prms.algorithm_selection == 2) printf("Algorithm 2 (PBS)\n");
-		printf("#seeds to try           = %d\n", prms.n_seeds_need_to_try);
-		printf("checkpoint interval (s) = %d\n", prms.n_checkpoint_interval);
-#endif
-		printf("mpi processes           = %d\n", n_process);
-		if (prms.n_flag_save_read_states == DONT_SAVE_READ_STATES) printf("Don't read and save states at a specific time points\n");
-		else printf("It is going to read and save states at a specific time points\n\n");
-
-		printf("\n#Species                = %ld\n", matrix->n);
-		printf("Length of Sequences:\n");
-		printf("    Before cut          = %ld\n", matrix->original_m);
-		printf("    After cut           = %ld\n", matrix->m);
-} /* end writeinf() */ 
-#else
-static void writeinf(Params prms, Dataptr matrix)
-{
-    // printf("LVB was called as follows:\n\n");
-	printf("Executing: 'command line options' \n");
-	printf("Parsing MSA: '%s' \n", prms.file_name_in);
-	printf("  Taxa identified: %ld \n", matrix->n);
-	printf("  Sequences identified: %ld \n\n", matrix->original_m);
-	// printf(" %s and %s have been identified as identical \n");
-	// printf("")
-
+	printf("Executing: ");
+	printf("' ");
+	for (int i = 0; i < argc; ++i)
+	printf("%s ", argv[i]);
+	printf("' at: ");
 	log_Time();
+	printf("\n");
+	// Causes linker error 
+	// printf("Host Machine: %s %s, %s (%d processors configured and %d processors available)\n\n", buffer.nodename, buffer.machine, buffer.sysname, get_nprocs_conf(), get_nprocs());
 
-    printf("Input File           = %s\n", prms.file_name_in);
-    printf("Output File          = %s\n", prms.file_name_out);
-    printf("Number of Taxa       = %ld\n", matrix->n);
-    printf("Length of Sequences:\n");
-    printf("    Before cut       = %ld\n", matrix->original_m);
-    printf("    After cut        = %ld\n\n", matrix->m);
-
-    printf("Algorithm Selection  = ");
-    if(prms.algorithm_selection == 0) printf("Algorithm 0 (SN)\n");
-    else if(prms.algorithm_selection == 1) printf("Algorithm 1 (SEQ-TNS)\n");
-    else if(prms.algorithm_selection == 2) printf("Algorithm 2 (PBS)\n");
-
-    printf("Bootstrap Replicates = %ld\n", prms.bootstraps);
-
-    printf("Cooling Schedule     = ");
-    if(prms.cooling_schedule == 0) printf("GEOMETRIC\n");
-    else printf("LINEAR\n");
-
-    if (prms.n_file_format == FORMAT_PHYLIP) printf("Format Input File    = PHYLIP\n");
-    else if (prms.n_file_format == FORMAT_FASTA) printf("Format Input File    = FASTA\n");
-    else if (prms.n_file_format == FORMAT_NEXUS) printf("Format Input File    = NEXUS\n");
-    else if (prms.n_file_format == FORMAT_CLUSTAL) printf("Format Input File    = CLUSTAL\n");
+	printf("Analysis Properties: \n");
+	printf("  Alignment:          '%s'\n", prms.file_name_in);
+	printf("  MSA format:          ");
+	if (prms.n_file_format == FORMAT_PHYLIP) printf("PHYLIP\n");
+    else if (prms.n_file_format == FORMAT_FASTA) printf("FASTA\n");
+    else if (prms.n_file_format == FORMAT_NEXUS) printf("NEXUS\n");
+    else if (prms.n_file_format == FORMAT_CLUSTAL) printf("CLUSTAL\n");
     else{
     	fprintf (stderr, "Error, input format file not recognized\n");
     	abort();
     }
+	printf("  MSA size:            %ld x %ld\n", matrix->n, matrix->original_m);
+	//printf("    After cut =%ld\n", matrix->m);
+	printf("  Seed:                %d\n", prms.seed);
+	printf("  Cooling schedule:    ");
+    if(prms.cooling_schedule == 0) printf("GEOMETRIC\n");
+    else printf("LINEAR\n");
+	printf("  Algorithm: ");
+    if(prms.algorithm_selection == 0) printf("          0 (SN)\n");
+    else if(prms.algorithm_selection == 1) printf("          1 (SEQ-TNS)\n");
+    else if(prms.algorithm_selection == 2) printf("          2 (PBS)\n");
 
-    printf("Seed                 = %d\n", prms.seed);
-    printf("Threads Requested    = %d\n", prms.n_processors_available);
+	printf("\nParallelisation Properties: \n");
+	printf("MPI processes:         %d\n", n_process);
+	printf("Current process ID:    %d\n", myMPIid);
+	printf("PThreads:              %d\n", prms.n_processors_available);
+	//	printf("output file name        = %s\n",  prms.file_name_out);
+#ifndef MAP_REDUCE_SINGLE
+	printf("#seeds to try           = %d\n", prms.n_seeds_need_to_try);
+	printf("checkpoint interval (s) = %d\n", prms.n_checkpoint_interval);
+#endif
+	printf("\n================================================================================\n");	
+	printf("\nInitialising search: \n");
+	// if (prms.n_flag_save_read_states == DONT_SAVE_READ_STATES) printf("Don't read and save states at a specific time points\n");
+	// else printf("It is going to read and save states at a specific time points\n\n");
+} /* end writeinf() */ 
+#else
+static void writeinf(Params prms, Dataptr matrix, int argc, char **argv)
+{
+	struct utsname buffer;
+	errno = 0;
+	if (uname(&buffer) !=0) 
+	{
+		perror("uname");
+		exit(EXIT_FAILURE);
+	}
 
 
+	printf("Executing: ");
+	printf("' ");
+	for (int i = 0; i < argc; ++i)
+	printf("%s ", argv[i]);
+	printf("' at: ");
+	log_Time();
+	printf("\n");
+	// printf("Host Machine: %s %s, %s (%d processors configured and %d processors available)\n\n", buffer.nodename, buffer.machine, buffer.sysname, get_nprocs_conf(), get_nprocs());
+	printf("Analysis Properties: \n");
+	printf("  Alignment:          '%s'\n", prms.file_name_in);
+	printf("  MSA format:          ");
+	if (prms.n_file_format == FORMAT_PHYLIP) printf("PHYLIP\n");
+    else if (prms.n_file_format == FORMAT_FASTA) printf("FASTA\n");
+    else if (prms.n_file_format == FORMAT_NEXUS) printf("NEXUS\n");
+    else if (prms.n_file_format == FORMAT_CLUSTAL) printf("CLUSTAL\n");
+    else{
+    	fprintf (stderr, "Error, input format file not recognized\n");
+    	abort();
+    }
+	printf("  MSA size:            %ld x %ld\n", matrix->n, matrix->original_m);
+	//printf("    After cut =%ld\n", matrix->m);
+	printf("  Seed:                %d\n", prms.seed);
+	printf("  Cooling schedule:    ");
+    if(prms.cooling_schedule == 0) printf("GEOMETRIC\n");
+    else printf("LINEAR\n");
+	printf("  Algorithm: ");
+    if(prms.algorithm_selection == 0) printf("          0 (SN)\n");
+    else if(prms.algorithm_selection == 1) printf("          1 (SEQ-TNS)\n");
+    else if(prms.algorithm_selection == 2) printf("          2 (PBS)\n");
 
+	printf("\nParallelisation Properties: \n");
+	printf("PThreads:              %d\n", prms.n_processors_available);
 
+	printf ("\n================================================================================\n");
+	printf("\nInitialising search: \n");
+
+	// printf("Output File          = %s\n", prms.file_name_out);
+    // printf("Bootstrap Replicates = %ld\n", prms.bootstraps);
 } /* end writeinf() */
 #endif
 
@@ -284,7 +305,7 @@ static void logtree1(Dataptr matrix, const Branch *const barray, const long star
 		MPI_Barrier(MPI_COMM_WORLD);
 		/* find solution(s) */
 		maxaccept = get_random_maxaccept();
-		printf("\nmaxaccept:%ld\n", maxaccept);
+		// printf("\nmaxaccept:%ld\n", maxaccept);
 		treelength = anneal(matrix, &bstack_overall, &stack_treevo, tree, rcstruct, &rcstruct, initroot, t0, maxaccept,
 				maxpropose, maxfail, stdout, iter_p, log_progress, misc, mrTreeStack, mrBuffer );
 
@@ -599,8 +620,8 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
     randtree(matrix, tree);	/* initialise required variables */
     ss_init(matrix, tree, enc_mat);
     initroot = 0;
-    /* t0 = get_initial_t(matrix, tree, rcstruct, initroot, weight_arr, log_progress); */
-    t0 = 0.01;
+    t0 = get_initial_t(matrix, tree, rcstruct, initroot, weight_arr, log_progress);
+    //t0 = 0.01;
 
     randtree(matrix, tree);	/* begin from scratch */
     ss_init(matrix, tree, enc_mat);
@@ -686,8 +707,8 @@ void calc_distribution_processors(Dataptr matrix, Params rcstruct){
 		matrix->n_threads_getplen = 1; /* need to pass for 1 thread because the number of words is to low */
 	}
 	#ifndef NP_Implementation
-	printf("\nthreads that will be used  = %d\n", matrix->n_threads_getplen);
-	printf("(because it is related with the size of the data)\n");
+	// printf("\nthreads that will be used  = %d\n", matrix->n_threads_getplen);
+	// printf("(because it is related with the size of the data)\n");
 }
 
 /* TODO, need to control the seeds that where processed*/
@@ -697,11 +718,11 @@ int get_other_seed_to_run_a_process(){
 // only to protect
 	if (matrix->n_threads_getplen < 1) matrix->n_threads_getplen = 1;
 
-	printf("Threads Available    = %d (possibly reduced due to limited availability)\n\n", matrix->n_threads_getplen);
+	// printf("Threads Available    = %d (possibly reduced due to limited availability)\n\n", matrix->n_threads_getplen);
 
-    printf("Begin cycle: \n\n");
-    if (rcstruct.verbose == LVB_FALSE && rcstruct.bootstraps == LVB_FALSE)
-        printf("Temperature:   Rearrangement: TreeStack size: Length:\n");
+    // printf("Begin cycle: \n\n");
+//    if (rcstruct.verbose == LVB_FALSE && rcstruct.bootstraps == LVB_FALSE)
+//        printf("Temperature:   Rearrangement: TreeStack size: Length:\n");
 	// if (rcstruct.n_processors_available != matrix->n_threads_getplen)
 	//	printf("Reduced based on the size of the dataset\n");
 	#endif
@@ -1060,7 +1081,7 @@ int get_other_seed_to_run_a_process(){
 
 			n_error_code = getparam(&rcstruct, argc, argv);
 			if (n_error_code == EXIT_SUCCESS){
-				logstim();
+				//logstim();
 				/* read and alloc space to the data structure */
 				n_error_code = phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix, matrix_seq_data);
 				if (n_error_code == EXIT_SUCCESS){
@@ -1071,7 +1092,7 @@ int get_other_seed_to_run_a_process(){
 					/* start the main process */
 					matchange(matrix, matrix_seq_data, rcstruct);	/* cut columns */
 					if (rcstruct.n_seeds_need_to_try < (num_procs - 1)) { rcstruct.n_seeds_need_to_try = num_procs - 1; }
-					writeinf(rcstruct, matrix, myMPIid, num_procs);
+					writeinf(rcstruct, matrix, myMPIid, num_procs, argc, argv);
 					calc_distribution_processors(matrix, rcstruct);
 
 					/* Allocation of the initial encoded matrix is non-contiguous because
@@ -1289,7 +1310,7 @@ int get_other_seed_to_run_a_process(){
 #else
 	/* MapReduce version */
 		n_error_code = getparam(&rcstruct, argc, argv);
-		logstim();
+		// logstim();
 	    /* read and alloc space to the data structure */
 	    matrix = (data *) alloc(sizeof(DataStructure), "alloc data structure");
 	    matrix_seq_data = (seq_data *) alloc(sizeof(DataSeqStructure), "alloc data structure");
@@ -1303,7 +1324,7 @@ int get_other_seed_to_run_a_process(){
 		#endif
  	 	stack_treevo = *(treestack_new());
 	    matchange(matrix, matrix_seq_data, rcstruct);	/* cut columns */
-            writeinf(rcstruct, matrix, misc.rank, misc.nprocs);
+            writeinf(rcstruct, matrix, misc.rank, misc.nprocs, argc, argv);
 	    calc_distribution_processors(matrix, rcstruct);
 
 	    if (rcstruct.verbose == LVB_TRUE) {
@@ -1390,7 +1411,7 @@ int get_other_seed_to_run_a_process(){
     stack_treevo = treestack_new();
 
     matchange(matrix, rcstruct);	/* cut columns */
-    writeinf(rcstruct, matrix);
+    writeinf(rcstruct, matrix, argc, argv);
     calc_distribution_processors(matrix, rcstruct);
 
     if (rcstruct.verbose == LVB_TRUE) {
@@ -1438,7 +1459,7 @@ int get_other_seed_to_run_a_process(){
             printf("Temperature:   Rearrangement: TreeStack size: Length:\n");
 			total_iter += (double) iter;
 		}
-		else  printf("\nEnd cycle\n\nTotal rearrangements tried: %ld\n", iter);
+		else  printf("\n\nTotal rearrangements tried: %ld\n", iter);
 	} while (replicate_no < rcstruct.bootstraps);
    if(rcstruct.algorithm_selection ==2)
     fclose(treEvo);
@@ -1446,7 +1467,7 @@ int get_other_seed_to_run_a_process(){
 
 	printf("\n");
 	if (rcstruct.bootstraps > 0)
-		printf("\nEnd cycle\n\nTotal rearrangements tried across all replicates: %g\n\n", total_iter);
+		printf("\n\nTotal rearrangements tried across all replicates: %g\n\n", total_iter);
 
 	if ((trees_output_total == 1L) && (rcstruct.bootstraps == 0)) {
 		printf("1 most parsimonious tree of length %ld written to file '%s'\n", final_length, rcstruct.file_name_out);
