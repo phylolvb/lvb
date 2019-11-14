@@ -146,6 +146,7 @@ LIB_EXT = a		# UNIX
 DOCS_PROGRAMMER = 	$(DOCS_PROG_DIR)/Treestack.html \
 					$(DOCS_PROG_DIR)/Main.html \
 		  			$(DOCS_PROG_DIR)/Cleanup.html \
+					$(DOCS_PROG_DIR)/clock.html \
 		  			$(DOCS_PROG_DIR)/Datops.html \
 		  			$(DOCS_PROG_DIR)/Err.html \
 		  			$(DOCS_PROG_DIR)/Fops.html \
@@ -171,6 +172,7 @@ DOCS = $(DOCS_PROGRAMMER) \
 LVB_LIB_OBJS = Admin.$(OBJ) \
 	Treestack.$(OBJ) \
 	Cleanup.$(OBJ) \
+	clock.$(OBJ) \
 	Datops.$(OBJ) \
 	Err.$(OBJ) \
 	Fops.$(OBJ) \
@@ -208,7 +210,8 @@ else
 endif
 
 LVB_READ_FILE_OBJS = 	$(LVB_READ_FILE_DIR)MSAInput.$(OBJ) \
-						$(LVB_READ_FILE_DIR)InputOptions.$(OBJ)
+						$(LVB_READ_FILE_DIR)InputOptions.$(OBJ) \
+						$(LVB_READ_FILE_DIR)info.$(OBJ) 
 
 LVB_PROG_OBJS = Main.$(OBJ)
 LVB_LIB_OBJS_OUTPUT = $(LVB_LIB_OBJS)
@@ -223,7 +226,7 @@ all : lvb_mpi			# allow 'make all' as synonym for 'make lvb'
 lvb_mpi : LVB_PROG $(DOCS)
 
 $(TEST_MANUAL) : $(TEST_DIR)/MPI/go
-		pod2html $< >$@
+		pod2html $< >$@ 
 
 LVB_PROG : $(LVB_LIB) $(LVB_PROG_OBJS)
 		$(MPIC++) $(CFLAGS) $(LDFLAGS) -o $(LVB_PROG) $(LVB_PROG_OBJS) $(LVB_READ_FILE_OBJS) $(LIBS) $(LM)

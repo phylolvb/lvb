@@ -1065,9 +1065,16 @@ int get_other_seed_to_run_a_process(){
     Lvb_bool log_progress;	/* whether or not to log anneal search */
 #endif
 
-			// entitle standard output
-			print_LVB_COPYRIGHT();
-			print_LVB_INFO();
+	// entitle standard output
+	#ifdef MAP_REDUCE_SINGLE
+		print_LVB_COPYRIGHT();
+		print_LVB_INFO();
+	#endif
+
+	#ifdef NP_Implementation
+	print_LVB_COPYRIGHT();
+	print_LVB_INFO();
+	#endif
 
 #ifdef MAP_REDUCE_SINGLE
 		}
