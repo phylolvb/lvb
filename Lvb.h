@@ -145,8 +145,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define MAX_N 1000000	/* max. rows */
 #define MAX_M 5000000	/* max. cols */
 #else
-#define MAX_N 15000	/* max. rows */
-#define MAX_M 30000	/* max. cols */
+#define MAX_N 1000000	/* max. rows */
+#define MAX_M 5000000	/* max. cols */
 #endif
 
 /* implementation-independent limits */
