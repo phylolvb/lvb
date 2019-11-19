@@ -210,7 +210,7 @@ long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *c
 						}
 
 					}
-					if ((log_progress == LVB_TRUE) && ((*current_iter % STAT_LOG_INTERVAL) == 0)) {
+					if ((log_progress == LVB_TRUE) && ((*current_iter % rcstruct.STAT_LOG_INTERVAL) == 0)) {
 					   if(misc->rank == 0) lenlog(lenfp, bstackp, *current_iter, len, 0);
 					}
 #else
@@ -225,7 +225,7 @@ long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *c
 							treeswap(&p_current_tree, &root, &p_proposed_tree, &rootdash);
 						}
 					}
-					if ((log_progress == LVB_TRUE) && ((*current_iter % STAT_LOG_INTERVAL) == 0)) {
+					if ((log_progress == LVB_TRUE) && ((*current_iter % rcstruct.STAT_LOG_INTERVAL) == 0)) {
 						lenlog(lenfp, bstackp, myMPIid, *current_iter, len, 0);
 					}
 #endif
@@ -256,7 +256,7 @@ if (deltalen <= 0) {
 						treeswap(&p_current_tree, &root, &p_proposed_tree, &rootdash);
 					}
 				}
-				if ((log_progress == LVB_TRUE) && ((*current_iter % STAT_LOG_INTERVAL) == 0)) {
+				if ((log_progress == LVB_TRUE) && ((*current_iter % rcstruct.STAT_LOG_INTERVAL) == 0)) {
 					lenlog(lenfp, bstackp, *current_iter, len, 0);
 				}
 				*current_iter += 1;
@@ -549,7 +549,7 @@ treecopy(matrix, p_current_tree, inittree, LVB_TRUE);	/* current configuration *
 			/* occasionally re-root, to prevent influence from root position */
 			if ((*current_iter % REROOT_INTERVAL) == 0) {
 				root = arbreroot(matrix, p_current_tree, root);
-				if ((log_progress == LVB_TRUE) && ((*current_iter % STAT_LOG_INTERVAL) == 0)) {
+				if ((log_progress == LVB_TRUE) && ((*current_iter % rcstruct.STAT_LOG_INTERVAL) == 0)) {
 	        		   if(misc->rank == 0)  lenlog(lenfp, bstackp, *current_iter, len, t);
 	        		}
 			}
@@ -557,7 +557,7 @@ treecopy(matrix, p_current_tree, inittree, LVB_TRUE);	/* current configuration *
 			/* occasionally re-root, to prevent influence from root position */
 			if ((*current_iter % REROOT_INTERVAL) == 0){
 				root = arbreroot(matrix, p_current_tree, root);
-				if ((log_progress == LVB_TRUE) && ((*current_iter % STAT_LOG_INTERVAL) == 0)) {
+				if ((log_progress == LVB_TRUE) && ((*current_iter % rcstruct.STAT_LOG_INTERVAL) == 0)) {
 					lenlog(lenfp, bstackp, myMPIid, *current_iter, len, t);
 
 					/* send temperature to the master process*/
@@ -767,7 +767,7 @@ while (1) {
 		/* occasionally re-root, to prevent influence from root position */
 		if ((*current_iter % REROOT_INTERVAL) == 0){
 			root = arbreroot(matrix, p_current_tree, root);
-			if ((log_progress == LVB_TRUE) && ((*current_iter % STAT_LOG_INTERVAL) == 0)) {
+			if ((log_progress == LVB_TRUE) && ((*current_iter % rcstruct.STAT_LOG_INTERVAL) == 0)) {
         		lenlog(lenfp, bstackp, *current_iter, len, t);
         	}
 		}

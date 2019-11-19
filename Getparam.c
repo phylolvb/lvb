@@ -109,6 +109,8 @@ void defaults_params(Params *const prms)
     prms->seed = get_default_seed();
     // original branch-swapping algorithm
     prms->algorithm_selection = 0;
+    // default log interval
+    prms->STAT_LOG_INTERVAL = 50000;
 
 #ifdef NP_Implementation
     prms->n_number_max_trees = 0; //keep all by default

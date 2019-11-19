@@ -133,7 +133,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* values some people may feel the dangerous urge to change */
 #define LVB_INPUTSTRING_SIZE 2000	/* max. bytes for interactive input */
 #define REROOT_INTERVAL 1000		/* change root every ... updates */
-#define STAT_LOG_INTERVAL 50000	/* min. interval for progress log */
+// #define STAT_LOG_INTERVAL 10000	/* min. interval for progress log */
 #define UNSET (-1)			/* value of integral vars when unset */
 
 #ifndef NP_Implementation

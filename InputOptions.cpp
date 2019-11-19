@@ -282,9 +282,9 @@ int read_parameters(Params *prms, int argc, char **argv){
 	opterr = 0;
 
 	#ifndef NP_Implementation
-	while ((c = getopt (argc, argv, "t:c:vs:i:o:f:p:N:SC:a:")) != -1)
+	while ((c = getopt (argc, argv, "t:c:vs:i:o:l:f:p:N:SC:a:")) != -1)
 	#else
-	while ((c = getopt (argc, argv, "t:c:b:vs:i:o:f:p:a:")) != -1)
+	while ((c = getopt (argc, argv, "t:c:b:vs:i:o:l:f:p:a:")) != -1)
 	#endif
 	{
 		switch (c)
@@ -336,6 +336,16 @@ int read_parameters(Params *prms, int argc, char **argv){
 					#endif
 				}
 				prms->seed = atoi(optarg);
+				break;
+			case 'l':	/* log_interval	 */
+				if (optarg == NULL){
+					fprintf (stderr, "Option -%c requires an argument -s <int>\n", optopt);
+					usage(argv[0]);
+					#ifndef NP_Implementation
+					return 1;
+					#endif
+				}
+				prms->STAT_LOG_INTERVAL = atoi(optarg);
 				break;
 			case 'i':	/* file name in */
 				if (optarg == NULL){

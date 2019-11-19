@@ -125,6 +125,7 @@ typedef struct
      int n_file_format;		                /* number of file format, must be FORMAT_PHYLIP, FORMAT_FASTA, FORMAT_NEXUS, FORMAT_MSF, FORMAT_CLUSTAL*/
      int algorithm_selection;                  // algorithm selection: 0 = SPR+NNI, 2 = SPR+NNI+TBR, 3 = SPR+NNI+TBR
      int n_processors_available;	        /* number of processors available */
+     int STAT_LOG_INTERVAL;                      // log interval
 
       #ifndef NP_Implementation
       int n_seeds_need_to_try;	                /* number of seeds that go to try, minimum is the number of mpi process */
