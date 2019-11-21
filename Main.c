@@ -1367,6 +1367,8 @@ int get_other_seed_to_run_a_process(){
 	    	clnclose(outtreefp, rcstruct.file_name_out);
 			printf("\n");
 
+		printf("Total rearrangements tried: %ld\n", iter);
+
 			if (trees_output_total == 1L) {
 			   printf("1 most parsimonious tree of length %ld written to file '%s'\n", final_length, rcstruct.file_name_out);
 			}
