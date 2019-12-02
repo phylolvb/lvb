@@ -111,7 +111,7 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstru
 	#endif
 
     /* Log progress to standard output if chosen*/
-	if (log_progress) printf(" Starting temperature: ");
+	if (log_progress) printf("  Starting temperature: ");
     while (r_acc_to_prop <= 0.65)
     {
 

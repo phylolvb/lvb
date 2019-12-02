@@ -529,7 +529,7 @@ static void logtree1(Dataptr matrix, const Branch *const barray, const long star
 					clnclose(outtreefp, file_name_output);
 					printf("\nProcess:%d   Rearrangements tried: %ld\n", myMPIid, l_iterations);
 					if (trees_output == 1L) { printf("1 most parsimonious tree of length %ld written to file '%s'\n", treelength, file_name_output); }
-					else { printf("%ld equally parsimonious trees of length %ld written to file '%s'\n", trees_output, treelength, file_name_output); }
+					else { printf("%ld equally parsimonious1 trees of length %ld written to file '%s'\n", trees_output, treelength, file_name_output); }
 				}
 			}
 			if (n_state_progress == MESSAGE_ANNEAL_FINISHED_AND_REPEAT || n_state_progress == MESSAGE_ANNEAL_KILLED_AND_REPEAT){
@@ -1081,8 +1081,12 @@ int get_other_seed_to_run_a_process(){
 #endif
 
 			/* test some static values */
-			lvb_initialize();
+//			clock_t Start, End;
+//    		double Overall_Time_taken;
 
+//			Start = clock();
+			lvb_initialize();
+			
 #ifndef NP_Implementation
 #ifndef MAP_REDUCE_SINGLE
 
@@ -1316,6 +1320,13 @@ int get_other_seed_to_run_a_process(){
 
 #else
 	/* MapReduce version */
+		/* start timer */
+    clock_t Start, End;
+    double Overall_Time_taken;
+//    double Overall_Time_taken_minutes;
+//    double Overall_Time_taken_hours;
+
+    Start = clock();
 		n_error_code = getparam(&rcstruct, argc, argv);
 		// logstim();
 	    /* read and alloc space to the data structure */
@@ -1367,12 +1378,24 @@ int get_other_seed_to_run_a_process(){
 	    	clnclose(outtreefp, rcstruct.file_name_out);
 			printf("\n");
 
+			End = clock();
+			Overall_Time_taken = ((double) (End - Start)) /CLOCKS_PER_SEC;
+
 			if (trees_output_total == 1L) {
 			   printf("1 most parsimonious tree of length %ld written to file '%s'\n", final_length, rcstruct.file_name_out);
 			}
 			else {
-			   printf("%ld equally parsimonious trees of length %ld written to "
-			     "file '%s'\n", trees_output_total, final_length, rcstruct.file_name_out);
+				printf("Search Complete\n");
+				printf("\n================================================================================\n");
+				printf("\nSearch Results:\n");
+				printf("  Rearrangements evaluated: %ld\n", iter);
+				printf("  Topologies recovered:     %ld\n", trees_output_total);
+				printf("  Tree score:               %ld\n", final_length);
+				printf("  Total runtime (seconds):  %.2lf\n", Overall_Time_taken);
+				printf("\nAll topologies written to '%s'\n", rcstruct.file_name_out);
+
+			//  printf("%ld equally parsimonious2 trees of length %ld written to "
+			//  "file '%s'\n", trees_output_total, final_length, rcstruct.file_name_out);
 			}
 		}
 
@@ -1400,8 +1423,8 @@ int get_other_seed_to_run_a_process(){
 /* start timer */
     clock_t Start, End;
     double Overall_Time_taken;
-    double Overall_Time_taken_minutes;
-    double Overall_Time_taken_hours;
+//    double Overall_Time_taken_minutes;
+//    double Overall_Time_taken_hours;
 
     Start = clock();
     lvb_initialize();
@@ -1466,42 +1489,61 @@ int get_other_seed_to_run_a_process(){
             printf("Temperature:   Rearrangement: TreeStack size: Length:\n");
 			total_iter += (double) iter;
 		}
-		else  printf("\n\nTotal rearrangements tried: %ld\n", iter);
+		else  {
+		//	printf("\nSearch Complete\n");
+		//	printf("\n================================================================================\n");
+		//	printf("\nSearch Results:");
+		//	printf("  Rearrangements evaluated: %ld\n", iter);
+		//	printf("  Topologies recovered:     %ld\n", trees_output_total);
+		//	printf("  Tree score                %ld\n", final_length);
+		//	printf("\nAll topologies written to '%s'", rcstruct.file_name_out);
+		}
 	} while (replicate_no < rcstruct.bootstraps);
    if(rcstruct.algorithm_selection ==2)
     fclose(treEvo);
 	clnclose(outtreefp, rcstruct.file_name_out);
 
-	printf("\n");
-	if (rcstruct.bootstraps > 0)
-		printf("\n\nTotal rearrangements tried across all replicates: %g\n\n", total_iter);
+	//printf("\n");
+	//if (rcstruct.bootstraps > 0)
+	//		printf("\n\nTotal rearrangements tried across all replicates: %g\n\n", total_iter);
 
-	if ((trees_output_total == 1L) && (rcstruct.bootstraps == 0)) {
-		printf("1 most parsimonious tree of length %ld written to file '%s'\n", final_length, rcstruct.file_name_out);
-	}
-	else {
-		if (rcstruct.bootstraps > 0){
-			lvb_assert(trees_output_total == rcstruct.bootstraps);
-			printf("%ld trees written to file '%s'\n", trees_output_total, rcstruct.file_name_out);
-		}
-		else{
-			printf("%ld equally parsimonious trees of length %ld written to "
-			 "file '%s'\n", trees_output_total, final_length, rcstruct.file_name_out);
-		}
-    }
+	//if ((trees_output_total == 1L) && (rcstruct.bootstraps == 0)) {
+	//	printf("1 most parsimonious tree of length %ld written to file '%s'\n", final_length, rcstruct.file_name_out);
+	//}
+	//else {
+	//	if (rcstruct.bootstraps > 0){
+	//		lvb_assert(trees_output_total == rcstruct.bootstraps);
+	//		printf("%ld trees written to file '%s'\n", trees_output_total, rcstruct.file_name_out);
+	//	}lock();lock();lock();lock();
+	//	else{
+	//		printf("%ld equally parsimonious trees of length %ld written to "
+	//		 "file '%s'\n", trees_output_total, final_length, rcstruct.file_name_out);
+	//	}
+    //}
     End = clock();
+	Overall_Time_taken = ((double) (End - Start)) /CLOCKS_PER_SEC;
 
-    Overall_Time_taken = ((double) (End - Start)) /CLOCKS_PER_SEC;
-    Overall_Time_taken_minutes = Overall_Time_taken / 60;
-    Overall_Time_taken_hours = Overall_Time_taken_minutes / 60;
-    if (Overall_Time_taken <= 60)
-    printf("lvb took %.2lf seconds to complete\n", Overall_Time_taken);
-    if (Overall_Time_taken <= 3600) {
-            if (Overall_Time_taken >= 60)
-    printf("lvb took %.2lf minutes, (%.2lf seconds) to complete\n", Overall_Time_taken_minutes, Overall_Time_taken);
-    }
-    if (Overall_Time_taken >= 3600)
-         printf("lvb took %.2lf hours, (%.2lf minutes) to complete\n", Overall_Time_taken_hours, Overall_Time_taken_minutes);
+	printf("\nSearch Complete\n");
+			printf("\n================================================================================\n");
+			printf("\nSearch Results:\n");
+			printf("  Rearrangements evaluated: %ld\n", iter);
+			printf("  Topologies recovered:     %ld\n", trees_output_total);
+			printf("  Tree score:               %ld\n", final_length);
+			printf("  Total runtime (seconds):  %.2lf\n", Overall_Time_taken);
+			printf("\nAll topologies written to '%s'\n", rcstruct.file_name_out);
+
+
+    
+    //Overall_Time_taken_minutes = Overall_Time_taken / 60;
+    //Overall_Time_taken_hours = Overall_Time_taken_minutes / 60;
+    //if (Overall_Time_taken <= 60)
+    //printf("lvb took %.2lf seconds to complete\n", Overall_Time_taken);
+    //if (Overall_Time_taken <= 3600) {
+     //       if (Overall_Time_taken >= 60)
+    //printf("lvb took %.2lf minutes, (%.2lf seconds) to complete\n", Overall_Time_taken_minutes, Overall_Time_taken);
+    //}
+    //if (Overall_Time_taken >= 3600)
+    //     printf("lvb took %.2lf hours, (%.2lf minutes) to complete\n", Overall_Time_taken_hours, Overall_Time_taken_minutes);
 	/* "file-local" dynamic heap memory */
     if (rcstruct.algorithm_selection ==2)
     treestack_free(matrix, &stack_treevo);
