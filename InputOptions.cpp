@@ -247,8 +247,8 @@ void usage(char *p_file_name)
 			"by hill-climbing.\n\n");
 
 	printf("Usage: lvb -i <alignment> [options]\n");
-	printf("\n    -b (0) bootstrap replicates, as an integer in the range 1 to %ld"
-	"\n       inclusive.", (long) MAX_BOOTSTRAPS);
+//	printf("\n    -b (0) bootstrap replicates, as an integer in the range 1 to %ld"
+//	"\n       inclusive.", (long) MAX_BOOTSTRAPS);
 	printf("\n       Default (0).");
 	printf("\n    -c [g|l] (g) cooling schedule. The schedule chosen will\n"
 			"       affect the quality and speed of the simulated annealing search.\n"
@@ -467,13 +467,13 @@ int read_parameters(Params *prms, int argc, char **argv){
 				break;
 #endif
 #else
-			case 'b':	/* bootstrap */
-				if (optarg == NULL){
-					fprintf (stderr, "Option -%c requires an argument -b <int>\n", optopt);
-					usage(argv[0]);
-				}
-				prms->bootstraps = atoi(optarg);
-				break;
+		//	case 'b':	/* bootstrap */
+		//		if (optarg == NULL){
+		//			fprintf (stderr, "Option -%c requires an argument -b <int>\n", optopt);
+		//			usage(argv[0]);
+		//		}
+		//		prms->bootstraps = atoi(optarg);
+		//		break;
 			case 't':
 				if (optarg == NULL){
 					fprintf (stderr, "Option -%c requires an argument -p <file name>\n", optopt);
