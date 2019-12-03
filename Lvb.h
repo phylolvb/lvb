@@ -385,7 +385,7 @@ int get_nprocs();
 #ifndef NP_Implementation
 #ifdef MAP_REDUCE_SINGLE
 	long anneal(Dataptr restrict, Treestack *, Treestack *, const Branch *const, Params rcstruct, Params *p_rcstruct, long, const double,
-		const long, const long, const long, FILE *const, long *, Lvb_bool, MISC *misc, MapReduce *mrStackTree, MapReduce *mrBuffer);
+		const long, const long, const long, FILE *const, long *, int, Lvb_bool, MISC *misc, MapReduce *mrStackTree, MapReduce *mrBuffer);
 #else
 	long anneal(Dataptr restrict, Treestack *, Treestack *, const Branch *const, Params rcstruct, Params *p_rcstruct, long, const double,
 		const long, const long, const long, FILE *const, long *, int, int *p_n_state_progress, int *p_n_number_tried_seed, Lvb_bool);
@@ -400,7 +400,7 @@ void restore_treestack(FILE *, Treestack *, Dataptr, Lvb_bool b_with_sset);
 void dna_makebin(Dataptr restrict, DataSeqPtr matrix_seq, Lvb_bit_length **);
 #ifdef MAP_REDUCE_SINGLE
 	long deterministic_hillclimb(Dataptr, Treestack *, const Branch *const, Params rcstruct,
-			long, FILE * const, long *, Lvb_bool, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer);
+			long, FILE * const, long *, int myMPIid, Lvb_bool, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer);
 #else
 	long deterministic_hillclimb(Dataptr, Treestack *, const Branch *const, Params rcstruct,
 			long, FILE * const, long *, int myMPIid, Lvb_bool);
@@ -442,13 +442,13 @@ int addtoarray(Branch *const, int, int *, int);
 
 #else
 long anneal(Dataptr restrict, Treestack *, Treestack *, const Branch *const, Params rcstruct, long, const double,
-const long, const long, const long, FILE *const, const long *, long *, Lvb_bool);
+const long, const long, const long, FILE *const, const long *, long *, int, Lvb_bool);
 int arbreroot(Dataptr, Branch *const, const int);
 int childadd(Branch *const, const int, const int);
 void copy_sset(Dataptr restrict matrix, Objset *p_sset_1);
 void defaults_params(Params *const prms);
 long deterministic_hillclimb(Dataptr, Treestack *, const Branch *const, Params rcstruct,
-long, FILE * const, const long *, long *, Lvb_bool);
+long, FILE * const, const long *, long *, int, Lvb_bool);
 void dna_makebin(Dataptr restrict, Lvb_bit_length **);
 void dump_stack_to_screen(Dataptr matrix, Treestack *sp);
 void dump_objset_to_screen(Dataptr matrix, Objset *oset_1);

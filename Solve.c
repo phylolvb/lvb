@@ -49,15 +49,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #endif
 
-#ifndef NP_Implementation
-#ifdef MAP_REDUCE_SINGLE
-	static void lenlog(FILE *lengthfp, Treestack *bstackp, long iteration, long length, double temperature)
-#else
 	static void lenlog(FILE *lengthfp, Treestack *bstackp, int myMPIid, long iteration, long length, double temperature)
-#endif
-#else
-static void lenlog(FILE *lengthfp, Treestack *bstackp, long iteration, long length, double temperature)
-#endif
 
 	/* write a message to file pointer lengthfp; iteration gives current iteration;
 	 * crash verbosely on write error */
@@ -81,7 +73,7 @@ static void lenlog(FILE *lengthfp, Treestack *bstackp, long iteration, long leng
 #ifdef MAP_REDUCE_SINGLE
 	long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *const inittree,
 			Params rcstruct, long root, FILE * const lenfp,
-			long *current_iter, Lvb_bool log_progress, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer)
+			long *current_iter, int myMPIid, Lvb_bool log_progress, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer)
 #else
 	long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *const inittree,
 					Params rcstruct, long root, FILE * const lenfp,  long *current_iter, int myMPIid,
@@ -90,7 +82,7 @@ static void lenlog(FILE *lengthfp, Treestack *bstackp, long iteration, long leng
 #else
 long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *const inittree,
 		Params rcstruct, long root, FILE * const lenfp, const long *weights,
-		long *current_iter, Lvb_bool log_progress)
+		long *current_iter, int myMPIid, Lvb_bool log_progress)
 #endif
 	/* perform a deterministic hill-climbing optimization on the tree in inittree,
 	 * using NNI on all internal branches until no changes are accepted; return the
@@ -211,7 +203,7 @@ long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *c
 
 					}
 					if ((log_progress == LVB_TRUE) && ((*current_iter % rcstruct.STAT_LOG_INTERVAL) == 0)) {
-					   if(misc->rank == 0) lenlog(lenfp, bstackp, *current_iter, len, 0);
+					   if(misc->rank == 0) lenlog(lenfp, bstackp, myMPIid, *current_iter, len, 0);
 					}
 #else
 					if (deltalen <= 0) {
@@ -257,7 +249,7 @@ if (deltalen <= 0) {
 					}
 				}
 				if ((log_progress == LVB_TRUE) && ((*current_iter % rcstruct.STAT_LOG_INTERVAL) == 0)) {
-					lenlog(lenfp, bstackp, *current_iter, len, 0);
+					lenlog(lenfp, bstackp, myMPIid, *current_iter, len, 0);
 				}
 				*current_iter += 1;
 			}
@@ -278,7 +270,7 @@ if (deltalen <= 0) {
 #ifdef MAP_REDUCE_SINGLE
 	long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch *const inittree, Params rcstruct, Params *p_rcstruct,
 			long root, const double t0, const long maxaccept, const long maxpropose,
-			const long maxfail, FILE *const lenfp, long *current_iter,
+			const long maxfail, FILE *const lenfp, long *current_iter, int myMPIid,
 			Lvb_bool log_progress, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer)
 #else
 
@@ -290,7 +282,7 @@ if (deltalen <= 0) {
 #else
 	long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch *const inittree, Params rcstruct,
 		long root, const double t0, const long maxaccept, const long maxpropose,
-		const long maxfail, FILE *const lenfp, const long *weights, long *current_iter,
+		const long maxfail, FILE *const lenfp, const long *weights, long *current_iter, int myMPIid,
 		Lvb_bool log_progress)
 #endif
 
@@ -550,7 +542,7 @@ treecopy(matrix, p_current_tree, inittree, LVB_TRUE);	/* current configuration *
 			if ((*current_iter % REROOT_INTERVAL) == 0) {
 				root = arbreroot(matrix, p_current_tree, root);
 				if ((log_progress == LVB_TRUE) && ((*current_iter % rcstruct.STAT_LOG_INTERVAL) == 0)) {
-	        		   if(misc->rank == 0)  lenlog(lenfp, bstackp, *current_iter, len, t);
+	        		   if(misc->rank == 0)  lenlog(lenfp, bstackp, myMPIid, *current_iter, len, t);
 	        		}
 			}
 #else
@@ -768,7 +760,7 @@ while (1) {
 		if ((*current_iter % REROOT_INTERVAL) == 0){
 			root = arbreroot(matrix, p_current_tree, root);
 			if ((log_progress == LVB_TRUE) && ((*current_iter % rcstruct.STAT_LOG_INTERVAL) == 0)) {
-        		lenlog(lenfp, bstackp, *current_iter, len, t);
+        		lenlog(lenfp, bstackp, myMPIid, *current_iter, len, t);
         	}
 		}
 

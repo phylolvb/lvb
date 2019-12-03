@@ -152,7 +152,7 @@ typedef struct
         int n_iterations;		/* number of iterations */
         int n_seed;			/* seed for this temperature and iteration */
         long l_length;			/* length of the tree */
-        double temperature;		/* temperature */
+        long temperature;		/* temperature */
 } SendInfoToMaster;
 
 /* structure to use sending if is to continue and new seed if it is */

@@ -214,7 +214,7 @@ static void logtree1(Dataptr matrix, const Branch *const barray, const long star
 
 #ifndef NP_Implementation
 #ifdef MAP_REDUCE_SINGLE
-	static long getsoln(Dataptr restrict matrix, DataSeqPtr restrict matrix_seq_data, Params rcstruct, long *iter_p, Lvb_bool log_progress,
+	static long getsoln(Dataptr restrict matrix, DataSeqPtr restrict matrix_seq_data, Params rcstruct, long *iter_p, int myMPIid, Lvb_bool log_progress,
 				MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer)
 	/* get and output solution(s) according to parameters in rcstruct;
 	 * return length of shortest tree(s) found */
@@ -307,7 +307,7 @@ static void logtree1(Dataptr matrix, const Branch *const barray, const long star
 		maxaccept = get_random_maxaccept();
 		// printf("\nmaxaccept:%ld\n", maxaccept);
 		treelength = anneal(matrix, &bstack_overall, &stack_treevo, tree, rcstruct, &rcstruct, initroot, t0, maxaccept,
-				maxpropose, maxfail, stdout, iter_p, log_progress, misc, mrTreeStack, mrBuffer );
+				maxpropose, maxfail, stdout, iter_p, myMPIid, log_progress, misc, mrTreeStack, mrBuffer );
 
 
 		long val = treestack_pop(matrix, tree, &initroot, &bstack_overall, LVB_FALSE);
@@ -362,7 +362,7 @@ static void logtree1(Dataptr matrix, const Branch *const barray, const long star
 		}
 
 		treelength = deterministic_hillclimb(matrix, &bstack_overall, tree, rcstruct, initroot, stdout,
-				iter_p, log_progress, misc, mrTreeStack, mrBuffer);
+				iter_p, myMPIid, log_progress, misc, mrTreeStack, mrBuffer);
 
 
 		/* log this cycle's solution and its details
@@ -564,7 +564,7 @@ static void logtree1(Dataptr matrix, const Branch *const barray, const long star
 #endif
 
 #else
-static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight_arr, long *iter_p, Lvb_bool log_progress)
+static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight_arr, long *iter_p, int myMPIid, Lvb_bool log_progress)
 /* get and output solution(s) according to parameters in rcstruct;
  * return length of shortest tree(s) found, using weights in weight_arr */
 {
@@ -643,7 +643,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
 
     /* find solution(s) */
     treelength = anneal(matrix, &bstack_overall, &stack_treevo, tree, rcstruct, initroot, t0, maxaccept,
-    maxpropose, maxfail, stdout, weight_arr, iter_p, log_progress);
+    maxpropose, maxfail, stdout, weight_arr, iter_p, myMPIid, log_progress);
     treestack_pop(matrix, tree, &initroot, &bstack_overall, LVB_FALSE);
     treestack_push(matrix, &bstack_overall, tree, initroot, LVB_FALSE);
 
@@ -1036,6 +1036,7 @@ int get_other_seed_to_run_a_process(){
 		long final_length;		/* length of shortest tree(s) found */
 		FILE *outtreefp;		/* best trees found overall */
 		Lvb_bool log_progress;	/* whether or not to log anneal search */
+		int myMPIid;
 
 		MapReduce *mrTreeStack = new MapReduce(MPI_COMM_WORLD);
 		mrTreeStack->memsize = 1024;
@@ -1063,6 +1064,7 @@ int get_other_seed_to_run_a_process(){
     FILE *outtreefp;		/* best trees found overall */
     long *weight_arr;  		/* weights for sites */
     Lvb_bool log_progress;	/* whether or not to log anneal search */
+	int myMPIid;
 #endif
 
 	// entitle standard output
@@ -1358,7 +1360,7 @@ int get_other_seed_to_run_a_process(){
 		treEvo = fopen ("treEvo.tre","w");
 		#endif
 	    iter = 0;
-	    final_length = getsoln(matrix, matrix_seq_data, rcstruct, &iter, log_progress, &misc, mrTreeStack, mrBuffer);
+	    final_length = getsoln(matrix, matrix_seq_data, rcstruct, &iter, myMPIid, log_progress, &misc, mrTreeStack, mrBuffer);
 	    if (misc.rank == 0) {
 	       trees_output = treestack_print(matrix, matrix_seq_data, &bstack_overall, outtreefp, LVB_FALSE);
 	    }
@@ -1468,7 +1470,7 @@ int get_other_seed_to_run_a_process(){
 			for (i = 0; i < matrix->m; i++) weight_arr[i] = 1;
 		}
 
-		final_length = getsoln(matrix, rcstruct, weight_arr, &iter, log_progress);
+		final_length = getsoln(matrix, rcstruct, weight_arr, &iter, myMPIid, log_progress);
 
 		if (rcstruct.bootstraps > 0) trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_TRUE);
 		else trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_FALSE);
