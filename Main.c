@@ -493,8 +493,7 @@ static void logtree1(Dataptr matrix, const Branch *const barray, const long star
 			maxaccept = get_random_maxaccept();
 			printf("\nProcess:%d    maxaccept:%ld\n", myMPIid, maxaccept);
 			treelength = anneal(matrix, bstack_overall, &stack_treevo, tree, rcstruct, &rcstruct, initroot, t0, maxaccept,
-					maxpropose, maxfail, stdout, &l_iterations, myMPIid, &n_state_progress, &n_number_tried_seed_next,
-					log_progress);
+					maxpropose, maxfail, stdout, &l_iterations, myMPIid, log_progress, &n_state_progress, &n_number_tried_seed_next);
 
 	/* 		Several possible outputs */
 	/*		ANNEAL_FINISHED_AND_NOT_REPEAT		0x01
@@ -642,8 +641,8 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
     }
 
     /* find solution(s) */
-    treelength = anneal(matrix, &bstack_overall, &stack_treevo, tree, rcstruct, initroot, t0, maxaccept,
-    maxpropose, maxfail, stdout, weight_arr, iter_p, myMPIid, log_progress);
+    treelength = anneal(matrix, &bstack_overall, &stack_treevo, tree, rcstruct, &rcstruct, initroot, t0, maxaccept,
+    maxpropose, maxfail, stdout, iter_p, myMPIid, log_progress, weight_arr);
     treestack_pop(matrix, tree, &initroot, &bstack_overall, LVB_FALSE);
     treestack_push(matrix, &bstack_overall, tree, initroot, LVB_FALSE);
 

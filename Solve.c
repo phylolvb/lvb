@@ -210,9 +210,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 					*current_iter += 1;
 				}
-#ifdef MAP_REDUCE_SINGLE
-		//		if(misc->rank == 0) cerr << *current_iter << " " << i << " " << newtree << endl;
-#endif
 			}
 	    } while (newtree == LVB_TRUE);
 
@@ -253,25 +250,20 @@ if (deltalen <= 0) {
 }
 #endif
 
+long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch *const inittree, Params rcstruct, Params *p_rcstruct,
+		long root, const double t0, const long maxaccept, const long maxpropose,
+		const long maxfail, FILE *const lenfp, long *current_iter, int myMPIid, Lvb_bool log_progress,
+
 #ifndef NP_Implementation
 #ifdef MAP_REDUCE_SINGLE
-	long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch *const inittree, Params rcstruct, Params *p_rcstruct,
-			long root, const double t0, const long maxaccept, const long maxpropose,
-			const long maxfail, FILE *const lenfp, long *current_iter, int myMPIid,
-			Lvb_bool log_progress, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer)
+		MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer
 #else
-
-	long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch *const inittree, Params rcstruct, Params *p_rcstruct,
-				long root, double t0, const long maxaccept, const long maxpropose,
-				const long maxfail, FILE *const lenfp, long *current_iter, int myMPIid,
-				int *p_n_state_progress, int *p_n_number_tried_seed, Lvb_bool log_progress)
+		int *p_n_state_progress, int *p_n_number_tried_seed
 #endif
 #else
-	long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch *const inittree, Params rcstruct,
-		long root, const double t0, const long maxaccept, const long maxpropose,
-		const long maxfail, FILE *const lenfp, const long *weights, long *current_iter, int myMPIid,
-		Lvb_bool log_progress)
+		const long *weights
 #endif
+)
 
 /* seek parsimonious tree from initial tree in inittree (of root root)
 	 * with initial temperature t0, and subsequent temperatures obtained by

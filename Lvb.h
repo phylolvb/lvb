@@ -388,7 +388,7 @@ int get_nprocs();
 		const long, const long, const long, FILE *const, long *, int, Lvb_bool, MISC *misc, MapReduce *mrStackTree, MapReduce *mrBuffer);
 #else
 	long anneal(Dataptr restrict, Treestack *, Treestack *, const Branch *const, Params rcstruct, Params *p_rcstruct, long, const double,
-		const long, const long, const long, FILE *const, long *, int, int *p_n_state_progress, int *p_n_number_tried_seed, Lvb_bool);
+		const long, const long, const long, FILE *const, long *, int, Lvb_bool, int *p_n_state_progress, int *p_n_number_tried_seed);
 #endif
 long arbreroot(Dataptr, Branch *const, const long);
 long childadd(Branch *const, const long, const long);
@@ -441,8 +441,8 @@ int count(Branch *const, int);
 int addtoarray(Branch *const, int, int *, int);
 
 #else
-long anneal(Dataptr restrict, Treestack *, Treestack *, const Branch *const, Params rcstruct, long, const double,
-const long, const long, const long, FILE *const, const long *, long *, int, Lvb_bool);
+long anneal(Dataptr restrict, Treestack *, Treestack *, const Branch *const, Params rcstruct, Params *p_rcstruct, long, const double,
+const long, const long, const long, FILE *const, long *, int, Lvb_bool, const long *);
 int arbreroot(Dataptr, Branch *const, const int);
 int childadd(Branch *const, const int, const int);
 void copy_sset(Dataptr restrict matrix, Objset *p_sset_1);
