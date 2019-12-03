@@ -54,36 +54,23 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	/* write a message to file pointer lengthfp; iteration gives current iteration;
 	 * crash verbosely on write error */
 	{
-#ifndef NP_Implementation
-#ifdef MAP_REDUCE_SINGLE
 		fprintf(lengthfp, "%-15.8g%-15ld%-16ld%-15ld\n", temperature, iteration, bstackp->next, length);
-#else
-		fprintf(lengthfp, "%-15d%-15.8g%-15ld%-16ld%-15ld\n", myMPIid, temperature, iteration, bstackp->next, length);
-#endif
-#else
-		fprintf(lengthfp, "%-15.8f%-15ld%-16d%-15ld\n", temperature, iteration, bstackp->next, length);
-#endif
+
 		if (ferror(lengthfp)){
 			crash("file error when logging search progress");
 		}
 
 	} /* end lenlog() */
 
-#ifndef NP_Implementation
-#ifdef MAP_REDUCE_SINGLE
 	long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *const inittree,
-			Params rcstruct, long root, FILE * const lenfp,
-			long *current_iter, int myMPIid, Lvb_bool log_progress, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer)
-#else
-	long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *const inittree,
-					Params rcstruct, long root, FILE * const lenfp,  long *current_iter, int myMPIid,
-					Lvb_bool log_progress)
-#endif
-#else
-long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *const inittree,
-		Params rcstruct, long root, FILE * const lenfp, const long *weights,
-		long *current_iter, int myMPIid, Lvb_bool log_progress)
-#endif
+			Params rcstruct, long root, FILE * const lenfp, long *current_iter, int myMPIid, Lvb_bool log_progress
+			#ifdef MAP_REDUCE_SINGLE 
+			, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer
+			#endif
+			#ifdef NP_Implementation
+			, const long *weights
+			#endif
+			)
 	/* perform a deterministic hill-climbing optimization on the tree in inittree,
 	 * using NNI on all internal branches until no changes are accepted; return the
 	 * length of the best tree found; current_iter should give the iteration number

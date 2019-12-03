@@ -447,8 +447,7 @@ int arbreroot(Dataptr, Branch *const, const int);
 int childadd(Branch *const, const int, const int);
 void copy_sset(Dataptr restrict matrix, Objset *p_sset_1);
 void defaults_params(Params *const prms);
-long deterministic_hillclimb(Dataptr, Treestack *, const Branch *const, Params rcstruct,
-long, FILE * const, const long *, long *, int, Lvb_bool);
+long deterministic_hillclimb(Dataptr, Treestack *, const Branch *const, Params rcstruct, long, FILE * const, long *, int, Lvb_bool, const long *);
 void dna_makebin(Dataptr restrict, Lvb_bit_length **);
 void dump_stack_to_screen(Dataptr matrix, Treestack *sp);
 void dump_objset_to_screen(Dataptr matrix, Objset *oset_1);
