@@ -635,7 +635,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
      * with that of previous versions.  */
     if(rcstruct.verbose == LVB_TRUE) {
         alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-		fprintf(sumfp, "%ld\t%ld\t%ld\t", start, cyc, getplen(matrix, tree, rcstruct, initroot, weight_arr, p_todo_arr, p_todo_arr_sum_changes, p_runs));
+		fprintf(sumfp, "%ld\t%ld\t%ld\t", start, cyc, getplen(matrix, tree, rcstruct, initroot, p_todo_arr, p_todo_arr_sum_changes, p_runs, weight_arr));
 		free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
 		logtree1(matrix, tree, start, cyc, initroot);
     }

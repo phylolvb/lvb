@@ -104,7 +104,7 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstru
     len = getplen(matrix, x, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
     r_lenmin = (double) matrix->min_len_tree;
 	#else
-	len = getplen(matrix, x, rcstruct, root, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+	len = getplen(matrix, x, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs, weights);
     
     lenmin = getminlen(matrix);
     r_lenmin = (double) lenmin;
@@ -134,7 +134,7 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstru
 			#ifndef NP_Implementation
 			lendash = getplen(matrix, xdash, rcstruct, rootdash, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 			#else
-			lendash = getplen(matrix, xdash, rcstruct, rootdash, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+			lendash = getplen(matrix, xdash, rcstruct, rootdash, p_todo_arr, p_todo_arr_sum_changes, p_runs, weights);
 			#endif
 
 			lvb_assert (lendash >= 1L);

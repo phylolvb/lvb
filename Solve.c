@@ -87,12 +87,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	    Lvb_bool newtree;										/* accepted a new configuration */
 	    Branch *p_current_tree;									/* current configuration */
 	    Branch *p_proposed_tree;								/* proposed new configuration */
+		static Lvb_bool leftright[] = { LVB_FALSE, LVB_TRUE };  // to loop through left and right
 		#ifndef NP_Implementation
 	    static long todo[MAX_BRANCHES];							/* array of internal branch numbers */
-	    static Lvb_bool leftright[] = {	LVB_FALSE, LVB_TRUE }; 	/* to loop through left and right */
 		#else
-		unsigned int *todo;										// array of internal branch numbers
-		Lvb_bool leftright[] = { LVB_FALSE, LVB_TRUE }; 		// to loop through left and right 
+		// unsigned int *todo;										// array of internal branch numbers	 
+		static long todo[MAX_BRANCHES];
 		#endif
 	    long *p_todo_arr; 										/* [MAX_BRANCHES + 1];	 list of "dirty" branch nos */
 	    long *p_todo_arr_sum_changes; 							/*used in openMP, to sum the partial changes */
@@ -108,13 +108,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	    p_proposed_tree = treealloc(matrix, LVB_TRUE);
 	    treecopy(matrix, p_current_tree, inittree, LVB_TRUE);      /* current configuration */
 	    alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-		#ifndef NP_Implementation
-	    len = getplen(matrix, p_current_tree, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
-		#else
-		todo = alloc(matrix->nbranches * sizeof(unsigned int), "old parent alloc");
-		len = getplen(matrix, p_current_tree, rcstruct, root, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+	    len = getplen(matrix, p_current_tree, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs
+		#ifdef NP_Implementation
+		,weights
 		#endif
-
+		);
+		
+		// todo = alloc(matrix->nbranches * sizeof(unsigned int), "old parent alloc");
+		
 	    /* identify internal branches */
 	    for (i = matrix->n; i < matrix->nbranches; i++) todo[todo_cnt++] = i;
 	    lvb_assert(todo_cnt == matrix->nbranches - matrix->n);
@@ -123,11 +124,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 			for (i = 0; i < todo_cnt; i++) {
 				for (j = 0; j < 2; j++) {
 					mutate_deterministic(matrix, p_proposed_tree, p_current_tree, root, todo[i], leftright[j]);
-					#ifndef NP_Implementation
-					lendash = getplen(matrix, p_proposed_tree, rcstruct, rootdash, p_todo_arr, p_todo_arr_sum_changes, p_runs);
-					#else
-					lendash = getplen(matrix, p_proposed_tree, rcstruct, rootdash, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+					lendash = getplen(matrix, p_proposed_tree, rcstruct, rootdash, p_todo_arr, p_todo_arr_sum_changes, p_runs
+					#ifdef NP_Implementation
+					, weights
 					#endif
+					);
 
 					lvb_assert (lendash >= 1L);
 					deltalen = lendash - len;
@@ -244,7 +245,7 @@ if (deltalen <= 0) {
     free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
     free(p_current_tree);
     free(p_proposed_tree);
-    free(todo);
+    // free(todo);
 
     return len;
 }
@@ -472,7 +473,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 treecopy(matrix, p_current_tree, inittree, LVB_TRUE);	/* current configuration */
 
     alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-    len = getplen(matrix, p_current_tree, rcstruct, root, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+    len = getplen(matrix, p_current_tree, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs, weights);
     dect = LVB_FALSE;		/* made LVB_TRUE as necessary at end of loop */
 
     lvb_assert( ((float) t >= (float) LVB_EPS) && (t <= 1.0) && (grad_geom >= LVB_EPS) && (grad_linear >= LVB_EPS));
@@ -786,7 +787,7 @@ while (1) {
 		}
 
 
-		lendash = getplen(matrix, p_proposed_tree, rcstruct, rootdash, weights, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+		lendash = getplen(matrix, p_proposed_tree, rcstruct, rootdash, p_todo_arr, p_todo_arr_sum_changes, p_runs, weights);
 		lvb_assert (lendash >= 1L);
 		deltalen = lendash - len;
 		deltah = (r_lenmin / (double) len) - (r_lenmin / (double) lendash);

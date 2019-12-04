@@ -259,8 +259,8 @@ typedef struct
     long size;			/* number of trees currently allocated for */
     long next;			/* next unused element of stack */
 	#else
-	int size;			/* number of trees currently allocated for */
-    int next;			/* next unused element of stack */
+	long size;			/* number of trees currently allocated for */
+    long next;			/* next unused element of stack */
 	#endif
     Treestack_element *stack;	/* pointer to first element in stack */
 } Treestack;
@@ -454,8 +454,10 @@ void dump_objset_to_screen(Dataptr matrix, Objset *oset_1);
 void dump_objset_to_screen_sset_2(Dataptr matrix);
 double get_initial_t(Dataptr, const Branch *const, Params rcstruct, long, const long *, Lvb_bool);
 long getminlen(const Dataptr);
-long getplen(Dataptr restrict, Branch *, Params rcstruct, const long, const long *restrict, long *restrict p_todo_arr,
-long *p_todo_arr_sum_changes, int *p_runs);
+
+long getplen(Dataptr restrict, Branch *, Params rcstruct, const long, long *restrict p_todo_arr,
+long *p_todo_arr_sum_changes, int *p_runs, const long *restrict);
+
 long lvb_reroot(Dataptr restrict, Branch *const barray, const int oldroot, const int newroot, Lvb_bool b_with_sset);
 void lvb_treeprint (Dataptr, FILE *const, const Branch *const, const long);
 void makesets(Dataptr restrict, const Branch *const tree_2, const int root);

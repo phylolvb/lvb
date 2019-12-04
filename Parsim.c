@@ -52,8 +52,8 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 	     long *restrict p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs)
 #else
 long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct,
-		const long root, const long *restrict weights, long *restrict p_todo_arr,
-		long *p_todo_arr_sum_changes, int *p_runs)
+		const long root, long *restrict p_todo_arr,
+		long *p_todo_arr_sum_changes, int *p_runs, const long *restrict weights)
 #endif
 {
     long branch;				/* current branch number */
