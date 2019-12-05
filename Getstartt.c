@@ -43,11 +43,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Lvb.h"
 
-#ifndef NP_Implementation
-double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstruct, long root, int myMPIid, Lvb_bool log_progress)
-#else
-double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstruct, long root, const long *weights, Lvb_bool log_progress)
+
+double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstruct, long root, int myMPIid, Lvb_bool log_progress
+#ifdef NP_Implementation
+, const long *weights
 #endif
+)
 
 /* Determine the starting temperature for the annealing search 
  * by finding the temperature T at which 65% of proposed 
@@ -78,12 +79,8 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstru
 
     /* Variables specific to the get_initial_temperature() procedure*/
     int acc_pos_trans = 0;        /* Number of accepted positve transitions */
-	#ifndef NP_Implementation
     double increment_size = INITIAL_INCREMENT; /* Step size by which the temperature is increased */
-	#else
 	long lenmin; // minimum length of any tree
-	double increment_size = 0.00001; // Step size by which temperature is increased
-	#endif
     int prop_pos_trans = 0;       /* Number of proposed positve transitions */
     double r_acc_to_prop = 0;   /* Ratio of accepted to proposed positve transitions */
     int sample_size = 100;                /* Sample size used to estimate the ratio */
@@ -100,12 +97,15 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstru
     treecopy(matrix, x, inittree, LVB_TRUE);	/* current configuration */
     alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
 	
+	len = getplen(matrix, x, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs
+	#ifdef NP_Implementation
+	, weights
+	#endif
+	);
+	
 	#ifndef NP_Implementation
-    len = getplen(matrix, x, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
     r_lenmin = (double) matrix->min_len_tree;
 	#else
-	len = getplen(matrix, x, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs, weights);
-    
     lenmin = getminlen(matrix);
     r_lenmin = (double) lenmin;
 	#endif
@@ -131,11 +131,11 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstru
 			if (iter & 0x01) mutate_spr(matrix, xdash, x, root);	/* global change */
 			else mutate_nni(matrix, xdash, x, root);	/* local change */
 
-			#ifndef NP_Implementation
-			lendash = getplen(matrix, xdash, rcstruct, rootdash, p_todo_arr, p_todo_arr_sum_changes, p_runs);
-			#else
-			lendash = getplen(matrix, xdash, rcstruct, rootdash, p_todo_arr, p_todo_arr_sum_changes, p_runs, weights);
+			lendash = getplen(matrix, xdash, rcstruct, rootdash, p_todo_arr, p_todo_arr_sum_changes, p_runs
+			#ifdef NP_Implementation
+			, weights
 			#endif
+			);
 
 			lvb_assert (lendash >= 1L);
 			deltalen = lendash - len;
@@ -193,20 +193,9 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstru
     free(xdash);
     
     /* Log progress if chosen*/
-#ifndef NP_Implementation
-#ifdef MAP_REDUCE_SINGLE
-    if (log_progress)
-    	// printf("%-.8g   Process: %d\n", (t - increment_size), myMPIid);
-		printf(" %-.8g\n", (t - increment_size));
-#else
-    if (log_progress)
-        printf("Starting Temperature is:%-.8g   Process:%d   Seed:%d\n", (t - increment_size), myMPIid, rcstruct.seed);
-#endif
-#else
 	if (log_progress)
-		printf(" %-.8f\n", (t - increment_size));
-#endif
-    
+		printf(" %-.8g\n", (t - increment_size));
+
     /* Return the temperature last used */
     return (t - increment_size);
 

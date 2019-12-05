@@ -159,9 +159,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define MAXSTATES 5		/* max. "true" states in data matrix */
 
 /* limits that could be changed but are likely to be OK */
-#ifndef NP_Implementation
 #define INITIAL_INCREMENT 0.00001	/* step size to get initial temp. */
-#endif
 #define FROZEN_T 0.0001		/* helps to decide whether system is frozen */
 
 #ifdef NP_Implementation
@@ -452,7 +450,7 @@ void dna_makebin(Dataptr restrict, Lvb_bit_length **);
 void dump_stack_to_screen(Dataptr matrix, Treestack *sp);
 void dump_objset_to_screen(Dataptr matrix, Objset *oset_1);
 void dump_objset_to_screen_sset_2(Dataptr matrix);
-double get_initial_t(Dataptr, const Branch *const, Params rcstruct, long, const long *, Lvb_bool);
+double get_initial_t(Dataptr, const Branch *const, Params rcstruct, long, int, Lvb_bool, const long *);
 long getminlen(const Dataptr);
 
 long getplen(Dataptr restrict, Branch *, Params rcstruct, const long, long *restrict p_todo_arr,
