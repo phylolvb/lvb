@@ -41,6 +41,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== solve.c - solving functions ========== */
 
+// static void lenlog				complete
+// long deterministic_hillclimb		complete
+// long anneal						
+
 #include "Lvb.h"
 
 #ifndef NP_Implementation
@@ -88,12 +92,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	    Branch *p_current_tree;									/* current configuration */
 	    Branch *p_proposed_tree;								/* proposed new configuration */
 		static Lvb_bool leftright[] = { LVB_FALSE, LVB_TRUE };  // to loop through left and right
-		#ifndef NP_Implementation
 	    static long todo[MAX_BRANCHES];							/* array of internal branch numbers */
-		#else
 		// unsigned int *todo;										// array of internal branch numbers	 
-		static long todo[MAX_BRANCHES];
-		#endif
 	    long *p_todo_arr; 										/* [MAX_BRANCHES + 1];	 list of "dirty" branch nos */
 	    long *p_todo_arr_sum_changes; 							/*used in openMP, to sum the partial changes */
 	    int *p_runs; 											/*used in openMP, 0 if not run yet, 1 if it was processed */
@@ -133,21 +133,25 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 					lvb_assert (lendash >= 1L);
 					deltalen = lendash - len;
 
-#ifndef NP_Implementation
+
 #ifdef MAP_REDUCE_SINGLE
 					MPI_Bcast(&deltalen, 1, MPI_LONG, 0,    MPI_COMM_WORLD);
 					MPI_Bcast(&lendash,  1, MPI_LONG, 0,    MPI_COMM_WORLD);
-
-					if (deltalen <= 0) {
-						if (deltalen < 0)  /* very best so far */
+#endif
+						if (deltalen <= 0) {
+							if (deltalen < 0)  /* very best so far */
 						{
 							treestack_clear(bstackp);
-							treestack_push_only(matrix, bstackp, p_proposed_tree, rootdash, LVB_FALSE);
-							misc->ID = bstackp->next;
-							misc->SB = 1;
-							tree_setpush(matrix, p_proposed_tree, rootdash, mrTreeStack, misc);
+								#ifdef MAP_REDUCE_SINGLE
+								treestack_push_only(matrix, bstackp, p_proposed_tree, rootdash, LVB_FALSE);
+								misc->ID = bstackp->next;
+								misc->SB = 1;
+								tree_setpush(matrix, p_proposed_tree, rootdash, mrTreeStack, misc);
+								#endif
 							len = lendash;
-						} else {
+						}
+#ifdef MAP_REDUCE_SINGLE
+else {
 
 						  misc->SB = 0;
 						  tree_setpush(matrix, p_proposed_tree, rootdash, mrBuffer, misc);
@@ -180,39 +184,28 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 								mrTreeStack->add(mrBuffer);
 								treestack_push_only(matrix, bstackp, p_proposed_tree, rootdash, LVB_FALSE);
 								misc->ID = bstackp->next;
-
-								newtree = LVB_TRUE;
-								treeswap(&p_current_tree, &root, &p_proposed_tree, &rootdash);
+#else
+						  if (treestack_push(matrix, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1) {
+#endif
+						  newtree = LVB_TRUE;
+						  treeswap(&p_current_tree, &root, &p_proposed_tree, &rootdash);
 						  }
+#ifdef MAP_REDUCE_SINGLE
 						  free(misc->count);
 						  free(total_count);
-
-						}
-
-					}
-					if ((log_progress == LVB_TRUE) && ((*current_iter % rcstruct.STAT_LOG_INTERVAL) == 0)) {
-					   if(misc->rank == 0) lenlog(lenfp, bstackp, myMPIid, *current_iter, len, 0);
-					}
-#else
-					if (deltalen <= 0) {
-						if (deltalen < 0)  /* very best so far */
-						{
-							treestack_clear(bstackp);
-							len = lendash;
-						}
-						if (treestack_push(matrix, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1) {
-							newtree = LVB_TRUE;
-							treeswap(&p_current_tree, &root, &p_proposed_tree, &rootdash);
-						}
-					}
-					if ((log_progress == LVB_TRUE) && ((*current_iter % rcstruct.STAT_LOG_INTERVAL) == 0)) {
-						lenlog(lenfp, bstackp, myMPIid, *current_iter, len, 0);
-					}
+						  }
 #endif
-					*current_iter += 1;
+						  }
+						  if ((log_progress == LVB_TRUE) && ((*current_iter % rcstruct.STAT_LOG_INTERVAL) == 0)) {
+							  #ifdef MAP_REDUCE_SINGLE
+							  if(misc->rank == 0)
+							  #endif
+						  lenlog(lenfp, bstackp, myMPIid, *current_iter, len, 0);
+						  }
+						*current_iter += 1;
 				}
 			}
-	    } while (newtree == LVB_TRUE);
+	    } while (newtree == LVB_TRUE);	
 
 	    /* free "local" dynamic heap memory */
 	    free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
@@ -221,35 +214,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 	    return len;
 	}
-#else
-if (deltalen <= 0) {
-					if (deltalen < 0)  /* very best so far */
-					{
-						treestack_clear(bstackp);
-						len = lendash;
-					}
-					if (treestack_push(matrix, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1) {
-						newtree = LVB_TRUE;
-						treeswap(&p_current_tree, &root, &p_proposed_tree, &rootdash);
-					}
-				}
-				if ((log_progress == LVB_TRUE) && ((*current_iter % rcstruct.STAT_LOG_INTERVAL) == 0)) {
-					lenlog(lenfp, bstackp, myMPIid, *current_iter, len, 0);
-				}
-				*current_iter += 1;
-			}
-		}
-    } while (newtree == LVB_TRUE);
-
-    /* free "local" dynamic heap memory */
-    free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-    free(p_current_tree);
-    free(p_proposed_tree);
-    // free(todo);
-
-    return len;
-}
-#endif
 
 long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch *const inittree, Params rcstruct, Params *p_rcstruct,
 		long root, const double t0, const long maxaccept, const long maxpropose,
@@ -303,10 +267,11 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 	    long *p_todo_arr; 				/* [MAX_BRANCHES + 1];	 list of "dirty" branch nos */
 	    long *p_todo_arr_sum_changes; 		/*used in openMP, to sum the partial changes */
 	    int *p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */
-
-#ifndef NP_Implementation
 		double grad_geom = GRAD_GEOM;			/* "gradient" of the geometric schedule */
 	    double grad_linear = GRAD_LINEAR; 	/* gradient of the linear schedule */
+		long lenmin;						// minimum length for any tree
+
+#ifndef NP_Implementation
 #ifndef MAP_REDUCE_SINGLE
 	    time_t curr_time;				/* current time */
 	    double elapsed_time;			/* approximate time since last checkpoint (in seconds) */
@@ -342,109 +307,73 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 		p_data_info_to_master = (SendInfoToMaster *) malloc(sizeof(SendInfoToMaster));
 		RecvInfoFromMaster * p_data_info_from_master;
 		p_data_info_from_master = (RecvInfoFromMaster *) malloc(sizeof(RecvInfoFromMaster));
-#endif
-
-#ifdef MAP_REDUCE_SINGLE
+#else
 	    int *total_count;
 	    int check_cmp;
 #endif
-
-#else
-		long lenmin;						// minimum length for any tree
-		double grad_geom = 0.99;			/* "gradient" of the geometric schedule */
-	    double grad_linear = 10 * LVB_EPS; 	/* gradient of the linear schedule */
 #endif
 
 	    /* variables that could calculate immediately */
 		#ifndef NP_Implementation
-	    double log_wrapper_LVB_EPS;
-	    double log_wrapper_grad_geom;
-	    double log_wrapper_t0;
-
-		/* REND variables that could calculate immediately */
-
-		p_proposed_tree = treealloc(matrix, LVB_TRUE);
-	    p_current_tree  = treealloc(matrix, LVB_TRUE);
-	    alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-
-		#ifdef MAP_REDUCE_SINGLE
-		long w_changes_prop = 0;
-	    	long w_changes_acc = 0;
-		#endif
+	    double log_wrapper_LVB_EPS   = log_wrapper(LVB_EPS);
+	    double	log_wrapper_grad_geom = log_wrapper(grad_geom);
+	    double	log_wrapper_t0        = log_wrapper(t0);
 
 		#else
 		const double log_wrapper_LVB_EPS = log_wrapper(LVB_EPS);
 	    const double log_wrapper_grad_geom = log_wrapper(grad_geom);
     	const double log_wrapper_t0 =  log_wrapper(t0);
     	/* REND variables that could calculate immediately */
-
-		long w_changes_prop = 0;
-    	long w_changes_acc = 0;
-    	p_proposed_tree = treealloc(matrix, LVB_TRUE);
-    	p_current_tree = treealloc(matrix, LVB_TRUE);
+   	
 		#endif
 	    
-	    /* read the check point files at this point */
+		alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
 
-#ifndef NP_Implementation
+		long w_changes_prop = 0;
+	    long w_changes_acc = 0;
+		p_proposed_tree = treealloc(matrix, LVB_TRUE);
+    	p_current_tree = treealloc(matrix, LVB_TRUE);
 
-#ifndef MAP_REDUCE_SINGLE
-	    if (p_rcstruct->n_flag_is_possible_read_state_files == CHECK_POINT_READ_STATE_FILES) {
-	    	fp = open_file_by_MPIid(myMPIid, "rb", LVB_FALSE);
-	    	lvb_assert(point_file_pointer_to_block(fp, STATE_BLOCK_ANNEAL) == LVB_TRUE);
-			restore_anneal(fp, matrix, &accepted, &dect, &deltah, &deltalen,
-					&failedcnt, &iter, current_iter, &len, &lenbest, &lendash, &ln_t,
-					&t_n, &t0, &pacc, &proposed, &r_lenmin, &root, &t, &grad_geom,
-					&grad_linear, p_current_tree, LVB_TRUE, p_proposed_tree, LVB_TRUE);
-			lvb_assert(point_file_pointer_to_block(fp, STATE_BLOCK_TREESTACK) == LVB_TRUE);
-			restore_treestack(fp, bstackp, matrix, LVB_FALSE);
-			lvb_assert(point_file_pointer_to_block(fp, STATE_BLOCK_UNI) == LVB_TRUE);
-			restore_uni(fp);
-			lvb_assert(fclose(fp) == 0);
-			printf("Read checkpoint file MPIid %d successfully...\n", myMPIid);
 
-			log_wrapper_LVB_EPS   = log_wrapper(LVB_EPS);
-			log_wrapper_grad_geom = log_wrapper(grad_geom);
-			log_wrapper_t0        = log_wrapper(t0);
-	    }
-	    else{
-#endif
-	    	log_wrapper_LVB_EPS   = log_wrapper(LVB_EPS);
-	    	log_wrapper_grad_geom = log_wrapper(grad_geom);
-	    	log_wrapper_t0        = log_wrapper(t0);
+		treecopy(matrix, p_current_tree, inittree, LVB_TRUE);	/* current configuration */
 
-			treecopy(matrix, p_current_tree, inittree, LVB_TRUE);	/* current configuration */
+		#ifndef NP_Implementation
+		len = getplen(matrix, p_current_tree, *p_rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+		#else
+		alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
+		len = getplen(matrix, p_current_tree, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs, weights);
+		#endif
 
-			len = getplen(matrix, p_current_tree, *p_rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
-			dect = LVB_FALSE;		/* made LVB_TRUE as necessary at end of loop */
-
-			lvb_assert( ((float) t >= (float) LVB_EPS) && (t <= 1.0) && (grad_geom >= LVB_EPS) && (grad_linear >= LVB_EPS));
-
-			lenbest = len;
+		dect = LVB_FALSE;		/* made LVB_TRUE as necessary at end of loop */
+		lvb_assert( ((float) t >= (float) LVB_EPS) && (t <= 1.0) && (grad_geom >= LVB_EPS) && (grad_linear >= LVB_EPS));
+		lenbest = len;
 			treestack_push(matrix, bstackp, inittree, root, LVB_FALSE);	/* init. tree initially best */
-			#ifdef MAP_REDUCE_SINGLE
-			if(rcstruct.algorithm_selection == 2){
-				treestack_push(matrix, treevo, inittree, root, LVB_FALSE);
-			}
-				double trops_counter[3] = {1,1,1};
-				double trops_probs[3] = {0,0,0};
-				long trops_total = trops_counter[0]+trops_counter[1]+trops_counter[2];
-				long trops_id;
-			#endif
-	#ifndef NP_Implementation
-	#ifdef MAP_REDUCE_SINGLE
-			MPI_Bcast(&lenbest,  1, MPI_LONG, 0, MPI_COMM_WORLD);
-			misc->ID = bstackp->next;
-			misc->SB = 1;
-			tree_setpush(matrix, inittree, root, mrTreeStack, misc);
 
-			if ((log_progress == LVB_TRUE) && (*current_iter == 0)) {
-				 if(misc->rank == 0) fprintf(lenfp, "\nTemperature:   Rearrangement: TreeStack size: Length:\n");
-			}
-			if (rcstruct.verbose == LVB_TRUE)
-        		fprintf(lenfp, "Temperature:   Rearrangement: TreeStack size: Length:\n");
+		if(rcstruct.algorithm_selection == 2)
+			treestack_push(matrix, treevo, inittree, root, LVB_FALSE);
 
-				/*Writing output to table.tsv*/
+		double trops_counter[3] = {1,1,1};
+		double trops_probs[3] = {0,0,0};
+		long trops_total = trops_counter[0]+trops_counter[1]+trops_counter[2];
+		long trops_id;
+
+		#ifdef MAP_REDUCE_SINGLE
+		MPI_Bcast(&lenbest,  1, MPI_LONG, 0, MPI_COMM_WORLD);
+		misc->ID = bstackp->next;
+		misc->SB = 1;
+		tree_setpush(matrix, inittree, root, mrTreeStack, misc);
+		#endif
+
+		if ((log_progress == LVB_TRUE) && (*current_iter == 0))
+		#ifdef MAP_REDUCE_SINGLE
+		if(misc->rank == 0) 
+		#endif
+			fprintf(lenfp, "\nTemperature:   Rearrangement: TreeStack size: Length:\n");
+
+		if (rcstruct.verbose == LVB_TRUE)
+        	fprintf(lenfp, "\nTemperature:   Rearrangement: TreeStack size: Length:\n");
+
+		/*Writing output to table.tsv*/
     			FILE * pFile;
     			char change[10]="";
     			if ((log_progress == LVB_TRUE) && (*current_iter == 0)) {
@@ -455,61 +384,30 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 	   			// fprintf (pFile, "Iteration\tAlgorithm\tAccepted\tLength\tTemperature\tCurrent_HI\n");
 				}
 				}
-			r_lenmin = (double) matrix->min_len_tree;
-	#else
-			if ((log_progress == LVB_TRUE) && (*current_iter == 0)) {
-				fprintf(lenfp, "\nTemperature:   Rearrangement: TreeStack size: Length:\n");
-			}
-
-			r_lenmin = (double) matrix->min_len_tree;
-	    }
-
-	    *p_n_state_progress = MESSAGE_ANNEAL_FINISHED_AND_REPEAT; /* we consider always is necessary to repeat */
-	    last_checkpoint_time = time(NULL);
-#endif
-#endif
-
-#else 
-treecopy(matrix, p_current_tree, inittree, LVB_TRUE);	/* current configuration */
-
-    alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-    len = getplen(matrix, p_current_tree, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs, weights);
-    dect = LVB_FALSE;		/* made LVB_TRUE as necessary at end of loop */
-
-    lvb_assert( ((float) t >= (float) LVB_EPS) && (t <= 1.0) && (grad_geom >= LVB_EPS) && (grad_linear >= LVB_EPS));
-
-    lenbest = len;
-    treestack_push(matrix, bstackp, inittree, root, LVB_FALSE);	/* init. tree initially best */
-	if(rcstruct.algorithm_selection ==2)
-	treestack_push(matrix, treevo, inittree, root, LVB_FALSE);
-
-	double trops_counter[3] = {1,1,1};
-	double trops_probs[3] = {0,0,0};
-	long trops_total = trops_counter[0]+trops_counter[1]+trops_counter[2];
-	long trops_id;
+				#ifndef NP_Implementation
+				r_lenmin = (double) matrix->min_len_tree;
+				#ifndef MAP_REDUCE_SINGLE
+				*p_n_state_progress = MESSAGE_ANNEAL_FINISHED_AND_REPEAT; /* we consider always is necessary to repeat */
+	    		last_checkpoint_time = time(NULL);
+				#endif
+				#else
+    			lenmin = getminlen(matrix);
+    			r_lenmin = (double) lenmin;
+				#endif
 
 
-    if ((log_progress == LVB_TRUE) && (*current_iter == 0))
-	if (rcstruct.verbose == LVB_TRUE && rcstruct.bootstraps == LVB_FALSE)
-        fprintf(lenfp, "Temperature:   Rearrangement: TreeStack size: Length:\n");
 
-	if (rcstruct.verbose == LVB_FALSE && rcstruct.bootstraps == LVB_FALSE)
-        fprintf(lenfp, "\nTemperature:   Rearrangement: TreeStack size: Length:\n");
-	
-		/*Writing output to table.tsv*/
-    FILE * pFile;
-    char change[10]="";
-    if ((log_progress == LVB_TRUE) && (*current_iter == 0)) {
-		if (rcstruct.verbose == LVB_TRUE)
-		{
-	   pFile = fopen ("changeAccepted.tsv","w");
-	   fprintf (pFile, "Iteration\tAlgorithm\tAccepted\tLength\tTemperature\n");
-	   // fprintf (pFile, "Iteration\tAlgorithm\tAccepted\tLength\tTemperature\tCurrent_HI\n");
-	}
-	}
-    lenmin = getminlen(matrix);
-    r_lenmin = (double) lenmin;
-#endif
+
+
+
+
+
+
+
+
+
+
+
 
 #ifndef NP_Implementation
 	    while (1) {

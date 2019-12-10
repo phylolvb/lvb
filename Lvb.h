@@ -264,6 +264,8 @@ typedef struct
 } Treestack;
 
 /* simulated annealing parameters */
+#define GRAD_GEOM 0.99	/* for relationship between t(n) and t(n+1) */
+#define GRAD_LINEAR (3.64 * 1E-8)	/* temperature gradient */
 #define MAXPROPOSE_SLOW 2000L	/* maxpropose for "slow" searches */
 #define MAXFAIL_SLOW 40L		/* maxfail for "slow" searches */
 #ifndef NP_Implementation
@@ -273,8 +275,7 @@ typedef struct
 #else
 #define MAXACCEPT_MAX 500L		/* maximum value for maxaccept */
 #endif	/* MAP_REDUCE_SINGLE */
-#define GRAD_GEOM 0.99	/* for relationship between t(n) and t(n+1) */
-#define GRAD_LINEAR (3.64 * 1E-8)	/* temperature gradient */
+
 #else
 #define MAXACCEPT_SLOW 5L	/* maxaccept for "slow" searches */
 #endif
