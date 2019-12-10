@@ -61,11 +61,12 @@ static void cr_bpnc(const Branch *const barray, const long branch);
 static void cr_chaf(const Branch *const barray, const long destination, const long newchild);
 static void cr_uxe(FILE *const stream, const char *const msg);
 static int osetcmp(const void *oset1, const void *oset2);
+static void fillsets(Dataptr, Objset *const sstruct, const Branch *const tree, const long root);
+static long getsister(const Branch *const barray, const long branch);
 
 #ifndef NP_Implementation
-static void fillsets(Dataptr, Objset *const sstruct, const Branch *const tree, const long root);
 static void getobjs(Dataptr, const Branch *const barray, const long root, long *const objarr, long *const cnt);
-static long getsister(const Branch *const barray, const long branch);
+
 static void makesets(Dataptr matrix, const Branch *const tree_1, const Branch *const tree_2, const long root, Lvb_bool b_First);
 static int objnocmp(const void *o1, const void *o2);
 static long *randleaf(Dataptr, Branch *const barray, const Lvb_bool *const leafmask, const long objs);
@@ -76,9 +77,7 @@ static void sort(Objset *const oset_1, Objset *const oset_2, const long nels, Lv
 static void ssarralloc(Dataptr restrict matrix, Objset *nobjset_1, Objset *nobjset_2);
 static void tree_make_canonical(Dataptr restrict, Branch *const barray, long *objnos);
 #else
-static void fillsets(Dataptr, Objset *const sstruct, const Branch *const tree, const int root);
 static void getobjs(Dataptr, const Branch *const barray, const int root, int *const objarr, int *const cnt);
-static int getsister(const Branch *const barray, const long branch);
 static int *randleaf(Dataptr restrict, Branch *const barray,const Lvb_bool *const leafmask);
 static void realgetobjs(Dataptr restrict, const Branch *const barray, const int root, int *const objarr, int *const cnt);
 static Lvb_bool *randtopology(Dataptr restrict, Branch *const barray, const long nobjs);
@@ -762,11 +761,8 @@ int arbreroot(Dataptr matrix, Branch *const tree, const int oldroot)
 
 } /* end arbreroot() */
 
-#ifndef NP_Implementation
 static long getsister(const Branch *const barray, const long branch)
-#else
-static int getsister(const Branch *const barray, const long branch)
-#endif
+
 /* return number of sister of branch branch in tree in barray, or UNSET if
  * branch has none */
 {
@@ -1789,11 +1785,8 @@ static void ssarralloc(Dataptr matrix, Objset *nobjset_2)
 #endif
 #endif
 
-#ifndef NP_Implementation
 static void fillsets(Dataptr matrix, Objset *const sstruct, const Branch *const tree, const long root)
-#else
-static void fillsets(Dataptr matrix, Objset *const sstruct, const Branch *const tree, const int root)
-#endif
+
 /* fill object sets in sstruct with all sets of objects in tree tree,
  * descended from but not including root and not including sets of one
  * object */

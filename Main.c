@@ -1028,14 +1028,14 @@ int get_other_seed_to_run_a_process(){
 		DataSeqPtr matrix_seq_data;
 		int val;			/* return value */
 		Params rcstruct;		/* configurable parameters */
-	        int n_error_code = EXIT_SUCCESS; /* return value */
+	    int n_error_code = EXIT_SUCCESS; /* return value */
 		long iter;			/* iterations of annealing algorithm */
 		long trees_output_total = 0L;	/* number of trees output, overall */
 		long trees_output;		/* number of trees output for current rep. */
 		long final_length;		/* length of shortest tree(s) found */
 		FILE *outtreefp;		/* best trees found overall */
 		Lvb_bool log_progress;	/* whether or not to log anneal search */
-		int myMPIid;
+		int myMPIid = 0;
 
 		MapReduce *mrTreeStack = new MapReduce(MPI_COMM_WORLD);
 		mrTreeStack->memsize = 1024;
@@ -1063,7 +1063,7 @@ int get_other_seed_to_run_a_process(){
     FILE *outtreefp;		/* best trees found overall */
     long *weight_arr;  		/* weights for sites */
     Lvb_bool log_progress;	/* whether or not to log anneal search */
-	int myMPIid;
+	int myMPIid = 0;
 #endif
 
 	// entitle standard output

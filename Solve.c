@@ -347,7 +347,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 		double trops_counter[3] = {1,1,1};
 		double trops_probs[3] = {0,0,0};
 		long trops_total = trops_counter[0]+trops_counter[1]+trops_counter[2];
-		long trops_id;
+		long trops_id = 0;
 
 		#ifdef MAP_REDUCE_SINGLE
 		MPI_Bcast(&lenbest,  1, MPI_LONG, 0, MPI_COMM_WORLD);
@@ -378,6 +378,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 				}
 				#ifndef NP_Implementation
 				r_lenmin = (double) matrix->min_len_tree;
+				(void)lenmin;
 				#else
     			lenmin = getminlen(matrix);
     			r_lenmin = (double) lenmin;
@@ -713,26 +714,6 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 				}
 			}
 			iter++;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 #ifdef NP_Implementation
 
