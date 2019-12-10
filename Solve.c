@@ -273,10 +273,6 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 
 #ifndef NP_Implementation
 #ifndef MAP_REDUCE_SINGLE
-	    time_t curr_time;				/* current time */
-	    double elapsed_time;			/* approximate time since last checkpoint (in seconds) */
-	    time_t last_checkpoint_time;		/* approximate time of last checkpoint */
-	    FILE *fp;					/* for checkpoint/restore */
 	    int nFlag;
 	    MPI_Request request_handle_send = 0, request_message_from_master = 0;
 		MPI_Status mpi_status;
@@ -386,10 +382,6 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 				}
 				#ifndef NP_Implementation
 				r_lenmin = (double) matrix->min_len_tree;
-				#ifndef MAP_REDUCE_SINGLE
-				*p_n_state_progress = MESSAGE_ANNEAL_FINISHED_AND_REPEAT; /* we consider always is necessary to repeat */
-	    		last_checkpoint_time = time(NULL);
-				#endif
 				#else
     			lenmin = getminlen(matrix);
     			r_lenmin = (double) lenmin;
@@ -652,21 +644,6 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 			}
 			proposed++;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-			
 #ifdef MAP_REDUCE_SINGLE
 			MPI_Bcast(&proposed,  1, MPI_LONG, 0, MPI_COMM_WORLD);
 #endif
@@ -711,30 +688,19 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 				#ifndef NP_Implementation
 				if (p_rcstruct->cooling_schedule == 0)  /* Geometric cooling */
 				#else
-				if (rcstruct.cooling_schedule == 0) // Geomtric cooling
+				if (rcstruct.cooling_schedule == 0) // Geometric cooling
 				#endif
 				{
 					/* Ensure t doesn't go out of bound */
 					ln_t = ((double) t_n) * log_wrapper_grad_geom + log_wrapper_t0;
 					if (ln_t < log_wrapper_LVB_EPS) t = LVB_EPS;
 					else t = pow_wrapper(grad_geom, (double) t_n) * t0; /* decrease the temperature */
-				#ifdef NP_Implementation
 				if (rcstruct.algorithm_selection == 1)
 					{
     			    trops_probs[2] = t/t0;
  			        trops_probs[1] = (1 - trops_probs[2])/2;
    				    trops_probs[0] = trops_probs[1];
 					}
-				#endif
-
-				#ifdef MAP_REDUCE_SINGLE
-				if (rcstruct.algorithm_selection == 1)
-					{
-    			    trops_probs[2] = t/t0;
- 			        trops_probs[1] = (1 - trops_probs[2])/2;
-   				    trops_probs[0] = trops_probs[1];
-					}
-				#endif
 				}
 				else /* Linear cooling */
 				{
@@ -745,29 +711,39 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 				proposed = 0;
 				accepted = 0;
 				dect = LVB_FALSE;
-				#ifdef NP_Implementation
 				if (rcstruct.algorithm_selection == 2)
 				{ w_changes_prop = 0;
         		w_changes_acc = 0;
 				}
-				#endif
+			}
+			iter++;
 
-				#ifdef MAP_REDUCE_SINGLE
-				if (rcstruct.algorithm_selection == 2)
-				{ w_changes_prop = 0;
-        		w_changes_acc = 0;
-				}
-				#endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #ifdef NP_Implementation
-
-		}
-
-		iter++;
 
 		if (rcstruct.n_number_max_trees > 0 && bstackp->next >= rcstruct.n_number_max_trees){
 			break;
 		}
+#endif
 
 	if (rcstruct.algorithm_selection == 2)
 	{
@@ -781,72 +757,23 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 	    }
 	}
 	}
+	#ifdef MAP_REDUCE_SINGLE
+	MPI_Barrier(MPI_COMM_WORLD);
+	#endif
 	if (rcstruct.verbose == LVB_TRUE)
 	fprintf (pFile, "%ld\t%s\t%d\t%ld\t%lf\t%f\n", iter, change, changeAcc, len, t*10000, (float) r_lenmin/len);
     }
+
+	#ifdef MAP_REDUCE_SINGLE
+	print_sets(matrix, bstackp, misc);
+	#endif
 
     /* free "local" dynamic heap memory */
 	if (rcstruct.verbose == LVB_TRUE)
 	fclose(pFile);
 
-#else
-			}
-			iter++;
-
-#ifdef MAP_REDUCE_SINGLE
-			// if(misc->rank ==0) cerr << "Iter: " << iter << "        # tree/stack:" << bstackp->next << "       lenbest:" << lenbest << "      current temp:" << t << endl;
-			//	long numTree = bstackp->next;
-			//	MPI_Bcast(&numTree,  1, MPI_LONG, 0, MPI_COMM_WORLD);
-			//	if( numTree >= 2 ) break;
-			MPI_Barrier(MPI_COMM_WORLD);
-		if (rcstruct.verbose == LVB_TRUE)
-			fprintf (pFile, "%ld\t%s\t%d\t%ld\t%lf\t%f\n", iter, change, changeAcc, len, t*10000, (float) r_lenmin/len);
-	    }
-	    print_sets(matrix, bstackp, misc);
-		if (rcstruct.verbose == LVB_TRUE)
-			fclose(pFile);
-#else
-		    curr_time = time(NULL);
-		    elapsed_time = difftime(curr_time, last_checkpoint_time);
-		    if ((p_rcstruct->n_flag_save_read_states == DO_SAVE_READ_STATES && elapsed_time > p_rcstruct->n_checkpoint_interval) ||
-		    		(p_rcstruct->n_make_test == 1 && *current_iter > 300000) ) {
-		    	fp = open_file_by_MPIid(myMPIid, "wb", LVB_TRUE);
-		    	int is_process_finished = CHECK_POINT_PROCESS_NOT_FINISHED, n_number_blocks = 4;
-		    	fwrite(&is_process_finished, sizeof(is_process_finished), 1, fp);
-				fwrite(&n_number_blocks, sizeof(n_number_blocks), 1, fp);
-				checkpoint_treestack(fp, bstackp, matrix, LVB_FALSE);
-				checkpoint_uni(fp);
-				checkpoint_anneal(fp, matrix, accepted, dect, deltah, deltalen, failedcnt, iter, *current_iter, len, lenbest,
-					lendash, ln_t, t_n, t0, pacc, proposed, r_lenmin, root, t, grad_geom, grad_linear,
-					p_current_tree, LVB_TRUE, p_proposed_tree, LVB_TRUE);
-				checkpoint_params(fp, p_rcstruct);
-				last_checkpoint_time = curr_time;
-				lvb_assert(fclose(fp) == 0);
-				rename_file_name(myMPIid); /* atomic operation to rename the file name */
-				printf("Checkpoint saved MPIid: %d\n", myMPIid);
-		    }
-
-		    // In this test if current_iter > 300000 the application stops
-		    if (p_rcstruct->n_make_test == 1 && *current_iter > 300000){
-		    	exit(1);
-		    }
-			#ifdef MAP_REDUCE_SINGLE
-			if (rcstruct.algorithm_selection == 2)
-			{
-				if (changeAcc == 1) {
-	   			 trops_counter[trops_id]++;
-			}
-			else {
-	    		for (int i=0; i < 3; i++) {
-	     			if (trops_id != i)
-	        		trops_counter[i] = trops_counter[i] + 0.5;
-	    	}
-		}
-		}
-	if (rcstruct.verbose == LVB_TRUE)
-	fprintf (pFile, "%ld\t%s\t%d\t%ld\t%lf\t%f\n", iter, change, changeAcc, len, t*10000, (float) r_lenmin/len);
-			#endif
-		}	/* while(1) */
+	#ifndef NP_Implementation
+	#ifndef MAP_REDUCE_SINGLE
 	    /* cancel some request messages if it is necessary */
 	    if (request_message_from_master != 0) MPI_Cancel(&request_message_from_master);
 	    if (request_handle_send != 0) MPI_Cancel(&request_handle_send);
@@ -863,13 +790,6 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 	    	MPI_Status mpi_status;
 	    	MPI_Recv(p_data_info_from_master, 1, mpi_data_from_master, MPI_MAIN_PROCESS, MPI_TAG_SEND_RESTART, MPI_COMM_WORLD, &mpi_status); /* this one waits until the master receive all confirmations */
 
-	//    	if (mpi_status.MPI_ERROR != MPI_SUCCESS) {
-	//    	   char error_string[BUFSIZ];
-	//    	   int length_of_error_string;
-	//    	   MPI_Error_string(mpi_status.MPI_ERROR, error_string, &length_of_error_string);
-	//    	   printf("Process:%d   %s\n", myMPIid, error_string);
-	//    	}
-
 	    	if (p_data_info_from_master->n_is_to_continue == MPI_IS_NOT_TO_RESTART){
 	    		if (*p_n_state_progress == MESSAGE_ANNEAL_KILLED) *p_n_state_progress = MESSAGE_ANNEAL_KILLED_AND_NOT_REPEAT;
 	    		else *p_n_state_progress = MESSAGE_ANNEAL_FINISHED_AND_NOT_REPEAT;
@@ -885,13 +805,8 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 	    free(p_data_info_from_master);
 
 #endif
-
 #endif
 
-	#ifdef MAP_REDUCE_SINGLE
-	if (rcstruct.verbose == LVB_TRUE)
-	fclose(pFile);
-	#endif
 	free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
     free(p_current_tree);
     free(p_proposed_tree);
