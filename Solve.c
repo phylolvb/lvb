@@ -394,43 +394,23 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
     			lenmin = getminlen(matrix);
     			r_lenmin = (double) lenmin;
 				#endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#ifndef NP_Implementation
-	    while (1) {
-			#ifdef MAP_REDUCE_SINGLE
-			int changeAcc = 0;
-			#endif
-			*current_iter += 1;
-#ifdef MAP_REDUCE_SINGLE
+			
+			while (1) {
+				int changeAcc = 0;
+				*current_iter += 1;
+			
 			/* occasionally re-root, to prevent influence from root position */
 			if ((*current_iter % REROOT_INTERVAL) == 0) {
 				root = arbreroot(matrix, p_current_tree, root);
 				if ((log_progress == LVB_TRUE) && ((*current_iter % rcstruct.STAT_LOG_INTERVAL) == 0)) {
-	        		   if(misc->rank == 0)  lenlog(lenfp, bstackp, myMPIid, *current_iter, len, t);
-	        		}
-			}
-#else
-			/* occasionally re-root, to prevent influence from root position */
-			if ((*current_iter % REROOT_INTERVAL) == 0){
-				root = arbreroot(matrix, p_current_tree, root);
-				if ((log_progress == LVB_TRUE) && ((*current_iter % rcstruct.STAT_LOG_INTERVAL) == 0)) {
+					#ifdef MAP_REDUCE_SINGLE
+	        		if(misc->rank == 0)  
+					#endif
 					lenlog(lenfp, bstackp, myMPIid, *current_iter, len, t);
-
-					/* send temperature to the master process*/
+	        
+			#ifndef NP_Implementation
+			#ifndef MAP_REDUCE_SINGLE 
+			/* send temperature to the master process*/
 					if (request_handle_send != 0) { MPI_Wait(&request_handle_send, MPI_STATUS_IGNORE); }
 					p_data_info_to_master->n_iterations = *current_iter;
 					p_data_info_to_master->n_seed = p_rcstruct->seed;
@@ -458,75 +438,80 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 					/* printf("Process:%d   receive management\n", myMPIid); */
 					/* need to get other message to proceed... */
 					MPI_Irecv(p_data_info_from_master, 1, mpi_data_from_master, MPI_MAIN_PROCESS, MPI_TAG_MANAGEMENT_MASTER, MPI_COMM_WORLD, &request_message_from_master);
-				}
+			#endif
+			#endif
+
+					}
 			}
-#endif
 			lvb_assert(t > DBL_EPSILON);
-
-			/* mutation: alternate between the two mutation functions */
 			rootdash = root;
-		#ifdef MAP_REDUCE_SINGLE
-			if (rcstruct.algorithm_selection ==2)
-		{
-			trops_total = trops_counter[0]+trops_counter[1]+trops_counter[2];
-		trops_probs[0]=trops_counter[0]/trops_total;
-		trops_probs[1]=trops_counter[1]/trops_total;
-		trops_probs[2]=trops_counter[2]/trops_total;
-		}
 
-		  if (rcstruct.algorithm_selection >= 1)
-		  {
-		double random_val = uni();
- 		if (random_val < trops_probs[0]) {
-        		mutate_nni(matrix, p_proposed_tree, p_current_tree, root);	/* local change */
-			strcpy(change,"NNI");
-			if (rcstruct.algorithm_selection == 2)
-			trops_id = 0;
-		}
-    	else if (random_val < trops_probs[0] + trops_probs[1]) {
-        	mutate_spr(matrix, p_proposed_tree, p_current_tree, root);	/* global change */
+			if (rcstruct.algorithm_selection ==2)
+			{
+				trops_total = trops_counter[0]+trops_counter[1]+trops_counter[2];
+				trops_probs[0]=trops_counter[0]/trops_total;
+				trops_probs[1]=trops_counter[1]/trops_total;
+				trops_probs[2]=trops_counter[2]/trops_total;
+			}
+
+		 	if (rcstruct.algorithm_selection >= 1)
+		  	{
+				double random_val = uni();
+ 				if (random_val < trops_probs[0]) {
+        			mutate_nni(matrix, p_proposed_tree, p_current_tree, root);	/* local change */
+				strcpy(change,"NNI");
+				if (rcstruct.algorithm_selection == 2)
+					trops_id = 0;
+			}
+    		else if (random_val < trops_probs[0] + trops_probs[1]) {
+        		mutate_spr(matrix, p_proposed_tree, p_current_tree, root);	/* global change */
             strcpy(change,"SPR");
 			if (rcstruct.algorithm_selection == 2)
-			trops_id = 1;
-        }
-    	else {
-    	   	mutate_tbr(matrix, p_proposed_tree, p_current_tree, root);	/* global change */
+				trops_id = 1;
+        	}
+    		else {
+    	   		mutate_tbr(matrix, p_proposed_tree, p_current_tree, root);	/* global change */
             strcpy(change,"TBR");
 			if (rcstruct.algorithm_selection == 2)
-			trops_id = 2;
-        }
-		  }
-		else
-		{
-		if (iter & 0x01) { mutate_spr(matrix, p_proposed_tree, p_current_tree, root);	/* global change */
-		strcpy(change,"SPR"); }
-		else { mutate_nni (matrix, p_proposed_tree, p_current_tree, root);	/* local change */
-		strcpy(change,"NNI"); }
-		}
-		#else
-		if (iter & 0x01) { mutate_spr(matrix, p_proposed_tree, p_current_tree, root); }	/* global change */
-		else { mutate_nni (matrix, p_proposed_tree, p_current_tree, root); } /* local change */
-		#endif
+				trops_id = 2;
+        	}
+		  		}
+			else
+			{
+				if (iter & 0x01) { mutate_spr(matrix, p_proposed_tree, p_current_tree, root);	/* global change */
+			strcpy(change,"SPR"); }
+				else { mutate_nni (matrix, p_proposed_tree, p_current_tree, root);	/* local change */
+			strcpy(change,"NNI"); }
+			}
 
-			lendash = getplen(matrix, p_proposed_tree, *p_rcstruct, rootdash, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+			lendash = getplen(matrix, p_proposed_tree, *p_rcstruct, rootdash, p_todo_arr, p_todo_arr_sum_changes, p_runs
+			#ifdef NP_Implementation
+			, weights
+			#endif
+			);
 			lvb_assert (lendash >= 1L);
 			deltalen = lendash - len;
 			deltah = (r_lenmin / (double) len) - (r_lenmin / (double) lendash);
 			if (deltah > 1.0) deltah = 1.0; /* getminlen() problem with ambiguous sites */
 
-#ifdef MAP_REDUCE_SINGLE
+			{
+			if (iter % 2000 == 0) {
+			treestack_push(matrix, treevo, p_current_tree, rootdash, LVB_FALSE);
+			}
+			}
+
+			#ifdef MAP_REDUCE_SINGLE
 			MPI_Bcast(&deltalen, 1, MPI_LONG, 0, MPI_COMM_WORLD);
 			MPI_Bcast(&deltah,   1, MPI_LONG, 0, MPI_COMM_WORLD);
 			MPI_Bcast(&lendash,  1, MPI_LONG, 0, MPI_COMM_WORLD);
-#endif
+			#endif
 
 			if (deltalen <= 0)	/* accept the change */
 			{
-#ifdef MAP_REDUCE_SINGLE
 				if (lendash <= lenbest)	/* store tree if new */
 				{
-
-					if (lendash < lenbest) {
+			#ifdef MAP_REDUCE_SINGLE
+			if (lendash < lenbest) {
 						treestack_clear(bstackp);
 						mrTreeStack->map( mrTreeStack, map_clean, NULL );
 
@@ -595,132 +580,34 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 					}
 
 				}
-
-#else
-				if (lendash <= lenbest)	/* store tree if new */
-				{
-					/*printf("%ld\n", *current_iter);*/
+			#else
+				/*printf("%ld\n", *current_iter);*/
 					if (lendash < lenbest) treestack_clear(bstackp);	/* discard old bests */
 					if (treestack_push(matrix, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1){
 						accepted++;
 					}
 				}
-#endif
-				/* update current tree and its stats */
+			#endif
+
+			/* update current tree and its stats */
 				len = lendash;
 				treeswap(&p_current_tree, &root, &p_proposed_tree, &rootdash);
 
 				/* very best so far */
-				if (lendash < lenbest) {
-					lenbest = lendash;
-#ifdef MAP_REDUCE_SINGLE
+				if (lendash < lenbest) lenbest = lendash;
 				if (rcstruct.algorithm_selection ==1)
 				changeAcc = 1;
 
-					MPI_Bcast(&lenbest,  1, MPI_LONG, 0, MPI_COMM_WORLD);
-#endif
-				}
-	/*	cerr << "accepted = " << accepted << endl;
-		if (accepted > 2) exit(1);*/
-
-			}
-			else	/* poss. accept change for the worse */
-			{
 				#ifdef MAP_REDUCE_SINGLE
-				if (rcstruct.algorithm_selection == 2)
-				w_changes_prop ++;
+				MPI_Bcast(&lenbest,  1, MPI_LONG, 0, MPI_COMM_WORLD);
 				#endif
-#else
-while (1) {
-        int changeAcc = 0;
-    	*current_iter += 1;
-		/* occasionally re-root, to prevent influence from root position */
-		if ((*current_iter % REROOT_INTERVAL) == 0){
-			root = arbreroot(matrix, p_current_tree, root);
-			if ((log_progress == LVB_TRUE) && ((*current_iter % rcstruct.STAT_LOG_INTERVAL) == 0)) {
-        		lenlog(lenfp, bstackp, myMPIid, *current_iter, len, t);
-        	}
-		}
 
-		lvb_assert(t > DBL_EPSILON);
-
-		/* mutation: alternate between the two mutation functions */
-		rootdash = root;
-		if (rcstruct.algorithm_selection ==2)
-		{
-			trops_total = trops_counter[0]+trops_counter[1]+trops_counter[2];
-		trops_probs[0]=trops_counter[0]/trops_total;
-		trops_probs[1]=trops_counter[1]/trops_total;
-		trops_probs[2]=trops_counter[2]/trops_total;
-		}
-
-		  if (rcstruct.algorithm_selection >= 1)
-		  {
-		double random_val = uni();
- 		if (random_val < trops_probs[0]) {
-        		mutate_nni(matrix, p_proposed_tree, p_current_tree, root);	/* local change */
-			strcpy(change,"NNI");
-			if (rcstruct.algorithm_selection == 2)
-			trops_id = 0;
-		}
-    	else if (random_val < trops_probs[0] + trops_probs[1]) {
-        	mutate_spr(matrix, p_proposed_tree, p_current_tree, root);	/* global change */
-            strcpy(change,"SPR");
-			if (rcstruct.algorithm_selection == 2)
-			trops_id = 1;
-        }
-    	else {
-    	   	mutate_tbr(matrix, p_proposed_tree, p_current_tree, root);	/* global change */
-            strcpy(change,"TBR");
-			if (rcstruct.algorithm_selection == 2)
-			trops_id = 2;
-        }
-		  }
-		else
-		{
-		if (iter & 0x01) { mutate_spr(matrix, p_proposed_tree, p_current_tree, root);	/* global change */
-		strcpy(change,"SPR"); }
-		else { mutate_nni (matrix, p_proposed_tree, p_current_tree, root);	/* local change */
-		strcpy(change,"NNI"); }
-		}
-
-
-		lendash = getplen(matrix, p_proposed_tree, rcstruct, rootdash, p_todo_arr, p_todo_arr_sum_changes, p_runs, weights);
-		lvb_assert (lendash >= 1L);
-		deltalen = lendash - len;
-		deltah = (r_lenmin / (double) len) - (r_lenmin / (double) lendash);
-		if (deltah > 1.0) deltah = 1.0; /* getminlen() problem with ambiguous sites */
-
-		{
-			if (iter % 2000 == 0) {
-			treestack_push(matrix, treevo, p_current_tree, rootdash, LVB_FALSE);
-		}
-		}
-		if (deltalen <= 0)	/* accept the change */
-		{
-			if (lendash <= lenbest)	/* store tree if new */
-			{
-				/*printf("%ld\n", *current_iter);*/
-				if (lendash < lenbest) treestack_clear(bstackp);	/* discard old bests */
-				if (treestack_push(matrix, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1){
-					accepted++;
 				}
-			}
-			/* update current tree and its stats */
-			len = lendash;
-			treeswap(&p_current_tree, &root, &p_proposed_tree, &rootdash);
+				else	/* poss. accept change for the worse */
+				{
+					if (rcstruct.algorithm_selection == 2)
+					w_changes_prop ++;
 
-			/* very best so far */
-			if (lendash < lenbest) lenbest = lendash;
-			if (rcstruct.algorithm_selection == 1)
-			changeAcc = 1;
-
-		}
-		else	/* poss. accept change for the worse */
-		{
-			if (rcstruct.algorithm_selection == 2)
-			w_changes_prop ++;
-#endif
 /* Mathematically,
 				 *     Pacc = e ** (-1/T * deltaH)
 				 *     therefore ln Pacc = -1/T * deltaH
@@ -755,29 +642,31 @@ while (1) {
 					if (uni() < pacc)	/* do accept the change */
 					{
 						treeswap(&p_current_tree, &root, &p_proposed_tree, &rootdash);
-						#ifdef NP_Implementation
 						if (rcstruct.algorithm_selection == 2)
 						w_changes_acc++;
-						#endif
 						len = lendash;
-						#ifdef NP_Implementation
 						if (rcstruct.algorithm_selection == 1)
 						changeAcc = 1;
-						#endif
-
-						#ifdef MAP_REDUCE_SINGLE
-						if (rcstruct.algorithm_selection == 2)
-						w_changes_acc++;
-						#endif
-						len = lendash;
-						#ifdef MAP_REDUCE_SINGLE
-						if (rcstruct.algorithm_selection == 1)
-						changeAcc = 1;
-						#endif
 					}
 				}
 			}
 			proposed++;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+			
 #ifdef MAP_REDUCE_SINGLE
 			MPI_Bcast(&proposed,  1, MPI_LONG, 0, MPI_COMM_WORLD);
 #endif
