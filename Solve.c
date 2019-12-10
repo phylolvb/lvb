@@ -41,10 +41,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== solve.c - solving functions ========== */
 
-// static void lenlog				complete
-// long deterministic_hillclimb		complete
-// long anneal						
-
 #include "Lvb.h"
 
 #ifndef NP_Implementation
