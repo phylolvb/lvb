@@ -1332,7 +1332,7 @@ static void cr_uxe(FILE *const stream, const char *const msg)
 } /* end cr_uxe */
 
 	#ifndef NP_Implementation
-	void lvb_treeprint (Dataptr matrix, DataSeqPtr restrict matrix_seq_data, FILE *const stream, const Branch *const barray, const long root)
+	void lvb_treeprint (Dataptr matrix, FILE *const stream, const Branch *const barray, const long root, DataSeqPtr restrict matrix_seq_data)
 	#else
 	void lvb_treeprint (Dataptr matrix, FILE *const stream, const Branch *const barray, const long root)
 	#endif

@@ -408,7 +408,7 @@ double get_initial_t(Dataptr, const Branch *const, Params rcstruct, long, int my
 long getplen(Dataptr restrict, Branch *, Params rcstruct, const long, long *restrict p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs);
 long get_random_maxaccept(void);
 long lvb_reroot(Dataptr restrict, Branch *const barray, const long oldroot, const long newroot, Lvb_bool b_with_sset);
-void lvb_treeprint (Dataptr, DataSeqPtr restrict matrix_seq_data, FILE *const, const Branch *const, const long);
+void lvb_treeprint (Dataptr, FILE *const, const Branch *const, const long, DataSeqPtr restrict matrix_seq_data);
 void matchange(Dataptr, DataSeqPtr, const Params);
 void mutate_nni(Dataptr restrict, Branch *const, const Branch *const, long);
 void mutate_spr(Dataptr restrict, Branch *const, const Branch *const, long);

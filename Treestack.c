@@ -562,11 +562,11 @@ int treestack_print(Dataptr matrix, Treestack *sp, FILE *const outfp, Lvb_bool o
         treecopy(matrix, barray, sp->stack[i].tree, LVB_FALSE);
         if (sp->stack[i].root != d_obj1) lvb_reroot(matrix, barray, sp->stack[i].root, d_obj1, LVB_FALSE);
         root = d_obj1;
-        #ifndef NP_Implementation
-        lvb_treeprint(matrix, matrix_seq_data, outfp, barray, root);
-        #else
-        lvb_treeprint(matrix, outfp, barray, root);
-        #endif
+        lvb_treeprint(matrix, outfp, barray, root
+	    #ifndef NP_Implementation
+	    , matrix_seq_data
+	    #endif
+	    );
     }
     if (fflush(outfp) != 0)
     	crash("file write error when writing best trees");

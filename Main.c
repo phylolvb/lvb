@@ -68,11 +68,12 @@ static void smessg(long start, long cycle)
 
 } /* end smessg() */
 
+
+static void writeinf(Params prms, Dataptr matrix, int argc, char **argv
 #ifndef NP_Implementation
-static void writeinf(Params prms, Dataptr matrix, int myMPIid, int n_process, int argc, char **argv)
-#else
-static void writeinf(Params prms, Dataptr matrix, int argc, char **argv)
+, int myMPIid, int n_process
 #endif
+)
 {
 	struct utsname buffer;
 	errno = 0;
@@ -89,8 +90,6 @@ static void writeinf(Params prms, Dataptr matrix, int argc, char **argv)
 	printf("' at: ");
 	log_Time();
 	printf("\n");
-
-	
 
 	printf("Analysis Properties: \n");
 	printf("  Alignment:          '%s'\n", prms.file_name_in);
@@ -140,43 +139,11 @@ static void writeinf(Params prms, Dataptr matrix, int argc, char **argv)
 	// printf("Host Machine: %s %s, %s (%d processors configured and %d processors available)\n\n", buffer.nodename, buffer.machine, buffer.sysname, get_nprocs_conf(), get_nprocs());
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+static void logtree1(Dataptr matrix, const Branch *const barray, const long start, const long cycle, long root
 #ifndef NP_Implementation
-static void logtree1(Dataptr matrix, DataSeqPtr restrict matrix_seq_data, const Branch *const barray, const long start, const long cycle, long root)
-#else
-static void logtree1(Dataptr matrix, const Branch *const barray, const long start, const long cycle, long root)
+, DataSeqPtr restrict matrix_seq_data
 #endif
+)
 /* log initial tree for cycle cycle of start start (in barray) to outfp */
 {
     static char outfnam[LVB_FNAMSIZE]; 	/* current file name */
@@ -188,14 +155,42 @@ static void logtree1(Dataptr matrix, const Branch *const barray, const long star
 
     /* create tree file */
     outfp = clnopen(outfnam, "w");
+	
+    lvb_treeprint(matrix, outfp, barray, root
 	#ifndef NP_Implementation
-    lvb_treeprint(matrix, matrix_seq_data, outfp, barray, root);
-	#else
-	lvb_treeprint(matrix, outfp, barray, root);
+	, matrix_seq_data
 	#endif
+	);
     clnclose(outfp, outfnam);
 
 } /* end logtree1() */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #ifndef NP_Implementation
 #ifdef MAP_REDUCE_SINGLE
@@ -283,7 +278,7 @@ static void logtree1(Dataptr matrix, const Branch *const barray, const long star
 				alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
 				fprintf(sumfp, "%ld\t%ld\t%ld\t", start, cyc, getplen(matrix, tree, rcstruct, initroot, p_todo_arr, p_todo_arr_sum_changes, p_runs));
 				free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-				logtree1(matrix, matrix_seq_data, tree, start, cyc, initroot);
+				logtree1(matrix, tree, start, cyc, initroot, matrix_seq_data);
 			}
 		}
 
@@ -463,7 +458,7 @@ static void logtree1(Dataptr matrix, const Branch *const barray, const long star
 					alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
 					fprintf(sumfp, "%d\t%ld\t%ld\t%ld\t", myMPIid, start, cyc, getplen(matrix, tree, rcstruct, initroot, p_todo_arr, p_todo_arr_sum_changes, p_runs));
 					free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-					logtree1(matrix, matrix_seq_data, tree, start, cyc, initroot);
+					logtree1(matrix, tree, start, cyc, initroot, matrix_seq_data);
 				}
 			}
 			else{
@@ -1328,7 +1323,7 @@ int get_other_seed_to_run_a_process(){
 		#endif
  	 	stack_treevo = *(treestack_new());
 	    matchange(matrix, matrix_seq_data, rcstruct);	/* cut columns */
-            writeinf(rcstruct, matrix, misc.rank, misc.nprocs, argc, argv);
+            writeinf(rcstruct, matrix, argc, argv, misc.rank, misc.nprocs);
 	    calc_distribution_processors(matrix, rcstruct);
 
 	    if (rcstruct.verbose == LVB_TRUE) {
