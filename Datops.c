@@ -43,11 +43,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Lvb.h"
 
+static void logcut(const Lvb_bool *const cut, const long m);
+
+
 #ifndef NP_Implementation
 
 static long constchar(Dataptr restrict matrix, DataSeqPtr restrict matrix_seq, Lvb_bool *const togo, const Lvb_bool verbose);
 	static void cutcols(Dataptr matrix, DataSeqPtr matrix_seq, const Lvb_bool *const tocut, long n_columns_to_change);
-	static void logcut(const Lvb_bool *const cut, const long m);
+	
 	static long getminlen(const Dataptr matrix, DataSeqPtr matrix_seq);
 
 static char *getstatev(const Dataptr matrix, DataSeqPtr matrix_seq, const long k)
@@ -55,8 +58,6 @@ static char *getstatev(const Dataptr matrix, DataSeqPtr matrix_seq, const long k
 #else
 static long constchar(Dataptr restrict matrix, Lvb_bool *const togo, const Lvb_bool verbose);
 static void cutcols(Dataptr matrix, const Lvb_bool *const tocut, long n_columns_to_change);
-static void logcut(const Lvb_bool *const cut, const long m);
-
 static char *getstatev(const Dataptr matrix, const long k)
 #endif
 	/* return pointer to string containing 1 instance of each character state in
@@ -117,66 +118,6 @@ static char *getstatev(const Dataptr matrix, const long k)
 		return minlen;
 
 	} /* end getminlen() */
-
-
-
-
-/**********
-
-=head1 dna_makebin - CONVERT DNA TEXT MATRIX TO BINARY STATESET MATRIX
-
-=head2 SYNOPSIS
-
-    void dna_makebin(const Dataptr mat, Lvb_bool fifthstate,
-     unsigned char **enc_mat);
-
-=head2 DESCRIPTION
-
-Converts a matrix of sequence strings to a matrix of binary-encoded
-statesets, where each of A, C, T, G and O (deletion) is represented by
-a different bit. Ambiguous bases are converted to the union of all the
-bases they may represent. C<?> is treated as totally ambiguous and
-C<-> is either treated as <?> or as <O>.
-
-=head2 PARAMETERS
-
-=head3 INPUT
-
-=over 4
-
-=item mat
-
-C<mat>C<->E<gt>C<m> and C<mat>C<->E<gt>C<n> give the number of bases in
-each sequence and the number of sequences, respectively. Member
-C<mat>C<->E<gt>C<row> points to the first element in an array of
-pointers, each of which points to a sequence stored as a text string.
-
-=item fifthstate
-
-If C<LVB_TRUE>, treat gaps indicated by C<-> as identical to C<O>. Otherwise,
-treat gaps indicated by C<-> as identical to <?>, i.e., totally ambiguous.
-
-=back
-
-=head3 OUTPUT
-
-=over 4
-
-=item enc_mat
-
-C<enc_mat> must point to the first element in an array of
-C<mat>C<->E<gt>C<n> pointers, each of which points to an allocated
-array of C<mat>C<->E<gt>C<n> elements. On return,
-C<enc_mat>[I<i>][I<j>] will give the binary-encoded stateset for
-C<mat>C<->E<gt>C<row>[I<i>][I<j>], where I<i> is in the interval
-[0..C<mat>C<->E<gt>C<n>-1] and I<j> is in the interval
-[0..C<mat>C<->E<gt>C<m>-1].
-
-=back
-
-=cut
-
-**********/
 
 #ifndef NP_Implementation
 void dna_makebin(Dataptr restrict mat, DataSeqPtr matrix_seq, Lvb_bit_length **enc_mat)

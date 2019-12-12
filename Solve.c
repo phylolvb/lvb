@@ -483,12 +483,14 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 			deltah = (r_lenmin / (double) len) - (r_lenmin / (double) lendash);
 			if (deltah > 1.0) deltah = 1.0; /* getminlen() problem with ambiguous sites */
 
-			// {
-			// if (iter % 2000 == 0) {
-			// treestack_push(matrix, treevo, p_current_tree, rootdash, LVB_FALSE);
-			// }
-			// }
-
+			/*
+			 {
+			 if (iter % 2000 == 0) {
+			 treestack_push(matrix, treevo, p_current_tree, rootdash, LVB_FALSE);
+			 }
+			 }
+			*/
+			
 			#ifdef MAP_REDUCE_SINGLE
 			MPI_Bcast(&deltalen, 1, MPI_LONG, 0, MPI_COMM_WORLD);
 			MPI_Bcast(&deltah,   1, MPI_LONG, 0, MPI_COMM_WORLD);

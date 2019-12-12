@@ -48,12 +48,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Store_states.h"
 #endif
 
-#ifdef MAP_REDUCE_SINGLE
 	static Treestack bstack_overall;	/* overall best tree stack */
-#endif
-#ifdef NP_Implementation
-	static Treestack bstack_overall;
-#endif
 	static Treestack stack_treevo;
 
 static void check_stdout(void)
@@ -68,16 +63,16 @@ static void check_stdout(void)
 static void smessg(long start, long cycle)
 /* print cycle start message */
 {
-	#ifndef NP_Implementation
     printf("Beginning start %ld cycle %ld\n", start, cycle);
-	#endif
     check_stdout();
 
 } /* end smessg() */
 
 #ifndef NP_Implementation
 static void writeinf(Params prms, Dataptr matrix, int myMPIid, int n_process, int argc, char **argv)
-/* write initial details to standard output */
+#else
+static void writeinf(Params prms, Dataptr matrix, int argc, char **argv)
+#endif
 {
 	struct utsname buffer;
 	errno = 0;
@@ -87,7 +82,6 @@ static void writeinf(Params prms, Dataptr matrix, int myMPIid, int n_process, in
 		exit(EXIT_FAILURE);
 	}
 
-
 	printf("Executing: ");
 	printf("' ");
 	for (int i = 0; i < argc; ++i)
@@ -95,8 +89,8 @@ static void writeinf(Params prms, Dataptr matrix, int myMPIid, int n_process, in
 	printf("' at: ");
 	log_Time();
 	printf("\n");
-	// Causes linker error 
-	// printf("Host Machine: %s %s, %s (%d processors configured and %d processors available)\n\n", buffer.nodename, buffer.machine, buffer.sysname, get_nprocs_conf(), get_nprocs());
+
+	
 
 	printf("Analysis Properties: \n");
 	printf("  Alignment:          '%s'\n", prms.file_name_in);
@@ -109,8 +103,8 @@ static void writeinf(Params prms, Dataptr matrix, int myMPIid, int n_process, in
     	fprintf (stderr, "Error, input format file not recognized\n");
     	abort();
     }
+
 	printf("  MSA size:            %ld x %ld\n", matrix->n, matrix->original_m);
-	//printf("    After cut =%ld\n", matrix->m);
 	printf("  Seed:                %d\n", prms.seed);
 	printf("  Cooling schedule:    ");
     if(prms.cooling_schedule == 0) printf("GEOMETRIC\n");
@@ -121,71 +115,62 @@ static void writeinf(Params prms, Dataptr matrix, int myMPIid, int n_process, in
     else if(prms.algorithm_selection == 2) printf("          2 (PBS)\n");
 
 	printf("\nParallelisation Properties: \n");
+	#ifndef NP_Implementation
 	printf("MPI processes:         %d\n", n_process);
 	printf("Current process ID:    %d\n", myMPIid);
+	#endif
 	printf("PThreads:              %d\n", prms.n_processors_available);
-	//	printf("output file name        = %s\n",  prms.file_name_out);
+
+#ifdef MPI_Implementation
 #ifndef MAP_REDUCE_SINGLE
 	printf("#seeds to try           = %d\n", prms.n_seeds_need_to_try);
 	printf("checkpoint interval (s) = %d\n", prms.n_checkpoint_interval);
 #endif
+#endif
 	printf("\n================================================================================\n");	
 	printf("\nInitialising search: \n");
+
 	// if (prms.n_flag_save_read_states == DONT_SAVE_READ_STATES) printf("Don't read and save states at a specific time points\n");
 	// else printf("It is going to read and save states at a specific time points\n\n");
-} /* end writeinf() */ 
-#else
-static void writeinf(Params prms, Dataptr matrix, int argc, char **argv)
-{
-	struct utsname buffer;
-	errno = 0;
-	if (uname(&buffer) !=0) 
-	{
-		perror("uname");
-		exit(EXIT_FAILURE);
-	}
-
-
-	printf("Executing: ");
-	printf("' ");
-	for (int i = 0; i < argc; ++i)
-	printf("%s ", argv[i]);
-	printf("' at: ");
-	log_Time();
-	printf("\n");
-	// printf("Host Machine: %s %s, %s (%d processors configured and %d processors available)\n\n", buffer.nodename, buffer.machine, buffer.sysname, get_nprocs_conf(), get_nprocs());
-	printf("Analysis Properties: \n");
-	printf("  Alignment:          '%s'\n", prms.file_name_in);
-	printf("  MSA format:          ");
-	if (prms.n_file_format == FORMAT_PHYLIP) printf("PHYLIP\n");
-    else if (prms.n_file_format == FORMAT_FASTA) printf("FASTA\n");
-    else if (prms.n_file_format == FORMAT_NEXUS) printf("NEXUS\n");
-    else if (prms.n_file_format == FORMAT_CLUSTAL) printf("CLUSTAL\n");
-    else{
-    	fprintf (stderr, "Error, input format file not recognized\n");
-    	abort();
-    }
-	printf("  MSA size:            %ld x %ld\n", matrix->n, matrix->original_m);
-	//printf("    After cut =%ld\n", matrix->m);
-	printf("  Seed:                %d\n", prms.seed);
-	printf("  Cooling schedule:    ");
-    if(prms.cooling_schedule == 0) printf("GEOMETRIC\n");
-    else printf("LINEAR\n");
-	printf("  Algorithm: ");
-    if(prms.algorithm_selection == 0) printf("          0 (SN)\n");
-    else if(prms.algorithm_selection == 1) printf("          1 (SEQ-TNS)\n");
-    else if(prms.algorithm_selection == 2) printf("          2 (PBS)\n");
-
-	printf("\nParallelisation Properties: \n");
-	printf("PThreads:              %d\n", prms.n_processors_available);
-
-	printf ("\n================================================================================\n");
-	printf("\nInitialising search: \n");
-
 	// printf("Output File          = %s\n", prms.file_name_out);
     // printf("Bootstrap Replicates = %ld\n", prms.bootstraps);
-} /* end writeinf() */
-#endif
+	//printf("    After cut =%ld\n", matrix->m);
+
+	// Causes linker error 
+	// printf("Host Machine: %s %s, %s (%d processors configured and %d processors available)\n\n", buffer.nodename, buffer.machine, buffer.sysname, get_nprocs_conf(), get_nprocs());
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #ifndef NP_Implementation
 static void logtree1(Dataptr matrix, DataSeqPtr restrict matrix_seq_data, const Branch *const barray, const long start, const long cycle, long root)
