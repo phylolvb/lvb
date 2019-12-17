@@ -276,9 +276,8 @@ typedef struct
 #define MAXACCEPT_MAX 500L		/* maximum value for maxaccept */
 #endif	/* MAP_REDUCE_SINGLE */
 
-#else
-#define MAXACCEPT_SLOW 5L	/* maxaccept for "slow" searches */
 #endif
+#define MAXACCEPT_SLOW 5L	/* maxaccept for "slow" searches */
 
 /* fixed file names */
 #define MATFNAM 				"infile"	/* matrix file name */

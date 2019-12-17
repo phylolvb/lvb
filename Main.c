@@ -165,58 +165,111 @@ static void logtree1(Dataptr matrix, const Branch *const barray, const long star
 
 } /* end logtree1() */
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+static long getsoln(Dataptr restrict matrix, Params rcstruct, int myMPIid, Lvb_bool log_progress
 #ifndef NP_Implementation
+, DataSeqPtr restrict matrix_seq_data
 #ifdef MAP_REDUCE_SINGLE
-	static long getsoln(Dataptr restrict matrix, DataSeqPtr restrict matrix_seq_data, Params rcstruct, long *iter_p, int myMPIid, Lvb_bool log_progress,
-				MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer)
-	/* get and output solution(s) according to parameters in rcstruct;
+, long *iter_p, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer
+#else
+, Treestack* bstack_overall, Lvb_bit_length **enc_mat
+#endif
+#else
+, const long *weight_arr, long *iter_p
+#endif
+)
+
+/* get and output solution(s) according to parameters in rcstruct;
 	 * return length of shortest tree(s) found */
 	{
-		static char fnam[LVB_FNAMSIZE];	/* current file name */
-		long fnamlen;			/* length of current file name */
-		long i;				/* loop counter */
-		double t0;				/* SA cooling cycle initial temp */
-		long maxaccept;		/* SA cooling cycle maxaccept */
+		static char fnam[LVB_FNAMSIZE]; /* current file name */
+		double t0;	/* SA cooling cycle initial temp */
+
 		long maxpropose = MAXPROPOSE_SLOW;	/* SA cooling cycle maxpropose */
-		long maxfail    = MAXFAIL_SLOW;	/* SA cooling cycly maxfail */
-		long treec;				/* number of trees found */
+		long maxaccept = MAXACCEPT_SLOW;		/* SA cooling cycle maxaccept */
 		long treelength = LONG_MAX;		/* length of each tree found */
 		long initroot;			/* initial tree's root */
 		FILE *sumfp;			/* best length file */
-		FILE *resfp;			/* results file */
 		Branch *tree;			/* initial tree */
+		long *p_todo_arr; /* [MAX_BRANCHES + 1];	 list of "dirty" branch nodes */
+	    long *p_todo_arr_sum_changes; /*used in openMP, to sum the partial changes */
+	    int *p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */
+
+
+
+
+		#ifndef NP_Implementation
+		#ifndef MAP_REDUCE_SINGLE // MPI
+	    long trees_output;		/* number of trees output for current rep. */
+	    FILE *outtreefp;		/* best trees found overall */
+	    long l_iterations = 0;			/* iterations of annealing algorithm */
+	    long maxfail = MAXFAIL_SLOW;	/* SA cooling cycly maxfail */
+	    int n_state_progress;		/* has a state to see if is necessary to repeat or finish */
+	    int n_number_tried_seed_next = myMPIid; 	/* it has the number of tried seed */
+	    int n_number_tried_seed = myMPIid;	 	/* it has the number of tried seed */
+	    long cyc = 0;	/* current cycle number */
+	    long start = 0;	/* current random (re)start number */
+
+		#else // MR
+		long fnamlen;			/* length of current file name */	
+		long i;				/* loop counter */
+		long maxfail    = MAXFAIL_SLOW;	/* SA cooling cycly maxfail */
+		long treec;				/* number of trees found */
+		FILE *resfp;			/* results file */
 		Lvb_bit_length **enc_mat;		/* encoded data mat. */
-		long *p_todo_arr; 			/* [MAX_BRANCHES + 1];	 list of "dirty" branch nos */
-		long *p_todo_arr_sum_changes; 	/*used in openMP, to sum the partial changes */
-		int *p_runs; 			/*used in openMP, 0 if not run yet, 1 if it was processed */
 		int *total_count;
+		#endif
+
+		#else // NP
+	    long fnamlen;			/* length of current file name */
+    	long i;				/* loop counter */
+    	long maxfail = MAXFAIL_SLOW;	/* SA cooling cycly maxfail */
+    	long treec;				/* number of trees found */
+    	FILE *resfp;			/* results file */
+    	Lvb_bit_length **enc_mat;	/* encoded data mat. */
+		#endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//MR
+#ifndef NP_Implementation
+#ifdef MAP_REDUCE_SINGLE
+	
+		
 
 		//MISC *misc = (MISC *) ptr;
 
@@ -382,38 +435,7 @@ static void logtree1(Dataptr matrix, const Branch *const barray, const long star
 
 #else
 
-	static long getsoln(Dataptr restrict matrix, DataSeqPtr restrict matrix_seq_data, Params rcstruct,
-			Treestack* bstack_overall, Lvb_bit_length **enc_mat, int myMPIid, Lvb_bool log_progress)
-	/* get and output solution(s) according to parameters in rcstruct;
-	 * return length of shortest tree(s) found  */
-	{
-	    long trees_output;		/* number of trees output for current rep. */
-	    FILE *outtreefp;		/* best trees found overall */
 
-	    char file_name_output[LVB_FNAMSIZE];
-	    double t0;		/* SA cooling cycle initial temp */
-	    long l_iterations = 0;			/* iterations of annealing algorithm */
-	    long maxaccept;		/* SA cooling cycle maxaccept */
-	    long maxpropose = MAXPROPOSE_SLOW;	/* SA cooling cycle maxpropose */
-	    long maxfail = MAXFAIL_SLOW;	/* SA cooling cycly maxfail */
-	    long treelength = LONG_MAX;		/* length of each tree found */
-	    long initroot;			/* initial tree's root */
-	    FILE *sumfp;			/* best length file */
-	    Branch *tree;			/* initial tree */
-	    long *p_todo_arr; /* [MAX_BRANCHES + 1];	 list of "dirty" branch nodes */
-	    long *p_todo_arr_sum_changes; /*used in openMP, to sum the partial changes */
-	    int *p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */
-
-	    int n_state_progress;		/* has a state to see if is necessary to repeat or finish */
-	    int n_number_tried_seed_next = myMPIid; 	/* it has the number of tried seed */
-	    int n_number_tried_seed = myMPIid;	 	/* it has the number of tried seed */
-	    /* NOTE: These variables and their values are "dummies" and are no longer
-	     * used in the current version of LVB. However, in order to keep the
-	     * formatting of the output compatible with that of previous versions of
-	     * LVB these variables will continue to be used and written to the summary
-	     * files.  */
-	    long cyc = 0;	/* current cycle number */
-	    long start = 0;	/* current random (re)start number */
 
 	    do{
 			/* dynamic "local" heap memory */
@@ -493,8 +515,8 @@ static void logtree1(Dataptr matrix, const Branch *const barray, const long star
 					treestack_push(matrix, bstack_overall, tree, initroot, LVB_FALSE);
 					treelength = deterministic_hillclimb(matrix, bstack_overall, tree, rcstruct, initroot, stdout, &l_iterations, myMPIid, log_progress);
 					/* save it */
-					sprintf(file_name_output, "%s_%d", rcstruct.file_name_out, n_number_tried_seed); /* name of output file for this process */
-					outtreefp = clnopen(file_name_output, "w");
+					sprintf(fnam, "%s_%d", rcstruct.file_name_out, n_number_tried_seed); /* name of output file for this process */
+					outtreefp = clnopen(fnam, "w");
 					#ifdef MAP_REDUCE_SINGLE
 					FILE * treEvo;
 					if(rcstruct.algorithm_selection ==2)
@@ -505,10 +527,10 @@ static void logtree1(Dataptr matrix, const Branch *const barray, const long star
 					if(rcstruct.algorithm_selection ==2)
 					fclose(treEvo);					
 					#endif
-					clnclose(outtreefp, file_name_output);
+					clnclose(outtreefp, fnam);
 					printf("\nProcess:%d   Rearrangements tried: %ld\n", myMPIid, l_iterations);
-					if (trees_output == 1L) { printf("1 most parsimonious tree of length %ld written to file '%s'\n", treelength, file_name_output); }
-					else { printf("%ld equally parsimonious1 trees of length %ld written to file '%s'\n", trees_output, treelength, file_name_output); }
+					if (trees_output == 1L) { printf("1 most parsimonious tree of length %ld written to file '%s'\n", treelength, fnam); }
+					else { printf("%ld equally parsimonious1 trees of length %ld written to file '%s'\n", trees_output, treelength, fnam); }
 				}
 			}
 			if (n_state_progress == MESSAGE_ANNEAL_FINISHED_AND_REPEAT || n_state_progress == MESSAGE_ANNEAL_KILLED_AND_REPEAT){
@@ -543,27 +565,8 @@ static void logtree1(Dataptr matrix, const Branch *const barray, const long star
 #endif
 
 #else
-static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight_arr, long *iter_p, int myMPIid, Lvb_bool log_progress)
-/* get and output solution(s) according to parameters in rcstruct;
- * return length of shortest tree(s) found, using weights in weight_arr */
-{
-    static char fnam[LVB_FNAMSIZE];	/* current file name */
-    long fnamlen;			/* length of current file name */
-    long i;				/* loop counter */
-    double t0;		/* SA cooling cycle initial temp */
-    long maxaccept = MAXACCEPT_SLOW;	/* SA cooling cycle maxaccept */
-    long maxpropose = MAXPROPOSE_SLOW;	/* SA cooling cycle maxpropose */
-    long maxfail = MAXFAIL_SLOW;	/* SA cooling cycly maxfail */
-    long treec;				/* number of trees found */
-    long treelength = LONG_MAX;		/* length of each tree found */
-    long initroot;			/* initial tree's root */
-    FILE *sumfp;			/* best length file */
-    FILE *resfp;			/* results file */
-    Branch *tree;			/* initial tree */
-    Lvb_bit_length **enc_mat;	/* encoded data mat. */
-    long *p_todo_arr; /* [MAX_BRANCHES + 1];	 list of "dirty" branch nos */
-    long *p_todo_arr_sum_changes; /*used in openMP, to sum the partial changes */
-    int *p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */
+
+
 
     /* NOTE: These variables and their values are "dummies" and are no longer
      * used in the current version of LVB. However, in order to keep the
@@ -660,6 +663,52 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
 
 } /* end getsoln() */
 #endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* set the number of processors to use */
 void calc_distribution_processors(Dataptr matrix, Params rcstruct){
@@ -1255,7 +1304,7 @@ int get_other_seed_to_run_a_process(){
 					#endif
 					log_progress = LVB_TRUE;
 					/* get the length and the tree */
-					getsoln(matrix, matrix_seq_data, rcstruct, p_bstack_overall, enc_mat, myMPIid, log_progress);
+					getsoln(matrix, rcstruct,  myMPIid, log_progress, matrix_seq_data, p_bstack_overall, enc_mat);
 					/* "file-local" dynamic heap memory */
 					#ifdef MAP_REDUCE_SINGLE
 					if(rcstruct.algorithm_selection ==2)
@@ -1339,7 +1388,7 @@ int get_other_seed_to_run_a_process(){
 		treEvo = fopen ("treEvo.tre","w");
 		#endif
 	    iter = 0;
-	    final_length = getsoln(matrix, matrix_seq_data, rcstruct, &iter, myMPIid, log_progress, &misc, mrTreeStack, mrBuffer);
+		final_length = getsoln(matrix, rcstruct,  myMPIid, log_progress, matrix_seq_data, &iter, &misc, mrTreeStack, mrBuffer);
 	    if (misc.rank == 0) {
 	       trees_output = treestack_print(matrix, matrix_seq_data, &bstack_overall, outtreefp, LVB_FALSE);
 	    }
@@ -1449,7 +1498,7 @@ int get_other_seed_to_run_a_process(){
 			for (i = 0; i < matrix->m; i++) weight_arr[i] = 1;
 		}
 
-		final_length = getsoln(matrix, rcstruct, weight_arr, &iter, myMPIid, log_progress);
+		final_length = getsoln(matrix, rcstruct,  myMPIid, log_progress, weight_arr, &iter);
 
 		if (rcstruct.bootstraps > 0) trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_TRUE);
 		else trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_FALSE);
