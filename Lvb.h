@@ -70,7 +70,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Myuni.h"
 #include "Mymaths.h"
 #include "clock.h"
+#include "log.h"
 #include <sys/utsname.h>
+#include <stdbool.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #ifdef MAP_REDUCE_SINGLE
 	#include <omp.h>
@@ -376,6 +380,8 @@ void print_LVB_INFO();
 //clock.h functions
 void log_Time();
 void logstim(void);
+//log.h functions
+bool logfile_exists (char *filename);
 
 int get_nprocs_conf();
 int get_nprocs();

@@ -919,65 +919,201 @@ int get_other_seed_to_run_a_process(){
     long *weight_arr;  		/* weights for sites */
 #endif
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	// entitle standard output
-	#ifdef MAP_REDUCE_SINGLE
+	#if defined (MAP_REDUCE_SINGLE) || defined (NP_Implementation)
 		print_LVB_COPYRIGHT();
 		print_LVB_INFO();
-	#endif
-
-	#ifdef NP_Implementation
-	print_LVB_COPYRIGHT();
-	print_LVB_INFO();
 	#endif
 
 #ifdef MAP_REDUCE_SINGLE
 		}
 #endif
+	/* start timer */
+    clock_t Start, End;
+   	double Overall_Time_taken;
+    Start = clock();
+	lvb_initialize();
 
-			lvb_initialize();
-			
-#ifndef NP_Implementation
-#ifndef MAP_REDUCE_SINGLE
+#if defined (MAP_REDUCE_SINGLE) || defined (NP_Implementation)
+
+myMPIid = 0;
+
+#ifdef MAP_REDUCE_SINGLE
+
+		n_error_code = getparam(&rcstruct, argc, argv);
+	    /* read and alloc space to the data structure */
+	    matrix = (data *) alloc(sizeof(DataStructure), "alloc data structure");
+	    matrix_seq_data = (seq_data *) alloc(sizeof(DataSeqStructure), "alloc data structure");
+	    matrix_seq_data->row = NULL;
+	    matrix_seq_data->rowtitle = NULL;
+	    phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix, matrix_seq_data);
+	    /* "file-local" dynamic heap memory: set up best tree stacks, need to be by thread */
+	    bstack_overall = *(treestack_new());
+		if(rcstruct.algorithm_selection ==2)
+ 	 	stack_treevo = *(treestack_new());
+	    matchange(matrix, matrix_seq_data, rcstruct);	/* cut columns */
+            writeinf(rcstruct, matrix, argc, argv, misc.rank, misc.nprocs);
+	    calc_distribution_processors(matrix, rcstruct);
+
+	    if (rcstruct.verbose == LVB_TRUE) {
+	    	if (misc.rank == 0) printf("getminlen: %ld\n\n", matrix->min_len_tree);
+	    }
+	    rinit(rcstruct.seed);
+            log_progress = LVB_TRUE;
+				
+	    if (misc.rank == 0) outtreefp = clnopen(rcstruct.file_name_out, "w");
+		FILE * treEvo;
+		if(rcstruct.algorithm_selection ==2)
+		treEvo = fopen ("treEvo.tre","w");
+	    iter = 0;
+		final_length = getsoln(matrix, rcstruct,  myMPIid, log_progress, matrix_seq_data, &iter, &misc, mrTreeStack, mrBuffer);
+	    if (misc.rank == 0) {
+	       trees_output = treestack_print(matrix, matrix_seq_data, &bstack_overall, outtreefp, LVB_FALSE);
+	    }
+	    trees_output_total += trees_output;
+	    treestack_clear(&bstack_overall);
+
+	    /* clean the TreeStack and buffer */
+	    mrTreeStack->map( mrTreeStack, map_clean, NULL );
+	    mrBuffer->map( mrBuffer, map_clean, NULL );
+	    /* END clean the TreeStack and buffer */
+
+	    if (misc.rank == 0) {
+#else
+
+    getparam(&rcstruct, argc, argv);
+
+    /* read and alloc space to the data structure */
+    matrix = alloc(sizeof(DataStructure), "alloc data structure");
+    phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix);
+
+    /* "file-local" dynamic heap memory: set up best tree stacks, need to be by thread */
+    bstack_overall = treestack_new();
+    if(rcstruct.algorithm_selection ==2)
+    stack_treevo = treestack_new();
+
+    matchange(matrix, rcstruct);	/* cut columns */
+    writeinf(rcstruct, matrix, argc, argv);
+    calc_distribution_processors(matrix, rcstruct);
+
+    if (rcstruct.verbose == LVB_TRUE) {
+    	printf("Based on matrix provided, maximum parsimony tree length: %ld\n\n", getminlen(matrix));
+    }
+    rinit(rcstruct.seed);
+    if (rcstruct.bootstraps > 0) {
+    	log_progress = LVB_TRUE;
+    	printf("Temperature:   Rearrangement: TreeStack size: Length:\n");
+    }
+    else log_progress = LVB_TRUE;
+
+    weight_arr = (long*) alloc(sizeof(long) * matrix->m, "alloc data structure");
+    outtreefp = clnopen(rcstruct.file_name_out, "w");
+    FILE * treEvo;
+    if(rcstruct.algorithm_selection ==2)
+    treEvo = fopen ("treEvo.tre","w");
+    do{
+		iter = 0;
+		if (rcstruct.bootstraps > 0){
+			get_bootstrap_weights(weight_arr, matrix->m, matrix->original_m - matrix->m);
+		}
+		else{
+			for (i = 0; i < matrix->m; i++) weight_arr[i] = 1;    // logstim();    // logstim();ss, weight_arr, &iter);
+		}
+
+		final_length = getsoln(matrix, rcstruct,  myMPIid, log_progress, weight_arr, &iter);
+
+		if (rcstruct.bootstraps > 0) trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_TRUE);
+		else trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_FALSE);
+
+		trees_output_total += trees_output;
+        if(rcstruct.algorithm_selection ==2)
+		treestack_print(matrix, &stack_treevo, treEvo, LVB_FALSE);
+        treestack_clear(&bstack_overall);
+		replicate_no++;
+		if (rcstruct.bootstraps > 0) {
+			printf("\n\nReplicate %ld complete:\n\nRearrangements tried: %-16ld\nTrees saved:          %-16ld\nLength:               %ld\n\n", replicate_no, iter, trees_output, final_length);
+            if (replicate_no < rcstruct.bootstraps)
+            printf("Temperature:   Rearrangement: TreeStack size: Length:\n");
+			total_iter += (double) iter;
+		}
+} while (replicate_no < rcstruct.bootstraps);
+
+#endif
+
+
+	if(rcstruct.algorithm_selection ==2)
+		fclose(treEvo);
+	    clnclose(outtreefp, rcstruct.file_name_out);
+
+	End = clock();
+	Overall_Time_taken = ((double) (End - Start)) /CLOCKS_PER_SEC;
+
+	if (logfile_exists ("logfile.tsv"))
+	{
+		FILE * logfile;
+    	logfile = fopen ("logfile.tsv","a+");
+		fprintf (logfile, "%ld\t%ld\t%ld\t%.2lf\n", iter, trees_output_total, final_length, Overall_Time_taken);
+		fclose(logfile);
+	}
+	else {
+		FILE * logfile;
+	    logfile = fopen ("logfile.tsv","a+");
+		fprintf (logfile, "Rearrangments\tTopologies\tScore\tRuntime\n");
+		fprintf (logfile, "%ld\t%ld\t%ld\t%.2lf\n", iter, trees_output_total, final_length, Overall_Time_taken);
+		fclose(logfile);
+	}
+
+	
+
+	printf("\nSearch Complete\n");
+	printf("\n================================================================================\n");
+	printf("\nSearch Results:\n");
+	printf("  Rearrangements evaluated: %ld\n", iter);
+	printf("  Topologies recovered:     %ld\n", trees_output_total);
+	printf("  Tree score:               %ld\n", final_length);
+	printf("  Total runtime (seconds):  %.2lf\n", Overall_Time_taken);
+	printf("\nAll topologies written to '%s'\n", rcstruct.file_name_out);
+
+#ifdef MAP_REDUCE_SINGLE
+	}
+#endif
+
+/* "file-local" dynamic heap memory */
+
+#ifdef MAP_REDUCE_SINGLE
+
+if(rcstruct.algorithm_selection ==2)
+treestack_free(&stack_treevo);
+treestack_free(&bstack_overall);
+rowfree(matrix_seq_data, matrix->n);
+free(matrix);
+
+MPI_Barrier(MPI_COMM_WORLD);
+
+delete mrTreeStack;
+delete mrBuffer;
+
+MPI_Finalize();
+#else
+if (rcstruct.algorithm_selection ==2)
+treestack_free(matrix, &stack_treevo);
+treestack_free(matrix, &bstack_overall);
+rowfree(matrix);
+free(matrix);
+free(weight_arr); 
+#endif
+
+if (cleanup() == LVB_TRUE) val = EXIT_FAILURE;
+    else val = EXIT_SUCCESS;
+
+return val;
+
+} /* end main() */
+
+#else
 
 			n_error_code = getparam(&rcstruct, argc, argv);
 			if (n_error_code == EXIT_SUCCESS){
-				//logstim();
 				/* read and alloc space to the data structure */
 				n_error_code = phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix, matrix_seq_data);
 				if (n_error_code == EXIT_SUCCESS){
@@ -1153,18 +1289,10 @@ int get_other_seed_to_run_a_process(){
 
 					rinit(rcstruct.seed);
 					p_bstack_overall = treestack_new();
-					#ifdef MAP_REDUCE_SINGLE
-					if(rcstruct.algorithm_selection ==2)
- 	 	 	 		stack_treevo = *(treestack_new());
-					#endif
 					log_progress = LVB_TRUE;
 					/* get the length and the tree */
 					getsoln(matrix, rcstruct,  myMPIid, log_progress, matrix_seq_data, p_bstack_overall, enc_mat);
 					/* "file-local" dynamic heap memory */
-					#ifdef MAP_REDUCE_SINGLE
-					if(rcstruct.algorithm_selection ==2)
-					treestack_free(&stack_treevo);
-					#endif
 					treestack_free(p_bstack_overall);
 
 					/* only print the time end the process finish */
@@ -1202,249 +1330,4 @@ int get_other_seed_to_run_a_process(){
 
 	} /* end main() */
 
-
-#else
-	/* MapReduce version */
-		/* start timer */
-    clock_t Start, End;
-    double Overall_Time_taken;
-	myMPIid = 0;
-//    double Overall_Time_taken_minutes;
-//    double Overall_Time_taken_hours;
-
-    Start = clock();
-		n_error_code = getparam(&rcstruct, argc, argv);
-		// logstim();
-	    /* read and alloc space to the data structure */
-	    matrix = (data *) alloc(sizeof(DataStructure), "alloc data structure");
-	    matrix_seq_data = (seq_data *) alloc(sizeof(DataSeqStructure), "alloc data structure");
-	    matrix_seq_data->row = NULL;
-	    matrix_seq_data->rowtitle = NULL;
-	    phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix, matrix_seq_data);
-	    /* "file-local" dynamic heap memory: set up best tree stacks, need to be by thread */
-	    bstack_overall = *(treestack_new());
-		#ifdef MAP_REDUCE_SINGLE
-		if(rcstruct.algorithm_selection ==2)
-		#endif
- 	 	stack_treevo = *(treestack_new());
-	    matchange(matrix, matrix_seq_data, rcstruct);	/* cut columns */
-            writeinf(rcstruct, matrix, argc, argv, misc.rank, misc.nprocs);
-	    calc_distribution_processors(matrix, rcstruct);
-
-	    if (rcstruct.verbose == LVB_TRUE) {
-	    	if (misc.rank == 0) printf("getminlen: %ld\n\n", matrix->min_len_tree);
-	    }
-	    rinit(rcstruct.seed);
-            log_progress = LVB_TRUE;
-
-	    if (misc.rank == 0) outtreefp = clnopen(rcstruct.file_name_out, "w");
-		FILE * treEvo;
-		#ifdef MAP_REDUCE_SINGLE
-		if(rcstruct.algorithm_selection ==2)
-		treEvo = fopen ("treEvo.tre","w");
-		#endif
-	    iter = 0;
-		final_length = getsoln(matrix, rcstruct,  myMPIid, log_progress, matrix_seq_data, &iter, &misc, mrTreeStack, mrBuffer);
-	    if (misc.rank == 0) {
-	       trees_output = treestack_print(matrix, matrix_seq_data, &bstack_overall, outtreefp, LVB_FALSE);
-	    }
-	    trees_output_total += trees_output;
-	    treestack_clear(&bstack_overall);
-
-	    /* clean the TreeStack and buffer */
-	    mrTreeStack->map( mrTreeStack, map_clean, NULL );
-	    mrBuffer->map( mrBuffer, map_clean, NULL );
-	    /* END clean the TreeStack and buffer */
-
-	    if (misc.rank == 0) {
-			#ifdef MAP_REDUCE_SINGLE
-			if(rcstruct.algorithm_selection ==2)
-			#endif
-			fclose(treEvo);
-	    	clnclose(outtreefp, rcstruct.file_name_out);
-			printf("\n");
-
-			End = clock();
-			Overall_Time_taken = ((double) (End - Start)) /CLOCKS_PER_SEC;
-
-			if (trees_output_total == 1L) {
-			   printf("1 most parsimonious tree of length %ld written to file '%s'\n", final_length, rcstruct.file_name_out);
-			}
-			else {
-				printf("Search Complete\n");
-				printf("\n================================================================================\n");
-				printf("\nSearch Results:\n");
-				printf("  Rearrangements evaluated: %ld\n", iter);
-				printf("  Topologies recovered:     %ld\n", trees_output_total);
-				printf("  Tree score:               %ld\n", final_length);
-				printf("  Total runtime (seconds):  %.2lf\n", Overall_Time_taken);
-				printf("\nAll topologies written to '%s'\n", rcstruct.file_name_out);
-
-			//  printf("%ld equally parsimonious2 trees of length %ld written to "
-			//  "file '%s'\n", trees_output_total, final_length, rcstruct.file_name_out);
-			}
-		}
-
-	    rowfree(matrix_seq_data, matrix->n);
-	    free(matrix);
-
-	    /* "file-local" dynamic heap memory */
-	    treestack_free(&bstack_overall);
-
-	    if (cleanup() == LVB_TRUE) val = EXIT_FAILURE;
-	    else val = EXIT_SUCCESS;
-
-	    MPI_Barrier(MPI_COMM_WORLD);
-
-	    delete mrTreeStack;
-	    delete mrBuffer;
-
-	    MPI_Finalize();
-
-	    return val;
-	} /* end main() */
-
-#endif
-#else
-/* start timer */
-    clock_t Start, End;
-    double Overall_Time_taken;
-	myMPIid = 0;
-//    double Overall_Time_taken_minutes;
-//    double Overall_Time_taken_hours;
-
-    Start = clock();
-    lvb_initialize();
-    getparam(&rcstruct, argc, argv);
-    // logstim();
-
-    /* read and alloc space to the data structure */
-    matrix = alloc(sizeof(DataStructure), "alloc data structure");
-    phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix);
-
-    /* "file-local" dynamic heap memory: set up best tree stacks, need to be by thread */
-    bstack_overall = treestack_new();
-    if(rcstruct.algorithm_selection ==2)
-    stack_treevo = treestack_new();
-
-    matchange(matrix, rcstruct);	/* cut columns */
-    writeinf(rcstruct, matrix, argc, argv);
-    calc_distribution_processors(matrix, rcstruct);
-
-    if (rcstruct.verbose == LVB_TRUE) {
-    	printf("Based on matrix provided, maximum parsimony tree length: %ld\n\n", getminlen(matrix));
-    }
-    rinit(rcstruct.seed);
-    if (rcstruct.bootstraps > 0) {
-    	log_progress = LVB_TRUE;
-    	printf("Temperature:   Rearrangement: TreeStack size: Length:\n");
-    }
-    else log_progress = LVB_TRUE;
-
-    weight_arr = (long*) alloc(sizeof(long) * matrix->m, "alloc data structure");
-    outtreefp = clnopen(rcstruct.file_name_out, "w");
-    FILE * treEvo;
-    if(rcstruct.algorithm_selection ==2)
-    treEvo = fopen ("treEvo.tre","w");
-    do{
-		iter = 0;
-		if (rcstruct.bootstraps > 0){
-			get_bootstrap_weights(weight_arr, matrix->m, matrix->original_m - matrix->m);
-		}
-		else{
-			for (i = 0; i < matrix->m; i++) weight_arr[i] = 1;
-		}
-
-		final_length = getsoln(matrix, rcstruct,  myMPIid, log_progress, weight_arr, &iter);
-
-		if (rcstruct.bootstraps > 0) trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_TRUE);
-		else trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_FALSE);
-
-		/* print in the screen */
-/*		for (i = 0; i < bstack_overall.next; i++) {
-			treedump_screen(matrix, bstack_overall.stack[i].tree);
-		}*/
-
-		trees_output_total += trees_output;
-        if(rcstruct.algorithm_selection ==2)
-		treestack_print(matrix, &stack_treevo, treEvo, LVB_FALSE);
-        treestack_clear(&bstack_overall);
-		replicate_no++;
-		if (rcstruct.bootstraps > 0) {
-			printf("\n\nReplicate %ld complete:\n\nRearrangements tried: %-16ld\nTrees saved:          %-16ld\nLength:               %ld\n\n", replicate_no, iter, trees_output, final_length);
-            if (replicate_no < rcstruct.bootstraps)
-            printf("Temperature:   Rearrangement: TreeStack size: Length:\n");
-			total_iter += (double) iter;
-		}
-		else  {
-		//	printf("\nSearch Complete\n");
-		//	printf("\n================================================================================\n");
-		//	printf("\nSearch Results:");
-		//	printf("  Rearrangements evaluated: %ld\n", iter);
-		//	printf("  Topologies recovered:     %ld\n", trees_output_total);
-		//	printf("  Tree score                %ld\n", final_length);
-		//	printf("\nAll topologies written to '%s'", rcstruct.file_name_out);
-		}
-	} while (replicate_no < rcstruct.bootstraps);
-   if(rcstruct.algorithm_selection ==2)
-    fclose(treEvo);
-	clnclose(outtreefp, rcstruct.file_name_out);
-
-	//printf("\n");
-	//if (rcstruct.bootstraps > 0)
-	//		printf("\n\nTotal rearrangements tried across all replicates: %g\n\n", total_iter);
-
-	//if ((trees_output_total == 1L) && (rcstruct.bootstraps == 0)) {
-	//	printf("1 most parsimonious tree of length %ld written to file '%s'\n", final_length, rcstruct.file_name_out);
-	//}
-	//else {
-	//	if (rcstruct.bootstraps > 0){
-	//		lvb_assert(trees_output_total == rcstruct.bootstraps);
-	//		printf("%ld trees written to file '%s'\n", trees_output_total, rcstruct.file_name_out);
-	//	}lock();lock();lock();lock();
-	//	else{
-	//		printf("%ld equally parsimonious trees of length %ld written to "
-	//		 "file '%s'\n", trees_output_total, final_length, rcstruct.file_name_out);
-	//	}
-    //}
-    End = clock();
-	Overall_Time_taken = ((double) (End - Start)) /CLOCKS_PER_SEC;
-
-	printf("\nSearch Complete\n");
-			printf("\n================================================================================\n");
-			printf("\nSearch Results:\n");
-			printf("  Rearrangements evaluated: %ld\n", iter);
-			printf("  Topologies recovered:     %ld\n", trees_output_total);
-			printf("  Tree score:               %ld\n", final_length);
-			printf("  Total runtime (seconds):  %.2lf\n", Overall_Time_taken);
-			printf("\nAll topologies written to '%s'\n", rcstruct.file_name_out);
-
-
-    
-    //Overall_Time_taken_minutes = Overall_Time_taken / 60;
-    //Overall_Time_taken_hours = Overall_Time_taken_minutes / 60;
-    //if (Overall_Time_taken <= 60)
-    //printf("lvb took %.2lf seconds to complete\n", Overall_Time_taken);
-    //if (Overall_Time_taken <= 3600) {
-     //       if (Overall_Time_taken >= 60)
-    //printf("lvb took %.2lf minutes, (%.2lf seconds) to complete\n", Overall_Time_taken_minutes, Overall_Time_taken);
-    //}
-    //if (Overall_Time_taken >= 3600)
-    //     printf("lvb took %.2lf hours, (%.2lf minutes) to complete\n", Overall_Time_taken_hours, Overall_Time_taken_minutes);
-	/* "file-local" dynamic heap memory */
-    if (rcstruct.algorithm_selection ==2)
-    treestack_free(matrix, &stack_treevo);
-	treestack_free(matrix, &bstack_overall);
-    rowfree(matrix);
-    free(matrix);
-    free(weight_arr);
-
-    if (cleanup() == LVB_TRUE) val = EXIT_FAILURE;
-    else val = EXIT_SUCCESS;
-
-    return val;
-
-
-
-} /* end main() */
 #endif

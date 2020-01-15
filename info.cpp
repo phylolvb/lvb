@@ -53,7 +53,7 @@ void print_LVB_INFO()
 	cout << "Released: " << LVB_RELEASE_DATE " by the Barker Lab\n"
             "Developed by: Joseph Guscott and Daniel Barker\n"
             "For help, see the GitHub Wiki page at: " << LVB_WIKI "\n"
-            "Please send any questions to joseph.guscott@ed.ac.uk or daniel.barker.ed.ac.uk\n\n";
+            "Please send any questions to joseph.guscott@ed.ac.uk or daniel.barker@ed.ac.uk\n\n";
 	cout << "================================================================================\n\n";
 }
 

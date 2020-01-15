@@ -155,6 +155,7 @@ DOCS_PROGRAMMER = 	$(DOCS_PROG_DIR)/Treestack.html \
 					  $(DOCS_PROG_DIR)/Mops.html \
 					  $(DOCS_PROG_DIR)/Mymaths.html \
 					  $(DOCS_PROG_DIR)/Myuni.html \
+					  $(DOCS_PROG_DIR)/log.html \
 					  $(DOCS_PROG_DIR)/Parsim.html \
 					  $(DOCS_PROG_DIR)/Randpint.html \
 					  $(DOCS_PROG_DIR)/Solve.html \
@@ -187,6 +188,7 @@ LVB_LIB_OBJS = Admin.$(OBJ) \
 	Store_states.$(OBJ) \
 	Sops.$(OBJ) \
 	Trops.$(OBJ) \
+	log.$(OBJ) \
     Wrapper.$(OBJ)
 
 ifeq ($(WHICH_MAKE),MAKE_LVB_MPI)
