@@ -382,14 +382,15 @@ long anneal(Dataptr restrict matrix, Treestack *bstackp, Treestack *treevo, cons
 				}
 				#ifndef NP_Implementation
 				r_lenmin = (double) matrix->min_len_tree;
+				#ifdef MAP_REDUCE_SINGLE
 				(void)lenmin;
-				#ifndef MAP_REDUCE_SINGLE
+				#else
 				*p_n_state_progress = MESSAGE_ANNEAL_FINISHED_AND_REPEAT; /* we consider always is necessary to repeat */
 	    		last_checkpoint_time = time(NULL);
+				#endif
 				#else
     			lenmin = getminlen(matrix);
     			r_lenmin = (double) lenmin;
-				#endif
 				#endif
 				
 			while (1) {
