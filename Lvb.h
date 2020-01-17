@@ -90,6 +90,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define PROGNAM "lvb"			/* program file name */
 #define LVB_VERSION "IN DEVELOPMENT"	/* version of program */
 #define LVB_SUBVERSION "4.0"		/* version details e.g. date */
+#ifdef NP_Implementation
+	#define LVB_IMPLEMENTATION "NP"
+#endif
+
+#ifdef MPI_Implementation
+#ifdef MAP_REDUCE_SINGLE
+	#define LVB_IMPLEMENTATION "MR"
+#else
+	#define LVB_IMPLEMENTATION "MPI"
+#endif
+#endif
 
 
 /* set if is to compile with 64 or 32 bits */

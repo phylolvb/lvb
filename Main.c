@@ -1052,14 +1052,14 @@ myMPIid = 0;
 	{
 		FILE * logfile;
     	logfile = fopen ("logfile.tsv","a+");
-		fprintf (logfile, "%ld\t%ld\t%ld\t%.2lf\n", iter, trees_output_total, final_length, Overall_Time_taken);
+		fprintf (logfile, "%s\t%ld\t%ld\t%ld\t%.2lf\n", LVB_IMPLEMENTATION, iter, trees_output_total, final_length, Overall_Time_taken);
 		fclose(logfile);
 	}
 	else {
 		FILE * logfile;
 	    logfile = fopen ("logfile.tsv","a+");
-		fprintf (logfile, "Rearrangments\tTopologies\tScore\tRuntime\n");
-		fprintf (logfile, "%ld\t%ld\t%ld\t%.2lf\n", iter, trees_output_total, final_length, Overall_Time_taken);
+		fprintf (logfile, "Implementation\tRearrangments\tTopologies\tScore\tRuntime\n");
+		fprintf (logfile, "%s\t%ld\t%ld\t%ld\t%.2lf\n", LVB_IMPLEMENTATION, iter, trees_output_total, final_length, Overall_Time_taken);
 		fclose(logfile);
 	}
 

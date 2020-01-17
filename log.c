@@ -48,4 +48,16 @@ bool logfile_exists (const char *filename)
 	{
 		struct stat buffer;
 		return (stat (filename, &buffer) == 0);
-	}
+
+		#ifdef NP_Implementation
+		#define LVB_IMPLEMENTATION "NP"
+		#endif
+
+		#ifdef MPI_Implementation
+		#ifdef MAP_REDUCE_SINGLE
+		#define LVB_IMPLEMENTATION "MR"
+		#else
+		#define LVB_IMPLEMENTATION "MPI"
+		#endif
+		#endif
+	} 
