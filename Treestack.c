@@ -45,11 +45,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef NP_Implementation
 #include "Store_states.h"
-
-static void upsize(Dataptr matrix, Treestack *sp)
-#else
-static void upsize(Dataptr restrict matrix, Treestack *sp)
 #endif
+
+static void upsize(Dataptr restrict matrix, Treestack *sp)
 /* increase allocation for tree stack *sp */
 {
     #ifndef NP_Implementation
@@ -99,9 +97,9 @@ static void upsize(Dataptr restrict matrix, Treestack *sp)
 } /* end upsize() */
 
 #ifndef NP_Implementation
-static void dopush(Dataptr matrix, Treestack *sp, const Branch *const barray, const long root, Lvb_bool b_with_sset)
+static void dopush(Dataptr restrict matrix, Treestack *sp, const Branch *const barray, const long root, Lvb_bool b_with_sset)
 #else
-static void dopush(Dataptr matrix, Treestack *sp, const Branch *const barray, const int root, Lvb_bool b_with_sset)
+static void dopush(Dataptr restrict matrix, Treestack *sp, const Branch *const barray, const int root, Lvb_bool b_with_sset)
 #endif
 /* push tree in barray (of root root) on to stack *sp */
 {
@@ -158,7 +156,7 @@ Returns number of trees on stack C<s>.
  *     - long int, the root of the tree; followed by
  *     - array of Branch, the contents of the tree. */
 
-void checkpoint_treestack(FILE *fp, Treestack *s, Dataptr matrix, Lvb_bool b_with_sset)
+void checkpoint_treestack(FILE *fp, Treestack *s, Dataptr restrict matrix, Lvb_bool b_with_sset)
 {
     long i;					/* loop counter */
     Treestack_element *stack = s->stack;	/* actual stack */
@@ -201,7 +199,7 @@ void checkpoint_treestack(FILE *fp, Treestack *s, Dataptr matrix, Lvb_bool b_wit
 
 /* ********** restore_treestack() - restore the treestack ********** */
 
-void restore_treestack(FILE *fp, Treestack *sp, Dataptr matrix, Lvb_bool b_with_sset)
+void restore_treestack(FILE *fp, Treestack *sp, Dataptr restrict matrix, Lvb_bool b_with_sset)
 {
     long i;			/* loop counter */
     long current_root;		/* current root read in from file */
@@ -347,7 +345,7 @@ Returns 1 if the tree was pushed, or 0 if not.
 **********/
 
 #ifndef NP_Implementation
-long treestack_push(Dataptr matrix, Treestack *sp, const Branch *const barray, const long root, Lvb_bool b_with_sset)
+long treestack_push(Dataptr restrict matrix, Treestack *sp, const Branch *const barray, const long root, Lvb_bool b_with_sset)
 {
 	long i, new_root = root;			/* loop counter */
 	long stackroot;		/* root of current tree */
@@ -382,7 +380,7 @@ long treestack_push(Dataptr matrix, Treestack *sp, const Branch *const barray, c
 
 } /* end treestack_push() */
 #else
-long treestack_push(Dataptr matrix, Treestack *sp, const Branch *const barray, const int root, Lvb_bool b_with_sset)
+long treestack_push(Dataptr restrict matrix, Treestack *sp, const Branch *const barray, const int root, Lvb_bool b_with_sset)
 {
 #define MIN_THREAD_SEARCH_SSET		5
 
@@ -446,14 +444,14 @@ long treestack_push(Dataptr matrix, Treestack *sp, const Branch *const barray, c
 #endif
 
 #ifndef NP_Implementation
-long treestack_push_only(Dataptr matrix, Treestack *sp, const Branch *const barray, const long root, Lvb_bool b_with_sset)
+long treestack_push_only(Dataptr restrict matrix, Treestack *sp, const Branch *const barray, const long root, Lvb_bool b_with_sset)
 {
 
     dopush(matrix, sp, barray, root, b_with_sset);
     return 1;
 }
 
-//uint64_t mrStack_push(Dataptr matrix, Treestack *sp, Branch *barray, const long root, MapReduce *mrObj, MISC *misc)
+//uint64_t mrStack_push(Dataptr restrict matrix, Treestack *sp, Branch *barray, const long root, MapReduce *mrObj, MISC *misc)
 //{
 //    	uint64_t nKV = tree_setpush(matrix, barray, root, mrObj, misc);
 //    	return nKV;
@@ -507,7 +505,7 @@ Returns 1 if a tree was popped, or 0 if the stack was empty.
 
 **********/
 
-long treestack_pop(Dataptr matrix, Branch *barray, long *root, Treestack *sp, Lvb_bool b_with_sset)
+long treestack_pop(Dataptr restrict matrix, Branch *barray, long *root, Treestack *sp, Lvb_bool b_with_sset)
 {
     long val;	/* return value */
 
@@ -526,9 +524,9 @@ long treestack_pop(Dataptr matrix, Branch *barray, long *root, Treestack *sp, Lv
 
 
 #ifndef NP_Implementation
-long treestack_print(Dataptr matrix, DataSeqPtr restrict matrix_seq_data, Treestack *sp, FILE *const outfp, Lvb_bool onerandom)
+long treestack_print(Dataptr restrict matrix, DataSeqPtr restrict matrix_seq_data, Treestack *sp, FILE *const outfp, Lvb_bool onerandom)
 #else
-int treestack_print(Dataptr matrix, Treestack *sp, FILE *const outfp, Lvb_bool onerandom)
+int treestack_print(Dataptr restrict matrix, Treestack *sp, FILE *const outfp, Lvb_bool onerandom)
 #endif
 {
     #ifndef NP_Implementation
@@ -620,7 +618,7 @@ Returns the number of trees dumped.
 
 **********/
 
-long treestack_dump(Dataptr matrix, Treestack *sp, FILE *const outfp)
+long treestack_dump(Dataptr restrict matrix, Treestack *sp, FILE *const outfp)
 /* pop all trees on stack *sp and dump them to file outfp;
  * first branch (number 0); return number of trees dumped */
 {
@@ -795,7 +793,7 @@ are not transferred).
 
 **********/
 
-long treestack_transfer(Dataptr matrix, Treestack *destp, Treestack *sourcep, Lvb_bool b_with_sset)
+long treestack_transfer(Dataptr restrict matrix, Treestack *destp, Treestack *sourcep, Lvb_bool b_with_sset)
 {
     Branch *barray;		/* current tree, in transit */
     long root;			/* number of root branch */

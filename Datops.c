@@ -49,16 +49,16 @@ static void logcut(const Lvb_bool *const cut, const long m);
 #ifndef NP_Implementation
 
 static long constchar(Dataptr restrict matrix, DataSeqPtr restrict matrix_seq, Lvb_bool *const togo, const Lvb_bool verbose);
-	static void cutcols(Dataptr matrix, DataSeqPtr matrix_seq, const Lvb_bool *const tocut, long n_columns_to_change);
+	static void cutcols(Dataptr restrict matrix, DataSeqPtr matrix_seq, const Lvb_bool *const tocut, long n_columns_to_change);
 	
-	static long getminlen(const Dataptr matrix, DataSeqPtr matrix_seq);
+	static long getminlen(const Dataptr restrict matrix, DataSeqPtr matrix_seq);
 
-static char *getstatev(const Dataptr matrix, DataSeqPtr matrix_seq, const long k)
+static char *getstatev(const Dataptr restrict matrix, DataSeqPtr matrix_seq, const long k)
 
 #else
 static long constchar(Dataptr restrict matrix, Lvb_bool *const togo, const Lvb_bool verbose);
-static void cutcols(Dataptr matrix, const Lvb_bool *const tocut, long n_columns_to_change);
-static char *getstatev(const Dataptr matrix, const long k)
+static void cutcols(Dataptr restrict matrix, const Lvb_bool *const tocut, long n_columns_to_change);
+static char *getstatev(const Dataptr restrict matrix, const long k)
 #endif
 	/* return pointer to string containing 1 instance of each character state in
 	 * column k of matrix, or NULL if more than MAXSTATES states are
@@ -95,9 +95,9 @@ static char *getstatev(const Dataptr matrix, const long k)
 	} /* end getstatev() */
 
 	#ifndef NP_Implementation
-	long getminlen(const Dataptr matrix, DataSeqPtr matrix_seq)
+	long getminlen(const Dataptr restrict matrix, DataSeqPtr matrix_seq)
 	#else
-	long getminlen(const Dataptr matrix)
+	long getminlen(const Dataptr restrict matrix)
 	#endif
 	/* return minimum length of any tree based on matrix; FIXME not quite right
 	 * with ambiguity codes */
@@ -218,7 +218,7 @@ void dna_makebin(Dataptr restrict mat, Lvb_bit_length **enc_mat)
 	#ifndef NP_Implementation
 	void rowfree(DataSeqPtr matrix, int n_lines)
 	#else
-	void rowfree(Dataptr matrix)
+	void rowfree(Dataptr restrict matrix)
 	#endif
 	/* free memory used for row strings and array of row strings in matrix,
 	 * and make the array of row title strings NULL;
@@ -287,9 +287,9 @@ void dna_makebin(Dataptr restrict mat, Lvb_bit_length **enc_mat)
 } /* end constchar() */
 
 	#ifndef NP_Implementation
-    void matchange(Dataptr matrix, DataSeqPtr matrix_seq, const Params rcstruct)
+    void matchange(Dataptr restrict matrix, DataSeqPtr matrix_seq, const Params rcstruct)
 	#else
-	void matchange(Dataptr matrix, const Params rcstruct)
+	void matchange(Dataptr restrict matrix, const Params rcstruct)
 	#endif
 /* change and remove columns in matrix, partly in response to rcstruct,
  * verbosely or not according to value of verbose */
@@ -353,9 +353,9 @@ void dna_makebin(Dataptr restrict mat, Lvb_bit_length **enc_mat)
 } /* end matchange() */
 
 #ifndef NP_Implementation
-    static void cutcols(Dataptr matrix, DataSeqPtr matrix_seq, const Lvb_bool *const tocut, long n_columns_to_change)
+    static void cutcols(Dataptr restrict matrix, DataSeqPtr matrix_seq, const Lvb_bool *const tocut, long n_columns_to_change)
 #else
-	static void cutcols(Dataptr matrix, const Lvb_bool *const tocut, long n_columns_to_change)
+	static void cutcols(Dataptr restrict matrix, const Lvb_bool *const tocut, long n_columns_to_change)
 #endif
 /* remove columns in matrix for which the corresponding element of
 matrix->m-element array tocut is LVB_TRUE, and update matrix->m;

@@ -69,7 +69,7 @@ static void smessg(long start, long cycle)
 } /* end smessg() */
 
 
-static void writeinf(Params prms, Dataptr matrix, int argc, char **argv
+static void writeinf(Params prms, Dataptr restrict matrix, int argc, char **argv
 #ifndef NP_Implementation
 , int myMPIid, int n_process
 #endif
@@ -139,7 +139,7 @@ static void writeinf(Params prms, Dataptr matrix, int argc, char **argv
 	// printf("Host Machine: %s %s, %s (%d processors configured and %d processors available)\n\n", buffer.nodename, buffer.machine, buffer.sysname, get_nprocs_conf(), get_nprocs());
 }
 
-static void logtree1(Dataptr matrix, const Branch *const barray, const long start, const long cycle, long root
+static void logtree1(Dataptr restrict matrix, const Branch *const barray, const long start, const long cycle, long root
 #ifndef NP_Implementation
 , DataSeqPtr restrict matrix_seq_data
 #endif
@@ -556,7 +556,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, int myMPIid, Lvb_b
 	#endif
 
 /* set the number of processors to use */
-void calc_distribution_processors(Dataptr matrix, Params rcstruct){
+void calc_distribution_processors(Dataptr restrict matrix, Params rcstruct){
 	int n_threads_temp = 0;
 	if (matrix->nwords > MINIMUM_SIZE_NUMBER_WORDS_TO_ACTIVATE_THREADING){
 		do{
@@ -817,7 +817,7 @@ int get_other_seed_to_run_a_process(){
 
 	int main(int argc, char **argv)
 	{
-		Dataptr matrix;	/* data matrix */
+		Dataptr restrict matrix;	/* data matrix */
 		Params rcstruct;		/* configurable parameters */
 		Lvb_bool log_progress;	/* whether or not to log anneal search */
 		int myMPIid;
@@ -1112,7 +1112,10 @@ return val;
 
 #else
 
-			n_error_code = getparam(&rcstruct, argc, argv);
+	End = clock();
+	Overall_Time_taken = ((double) (End - Start)) /CLOCKS_PER_SEC;
+
+	n_error_code = getparam(&rcstruct, argc, argv);
 			if (n_error_code == EXIT_SUCCESS){
 				/* read and alloc space to the data structure */
 				n_error_code = phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix, matrix_seq_data);
@@ -1124,7 +1127,7 @@ return val;
 					/* start the main process */
 					matchange(matrix, matrix_seq_data, rcstruct);	/* cut columns */
 					if (rcstruct.n_seeds_need_to_try < (num_procs - 1)) { rcstruct.n_seeds_need_to_try = num_procs - 1; }
-					writeinf(rcstruct, matrix, myMPIid, num_procs, argc, argv);
+					writeinf(rcstruct, matrix, argc, argv, myMPIid, num_procs);
 					calc_distribution_processors(matrix, rcstruct);
 
 					/* Allocation of the initial encoded matrix is non-contiguous because
@@ -1315,7 +1318,11 @@ return val;
 				free(p_pack_data_binary);
 				free(p_bstack_overall);
 			}
+			
 		}
+
+		
+
 		MPI_Type_free(&mpi_matrix);
 		MPI_Type_free(&mpi_params);
 		free(matrix_seq_data);

@@ -42,4 +42,4 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Lvb.h"
 #include <stdbool.h>
 
-bool logfile_exists (char *filename);
+bool logfile_exists (const char *filename);

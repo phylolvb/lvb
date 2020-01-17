@@ -282,7 +282,7 @@ unsigned long restore_params(FILE *fp, Params *p_rcstruct)
 }
 
 
-unsigned long checkpoint_anneal(FILE *fp, Dataptr matrix, long accepted, Lvb_bool dect, double deltah, long deltalen,
+unsigned long checkpoint_anneal(FILE *fp, Dataptr restrict matrix, long accepted, Lvb_bool dect, double deltah, long deltalen,
     long failedcnt, long iter, long current_iter, long len, long lenbest, long lendash, double ln_t,
     long t_n, double t0, double pacc, long proposed, double r_lenmin, long rootdash, double t, double grad_geom,
     double grad_linear, Branch *p_current_tree, Lvb_bool b_with_sset_current_tree,
@@ -344,7 +344,7 @@ unsigned long checkpoint_anneal(FILE *fp, Dataptr matrix, long accepted, Lvb_boo
     return checksum;
 }
 
-unsigned long restore_anneal(FILE *fp, Dataptr matrix, long *accepted, Lvb_bool *dect, double *deltah, long *deltalen,
+unsigned long restore_anneal(FILE *fp, Dataptr restrict matrix, long *accepted, Lvb_bool *dect, double *deltah, long *deltalen,
     long *failedcnt, long *iter, long *current_iter, long *len, long *lenbest, long *lendash, double *ln_t,
     long *t_n, double *t0, double *pacc, long *proposed, double *r_lenmin, long *rootdash, double *t, double *grad_geom,
     double *grad_linear, Branch *p_current_tree, Lvb_bool b_with_sset_current_tree,

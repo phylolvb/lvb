@@ -62,7 +62,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 	} /* end lenlog() */
 
-	long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *const inittree,
+	long deterministic_hillclimb(Dataptr restrict matrix, Treestack *bstackp, const Branch *const inittree,
 			Params rcstruct, long root, FILE * const lenfp, long *current_iter, int myMPIid, Lvb_bool log_progress
 			#ifdef MAP_REDUCE_SINGLE 
 			, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer
@@ -211,7 +211,7 @@ else {
 	    return len;
 	}
 
-long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch *const inittree, Params rcstruct, Params *p_rcstruct,
+long anneal(Dataptr restrict matrix, Treestack *bstackp, Treestack *treevo, const Branch *const inittree, Params rcstruct, Params *p_rcstruct,
 		long root, const double t0, const long maxaccept, const long maxpropose,
 		const long maxfail, FILE *const lenfp, long *current_iter, int myMPIid, Lvb_bool log_progress,
 
@@ -269,6 +269,10 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 
 #ifndef NP_Implementation
 #ifndef MAP_REDUCE_SINGLE
+		time_t curr_time;				/* current time */
+	    double elapsed_time;			/* approximate time since last checkpoint (in seconds) */
+	    time_t last_checkpoint_time;		/* approximate time of last checkpoint */
+	    FILE *fp;					/* for checkpoint/restore */
 	    int nFlag;
 	    MPI_Request request_handle_send = 0, request_message_from_master = 0;
 		MPI_Status mpi_status;
@@ -379,11 +383,15 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 				#ifndef NP_Implementation
 				r_lenmin = (double) matrix->min_len_tree;
 				(void)lenmin;
+				#ifndef MAP_REDUCE_SINGLE
+				*p_n_state_progress = MESSAGE_ANNEAL_FINISHED_AND_REPEAT; /* we consider always is necessary to repeat */
+	    		last_checkpoint_time = time(NULL);
 				#else
     			lenmin = getminlen(matrix);
     			r_lenmin = (double) lenmin;
 				#endif
-			
+				#endif
+				
 			while (1) {
 				int changeAcc = 0;
 				*current_iter += 1;
@@ -753,6 +761,25 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 
 	#ifndef NP_Implementation
 	#ifndef MAP_REDUCE_SINGLE
+		curr_time = time(NULL);
+		elapsed_time = difftime(curr_time, last_checkpoint_time);
+		if ((p_rcstruct->n_flag_save_read_states == DO_SAVE_READ_STATES && elapsed_time > p_rcstruct->n_checkpoint_interval) ||
+			(p_rcstruct->n_make_test == 1 && *current_iter > 300000) ) {
+		   	fp = open_file_by_MPIid(myMPIid, "wb", LVB_TRUE);
+		   	int is_process_finished = CHECK_POINT_PROCESS_NOT_FINISHED, n_number_blocks = 4;
+		   	fwrite(&is_process_finished, sizeof(is_process_finished), 1, fp);
+			fwrite(&n_number_blocks, sizeof(n_number_blocks), 1, fp);
+			checkpoint_treestack(fp, bstackp, matrix, LVB_FALSE);
+			checkpoint_uni(fp);
+			checkpoint_anneal(fp, matrix, accepted, dect, deltah, deltalen, failedcnt, iter, *current_iter, len, lenbest,
+			lendash, ln_t, t_n, t0, pacc, proposed, r_lenmin, root, t, grad_geom, grad_linear,
+			p_current_tree, LVB_TRUE, p_proposed_tree, LVB_TRUE);
+			checkpoint_params(fp, p_rcstruct);
+			last_checkpoint_time = curr_time;
+			lvb_assert(fclose(fp) == 0);
+			rename_file_name(myMPIid); /* atomic operation to rename the file name */
+			printf("Checkpoint saved MPIid: %d\n", myMPIid);
+		    }
 	    /* cancel some request messages if it is necessary */
 	    if (request_message_from_master != 0) MPI_Cancel(&request_message_from_master);
 	    if (request_handle_send != 0) MPI_Cancel(&request_handle_send);

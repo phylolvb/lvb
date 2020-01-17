@@ -73,13 +73,13 @@ Lvb_bool test_block_data(FILE *fp);
 Lvb_bool test_consistency_state_file(char *file_name, int myMPIid);
 
 
-unsigned long checkpoint_anneal(FILE *fp, Dataptr matrix, long accepted, Lvb_bool dect, double deltah, long deltalen,
+unsigned long checkpoint_anneal(FILE *fp, Dataptr restrict matrix, long accepted, Lvb_bool dect, double deltah, long deltalen,
     long failedcnt, long iter, long current_iter, long len, long lenbest, long lendash, double ln_t,
     long t_n, double t0, double pacc, long proposed, double r_lenmin, long rootdash, double t, double grad_geom,
     double grad_linear, Branch *p_current_tree, Lvb_bool b_with_sset_current_tree,
 	Branch *p_proposed_tree, Lvb_bool b_with_sset_proposed_tree);
 
-unsigned long restore_anneal(FILE *fp, Dataptr matrix, long *accepted, Lvb_bool *dect, double *deltah, long *deltalen,
+unsigned long restore_anneal(FILE *fp, Dataptr restrict matrix, long *accepted, Lvb_bool *dect, double *deltah, long *deltalen,
     long *failedcnt, long *iter, long *current_iter, long *len, long *lenbest, long *lendash, double *ln_t,
     long *t_n, double *t0, double *pacc, long *proposed, double *r_lenmin, long *rootdash, double *t, double *grad_geom,
     double *grad_linear, Branch *p_current_tree, Lvb_bool b_with_sset_current_tree,

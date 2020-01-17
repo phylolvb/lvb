@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Lvb.h"
 #include "log.h"
 
-bool logfile_exists (char *filename)
+bool logfile_exists (const char *filename)
 	{
 		struct stat buffer;
 		return (stat (filename, &buffer) == 0);

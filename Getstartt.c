@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Lvb.h"
 
 
-double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstruct, long root, int myMPIid, Lvb_bool log_progress
+double get_initial_t(Dataptr restrict matrix, const Branch *const inittree, Params rcstruct, long root, int myMPIid, Lvb_bool log_progress
 #ifdef NP_Implementation
 , const long *weights
 #endif
@@ -80,8 +80,10 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstru
     /* Variables specific to the get_initial_temperature() procedure*/
     int acc_pos_trans = 0;        /* Number of accepted positve transitions */
     double increment_size = INITIAL_INCREMENT; /* Step size by which the temperature is increased */
+	#ifdef NP_Implementation
 	long lenmin; // minimum length of any tree
-    int prop_pos_trans = 0;       /* Number of proposed positve transitions */
+    #endif
+	int prop_pos_trans = 0;       /* Number of proposed positve transitions */
     double r_acc_to_prop = 0;   /* Ratio of accepted to proposed positve transitions */
     int sample_size = 100;                /* Sample size used to estimate the ratio */
     long *p_todo_arr; /* [MAX_BRANCHES + 1];	 list of "dirty" branch nos */
