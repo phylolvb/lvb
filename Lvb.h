@@ -180,8 +180,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef NP_Implementation
 typedef	struct	/* object set derived from a cladogram */
 {
-	long *set;	/* arrays of object sets */
-	long cnt;	/* sizes of object sets */
+	int *set;	/* arrays of object sets */
+	int cnt;	/* sizes of object sets */
 }	Objset;
 #endif
 
@@ -260,7 +260,7 @@ typedef struct
 #else
 typedef struct
 {
-    long root;		/* root of tree */
+    int root;		/* root of tree */
 	Branch *tree;	/* pointer to first branch in tree array */
     Objset *p_sset; // array with sset with the root always on zero
 } Treestack_element;

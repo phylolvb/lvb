@@ -63,27 +63,29 @@ static void cr_uxe(FILE *const stream, const char *const msg);
 static int osetcmp(const void *oset1, const void *oset2);
 static void fillsets(Dataptr, Objset *const sstruct, const Branch *const tree, const long root);
 static long getsister(const Branch *const barray, const long branch);
-static void getobjs(Dataptr, const Branch *const barray, const long root, long *const objarr, long *const cnt);
-static void realgetobjs(Dataptr restrict, const Branch *const barray, const long root, long *const objarr, long *const cnt);
-static long *randleaf(Dataptr restrict, Branch *const barray, const Lvb_bool *const leafmask
-#ifndef NP_Implementation
-, const long objs
-#endif
-);
-static void tree_make_canonical(Dataptr restrict, Branch *const barray, long *objnos);
-static Lvb_bool *randtopology(Dataptr restrict, Branch *const barray, const long nobjs);
 
 #ifndef NP_Implementation
-	static void makesets(Dataptr restrict matrix, const Branch *const tree_1, const Branch *const tree_2, const long root, Lvb_bool b_First);
-	static int objnocmp(const void *o1, const void *o2);
-	static long setstcmp(Dataptr restrict, Objset *const oset_1, Objset *const oset_2, Lvb_bool b_First);
-	static void sort(Objset *const oset_1, Objset *const oset_2, const long nels, Lvb_bool b_First);
-	static void ssarralloc(Dataptr restrict matrix, Objset *nobjset_1, Objset *nobjset_2);
+static void getobjs(Dataptr, const Branch *const barray, const long root, long *const objarr, long *const cnt);
+
+static void makesets(Dataptr restrict matrix, const Branch *const tree_1, const Branch *const tree_2, const long root, Lvb_bool b_First);
+static int objnocmp(const void *o1, const void *o2);
+static long *randleaf(Dataptr, Branch *const barray, const Lvb_bool *const leafmask, const long objs);
+static void realgetobjs(Dataptr, const Branch *const barray, const long root, long *const objarr, long *const cnt);
+static Lvb_bool *randtopology(Dataptr, Branch *const barray, const long nobjs);
+static long setstcmp(Dataptr restrict, Objset *const oset_1, Objset *const oset_2, Lvb_bool b_First);
+static void sort(Objset *const oset_1, Objset *const oset_2, const long nels, Lvb_bool b_First);
+static void ssarralloc(Dataptr restrict matrix, Objset *nobjset_1, Objset *nobjset_2);
+static void tree_make_canonical(Dataptr restrict, Branch *const barray, long *objnos);
 #else
-	static long setstcmp(Dataptr restrict, Objset *const oset_1, Objset *const oset_2);
-	static void sort(Dataptr restrict matrix, Objset *const oset_2, const long nels);
-	static void ssarralloc(Dataptr restrict matrix, Objset *nobjset_2);
-	static void ur_print(Dataptr restrict, FILE *const stream, const Branch *const barray, const long root);
+static void getobjs(Dataptr, const Branch *const barray, const int root, int *const objarr, int *const cnt);
+static int *randleaf(Dataptr restrict, Branch *const barray,const Lvb_bool *const leafmask);
+static void realgetobjs(Dataptr restrict, const Branch *const barray, const int root, int *const objarr, int *const cnt);
+static Lvb_bool *randtopology(Dataptr restrict, Branch *const barray, const long nobjs);
+static long setstcmp(Dataptr restrict, Objset *const oset_1, Objset *const oset_2);
+static void sort(Dataptr restrict matrix, Objset *const oset_2, const long nels);
+static void ssarralloc(Dataptr restrict matrix, Objset *nobjset_2);
+static void tree_make_canonical(Dataptr restrict, Branch *const barray, int *objnos);
+static void ur_print(Dataptr restrict, FILE *const stream, const Branch *const barray, const long root);
 #endif
 
 #ifndef NP_Implementation
@@ -906,7 +908,7 @@ void randtree(Dataptr restrict matrix, Branch *const barray)
 	#ifndef NP_Implementation
     long *objnos;		/* element i is obj associated with branch i */
 	#else
-	long *objnos;		/* element i is obj associated with branch i */
+	int *objnos;		/* element i is obj associated with branch i */
 	#endif
 
     treeclear(matrix, barray);
@@ -939,7 +941,7 @@ static void wherever_was_now_say(Dataptr restrict matrix, Branch *const barray, 
 #ifndef NP_Implementation
 static void tree_make_canonical(Dataptr restrict matrix, Branch *const barray, long *objnos)
 #else
-static void tree_make_canonical(Dataptr restrict matrix, Branch *const barray, long *objnos)
+static void tree_make_canonical(Dataptr restrict matrix, Branch *const barray, int *objnos)
 #endif
 /* ensure that objects 0, 1, 2, ... n-1 are associated with branches 0, 1, 2,
  * ... n-1, respectively; objnos indicates for each branch the currently
@@ -1187,7 +1189,7 @@ static long *randleaf(Dataptr restrict matrix, Branch *const barray, const Lvb_b
 
 } /* end randleaf() */
 #else
-static long *randleaf(Dataptr restrict matrix, Branch *const barray, const Lvb_bool *const leafmask)
+static int *randleaf(Dataptr restrict matrix, Branch *const barray, const Lvb_bool *const leafmask)
 /* randomly assign objects numbered 0 to objs - 1 to leaves of tree in
  * barray; leaves in barray must be indicated by corresponding
  * LVB_TRUEs in leafmask; returns static array of object numbers, where
@@ -1199,7 +1201,7 @@ static long *randleaf(Dataptr restrict matrix, Branch *const barray, const Lvb_b
     int candidate;			/* random object */
     long i;							/* loop counter */
     static Lvb_bool *p_used; 		/* element i LVB_TRUE if object i has leaf */
-    static long *p_objnos = NULL;	/* object associated with branches */
+    static int *p_objnos = NULL;	/* object associated with branches */
 
     if (p_objnos == NULL) p_objnos = alloc(matrix->nbranches * sizeof(int), "Alloc objnos");
     if (p_used == NULL) p_used = alloc(matrix->n * sizeof(Lvb_bool), "Alloc p_used");
@@ -1508,8 +1510,8 @@ void dump_stack_to_screen(Dataptr restrict matrix, Treestack *sp){
 void dump_objset_to_screen(Dataptr restrict matrix, Objset *oset_1){
 	printf("################\n##################\n");
 	for (int i = 0; i < matrix->nsets; i++){
-		printf("%d    %ld    ", i, oset_1[i].cnt);
-		for (int x = 0; x < oset_1[i].cnt; x++) printf("%ld   ", oset_1[i].set[x]);
+		printf("%d    %d    ", i, oset_1[i].cnt);
+		for (int x = 0; x < oset_1[i].cnt; x++) printf("%d   ", oset_1[i].set[x]);
 		printf("\n");
 	}
 	printf("\n");
@@ -1519,7 +1521,7 @@ void dump_objset_to_screen_sset_2(Dataptr restrict matrix){
 	dump_objset_to_screen(matrix, sset_2);
 }
 
-void sort_array(long *p_array, int n_left, int n_rigth){
+void sort_array(int *p_array, int n_left, int n_rigth){
 	int l_hold, r_hold;
 	int l_pivot = *(p_array + ((n_left + n_rigth) / 2));
 	int l_temp;
@@ -1822,7 +1824,7 @@ static void fillsets(Dataptr restrict matrix, Objset *const sstruct, const Branc
 #ifndef NP_Implementation
 static void getobjs(Dataptr restrict matrix, const Branch *const barray, const long root, long *const objarr, long *const cnt)
 #else
-static void getobjs(Dataptr restrict matrix, const Branch *const barray, const long root, long *const objarr, long *const cnt)
+static void getobjs(Dataptr restrict matrix, const Branch *const barray, const int root, int *const objarr, int *const cnt)
 #endif
 /* fill objarr (which must be large enough) with numbers of all objects
  * in the tree in barray in the clade starting at branch root;
@@ -1837,7 +1839,7 @@ static void getobjs(Dataptr restrict matrix, const Branch *const barray, const l
 #ifndef NP_Implementation
 static void realgetobjs(Dataptr restrict matrix, const Branch *const barray, const long root, long *const objarr, long *const cnt)
 #else
-static void realgetobjs(Dataptr restrict matrix, const Branch *const barray, const long root, long *const objarr, long *const cnt)
+static void realgetobjs(Dataptr restrict matrix, const Branch *const barray, const int root, int *const objarr, int *const cnt)
 #endif
 /* fill objarr (which must be large enough) with numbers of all objects
  * in the tree in barray in the clade starting at branch root;
