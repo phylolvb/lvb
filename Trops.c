@@ -1388,9 +1388,9 @@ long setstcmp_with_sset2(Dataptr matrix, Objset *const oset_1)
 } /* end setstcmp() */
 
 #ifndef NP_Implementation
-void sort_array(long *p_array, int n_left, int n_rigth){
+void sort_array(long *p_array, int n_left, int n_right){
 	int l_hold, r_hold;
-	long l_pivot = *(p_array + ((n_left + n_rigth) / 2));
+	long l_pivot = *(p_array + ((n_left + n_right) / 2));
 	long l_temp;
 #else
 void dump_stack_to_screen(Dataptr matrix, Treestack *sp){
@@ -1415,14 +1415,14 @@ void dump_objset_to_screen_sset_2(Dataptr matrix){
 	dump_objset_to_screen(matrix, sset_2);
 }
 
-void sort_array(int *p_array, int n_left, int n_rigth){
+void sort_array(int *p_array, int n_left, int n_right){
 	int l_hold, r_hold;
-	int l_pivot = *(p_array + ((n_left + n_rigth) / 2));
+	int l_pivot = *(p_array + ((n_left + n_right) / 2));
 	int l_temp;
 #endif
 
 	l_hold = n_left;		//i=l;
-	r_hold = n_rigth;     //j=r;
+	r_hold = n_right;     //j=r;
 	do {
 		while (p_array[l_hold] < l_pivot) l_hold++;
 		while (p_array[r_hold] > l_pivot) r_hold--;
@@ -1436,7 +1436,7 @@ void sort_array(int *p_array, int n_left, int n_rigth){
 		}
 	} while (l_hold < r_hold);
 	if (n_left < r_hold) sort_array(p_array, n_left, r_hold);
-	if (l_hold < n_rigth) sort_array(p_array, l_hold, n_rigth);
+	if (l_hold < n_right) sort_array(p_array, l_hold, n_right);
 }
 
 #ifndef NP_Implementation
@@ -1685,12 +1685,8 @@ static void fillsets(Dataptr matrix, Objset *const sstruct, const Branch *const 
  * descended from but not including root and not including sets of one
  * object */
 {
-	#ifndef NP_Implementation
     static long i = UNSET;	/* current set being filled */
-	#else
-	static int i = UNSET;	/* current set being filled */
-	#endif
-
+	
     if (i == UNSET)	/* not a recursive call */
     {
 		i = 0;
