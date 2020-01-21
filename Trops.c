@@ -854,21 +854,18 @@ static void tree_make_canonical(Dataptr restrict matrix, Branch *const barray, i
  * ... n-1, respectively; objnos indicates for each branch the currently
  * assigned object or UNSET for internal branches */
 {
-    #ifndef NP_Implementation
-	long i;								/* loop counter */
-    long obj_no;							/* current object number */
-    long nbranches    = matrix->nbranches;
-    long n_lines      = matrix->n;
+    long i;							/* loop counter */
+	long obj_no;					/* current object number */
+	long n_lines	= matrix->n;
+	long root		= UNSET;		/* root branch index */
+	
+	#ifndef NP_Implementation
+	long nbranches    = matrix->nbranches;
     long impossible_1 = nbranches;					/* an out-of-range branch index */
     long impossible_2 = nbranches + 1;					/* an out-of-range branch index */
-    long root         = UNSET;						/* root branch index */
 	#else
-	int i;				/* loop counter */
-    int obj_no;			/* current object number */
-    long n_lines = matrix->n;
-    int impossible_1 = (int) matrix->nbranches;	/* an out-of-range branch index */
-    int impossible_2 = (int) matrix->nbranches + 1;	/* an out-of-range branch index */
-    int root = UNSET;			/* root branch index */
+    long impossible_1 = (int) matrix->nbranches;	/* an out-of-range branch index */
+    long impossible_2 = (int) matrix->nbranches + 1;	/* an out-of-range branch index */
 	#endif
 	Branch tmp_1, tmp_2;						/* temporary branches for swapping */
 	unsigned char *ss0_start = (unsigned char *) barray[0].sset;	/* start of state set memory */
@@ -1686,7 +1683,6 @@ static void fillsets(Dataptr matrix, Objset *const sstruct, const Branch *const 
  * object */
 {
     static long i = UNSET;	/* current set being filled */
-	
     if (i == UNSET)	/* not a recursive call */
     {
 		i = 0;
