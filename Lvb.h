@@ -385,6 +385,9 @@ long treestack_pop(Dataptr, Branch *, long *, Treestack *, Lvb_bool b_with_sset)
 void treeswap(Branch **const, long *const, Branch **const, long *const);
 void uint32_dump(FILE *, Lvb_bit_length);
 long words_per_row(const long);
+void mutate_spr(Dataptr restrict, Branch *const, const Branch *const, long);
+void mutate_nni(Dataptr restrict, Branch *const, const Branch *const, long);
+void mutate_tbr(Dataptr restrict, Branch *const, const Branch *const, long);
 // info.h functions
 void print_LVB_COPYRIGHT();
 void print_LVB_INFO();
@@ -426,9 +429,6 @@ long get_random_maxaccept(void);
 long lvb_reroot(Dataptr restrict, Branch *const barray, const long oldroot, const long newroot, Lvb_bool b_with_sset);
 void lvb_treeprint (Dataptr, FILE *const, const Branch *const, const long, DataSeqPtr restrict matrix_seq_data);
 void matchange(Dataptr, DataSeqPtr, const Params);
-void mutate_nni(Dataptr restrict, Branch *const, const Branch *const, long);
-void mutate_spr(Dataptr restrict, Branch *const, const Branch *const, long);
-void mutate_tbr(Dataptr restrict, Branch *const, const Branch *const, long);
 void rowfree(DataSeqPtr, int n_lines);
 int phylip_dna_matrin(char *, int, Dataptr, DataSeqPtr);
 long tree_bytes_without_sset(Dataptr restrict matrix);
@@ -458,7 +458,7 @@ int addtoarray(Branch *const, int, int *, int);
 #else
 long anneal(Dataptr restrict, Treestack *, Treestack *, const Branch *const, Params rcstruct, Params *p_rcstruct, long, const double,
 const long, const long, const long, FILE *const, long *, int, Lvb_bool, const long *);
-int arbreroot(Dataptr, Branch *const, const int);
+long arbreroot(Dataptr, Branch *const, const long);
 int childadd(Branch *const, const int, const int);
 void copy_sset(Dataptr restrict matrix, Objset *p_sset_1);
 void defaults_params(Params *const prms);
@@ -469,17 +469,12 @@ void dump_objset_to_screen(Dataptr restrict matrix, Objset *oset_1);
 void dump_objset_to_screen_sset_2(Dataptr restrict matrix);
 double get_initial_t(Dataptr, const Branch *const, Params rcstruct, long, int, Lvb_bool, const long *);
 long getminlen(const Dataptr);
-
 long getplen(Dataptr restrict, Branch *, Params rcstruct, const long, long *restrict p_todo_arr,
 long *p_todo_arr_sum_changes, int *p_runs, const long *restrict);
-
-long lvb_reroot(Dataptr restrict, Branch *const barray, const int oldroot, const int newroot, Lvb_bool b_with_sset);
+long lvb_reroot(Dataptr restrict, Branch *const barray, const long oldroot, const long newroot, Lvb_bool b_with_sset);
 void lvb_treeprint (Dataptr, FILE *const, const Branch *const, const long);
 void makesets(Dataptr restrict, const Branch *const tree_2, const int root);
 void matchange(Dataptr, const Params);
-void mutate_spr(Dataptr restrict, Branch *const, const Branch *const, long);
-void mutate_nni(Dataptr restrict, Branch *const, const Branch *const, long);
-void mutate_tbr(Dataptr restrict, Branch *const, const Branch *const, long);
 void phylip_dna_matrin(char *, int, Dataptr);
 void rowfree(Dataptr);
 long setstcmp_with_sset2(Dataptr restrict matrix, Objset *const oset_1);

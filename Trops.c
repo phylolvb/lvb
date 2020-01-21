@@ -602,27 +602,19 @@ int addtoarray(Branch *const tree, int current, int arr[], int i)
 	return i;
 }
 
-#ifndef NP_Implementation
 long lvb_reroot(Dataptr restrict matrix, Branch *const barray, const long oldroot, const long newroot, Lvb_bool b_with_sset)
-#else
-long lvb_reroot(Dataptr restrict matrix, Branch *const barray, const int oldroot, const int newroot, Lvb_bool b_with_sset)
-#endif
 /* Change the root of the tree in barray from oldroot to newroot, which
  * must not be the same. Mark all internal nodes (everything but the leaves
  * and root) as "dirty". Return oldroot. */
 {
-	#ifndef NP_Implementation
-    long current;				/* current branch */
+	long current;				/* current branch */
     long parnt;					/* parent of current branch */
-    long sister = UNSET;			/* sister of current branch */
+    long sister = UNSET;		/* sister of current branch */
     long previous;				/* previous branch */
+	#ifndef NP_Implementation			
     static long oldparent[MAX_BRANCHES];	/* element i was old parent of i */
 	#else
-	int current;				/* current branch */
-    int parnt;					/* parent of current branch */
-    int sister = UNSET;			/* sister of current branch */
-    int previous;				/* previous branch */
-    static int *oldparent = NULL;	/* element i was old parent of i */
+	static int *oldparent = NULL;	/* element i was old parent of i */
 	#endif
 
     /* check new root is a leaf but not the current root */
@@ -676,27 +668,15 @@ long lvb_reroot(Dataptr restrict matrix, Branch *const barray, const int oldroot
 
 } /* end lvb_reroot() */
 
-#ifndef NP_Implementation
 long arbreroot(Dataptr matrix, Branch *const tree, const long oldroot)
-#else
-int arbreroot(Dataptr matrix, Branch *const tree, const int oldroot)
-#endif
 /* Change tree's root arbitrarily, to a leaf other than oldroot.
  * Mark all nodes other than the leaves and root "dirty".
  * Return the number of the new root. */
 {
-	#ifndef NP_Implementation
-    long newroot;		/* new root */
-	#else
-	int newroot;
-	#endif
+	long newroot;
 
     /* find a leaf that is not the current root */
-	#ifndef NP_Implementation
     long ugg_minus_1 = matrix->n - 1;
-	#else
-	int ugg_minus_1 = matrix->n - 1;
-	#endif
     do {
     	newroot = randpint(ugg_minus_1);
     } while (newroot == oldroot);
@@ -711,11 +691,7 @@ static long getsister(const Branch *const barray, const long branch)
 /* return number of sister of branch branch in tree in barray, or UNSET if
  * branch has none */
 {
-	#ifndef NP_Implementation
     long parnt;		/* parent of current branch */
-	#else
-	int parnt;		/* parent of current branch */
-	#endif
 
     parnt = barray[branch].parent;
     if (parnt == UNSET) return UNSET;

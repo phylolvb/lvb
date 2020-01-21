@@ -826,7 +826,7 @@ int get_other_seed_to_run_a_process(){
 
 	int val;			/* return value */
 	long iter;			/* iterations of annealing algorithm */
-	long trees_output_total = 0L;	/* number of trees output, overall */
+	long trees_output_total;	/* number of trees output, overall */
 	long trees_output;		/* number of trees output for current rep. */
 	long final_length;		/* length of shortest tree(s) found */
 	FILE *outtreefp;		/* best trees found overall */
