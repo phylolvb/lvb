@@ -705,11 +705,7 @@ static long getsister(const Branch *const barray, const long branch)
 
 } /* end getsister() */
 
-#ifndef NP_Implementation
 long childadd(Branch *const tree, const long destination, const long newchild)
-#else
-int childadd(Branch *const tree, const int destination, const int newchild)
-#endif
 /* replace unset child of destination with newchild, and return
  * destination */
 {
@@ -750,11 +746,7 @@ static void cr_bpnc(const Branch *const barray, const long branch)
 
 }	/* end cr_bpnc() */
 
-#ifndef NP_Implementation
 Branch *const mvBranch(long nbranches, Branch *const dest, const Branch *const src)
-#else
-Branch *mvBranch(long nbranches, Branch *const dest, const Branch *const src)
-#endif
 {
 	long i;
 	Lvb_bit_length *tmp_sset;
@@ -765,8 +757,6 @@ Branch *mvBranch(long nbranches, Branch *const dest, const Branch *const src)
 	}
 	return dest;
 }
-
-
 
 void treecopy(Dataptr restrict matrix, Branch *const dest, const Branch *const src, Lvb_bool b_with_sset)
 /* copy tree from src to dest; dest must be totally distinct from source
@@ -843,11 +833,7 @@ void randtree(Dataptr matrix, Branch *const barray)
 
 } /* end randtree() */
 
-#ifndef NP_Implementation
-static void wherever_was_now_say(Dataptr matrix, Branch *const barray, long was, long now)
-#else
-static void wherever_was_now_say(Dataptr restrict matrix, Branch *const barray, int was, int now)
-#endif
+static void wherever_was_now_say(Dataptr restrict matrix, Branch *const barray, long was, long now)
 {
     long branchno;			/* loop counter */
 
@@ -1011,13 +997,8 @@ static Lvb_bool *randtopology(Dataptr matrix, Branch *const barray, const long n
 {
     long i;		/* loop counter */
     long leaves = 0;	/* number of leaves */
-	#ifndef NP_Implementation
-    long nextfree = 0;	/* next unused element of barray */
+	long nextfree = 0;	/* next unused element of barray */
     long togrow;	/* random candidate for sprouting */
-	#else
-	int nextfree = 0;	/* next unused element of barray */
-    int togrow;	/* random candidate for sprouting */
-	#endif
     static Lvb_bool isleaf[MAX_BRANCHES];	/* return value */
 
     lvb_assert(nobjs == matrix->n);
@@ -1195,11 +1176,7 @@ void treedump(Dataptr matrix, FILE *const stream, const Branch *const tree, Lvb_
 
     fprintf(stream, "Branch\tParent\tLeft\tRight\tChanges\tDirty\tSset_arr\tSsets\n");
     for (i = 0; i < matrix->nbranches; i++) {
-		#ifndef NP_Implementation
     	fprintf(stream, "%ld\t%ld\t%ld\t%ld\t%ld", i, tree[i].parent, tree[i].left, tree[i].right, tree[i].changes);
-		#else
-		fprintf(stream, "%ld\t%u\t%u\t%u\t%u", i, tree[i].parent, tree[i].left, tree[i].right, tree[i].changes);
-		#endif
     	if (tree[i].sset[0] == 0U) fprintf(stream, "\tyes");
     	else fprintf(stream, "\tno");
     	if (b_with_sset){
@@ -1226,11 +1203,7 @@ void treedump_screen(Dataptr matrix, const Branch *const tree)
 
     printf("Branch\tParent\tLeft\tRight\tChanges\tDirty\n");
     for (i = 0; i < matrix->nbranches; i++) {
-		#ifndef NP_Implementation
-    	printf("%ld\t%ld\t%ld\t%ld\t%ld", i, tree[i].parent, tree[i].left, tree[i].right, tree[i].changes);
-		#else
-		printf("%ld\t%u\t%u\t%u\t%u", i, tree[i].parent, tree[i].left, tree[i].right, tree[i].changes);
-		#endif
+		printf("%ld\t%ld\t%ld\t%ld\t%ld", i, tree[i].parent, tree[i].left, tree[i].right, tree[i].changes);
     	if (tree[i].sset == NULL) printf("\tNULL\n");
     	else if (tree[i].sset[0] == 0U) printf("\tyes\n");
     	else printf("\tno\n");

@@ -242,10 +242,10 @@ typedef struct
 #else
 typedef struct
 {
-    int parent;		/* parent branch number, UNSET in root */
-    int left;			/* index of first child in tree array */
-    int right;			/* index of second child in tree array */
-    int changes;		/* changes associated with this branch */
+    long parent;		/* parent branch number, UNSET in root */
+    long left;			/* index of first child in tree array */
+    long right;			/* index of second child in tree array */
+    long changes;		/* changes associated with this branch */
     Lvb_bit_length *sset;	/* statesets for all sites */
 } Branch;
 #endif
@@ -459,7 +459,7 @@ int addtoarray(Branch *const, int, int *, int);
 long anneal(Dataptr restrict, Treestack *, Treestack *, const Branch *const, Params rcstruct, Params *p_rcstruct, long, const double,
 const long, const long, const long, FILE *const, long *, int, Lvb_bool, const long *);
 long arbreroot(Dataptr, Branch *const, const long);
-int childadd(Branch *const, const int, const int);
+long childadd(Branch *const, const long, const long);
 void copy_sset(Dataptr restrict matrix, Objset *p_sset_1);
 void defaults_params(Params *const prms);
 long deterministic_hillclimb(Dataptr, Treestack *, const Branch *const, Params rcstruct, long, FILE * const, long *, int, Lvb_bool, const long *);
