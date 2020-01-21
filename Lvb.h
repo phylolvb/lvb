@@ -477,9 +477,9 @@ long lvb_reroot(Dataptr restrict, Branch *const barray, const int oldroot, const
 void lvb_treeprint (Dataptr, FILE *const, const Branch *const, const long);
 void makesets(Dataptr restrict, const Branch *const tree_2, const int root);
 void matchange(Dataptr, const Params);
-void mutate_spr(Dataptr restrict, Branch *const, const Branch *const, int);
-void mutate_nni(Dataptr restrict, Branch *const, const Branch *const, int);
-void mutate_tbr(Dataptr restrict, Branch *const, const Branch *const, int);
+void mutate_spr(Dataptr restrict, Branch *const, const Branch *const, long);
+void mutate_nni(Dataptr restrict, Branch *const, const Branch *const, long);
+void mutate_tbr(Dataptr restrict, Branch *const, const Branch *const, long);
 void phylip_dna_matrin(char *, int, Dataptr);
 void rowfree(Dataptr);
 long setstcmp_with_sset2(Dataptr restrict matrix, Objset *const oset_1);
