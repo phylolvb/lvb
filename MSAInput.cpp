@@ -449,11 +449,7 @@ bool CReadFiles::is_phylip_line_sequential(int &n_total_lines){
 
 int CReadFiles::read_fasta()
 {
-	#ifndef NP_Implementation
 	std::string sz_line = "";
-	#else
-	std::string sz_line;
-	#endif
 	int n_count_sequence = -1;
 
 	ifstream filein;

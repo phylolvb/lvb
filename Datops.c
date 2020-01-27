@@ -49,12 +49,9 @@ static void logcut(const Lvb_bool *const cut, const long m);
 #ifndef NP_Implementation
 
 static long constchar(Dataptr restrict matrix, DataSeqPtr restrict matrix_seq, Lvb_bool *const togo, const Lvb_bool verbose);
-	static void cutcols(Dataptr restrict matrix, DataSeqPtr matrix_seq, const Lvb_bool *const tocut, long n_columns_to_change);
-	
-	static long getminlen(const Dataptr restrict matrix, DataSeqPtr matrix_seq);
-
+static void cutcols(Dataptr restrict matrix, DataSeqPtr matrix_seq, const Lvb_bool *const tocut, long n_columns_to_change);
+static long getminlen(const Dataptr restrict matrix, DataSeqPtr matrix_seq);
 static char *getstatev(const Dataptr restrict matrix, DataSeqPtr matrix_seq, const long k)
-
 #else
 static long constchar(Dataptr restrict matrix, Lvb_bool *const togo, const Lvb_bool verbose);
 static void cutcols(Dataptr restrict matrix, const Lvb_bool *const tocut, long n_columns_to_change);
