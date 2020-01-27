@@ -82,7 +82,8 @@ static double uni_values[NUMBER_UNI_AVAILABLE + NUMBER_UNI_BUFFER];*/
 #define NUMBER_MAX_UNI	98
 static double uni_u[NUMBER_MAX_UNI];	/* Was U(97) in Fortran version */
 #else
-static double uni_u[98];
+#define NUMBER_MAX_UNI	98
+static double uni_u[NUMBER_MAX_UNI];
 #endif
 static double uni_c;
 const double uni_cd = 7654321.0 / 16777216.0;
@@ -151,8 +152,8 @@ double uni(void)
 	if (--uni_ui == 0) uni_ui = NUMBER_MAX_UNI - 1;
 	if (--uni_uj == 0) uni_uj = NUMBER_MAX_UNI - 1;
 	#else
-	if (--uni_ui == 0) uni_ui = 97;
-	if (--uni_uj == 0) uni_uj = 97;
+	if (--uni_ui == 0) uni_ui = NUMBER_MAX_UNI - 1;
+	if (--uni_uj == 0) uni_uj = NUMBER_MAX_UNI - 1;
 	#endif
 	if ((uni_c -= uni_cd) < 0.0) uni_c += uni_cm;
 	if ((luni -= uni_c) < 0.0) luni += 1.0;
@@ -167,7 +168,7 @@ static void rstart(int i, int j, int k, int l)
 	#ifndef NP_Implementation
 	for (ii = 1; ii < NUMBER_MAX_UNI; ii++) 
 	#else
-	for (ii = 1; ii <= 97; ii++)
+	for (ii = 1; ii < NUMBER_MAX_UNI; ii++)
 	#endif
 	{
 		s = 0.0;
