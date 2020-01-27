@@ -65,19 +65,10 @@ using namespace std;
 class CReadFiles {
 
 public:
-#ifndef NP_Implementation
 	static const int FORMAT_PHYLIP_ = 0;
 	static const int FORMAT_FASTA_ = 1;
 	static const int FORMAT_NEXUS_ = 2;
-	static const int FORMAT_MSF_ = 3;
-	static const int FORMAT_CLUSTAL_ = 4;
-#else
-	static const int FORMAT_PHYLIP = 0;
-	static const int FORMAT_FASTA = 1;
-	static const int FORMAT_NEXUS = 2;
-	static const int FORMAT_CLUSTAL = 3;
-#endif
-
+	static const int FORMAT_CLUSTAL_ = 3;
 
 public:
 	/// this is because some compilers has a problem with to_string method

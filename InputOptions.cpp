@@ -191,7 +191,7 @@ void phylip_mat_dims_in_external(char *file_name, int n_file_type, long *species
 
 void print_formats_available(){
 
-	printf("\nFormats available to read: phylip, fasta, nexus, msf and clustal");
+	printf("\nFormats available to read: phylip, fasta, nexus, and clustal");
 
 }
 
@@ -235,7 +235,7 @@ void usage(char *p_file_name)
 			"       The states files has the names \"state_<number of mpi process>.dat>\"\n"
 			"       default: it is not going to save/read states.\n");
 	printf("    -v [t|f] (f) verbose.\n");
-	printf("    -f [phylip|fasta|nexus|msf|clustal] (phylip) file format of input file.\n"
+	printf("    -f [phylip|fasta|nexus|clustal] (phylip) file format of input file.\n"
 			"       default: phylip format\n");
 	printf("    -p (1) Threads available."
 			"       default: only one thread available\n");
@@ -386,7 +386,7 @@ int read_parameters(Params *prms, int argc, char **argv){
 			case 'f':	/* format */
 				if (optarg == NULL){
 					#ifndef NP_Implementation
-					fprintf (stderr, "Option -%c requires an argument -f [phylip|fasta|nexus|msf|clustal]\n", optopt);
+					fprintf (stderr, "Option -%c requires an argument -f [phylip|fasta|nexus|clustal]\n", optopt);
 					#else
 					fprintf (stderr, "Option -%c requires an argument -f [phylip|fasta|nexus|clustal]\n", optopt);
 					#endif
@@ -404,11 +404,6 @@ int read_parameters(Params *prms, int argc, char **argv){
 				else if (strcmp(optarg, "nexus") == 0){
 					prms->n_file_format = FORMAT_NEXUS;
 				}
-				#ifndef NP_Implementation
-				else if (strcmp(optarg, "msf") == 0){
-					prms->n_file_format = FORMAT_MSF;
-				}
-				#endif
 				else if (strcmp(optarg, "clustal") == 0){
 					prms->n_file_format = FORMAT_CLUSTAL;
 				}

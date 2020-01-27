@@ -121,7 +121,7 @@ char *f2str(FILE *const stream)
     #ifndef NP_Implementation
     input = (char *) alloc(inbytes, "input");
     #else
-    input = alloc(inbytes, "input");
+    input = (char *) alloc(inbytes, "input");
     #endif
 
     /* get string */

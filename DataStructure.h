@@ -47,13 +47,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define FORMAT_PHYLIP 		0
 #define FORMAT_FASTA 		1
 #define FORMAT_NEXUS 		2
-
-#ifndef NP_Implementation
-#define FORMAT_MSF 		3
-#define FORMAT_CLUSTAL 		4
-#else
 #define FORMAT_CLUSTAL          3
 
+#ifdef NP_Implementation
 #define MAX_BOOTSTRAPS 1000000 // max bootstrap replicates
 #endif
 
