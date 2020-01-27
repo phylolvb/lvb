@@ -69,7 +69,7 @@ static void getobjs(Dataptr, const Branch *const barray, const long root, long *
 
 static void makesets(Dataptr matrix, const Branch *const tree_1, const Branch *const tree_2, const long root, Lvb_bool b_First);
 static int objnocmp(const void *o1, const void *o2);
-static long *randleaf(Dataptr, Branch *const barray, const Lvb_bool *const leafmask, const long objs);
+static long *randleaf(Dataptr restrict, Branch *const barray, const Lvb_bool *const leafmask, const long objs);
 static void realgetobjs(Dataptr, const Branch *const barray, const long root, long *const objarr, long *const cnt);
 static Lvb_bool *randtopology(Dataptr, Branch *const barray, const long nobjs);
 static long setstcmp(Dataptr restrict, Objset *const oset_1, Objset *const oset_2, Lvb_bool b_First);
@@ -78,7 +78,7 @@ static void ssarralloc(Dataptr restrict matrix, Objset *nobjset_1, Objset *nobjs
 static void tree_make_canonical(Dataptr restrict, Branch *const barray, long *objnos);
 #else
 static void getobjs(Dataptr, const Branch *const barray, const int root, int *const objarr, int *const cnt);
-static int *randleaf(Dataptr restrict, Branch *const barray,const Lvb_bool *const leafmask);
+static long *randleaf(Dataptr restrict, Branch *const barray, const Lvb_bool *const leafmask, const long objs);
 static void realgetobjs(Dataptr restrict, const Branch *const barray, const int root, int *const objarr, int *const cnt);
 static Lvb_bool *randtopology(Dataptr restrict, Branch *const barray, const long nobjs);
 static long setstcmp(Dataptr restrict, Objset *const oset_1, Objset *const oset_2);
@@ -268,22 +268,13 @@ void mutate_nni(Dataptr restrict matrix, Branch *const desttree, const Branch *c
 
 } /* end mutate_nni() */
 
-#ifndef NP_Implementation
 static Lvb_bool is_descendant(Branch *tree, long root, long ancestor, long candidate)
-#else
-static Lvb_bool is_descendant(Branch *tree, int root, int ancestor, int candidate)
-#endif
 /* return LVB_TRUE if candidate is among the branches in the clade descending
 from ancestor, LVB_FALSE otherwise */
 {
     Lvb_bool val = LVB_FALSE;		/* return value */
-	#ifndef NP_Implementation
     long par = tree[candidate].parent;	/* current parent */
     long newpar;			/* next parent */
-	#else
-	int par = tree[candidate].parent;	/* current parent */
-    int newpar;			/* next parent */
-	#endif
 
     while (par != UNSET){
 		if (par == ancestor){
@@ -824,11 +815,7 @@ void randtree(Dataptr matrix, Branch *const barray)
 
     treeclear(matrix, barray);
     leafmask = randtopology(matrix, barray, matrix->n);
-	#ifndef NP_Implementation
     objnos   = randleaf(matrix, barray, leafmask, matrix->n);
-	#else
-	objnos   = randleaf(matrix, barray, leafmask);
-	#endif
     tree_make_canonical(matrix, barray, objnos);
 
 } /* end randtree() */
@@ -957,15 +944,9 @@ Branch *treealloc(Dataptr restrict matrix, Lvb_bool b_with_sset)
     lvb_assert(matrix->nbranches >= MIN_BRANCHES);
     lvb_assert(matrix->nbranches <= MAX_BRANCHES);
 
-	#ifndef NP_Implementation
-    if (b_with_sset) barray = (Branch *) alloc(matrix->tree_bytes, "tree with statesets");
+	if (b_with_sset) barray = (Branch *) alloc(matrix->tree_bytes, "tree with statesets");
     else{ /* don't need to do anything else */
     	barray = (Branch *) alloc(matrix->tree_bytes_without_sset, "tree without statesets");
-	#else
-	if (b_with_sset) barray = alloc(matrix->tree_bytes, "tree with statesets");
-    else{ /* don't need to do anything else */
-    	barray = alloc(matrix->tree_bytes_without_sset, "tree without statesets");
-	#endif
     	return barray;
     }
 
@@ -1041,8 +1022,7 @@ static Lvb_bool *randtopology(Dataptr matrix, Branch *const barray, const long n
 
 } /* end randtopology() */
 
-#ifndef NP_Implementation
-static long *randleaf(Dataptr matrix, Branch *const barray, const Lvb_bool *const leafmask, const long objs)
+static long *randleaf(Dataptr restrict matrix, Branch *const barray, const Lvb_bool *const leafmask, const long objs)
 /* randomly assign objects numbered 0 to objs - 1 to leaves of tree in
  * barray; leaves in barray must be indicated by corresponding
  * LVB_TRUEs in leafmask; returns static array of object numbers, where
@@ -1050,11 +1030,14 @@ static long *randleaf(Dataptr matrix, Branch *const barray, const Lvb_bool *cons
  * respectively (UNSET for internal branches); this array will be overwritten
  * in subsequent calls */
 {
-    long assigned = 0;	                /* for safety: should == objs at end */
+	long assigned = 0;	                /* for safety: should == objs at end */
     long candidate;			/* random object */
     long i;				/* loop counter */
-    static Lvb_bool used[MAX_N];	/* element i LVB_TRUE if object
-    					 * i has leaf */
+
+#ifndef NP_Implementation
+    
+    static Lvb_bool used[MAX_N];		/* element i LVB_TRUE if object
+										 * i has leaf */
     static long objnos[MAX_BRANCHES];	/* object associated with branches */
 
     lvb_assert(objs < MAX_N);
@@ -1086,19 +1069,8 @@ static long *randleaf(Dataptr matrix, Branch *const barray, const Lvb_bool *cons
 
     return objnos;
 
-} /* end randleaf() */
 #else
-static int *randleaf(Dataptr restrict matrix, Branch *const barray, const Lvb_bool *const leafmask)
-/* randomly assign objects numbered 0 to objs - 1 to leaves of tree in
- * barray; leaves in barray must be indicated by corresponding
- * LVB_TRUEs in leafmask; returns static array of object numbers, where
- * elements 0..nbranches give the object associated with branches 0..nbranches
- * respectively (UNSET for internal branches); this array will be overwritten
- * in subsequent calls */
-{
-    long assigned = 0;				/* for safety: should == objs at end */
-    int candidate;			/* random object */
-    long i;							/* loop counter */
+
     static Lvb_bool *p_used; 		/* element i LVB_TRUE if object i has leaf */
     static int *p_objnos = NULL;	/* object associated with branches */
 
@@ -1131,9 +1103,9 @@ static int *randleaf(Dataptr restrict matrix, Branch *const barray, const Lvb_bo
     lvb_assert(assigned == matrix->n);
     return p_objnos;
 
-} /* end randleaf() */
 #endif
 
+} /* end randleaf() */
 
 void treeswap(Branch **const tree1, long *const root1,
  Branch **const tree2, long *const root2)
