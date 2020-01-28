@@ -52,9 +52,7 @@ int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat)
 {
 
 		CReadFiles readFiles = CReadFiles();
-		#ifndef NP_Implementation
 		int n_error_code;
-		#endif
 
 		/// read file
 		std::string sz_file_name = std::string(file_name);
@@ -132,9 +130,7 @@ int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat)
 		}
 	/*	std::string file_name_out = "/home/mmp/Downloads/file_nexus_nex_out.fas";
 		readFiles.save_file(file_name_out);*/
-		#ifndef NP_Implementation
 		return EXIT_SUCCESS;
-		#endif
 	}
 
 	#ifndef NP_Implementation
@@ -307,21 +303,13 @@ int read_parameters(Params *prms, int argc, char **argv){
 				if (optarg == NULL){
 					fprintf (stderr, "Option -%c requires an argument -c [g|l]\n", optopt);
 					usage(argv[0]);
-					#ifndef NP_Implementation
 					return 1;
-					#else
-					exit(1);
-					#endif
 				}
 				if (strcmp(optarg, "g") == 0 || strcmp(optarg, "G") == 0) prms->cooling_schedule = 0;
 				else if (strcmp(optarg, "l") == 0 || strcmp(optarg, "L") == 0) prms->cooling_schedule = 1;
 				else{
 					fprintf (stderr, "Unknown cooling schedule option\nPlease, choose between Geometric (g) or Linear (l).");
-					#ifndef NP_Implementation
 					return 1;
-					#else
-					exit(1);
-					#endif
 				}
 				break;
 			case 'v':	/* verbose */
@@ -331,9 +319,7 @@ int read_parameters(Params *prms, int argc, char **argv){
 				if (optarg == NULL){
 					fprintf (stderr, "Option -%c requires an argument -s <int>\n", optopt);
 					usage(argv[0]);
-					#ifndef NP_Implementation
 					return 1;
-					#endif
 				}
 				prms->seed = atoi(optarg);
 				break;
@@ -341,9 +327,7 @@ int read_parameters(Params *prms, int argc, char **argv){
 				if (optarg == NULL){
 					fprintf (stderr, "Option -%c requires an argument -s <int>\n", optopt);
 					usage(argv[0]);
-					#ifndef NP_Implementation
 					return 1;
-					#endif
 				}
 				prms->STAT_LOG_INTERVAL = atoi(optarg);
 				break;
@@ -351,17 +335,11 @@ int read_parameters(Params *prms, int argc, char **argv){
 				if (optarg == NULL){
 					fprintf (stderr, "Option -%c requires an argument -i <file name>\n", optopt);
 					usage(argv[0]);
-					#ifndef NP_Implementation
 					return 1;
-					#endif
 				}
 				if (strlen(optarg) > LVB_FNAMSIZE){
 					fprintf (stderr, "Error, the length file name greater than %d\n", LVB_FNAMSIZE);
-					#ifndef NP_Implementation
 					return 1;
-					#else
-					exit(1);
-					#endif
 				}
 				strcpy(prms->file_name_in, optarg);
 				break;
@@ -369,17 +347,11 @@ int read_parameters(Params *prms, int argc, char **argv){
 				if (optarg == NULL){
 					fprintf (stderr, "Option -%c requires an argument -o <file name>\n", optopt);
 					usage(argv[0]);
-					#ifndef NP_Implementation
 					return 1;
-					#endif
 				}
 				if (strlen(optarg) > LVB_FNAMSIZE){
 					fprintf (stderr, "Error, the length file name greater than %d\n", LVB_FNAMSIZE);
-					#ifndef NP_Implementation
 					return 1;
-					#else
-					exit(1);
-					#endif
 				}
 				strcpy(prms->file_name_out, optarg);
 				break;
@@ -391,9 +363,7 @@ int read_parameters(Params *prms, int argc, char **argv){
 					fprintf (stderr, "Option -%c requires an argument -f [phylip|fasta|nexus|clustal]\n", optopt);
 					#endif
 					usage(argv[0]);
-					#ifndef NP_Implementation
 					return 1;
-					#endif
 				}
 				if (strcmp(optarg, "phylip") == 0){
 					prms->n_file_format = FORMAT_PHYLIP;
@@ -410,22 +380,14 @@ int read_parameters(Params *prms, int argc, char **argv){
 				else{
 					fprintf (stderr, "Unknown file format.");
 					print_formats_available();
-					#ifndef NP_Implementation
 					return 1;
-					#else
-					exit(1);
-					#endif
 				}
 				break;
 			case 'p':
 				if (optarg == NULL){
 					fprintf (stderr, "Option -%c requires an argument -p <file name>\n", optopt);
 					usage(argv[0]);
-					#ifndef NP_Implementation
 					return 1;
-					#else
-					exit(1);
-					#endif
 				}
 				prms->n_processors_available = atoi(optarg);
 				if (prms->n_processors_available < 1) prms->n_processors_available = 1;
@@ -483,12 +445,8 @@ int read_parameters(Params *prms, int argc, char **argv){
 			case 'h':
 			default:
 	            usage(argv[0]);
-				#ifndef NP_Implementation
 	            return 1;
-				#endif
 		}
 	}
-	#ifndef NP_Implementation
 	return EXIT_SUCCESS;
-	#endif
 }

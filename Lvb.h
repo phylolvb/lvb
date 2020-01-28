@@ -69,8 +69,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <time.h>
 #include "Myuni.h"
 #include "Mymaths.h"
-#include "clock.h"
-#include "log.h"
+#include "Clock.h"
+#include "Log.h"
 #include <sys/utsname.h>
 #include <stdbool.h>
 #include <sys/types.h>

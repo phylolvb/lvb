@@ -146,7 +146,7 @@ LIB_EXT = a		# UNIX
 DOCS_PROGRAMMER = 	$(DOCS_PROG_DIR)/Treestack.html \
 					$(DOCS_PROG_DIR)/Main.html \
 		  			$(DOCS_PROG_DIR)/Cleanup.html \
-					  $(DOCS_PROG_DIR)/clock.html \
+					  $(DOCS_PROG_DIR)/Clock.html \
 		  			$(DOCS_PROG_DIR)/Datops.html \
 		  			$(DOCS_PROG_DIR)/Err.html \
 		  			$(DOCS_PROG_DIR)/Fops.html \
@@ -155,7 +155,7 @@ DOCS_PROGRAMMER = 	$(DOCS_PROG_DIR)/Treestack.html \
 					  $(DOCS_PROG_DIR)/Mops.html \
 					  $(DOCS_PROG_DIR)/Mymaths.html \
 					  $(DOCS_PROG_DIR)/Myuni.html \
-					  $(DOCS_PROG_DIR)/log.html \
+					  $(DOCS_PROG_DIR)/Log.html \
 					  $(DOCS_PROG_DIR)/Parsim.html \
 					  $(DOCS_PROG_DIR)/Randpint.html \
 					  $(DOCS_PROG_DIR)/Solve.html \
@@ -173,7 +173,7 @@ DOCS = $(DOCS_PROGRAMMER) \
 LVB_LIB_OBJS = Admin.$(OBJ) \
 	Treestack.$(OBJ) \
 	Cleanup.$(OBJ) \
-	clock.$(OBJ) \
+	Clock.$(OBJ) \
 	Datops.$(OBJ) \
 	Err.$(OBJ) \
 	Fops.$(OBJ) \
@@ -188,7 +188,7 @@ LVB_LIB_OBJS = Admin.$(OBJ) \
 	Store_states.$(OBJ) \
 	Sops.$(OBJ) \
 	Trops.$(OBJ) \
-	log.$(OBJ) \
+	Log.$(OBJ) \
     Wrapper.$(OBJ)
 
 ifeq ($(WHICH_MAKE),MAKE_LVB_MPI)
@@ -213,7 +213,7 @@ endif
 
 LVB_READ_FILE_OBJS = 	$(LVB_READ_FILE_DIR)MSAInput.$(OBJ) \
 						$(LVB_READ_FILE_DIR)InputOptions.$(OBJ) \
-						$(LVB_READ_FILE_DIR)info.$(OBJ)
+						$(LVB_READ_FILE_DIR)Info.$(OBJ)
 
 LVB_PROG_OBJS = Main.$(OBJ)
 LVB_LIB_OBJS_OUTPUT = $(LVB_LIB_OBJS)
