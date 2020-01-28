@@ -988,9 +988,9 @@ myMPIid = 0;
     phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix);
 
     /* "file-local" dynamic heap memory: set up best tree stacks, need to be by thread */
-    bstack_overall = treestack_new();
+    bstack_overall = * treestack_new();
     if(rcstruct.algorithm_selection ==2)
-    stack_treevo = treestack_new();
+    stack_treevo = * treestack_new();
 
     matchange(matrix, rcstruct);	/* cut columns */
     writeinf(rcstruct, matrix, argc, argv);

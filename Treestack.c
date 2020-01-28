@@ -53,7 +53,7 @@ static void upsize(Dataptr restrict matrix, Treestack *sp)
     #ifndef NP_Implementation
     long i;	/* loop counter */
     #else
-    int i, j; // loop counter
+    long i, j; // loop counter
     #endif
 
     sp->size++;
@@ -61,20 +61,12 @@ static void upsize(Dataptr restrict matrix, Treestack *sp)
     /* allocate for stack itself */
     if (sp->stack == NULL)	/* 1st call, stack does not exist */
     {
-        #ifndef NP_Implementation
-        sp->stack = (Treestack_element *) alloc(sp->size * sizeof(Treestack_element), "initial best tree stack");
-        #else
-        sp->stack = alloc(sp->size * sizeof(Treestack_element), "initial best tree stack");
-        #endif 
+        sp->stack = (Treestack_element *) alloc(sp->size * sizeof(Treestack_element), "initial best tree stack"); 
         sp->next = 0;
         lvb_assert(sp->size == 1);	/* was incremented above */
     }
     else {
-        #ifndef NP_Implementation
         sp->stack = (Treestack_element *) realloc(sp->stack, sp->size * sizeof(Treestack_element));
-        #else
-        sp->stack = realloc(sp->stack, sp->size * sizeof(Treestack_element));
-        #endif
         if (sp->stack == NULL)
             crash("out of memory: cannot increase allocation for\n"
             		"best tree stack to %ld elements", sp->size);
@@ -85,6 +77,7 @@ static void upsize(Dataptr restrict matrix, Treestack *sp)
     	sp->stack[i].tree = treealloc(matrix, LVB_FALSE);
     	sp->stack[i].root = -1;
         #ifdef NP_Implementation
+
         /* set memory for sset */
     	sp->stack[sp->next].p_sset = alloc(matrix->nsets * sizeof(Objset), "object set object arrays");
     	for (j = 0; j < matrix->nsets; j++){
@@ -96,11 +89,7 @@ static void upsize(Dataptr restrict matrix, Treestack *sp)
  
 } /* end upsize() */
 
-#ifndef NP_Implementation
 static void dopush(Dataptr restrict matrix, Treestack *sp, const Branch *const barray, const long root, Lvb_bool b_with_sset)
-#else
-static void dopush(Dataptr restrict matrix, Treestack *sp, const Branch *const barray, const int root, Lvb_bool b_with_sset)
-#endif
 /* push tree in barray (of root root) on to stack *sp */
 {
     lvb_assert(sp->next <= sp->size);
@@ -241,12 +230,6 @@ void restore_treestack(FILE *fp, Treestack *sp, Dataptr restrict matrix, Lvb_boo
 }
 #endif
 
-long treestack_cnt(Treestack s)
-{
-    return s.next;
-
-} /* end treestack_cnt() */
-
 /**********
 
 =head1 treestack_new - RETURN A NEW TREE STACK
@@ -271,30 +254,18 @@ Returns a new, empty tree stack.
 
 **********/ 
 
-#ifndef NP_Implementation
 Treestack * treestack_new(void)
 {
     Treestack * p_stack;
     p_stack = (Treestack *) alloc(sizeof(Treestack), "alloc Treestack structure");
 
-    p_stack->size = 0;
-    p_stack->next = 0;
-    p_stack->stack = NULL;
+    p_stack->size = 0; // s.size = 0;
+    p_stack->next = 0; // s.next = 0;
+    p_stack->stack = NULL; // s.stack = NULL;
 
-    return p_stack;
+    return p_stack; //return s;
 } /* end treestack_new() */
-#else
-Treestack treestack_new(void)
-{
-    Treestack s;	/* return value */
 
-    s.size = 0;
-    s.next = 0;
-    s.stack = NULL;
-    return s;
-
-} /* end treestack_new() */
-#endif
 /**********
 
 =head1 treestack_push - PUSH TREE ONTO TREE STACK
@@ -344,6 +315,7 @@ Returns 1 if the tree was pushed, or 0 if not.
 
 **********/
 
+//needs reducing
 #ifndef NP_Implementation
 long treestack_push(Dataptr restrict matrix, Treestack *sp, const Branch *const barray, const long root, Lvb_bool b_with_sset)
 {
@@ -380,7 +352,7 @@ long treestack_push(Dataptr restrict matrix, Treestack *sp, const Branch *const 
 
 } /* end treestack_push() */
 #else
-long treestack_push(Dataptr restrict matrix, Treestack *sp, const Branch *const barray, const int root, Lvb_bool b_with_sset)
+long treestack_push(Dataptr restrict matrix, Treestack *sp, const Branch *const barray, const long root, Lvb_bool b_with_sset)
 {
 #define MIN_THREAD_SEARCH_SSET		5
 
@@ -522,26 +494,19 @@ long treestack_pop(Dataptr restrict matrix, Branch *barray, long *root, Treestac
 
 } /* end treestack_pop() */
 
-
+// needs reducing
 #ifndef NP_Implementation
 long treestack_print(Dataptr restrict matrix, DataSeqPtr restrict matrix_seq_data, Treestack *sp, FILE *const outfp, Lvb_bool onerandom)
 #else
-int treestack_print(Dataptr restrict matrix, Treestack *sp, FILE *const outfp, Lvb_bool onerandom)
+long treestack_print(Dataptr restrict matrix, Treestack *sp, FILE *const outfp, Lvb_bool onerandom)
 #endif
 {
-    #ifndef NP_Implementation
     const long d_obj1 = 0L;	/* 1st obj. for output trees */
     long root;			/* root of current tree */
     long i;			/* loop counter */
     long lower;			/* lowest index of trees to print */
     long upper;			/* 1 + upper index of trees to print */
-    #else
-    const int d_obj1 = 0L;	/* 1st obj. for output trees */
-    int root;			/* root of current tree */
-    int i;			/* loop counter */
-    int lower;			/* lowest index of trees to print */
-    int upper;			/* 1 + upper index of trees to print */
-    #endif
+
     Branch *barray;		/* current unpacked tree */
 
     /* "local" dynamic heap memory */
@@ -676,6 +641,7 @@ None.
 
 **********/
 
+//needs reducing
 #ifndef NP_Implementation
 void treestack_free(Treestack *sp)
 #else

@@ -481,9 +481,9 @@ long setstcmp_with_sset2(Dataptr restrict matrix, Objset *const oset_1);
 long tree_bytes_without_sset(Dataptr restrict matrix);
 long treecmp(Dataptr restrict, Objset *, const Branch *const, Lvb_bool b_first);
 void treestack_free(Dataptr restrict matrix, Treestack *);
-Treestack treestack_new(void);
-int treestack_print(Dataptr, Treestack *, FILE *const, Lvb_bool onerandom);
-long treestack_push(Dataptr, Treestack *, const Branch *const, const int, Lvb_bool b_with_sset);
+Treestack * treestack_new(void);
+long treestack_print(Dataptr, Treestack *, FILE *const, Lvb_bool onerandom);
+long treestack_push(Dataptr, Treestack *, const Branch *const, const long, Lvb_bool b_with_sset);
 int count(Branch *const, int);
 int addtoarray(Branch *const, int, int *, int);
 #endif
