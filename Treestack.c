@@ -496,7 +496,7 @@ long treestack_pop(Dataptr restrict matrix, Branch *barray, long *root, Treestac
 
 // needs reducing
 #ifndef NP_Implementation
-long treestack_print(Dataptr restrict matrix, DataSeqPtr restrict matrix_seq_data, Treestack *sp, FILE *const outfp, Lvb_bool onerandom)
+long treestack_print(Dataptr restrict matrix, Treestack *sp, FILE *const outfp, Lvb_bool onerandom)
 #else
 long treestack_print(Dataptr restrict matrix, Treestack *sp, FILE *const outfp, Lvb_bool onerandom)
 #endif
@@ -525,11 +525,7 @@ long treestack_print(Dataptr restrict matrix, Treestack *sp, FILE *const outfp, 
         treecopy(matrix, barray, sp->stack[i].tree, LVB_FALSE);
         if (sp->stack[i].root != d_obj1) lvb_reroot(matrix, barray, sp->stack[i].root, d_obj1, LVB_FALSE);
         root = d_obj1;
-        lvb_treeprint(matrix, outfp, barray, root
-	    #ifndef NP_Implementation
-	    , matrix_seq_data
-	    #endif
-	    );
+        lvb_treeprint(matrix, outfp, barray, root);
     }
     if (fflush(outfp) != 0)
     	crash("file write error when writing best trees");

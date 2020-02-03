@@ -63,6 +63,7 @@ static void cr_uxe(FILE *const stream, const char *const msg);
 static int osetcmp(const void *oset1, const void *oset2);
 static void fillsets(Dataptr, Objset *const sstruct, const Branch *const tree, const long root);
 static long getsister(const Branch *const barray, const long branch);
+static Lvb_bool *randtopology(Dataptr restrict, Branch *const barray, const long nobjs);
 
 #ifndef NP_Implementation
 static void getobjs(Dataptr, const Branch *const barray, const long root, long *const objarr, long *const cnt);
@@ -71,7 +72,7 @@ static void makesets(Dataptr matrix, const Branch *const tree_1, const Branch *c
 static int objnocmp(const void *o1, const void *o2);
 static long *randleaf(Dataptr restrict, Branch *const barray, const Lvb_bool *const leafmask, const long objs);
 static void realgetobjs(Dataptr, const Branch *const barray, const long root, long *const objarr, long *const cnt);
-static Lvb_bool *randtopology(Dataptr, Branch *const barray, const long nobjs);
+
 static long setstcmp(Dataptr restrict, Objset *const oset_1, Objset *const oset_2, Lvb_bool b_First);
 static void sort(Objset *const oset_1, Objset *const oset_2, const long nels, Lvb_bool b_First);
 static void ssarralloc(Dataptr restrict matrix, Objset *nobjset_1, Objset *nobjset_2);
@@ -80,8 +81,7 @@ static void tree_make_canonical(Dataptr restrict, Branch *const barray, long *ob
 static void getobjs(Dataptr, const Branch *const barray, const int root, int *const objarr, int *const cnt);
 static long *randleaf(Dataptr restrict, Branch *const barray, const Lvb_bool *const leafmask, const long objs);
 static void realgetobjs(Dataptr restrict, const Branch *const barray, const int root, int *const objarr, int *const cnt);
-static Lvb_bool *randtopology(Dataptr restrict, Branch *const barray, const long nobjs);
-static long setstcmp(Dataptr restrict, Objset *const oset_1, Objset *const oset_2);
+static long setstcmp(Dataptr restrict, Objset *const oset_1, Objset *const oset_2, Lvb_bool b_First);
 static void sort(Dataptr matrix, Objset *const oset_2, const long nels);
 static void ssarralloc(Dataptr restrict matrix, Objset *nobjset_2);
 static void tree_make_canonical(Dataptr restrict, Branch *const barray, int *objnos);
@@ -93,7 +93,7 @@ static void ur_print(Dataptr restrict, FILE *const stream, const Branch *const b
 	static long makeset_single(Dataptr, const Branch *const tree, const long root);
 	void map_pushSets(int itask, KeyValue *kv, void *ptr);
 #endif
-	static void ur_print(Dataptr, DataSeqPtr restrict matrix_seq_data, FILE *const stream, const Branch *const barray, const long root);
+	static void ur_print(Dataptr, FILE *const stream, const Branch *const barray, const long root);
 
 
 /* object sets for tree 1 in comparison */
@@ -835,6 +835,7 @@ static void wherever_was_now_say(Dataptr restrict matrix, Branch *const barray, 
 #ifndef NP_Implementation
 static void tree_make_canonical(Dataptr matrix, Branch *const barray, long *objnos)
 #else
+//changing *objnos from int to long causes seg fault
 static void tree_make_canonical(Dataptr restrict matrix, Branch *const barray, int *objnos)
 #endif
 /* ensure that objects 0, 1, 2, ... n-1 are associated with branches 0, 1, 2,
@@ -845,15 +846,10 @@ static void tree_make_canonical(Dataptr restrict matrix, Branch *const barray, i
 	long obj_no;					/* current object number */
 	long n_lines	= matrix->n;
 	long root		= UNSET;		/* root branch index */
-	
-	#ifndef NP_Implementation
 	long nbranches    = matrix->nbranches;
     long impossible_1 = nbranches;					/* an out-of-range branch index */
     long impossible_2 = nbranches + 1;					/* an out-of-range branch index */
-	#else
-    long impossible_1 = (int) matrix->nbranches;	/* an out-of-range branch index */
-    long impossible_2 = (int) matrix->nbranches + 1;	/* an out-of-range branch index */
-	#endif
+
 	Branch tmp_1, tmp_2;						/* temporary branches for swapping */
 	unsigned char *ss0_start = (unsigned char *) barray[0].sset;	/* start of state set memory */
 	Lvb_bool swap_made;							/* flag to indicate swap made */
@@ -861,11 +857,7 @@ static void tree_make_canonical(Dataptr restrict matrix, Branch *const barray, i
 
     do {
 		swap_made = LVB_FALSE;
-		#ifndef NP_Implementation
 		for (i = 0; i < nbranches; i++)
-		#else
-		for (i = 0; i < matrix->nbranches; i++) 
-		#endif
 			{
 			obj_no = objnos[i];
 			if ((obj_no != UNSET) && (obj_no != i)) {
@@ -892,11 +884,7 @@ static void tree_make_canonical(Dataptr restrict matrix, Branch *const barray, i
     } while (swap_made == LVB_TRUE);
 
     /* patch up assignment of sset memory to prevent trouble in treecopy() */
-	#ifndef NP_Implementation
     for (i = 0; i < nbranches; i++)
-	#else
-	for (i = 0; i < matrix->nbranches; i++)
-	#endif
 	{
     	barray[i].sset = (Lvb_bit_length *) (ss0_start + i * matrix->bytes);
     }
@@ -916,11 +904,7 @@ static void tree_make_canonical(Dataptr restrict matrix, Branch *const barray, i
     for (i = 0; i < n_lines; i++) {
     	lvb_assert(objnos[i] == i);
     }
-	#ifndef NP_Implementation
-    for (i = n_lines; i < nbranches; i++) 
-	#else
-	for (i = n_lines; i < matrix->nbranches; i++)
-	#endif
+    for (i = n_lines; i < nbranches; i++)
 	{
     	lvb_assert(objnos[i] == UNSET);
     }
@@ -967,7 +951,7 @@ Branch *treealloc(Dataptr restrict matrix, Lvb_bool b_with_sset)
 
 } /* end treealloc() */
 
-static Lvb_bool *randtopology(Dataptr matrix, Branch *const barray, const long nobjs)
+static Lvb_bool *randtopology(Dataptr restrict matrix, Branch *const barray, const long nobjs)
 /* fill barray with tree of random topology, where barray[0] is root;
  * return static array where element i is LVB_TRUE if barray[i] is a
  * leaf or LVB_FALSE if it is not; this array will be overwritten in
@@ -1195,7 +1179,7 @@ static void cr_uxe(FILE *const stream, const char *const msg)
 } /* end cr_uxe */
 
 	#ifndef NP_Implementation
-	void lvb_treeprint (Dataptr matrix, FILE *const stream, const Branch *const barray, const long root, DataSeqPtr restrict matrix_seq_data)
+	void lvb_treeprint (Dataptr matrix, FILE *const stream, const Branch *const barray, const long root)
 	#else
 	void lvb_treeprint (Dataptr matrix, FILE *const stream, const Branch *const barray, const long root)
 	#endif
@@ -1203,14 +1187,14 @@ static void cr_uxe(FILE *const stream, const char *const msg)
 	 * in unrooted form */
 	{
 		#ifndef NP_Implementation
-		ur_print(matrix, matrix_seq_data, stream, barray, root);
+		ur_print(matrix, stream, barray, root);
 		#else
 		ur_print(matrix, stream, barray, root);
 		#endif
 	} /* end lvb_treeprint() */
 
 	#ifndef NP_Implementation
-	static void ur_print(Dataptr matrix, DataSeqPtr restrict matrix_seq_data, FILE *const stream, const Branch *const barray, const long root)
+	static void ur_print(Dataptr matrix, FILE *const stream, const Branch *const barray, const long root)
 	#else
 	static void ur_print(Dataptr matrix, FILE *const stream, const Branch *const barray, const long root)
 	#endif
@@ -1228,8 +1212,8 @@ static void cr_uxe(FILE *const stream, const char *const msg)
 	    {
 			/* start tree */
 			#ifndef NP_Implementation
-			tmp_title = (char *) alloc(strlen(matrix_seq_data->rowtitle[obj]) + 1, "temp. title");
-			strcpy(tmp_title, matrix_seq_data->rowtitle[obj]);
+			tmp_title = (char *) alloc(strlen(matrix->rowtitle[obj]) + 1, "temp. title");
+			strcpy(tmp_title, matrix->rowtitle[obj]);
 			#else
 			tmp_title = alloc(strlen(matrix->rowtitle[obj]) + 1, "temp. title");
 			strcpy(tmp_title, matrix->rowtitle[obj]);
@@ -1244,8 +1228,8 @@ static void cr_uxe(FILE *const stream, const char *const msg)
 			doneabsroot = LVB_TRUE;
 
 			#ifndef NP_Implementation
-			ur_print(matrix, matrix_seq_data, stream, barray, barray[root].left);
-			ur_print(matrix, matrix_seq_data, stream, barray, barray[root].right);
+			ur_print(matrix, stream, barray, barray[root].left);
+			ur_print(matrix, stream, barray, barray[root].right);
 			#else
 			ur_print(matrix, stream, barray, barray[root].left);
 			ur_print(matrix, stream, barray, barray[root].right);
@@ -1265,8 +1249,8 @@ static void cr_uxe(FILE *const stream, const char *const msg)
 			if (root < matrix->n)	/* leaf */
 			{
 				#ifndef NP_Implementation
-				tmp_title = (char *) alloc(strlen(matrix_seq_data->rowtitle[obj]) + 1, "temp. title");
-				strcpy(tmp_title, matrix_seq_data->rowtitle[obj]);
+				tmp_title = (char *) alloc(strlen(matrix->rowtitle[obj]) + 1, "temp. title");
+				strcpy(tmp_title, matrix->rowtitle[obj]);
 				#else
 				tmp_title = alloc(strlen(matrix->rowtitle[obj]) + 1, "temp. title");
 				strcpy(tmp_title, matrix->rowtitle[obj]);
@@ -1283,8 +1267,8 @@ static void cr_uxe(FILE *const stream, const char *const msg)
 				fprintf(stream, "(");
 				usecomma = LVB_FALSE;
 				#ifndef NP_Implementation
-				ur_print(matrix, matrix_seq_data, stream, barray, barray[root].left);
-				ur_print(matrix, matrix_seq_data, stream, barray, barray[root].right);
+				ur_print(matrix, stream, barray, barray[root].left);
+				ur_print(matrix, stream, barray, barray[root].right);
 				#else
 				ur_print(matrix, stream, barray, barray[root].left);
 				ur_print(matrix, stream, barray, barray[root].right);
@@ -1310,16 +1294,12 @@ long treecmp(Dataptr matrix, Objset *sset_1, const Branch *const tree_2, Lvb_boo
 	return setstcmp(matrix, sset_1, sset_2, b_First);
 	#else
 	if (b_First == LVB_TRUE) makesets(matrix, tree_2, 0 /* always root zero */);
-    return setstcmp(matrix, sset_1, sset_2 /* this one is the static */);
+    return setstcmp(matrix, sset_1, sset_2, b_First /* this one is the static */);
 	#endif
 
 } /* end treecmp() */
 
-#ifndef NP_Implementation
 static long setstcmp(Dataptr matrix, Objset *const oset_1, Objset *const oset_2, Lvb_bool b_First)
-#else
-static long setstcmp(Dataptr matrix, Objset *const oset_1, Objset *const oset_2)
-#endif
 /* return 0 if the same sets of objects are in oset_1 and oset_2,
  * and non-zero otherwise */
 {

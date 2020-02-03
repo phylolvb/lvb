@@ -68,49 +68,34 @@ typedef enum { LVB_FALSE, LVB_TRUE } Lvb_bool;	/* boolean type */
 #define CHECK_POINT_NOT_READ_STATE_FILES	0		/* the state files don't exist and are corrupted */
 /* END save read states flags */
 
+#endif
+
+
 typedef struct data
 {
+     int n_threads_getplen;  	/* number of possible threads in getplen function */
+     int n_slice_size_getplen;   /* slice size in getplen function, usually m/n_threads_getplen  */
      long m;				/* number of columns */
      long original_m;	/* number of columns read from matrix*/
      long n;				/* number of rows */
-     long max_length_seq_name; 	/* length of the sequence names */
      long nbranches; 	/* number of possible braches */
      long bytes;
      long tree_bytes;	/* length the tree in bytes */
      long tree_bytes_without_sset;	/* length the tree in bytes without sset */
      long nwords;
-     long min_len_tree;	     /*  minimum length of any tree based on matrix */
      long nsets;	/* sets per tree */
      long mssz;	/* maximum objects per set */
-     int n_threads_getplen;  	/* number of possible threads in getplen function */
-     int n_slice_size_getplen;   /* slice size in getplen function, usually m/n_threads_getplen  */
-} *Dataptr, DataStructure;
 
-typedef struct seq_data
-{
+#ifndef NP_Implementation
+     long max_length_seq_name; 	/* length of the sequence names */
+     long min_len_tree;	     /*  minimum length of any tree based on matrix */
      char **row;
      char **rowtitle;
-}*DataSeqPtr, DataSeqStructure;
-
 #else
-typedef struct data
-{
-    int n_threads_getplen;  /* number of possible threads in getplen function */
-    int n_slice_size_getplen;  /* slice size in getplen function, usually m/n_threads_getplen  */
-    long m;				/* number of columns */
-    long original_m;	/* number of columns read from matrix*/
-    long n;				/* number of rows */
-    long nbranches; 	/* number of possible branches */
-    long bytes;
-    long tree_bytes;	/* length the tree in bytes */
-    long tree_bytes_without_sset;	/* length the tree in bytes without sset */
-    long nwords;
-    long nsets;			/* sets per tree */
-    long mssz;			/* maximum objects per set */
-    char **row;			/* array of row strings */
-    char **rowtitle;	/* array of row title strings */
-} *Dataptr, DataStructure;
+     char **row;			/* array of row strings */
+     char **rowtitle;	/* array of row title strings */
 #endif
+} *Dataptr, DataStructure;
 
 /* user- or programmer-configurable parameters */
 typedef struct

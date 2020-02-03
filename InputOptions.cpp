@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "InputOptions.h"
 
 #ifndef NP_Implementation
-int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat, DataSeqPtr p_lvbmat_seq)
+int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat)
 #else
 int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat)
 #endif
@@ -79,8 +79,8 @@ int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat)
 
 		/* array for row title strings */
 		#ifndef NP_Implementation
-		p_lvbmat_seq->rowtitle = (char **) malloc((p_lvbmat->n) * sizeof(char *));
-		if (p_lvbmat_seq->rowtitle == NULL) return readFiles.exit_error(1 , "Fail to allocate memory...");
+		p_lvbmat->rowtitle = (char **) malloc((p_lvbmat->n) * sizeof(char *));
+		if (p_lvbmat->rowtitle == NULL) return readFiles.exit_error(1 , "Fail to allocate memory...");
 		#else
 		p_lvbmat->rowtitle = (char **) malloc((p_lvbmat->n) * sizeof(char *));
     	if (p_lvbmat->rowtitle == NULL) readFiles.exit_error(1 , "Fail to allocate memory...");
@@ -88,8 +88,8 @@ int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat)
 
 		/* array for row strings */
 		#ifndef NP_Implementation
-		p_lvbmat_seq->row = (char **) malloc((p_lvbmat->n) * sizeof(char *));
-		if (p_lvbmat_seq->row == NULL) return readFiles.exit_error(1 , "Fail to allocate memory...");
+		p_lvbmat->row = (char **) malloc((p_lvbmat->n) * sizeof(char *));
+		if (p_lvbmat->row == NULL) return readFiles.exit_error(1 , "Fail to allocate memory...");
 		#else
 		p_lvbmat->row = (char **) malloc((p_lvbmat->n) * sizeof(char *));
    		if (p_lvbmat->row == NULL) readFiles.exit_error(1 , "Fail to allocate memory...");
@@ -101,8 +101,8 @@ int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat)
 		for (int i = 0; i < p_lvbmat->n; i++)
 		{
 			#ifndef NP_Implementation
-			p_lvbmat_seq->rowtitle[i] = (char*) malloc(sizeof(char) * (readFiles.get_max_length_seq_name() + 1));
-			p_lvbmat_seq->row[i] = (char*) malloc(sizeof(char) * (p_lvbmat->m + 1));
+			p_lvbmat->rowtitle[i] = (char*) malloc(sizeof(char) * (readFiles.get_max_length_seq_name() + 1));
+			p_lvbmat->row[i] = (char*) malloc(sizeof(char) * (p_lvbmat->m + 1));
 			#else
 			p_lvbmat->rowtitle[i] = (char*) malloc(sizeof(char) * (readFiles.get_max_length_seq_name() + 1));
     		p_lvbmat->row[i] = (char*) malloc(sizeof(char) * (p_lvbmat->m + 1));
@@ -111,8 +111,8 @@ int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat)
 		for (int i = 0; i < p_lvbmat->n; i++) 
 		{
 			#ifndef NP_Implementation
-			for (int j = 0; j < p_lvbmat->m; j++) p_lvbmat_seq->row[i][j] = readFiles.get_char_sequences(i, j);
-			p_lvbmat_seq->row[i][p_lvbmat->m] = '\0';
+			for (int j = 0; j < p_lvbmat->m; j++) p_lvbmat->row[i][j] = readFiles.get_char_sequences(i, j);
+			p_lvbmat->row[i][p_lvbmat->m] = '\0';
 			#else
 			for (int j = 0; j < p_lvbmat->m; j++) p_lvbmat->row[i][j] = readFiles.get_char_sequences(i, j);
         	p_lvbmat->row[i][p_lvbmat->m] = '\0';
@@ -121,8 +121,8 @@ int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat)
 		for (int i = 0; i < p_lvbmat->n; i++) 
 		{
 			#ifndef NP_Implementation
-			for (int j = 0; j < readFiles.get_length_seq_name(i); j++) p_lvbmat_seq->rowtitle[i][j] = readFiles.get_char_seq_name(i, j);
-			p_lvbmat_seq->rowtitle[i][readFiles.get_length_seq_name(i)] = '\0';
+			for (int j = 0; j < readFiles.get_length_seq_name(i); j++) p_lvbmat->rowtitle[i][j] = readFiles.get_char_seq_name(i, j);
+			p_lvbmat->rowtitle[i][readFiles.get_length_seq_name(i)] = '\0';
 			#else
 			for (int j = 0; j < readFiles.get_length_seq_name(i); j++) p_lvbmat->rowtitle[i][j] = readFiles.get_char_seq_name(i, j);
         	p_lvbmat->rowtitle[i][readFiles.get_length_seq_name(i)] = '\0';
@@ -134,16 +134,16 @@ int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat)
 	}
 
 	#ifndef NP_Implementation
-	void free_lvbmat_structure(DataSeqStructure *p_lvbmat_seq, int n_size){
-		if (p_lvbmat_seq->row != NULL){
-			for(int i = 0; i < n_size; ++i) free(p_lvbmat_seq->row[i]);
-			free(p_lvbmat_seq->row);
-			p_lvbmat_seq->row = NULL;
+	void free_lvbmat_structure(DataStructure *p_lvbmat, int n_size){
+		if (p_lvbmat->row != NULL){
+			for(int i = 0; i < n_size; ++i) free(p_lvbmat->row[i]);
+			free(p_lvbmat->row);
+			p_lvbmat->row = NULL;
 		}
-		if (p_lvbmat_seq->rowtitle != NULL){
-			for(int i = 0; i < n_size; ++i) free(p_lvbmat_seq->rowtitle[i]);
-			free(p_lvbmat_seq->rowtitle);
-			p_lvbmat_seq->rowtitle = NULL;
+		if (p_lvbmat->rowtitle != NULL){
+			for(int i = 0; i < n_size; ++i) free(p_lvbmat->rowtitle[i]);
+			free(p_lvbmat->rowtitle);
+			p_lvbmat->rowtitle = NULL;
 		}
 	//	free(p_lvbmat);
 	//	p_lvbmat = NULL;

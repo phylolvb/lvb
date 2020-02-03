@@ -415,7 +415,7 @@ unsigned long checkpoint_uni(FILE *);
 unsigned long restore_uni(FILE *);
 void checkpoint_treestack(FILE *, Treestack *, Dataptr, Lvb_bool b_with_sset);
 void restore_treestack(FILE *, Treestack *, Dataptr, Lvb_bool b_with_sset);
-void dna_makebin(Dataptr restrict, DataSeqPtr matrix_seq, Lvb_bit_length **);
+void dna_makebin(Dataptr restrict, Lvb_bit_length **);
 #ifdef MAP_REDUCE_SINGLE
 	long deterministic_hillclimb(Dataptr, Treestack *, const Branch *const, Params rcstruct,
 			long, FILE * const, long *, int myMPIid, Lvb_bool, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer);
@@ -427,16 +427,16 @@ double get_initial_t(Dataptr, const Branch *const, Params rcstruct, long, int my
 long getplen(Dataptr restrict, Branch *, Params rcstruct, const long, long *restrict p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs);
 long get_random_maxaccept(void);
 long lvb_reroot(Dataptr restrict, Branch *const barray, const long oldroot, const long newroot, Lvb_bool b_with_sset);
-void lvb_treeprint (Dataptr, FILE *const, const Branch *const, const long, DataSeqPtr restrict matrix_seq_data);
-void matchange(Dataptr, DataSeqPtr, const Params);
-void rowfree(DataSeqPtr, int n_lines);
-int phylip_dna_matrin(char *, int, Dataptr, DataSeqPtr);
+void lvb_treeprint (Dataptr, FILE *const, const Branch *const, const long);
+void matchange(Dataptr, const Params);
+void rowfree(Dataptr, int n_lines);
+int phylip_dna_matrin(char *, int, Dataptr);
 long tree_bytes_without_sset(Dataptr restrict matrix);
 long treecmp(Dataptr restrict matrix, const Branch *const tree_1, const Branch *const tree_2, long root, Lvb_bool b_First);
 void treedump_b(Dataptr, FILE *const, const Branch *const, Lvb_bool);
 void treestack_free(Treestack *);
 Treestack *treestack_new(void);
-long treestack_print(Dataptr, DataSeqPtr restrict matrix_seq_data, Treestack *, FILE *const, Lvb_bool);
+long treestack_print(Dataptr, Treestack *, FILE *const, Lvb_bool);
 void dnapars_wrapper(void);
 #ifdef MAP_REDUCE_SINGLE
 	uint64_t tree_setpush(Dataptr restrict matrix, const Branch *const tree, const long root, MapReduce *mrObj, MISC *misc);

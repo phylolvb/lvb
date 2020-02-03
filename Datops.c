@@ -48,10 +48,10 @@ static void logcut(const Lvb_bool *const cut, const long m);
 
 #ifndef NP_Implementation
 
-static long constchar(Dataptr restrict matrix, DataSeqPtr restrict matrix_seq, Lvb_bool *const togo, const Lvb_bool verbose);
-static void cutcols(Dataptr restrict matrix, DataSeqPtr matrix_seq, const Lvb_bool *const tocut, long n_columns_to_change);
-static long getminlen(const Dataptr restrict matrix, DataSeqPtr matrix_seq);
-static char *getstatev(const Dataptr restrict matrix, DataSeqPtr matrix_seq, const long k)
+static long constchar(Dataptr restrict matrix, Lvb_bool *const togo, const Lvb_bool verbose);
+static void cutcols(Dataptr restrict matrix, const Lvb_bool *const tocut, long n_columns_to_change);
+static long getminlen(const Dataptr restrict matrix);
+static char *getstatev(const Dataptr restrict matrix, const long k)
 #else
 static long constchar(Dataptr restrict matrix, Lvb_bool *const togo, const Lvb_bool verbose);
 static void cutcols(Dataptr restrict matrix, const Lvb_bool *const tocut, long n_columns_to_change);
@@ -74,9 +74,9 @@ static char *getstatev(const Dataptr restrict matrix, const long k)
 	    /* update record of states for column k */
 	    for (i = 0; i < matrix->n; ++i){
 			#ifndef NP_Implementation
-			if (strchr(statev, (int) matrix_seq->row[i][k]) == NULL){	/* new state */
-				if ((matrix_seq->row[i][k] != '-') && (matrix_seq->row[i][k] != '?') && (matrix_seq->row[i][k] != 'N') && (matrix_seq->row[i][k] != 'X')) {
-					statev[statec++] = matrix_seq->row[i][k];
+			if (strchr(statev, (int) matrix->row[i][k]) == NULL){	/* new state */
+				if ((matrix->row[i][k] != '-') && (matrix->row[i][k] != '?') && (matrix->row[i][k] != 'N') && (matrix->row[i][k] != 'X')) {
+					statev[statec++] = matrix->row[i][k];
 			#else
 			if (strchr(statev, (int) matrix->row[i][k]) == NULL){	/* new state */
 	    if ((matrix->row[i][k] != '-') && (matrix->row[i][k] != '?')
@@ -92,7 +92,7 @@ static char *getstatev(const Dataptr restrict matrix, const long k)
 	} /* end getstatev() */
 
 	#ifndef NP_Implementation
-	long getminlen(const Dataptr restrict matrix, DataSeqPtr matrix_seq)
+	long getminlen(const Dataptr restrict matrix)
 	#else
 	long getminlen(const Dataptr restrict matrix)
 	#endif
@@ -105,7 +105,7 @@ static char *getstatev(const Dataptr restrict matrix, const long k)
 
 		for (k = 0; k < matrix->m; ++k) {
 			#ifndef NP_Implementation
-			statev = getstatev(matrix, matrix_seq, k);
+			statev = getstatev(matrix, k);
 			#else
 			statev = getstatev(matrix, k);
 			#endif
@@ -117,7 +117,7 @@ static char *getstatev(const Dataptr restrict matrix, const long k)
 	} /* end getminlen() */
 
 #ifndef NP_Implementation
-void dna_makebin(Dataptr restrict mat, DataSeqPtr matrix_seq, Lvb_bit_length **enc_mat)
+void dna_makebin(Dataptr restrict mat, Lvb_bit_length **enc_mat)
 #else
 void dna_makebin(Dataptr restrict mat, Lvb_bit_length **enc_mat)
 #endif
@@ -148,7 +148,7 @@ void dna_makebin(Dataptr restrict mat, Lvb_bit_length **enc_mat)
 					base = 'N';
 				else
 					#ifndef NP_Implementation
-					base = matrix_seq->row[i][(j << LENGTH_WORD_BITS_MULTIPLY) + k];	/* observed base required */
+					base = mat->row[i][(j << LENGTH_WORD_BITS_MULTIPLY) + k];	/* observed base required */
 					#else
 					base = mat->row[i][(j << LENGTH_WORD_BITS_MULTIPLY) + k];	/* observed base required */
 					#endif
@@ -213,7 +213,7 @@ void dna_makebin(Dataptr restrict mat, Lvb_bit_length **enc_mat)
 } /* end dna_makebin() */
 
 	#ifndef NP_Implementation
-	void rowfree(DataSeqPtr matrix, int n_lines)
+	void rowfree(Dataptr restrict matrix, int n_lines)
 	#else
 	void rowfree(Dataptr restrict matrix)
 	#endif
@@ -245,7 +245,7 @@ void dna_makebin(Dataptr restrict mat, Lvb_bit_length **enc_mat)
 	} /* end rowfree() */
 
 	#ifndef NP_Implementation
-	static long constchar(Dataptr restrict matrix, DataSeqPtr restrict matrix_seq, Lvb_bool *const togo, const Lvb_bool verbose)
+	static long constchar(Dataptr restrict matrix, Lvb_bool *const togo, const Lvb_bool verbose)
 	#else
 	static long constchar(Dataptr restrict matrix, Lvb_bool *const togo, const Lvb_bool verbose)
 	#endif
@@ -264,7 +264,7 @@ void dna_makebin(Dataptr restrict mat, Lvb_bit_length **enc_mat)
     for (k = 0; k < matrix->m; ++k){
     	for (i = 1; i < matrix->n; ++i){
 			#ifndef NP_Implementation
-    		if (matrix_seq->row[i][k] != matrix_seq->row[0][k]){
+    		if (matrix->row[i][k] != matrix->row[0][k]){
 			#else
 			if (matrix->row[i][k] != matrix->row[0][k]){
 			#endif
@@ -284,7 +284,7 @@ void dna_makebin(Dataptr restrict mat, Lvb_bit_length **enc_mat)
 } /* end constchar() */
 
 	#ifndef NP_Implementation
-    void matchange(Dataptr restrict matrix, DataSeqPtr matrix_seq, const Params rcstruct)
+    void matchange(Dataptr restrict matrix, const Params rcstruct)
 	#else
 	void matchange(Dataptr restrict matrix, const Params rcstruct)
 	#endif
@@ -309,7 +309,7 @@ void dna_makebin(Dataptr restrict mat, Lvb_bit_length **enc_mat)
     for(n_columns_to_change = 0; n_columns_to_change < matrix->m; n_columns_to_change ++) *(togo + n_columns_to_change) = LVB_FALSE;
 
 	#ifndef NP_Implementation
-    n_columns_to_change = constchar(matrix, matrix_seq, togo, (Lvb_bool) rcstruct.verbose);	/* compuslory cut */
+    n_columns_to_change = constchar(matrix, togo, (Lvb_bool) rcstruct.verbose);	/* compuslory cut */
 	#else
 	n_columns_to_change = constchar(matrix, togo, rcstruct.verbose);	/* compuslory cut */
 	#endif
@@ -320,7 +320,7 @@ void dna_makebin(Dataptr restrict mat, Lvb_bit_length **enc_mat)
 	/* cut the cols as indicated, and crash verbosely if too few remain */
 	if (n_columns_to_change != matrix->m){
 		#ifndef NP_Implementation
-		cutcols(matrix, matrix_seq, togo, n_columns_to_change);	/* make changes to matrix */
+		cutcols(matrix, togo, n_columns_to_change);	/* make changes to matrix */
 		#else
 		cutcols(matrix, togo, n_columns_to_change);	/* make changes to matrix */
 		#endif
@@ -331,7 +331,7 @@ void dna_makebin(Dataptr restrict mat, Lvb_bit_length **enc_mat)
 		matrix->tree_bytes = tree_bytes(matrix);
 		#ifndef NP_Implementation
 		matrix->tree_bytes_without_sset = tree_bytes_without_sset(matrix);
-		matrix->min_len_tree = getminlen(matrix, matrix_seq);
+		matrix->min_len_tree = getminlen(matrix);
 		#else
 		matrix->tree_bytes_without_sset = tree_bytes_without_sset(matrix);
 		#endif
@@ -350,7 +350,7 @@ void dna_makebin(Dataptr restrict mat, Lvb_bit_length **enc_mat)
 } /* end matchange() */
 
 #ifndef NP_Implementation
-    static void cutcols(Dataptr restrict matrix, DataSeqPtr matrix_seq, const Lvb_bool *const tocut, long n_columns_to_change)
+    static void cutcols(Dataptr restrict matrix, const Lvb_bool *const tocut, long n_columns_to_change)
 #else
 	static void cutcols(Dataptr restrict matrix, const Lvb_bool *const tocut, long n_columns_to_change)
 #endif
@@ -378,7 +378,7 @@ return the number of columns cut */
 		if (tocut[k] == LVB_TRUE){	/* keep this column */
 			for (i = 0; i < uun; ++i)	/* fill for ea. row */
 				#ifndef NP_Implementation
-				newrow[i][newk] = matrix_seq->row[i][k];
+				newrow[i][newk] = matrix->row[i][k];
 				#else
 				newrow[i][newk] = matrix->row[i][k];
 				#endif
@@ -402,8 +402,8 @@ return the number of columns cut */
     matrix->tree_bytes = tree_bytes(matrix);
 	#ifndef NP_Implementation
     matrix->tree_bytes_without_sset = tree_bytes_without_sset(matrix);
-    matrix_seq->row = newrow;
-    matrix->min_len_tree = getminlen(matrix, matrix_seq);
+    matrix->row = newrow;
+    matrix->min_len_tree = getminlen(matrix);
 	#else
 	matrix->tree_bytes_without_sset = tree_bytes_without_sset(matrix);
 	#endif

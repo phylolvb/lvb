@@ -139,11 +139,7 @@ static void writeinf(Params prms, Dataptr restrict matrix, int argc, char **argv
 	// printf("Host Machine: %s %s, %s (%d processors configured and %d processors available)\n\n", buffer.nodename, buffer.machine, buffer.sysname, get_nprocs_conf(), get_nprocs());
 }
 
-static void logtree1(Dataptr restrict matrix, const Branch *const barray, const long start, const long cycle, long root
-#ifndef NP_Implementation
-, DataSeqPtr restrict matrix_seq_data
-#endif
-)
+static void logtree1(Dataptr restrict matrix, const Branch *const barray, const long start, const long cycle, long root)
 /* log initial tree for cycle cycle of start start (in barray) to outfp */
 {
     static char outfnam[LVB_FNAMSIZE]; 	/* current file name */
@@ -156,18 +152,13 @@ static void logtree1(Dataptr restrict matrix, const Branch *const barray, const 
     /* create tree file */
     outfp = clnopen(outfnam, "w");
 	
-    lvb_treeprint(matrix, outfp, barray, root
-	#ifndef NP_Implementation
-	, matrix_seq_data
-	#endif
-	);
+    lvb_treeprint(matrix, outfp, barray, root);
     clnclose(outfp, outfnam);
 
 } /* end logtree1() */
 
 static long getsoln(Dataptr restrict matrix, Params rcstruct, int myMPIid, Lvb_bool log_progress
 #ifndef NP_Implementation
-, DataSeqPtr restrict matrix_seq_data
 #ifdef MAP_REDUCE_SINGLE
 , long *iter_p, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer
 #else
@@ -247,11 +238,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, int myMPIid, Lvb_b
 		(Lvb_bit_length *) 
 		#endif
 		alloc(matrix->bytes, "state sets");
-		dna_makebin(matrix, 
-		#ifdef MAP_REDUCE_SINGLE
-		matrix_seq_data,
-		#endif
-		enc_mat);
+		dna_makebin(matrix, enc_mat);
 
 		/* open and entitle statistics file shared by all cycles
 		 * NOTE: There are no cycles anymore in the current version
@@ -313,11 +300,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, int myMPIid, Lvb_b
 				fprintf(sumfp, "%ld\t%ld\t%ld\t", start, cyc, getplen(matrix, tree, rcstruct, initroot, p_todo_arr, p_todo_arr_sum_changes, p_runs, weight_arr));
 				#endif
 				free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-				logtree1(matrix, tree, start, cyc, initroot
-				#ifdef MAP_REDUCE_SINGLE
-				, matrix_seq_data
-				#endif
-				);
+				logtree1(matrix, tree, start, cyc, initroot);
 			}
 		#ifdef MAP_REDUCE_SINGLE
 		}
@@ -407,7 +390,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, int myMPIid, Lvb_b
 			lvb_assert(fnamlen < LVB_FNAMSIZE);	/* really too late */
 			resfp = clnopen(fnam, "w");
 		#ifdef MAP_REDUCE_SINGLE
-			treec = treestack_print(matrix, matrix_seq_data, &bstack_overall, resfp, LVB_FALSE);
+			treec = treestack_print(matrix, &bstack_overall, resfp, LVB_FALSE);
 		#endif
 
 		#ifdef NP_Implementation
@@ -483,7 +466,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, int myMPIid, Lvb_b
 					alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
 					fprintf(sumfp, "%d\t%ld\t%ld\t%ld\t", myMPIid, start, cyc, getplen(matrix, tree, rcstruct, initroot, p_todo_arr, p_todo_arr_sum_changes, p_runs));
 					free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-					logtree1(matrix, tree, start, cyc, initroot, matrix_seq_data);
+					logtree1(matrix, tree, start, cyc, initroot);
 				}
 			}
 			else{
@@ -520,7 +503,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, int myMPIid, Lvb_b
 					/* save it */
 					sprintf(fnam, "%s_%d", rcstruct.file_name_out, n_number_tried_seed); /* name of output file for this process */
 					outtreefp = clnopen(fnam, "w");
-					trees_output = treestack_print(matrix, matrix_seq_data, bstack_overall, outtreefp, LVB_FALSE);
+					trees_output = treestack_print(matrix, bstack_overall, outtreefp, LVB_FALSE);
 					clnclose(outtreefp, fnam);
 					printf("\nProcess:%d   Rearrangements tried: %ld\n", myMPIid, l_iterations);
 					if (trees_output == 1L) { printf("1 most parsimonious tree of length %ld written to file '%s'\n", treelength, fnam); }
@@ -603,7 +586,7 @@ int get_other_seed_to_run_a_process(){
 		printf("min_len_tree: %ld\n", p_lvbmat->min_len_tree);
 	}
 
-	void print_data_seq(DataSeqPtr p_lvbmat, int n_size, int n_thread){
+	void print_data_seq(Dataptr p_lvbmat, int n_size, int n_thread){
 
 		printf("########### SEQ ####################\n thread: %d\n", n_thread);
 		int i;
@@ -836,7 +819,7 @@ int get_other_seed_to_run_a_process(){
 #ifndef NP_Implementation
 #ifndef MAP_REDUCE_SINGLE
 	    
-	    DataSeqPtr matrix_seq_data;
+	    // Dataptr matrix;
 	    		/* configurable parameters */
 	    long i, n_buffer_size_matrix, n_buffer_size_binary;			/* loop counter */
 	    int position, n_error_code = EXIT_SUCCESS; /* return value */
@@ -864,9 +847,8 @@ int get_other_seed_to_run_a_process(){
 		}
 
 		matrix = alloc(sizeof(DataStructure), "alloc data structure");
-		matrix_seq_data = alloc(sizeof(DataSeqStructure), "alloc data structure");
-		matrix_seq_data->row = NULL;
-		matrix_seq_data->rowtitle = NULL;
+		matrix->row = NULL;
+		matrix->rowtitle = NULL;
 
 		/* define the matrix structure MPI */
 		int				nItems = 2;
@@ -898,7 +880,7 @@ int get_other_seed_to_run_a_process(){
 		MISC misc;
 		MPI_Comm_rank(MPI_COMM_WORLD,&misc.rank);
 		MPI_Comm_size(MPI_COMM_WORLD,&misc.nprocs);
-		DataSeqPtr matrix_seq_data;
+		// Dataptr matrix;
 	    int n_error_code = EXIT_SUCCESS; /* return value */
 		MapReduce *mrTreeStack = new MapReduce(MPI_COMM_WORLD);
 		mrTreeStack->memsize = 1024;
@@ -943,15 +925,14 @@ myMPIid = 0;
 		n_error_code = getparam(&rcstruct, argc, argv);
 	    /* read and alloc space to the data structure */
 	    matrix = (data *) alloc(sizeof(DataStructure), "alloc data structure");
-	    matrix_seq_data = (seq_data *) alloc(sizeof(DataSeqStructure), "alloc data structure");
-	    matrix_seq_data->row = NULL;
-	    matrix_seq_data->rowtitle = NULL;
-	    phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix, matrix_seq_data);
+	    matrix->row = NULL;
+	    matrix->rowtitle = NULL;
+	    phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix);
 	    /* "file-local" dynamic heap memory: set up best tree stacks, need to be by thread */
 	    bstack_overall = *(treestack_new());
 		if(rcstruct.algorithm_selection ==2)
  	 	stack_treevo = *(treestack_new());
-	    matchange(matrix, matrix_seq_data, rcstruct);	/* cut columns */
+	    matchange(matrix, rcstruct);	/* cut columns */
             writeinf(rcstruct, matrix, argc, argv, misc.rank, misc.nprocs);
 	    calc_distribution_processors(matrix, rcstruct);
 
@@ -966,9 +947,9 @@ myMPIid = 0;
 		if(rcstruct.algorithm_selection ==2)
 		treEvo = fopen ("treEvo.tre","w");
 	    iter = 0;
-		final_length = getsoln(matrix, rcstruct,  myMPIid, log_progress, matrix_seq_data, &iter, &misc, mrTreeStack, mrBuffer);
+		final_length = getsoln(matrix, rcstruct,  myMPIid, log_progress, &iter, &misc, mrTreeStack, mrBuffer);
 	    if (misc.rank == 0) {
-	       trees_output = treestack_print(matrix, matrix_seq_data, &bstack_overall, outtreefp, LVB_FALSE);
+	       trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_FALSE);
 	    }
 	    trees_output_total += trees_output;
 	    treestack_clear(&bstack_overall);
@@ -1020,7 +1001,7 @@ myMPIid = 0;
 			for (i = 0; i < matrix->m; i++) weight_arr[i] = 1;    // logstim();    // logstim();ss, weight_arr, &iter);
 		}
 
-		final_length = getsoln(matrix, rcstruct,  myMPIid, log_progress, weight_arr, &iter);
+		final_length = getsoln(matrix, rcstruct, myMPIid, log_progress, weight_arr, &iter);
 
 		if (rcstruct.bootstraps > 0) trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_TRUE);
 		else trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_FALSE);
@@ -1058,7 +1039,7 @@ myMPIid = 0;
 	else {
 		FILE * logfile;
 	    logfile = fopen ("logfile.tsv","a+");
-		fprintf (logfile, "Implementation\tRearrangments\tTopologies\tScore\tRuntime\n");
+		fprintf (logfile, "Implementation\tRearrangements\tTopologies\tScore\tRuntime\n");
 		fprintf (logfile, "%s\t%ld\t%ld\t%ld\t%.2lf\n", LVB_IMPLEMENTATION, iter, trees_output_total, final_length, Overall_Time_taken);
 		fclose(logfile);
 	}
@@ -1085,7 +1066,7 @@ myMPIid = 0;
 if(rcstruct.algorithm_selection ==2)
 treestack_free(&stack_treevo);
 treestack_free(&bstack_overall);
-rowfree(matrix_seq_data, matrix->n);
+rowfree(matrix, matrix->n);
 free(matrix);
 
 MPI_Barrier(MPI_COMM_WORLD);
@@ -1118,14 +1099,14 @@ return val;
 	n_error_code = getparam(&rcstruct, argc, argv);
 			if (n_error_code == EXIT_SUCCESS){
 				/* read and alloc space to the data structure */
-				n_error_code = phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix, matrix_seq_data);
+				n_error_code = phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix);
 				if (n_error_code == EXIT_SUCCESS){
 
 					/* send message to continue */
 					MPI_Bcast(&n_error_code, 1, MPI_INT, MPI_MAIN_PROCESS, MPI_COMM_WORLD);
 
 					/* start the main process */
-					matchange(matrix, matrix_seq_data, rcstruct);	/* cut columns */
+					matchange(matrix, rcstruct);	/* cut columns */
 					if (rcstruct.n_seeds_need_to_try < (num_procs - 1)) { rcstruct.n_seeds_need_to_try = num_procs - 1; }
 					writeinf(rcstruct, matrix, argc, argv, myMPIid, num_procs);
 					calc_distribution_processors(matrix, rcstruct);
@@ -1134,7 +1115,7 @@ return val;
 					 * this matrix isn't used much, so any performance penalty won't matter. */
 					enc_mat = (Lvb_bit_length **) alloc((matrix->n) * sizeof(Lvb_bit_length *), "state sets");
 					for (i = 0; i < matrix->n; i++) enc_mat[i] = alloc(matrix->bytes, "state sets");
-					dna_makebin(matrix, matrix_seq_data, enc_mat);
+					dna_makebin(matrix, enc_mat);
 
 					/* pack data for seq matrix */
 			#ifdef MPI_SEND_ONLY_MATRIX_NAMES
@@ -1147,9 +1128,9 @@ return val;
 					position = 0;
 					for (i = 0; i < matrix->n; i++){
 			#ifndef MPI_SEND_ONLY_MATRIX_NAMES
-						MPI_Pack(matrix_seq_data->row[i], matrix->m + 1, MPI_CHAR, pack_data, n_buffer_size_matrix, &position, MPI_COMM_WORLD);
+						MPI_Pack(matrix->row[i], matrix->m + 1, MPI_CHAR, pack_data, n_buffer_size_matrix, &position, MPI_COMM_WORLD);
 			#endif
-						MPI_Pack(matrix_seq_data->rowtitle[i], matrix->max_length_seq_name + 1, MPI_CHAR, pack_data, n_buffer_size_matrix, &position, MPI_COMM_WORLD);
+						MPI_Pack(matrix->rowtitle[i], matrix->max_length_seq_name + 1, MPI_CHAR, pack_data, n_buffer_size_matrix, &position, MPI_COMM_WORLD);
 					}
 					/* END pack data for seq matrix */
 
@@ -1185,7 +1166,7 @@ return val;
 					/* clean memory */
 					for (i = 0; i < matrix->n; i++) free(enc_mat[i]);
 					free(enc_mat);
-					rowfree(matrix_seq_data, matrix->n);
+					rowfree(matrix, matrix->n);
 					free(pack_data);
 					free(p_pack_data_binary);
 					free(p_bstack_overall);
@@ -1208,14 +1189,14 @@ return val;
 				MPI_Recv(&rcstruct, 1, mpi_params, MPI_MAIN_PROCESS, MPI_TAG_PARAMS, MPI_COMM_WORLD, &status);
 				//writeinf(rcstruct, matrix, myMPIid, num_procs); /* print data.... */
 
-				matrix_seq_data->rowtitle = (char **) malloc((matrix->n) * sizeof(char *));
+				matrix->rowtitle = (char **) malloc((matrix->n) * sizeof(char *));
 		#ifdef MPI_SEND_ONLY_MATRIX_NAMES
 				n_buffer_size_matrix = sizeof(char) * matrix->n * (matrix->max_length_seq_name + 1);
-				matrix_seq_data->row = 0L;
+				matrix->row = 0L;
 		#else
 				n_buffer_size_matrix = sizeof(char) * matrix->n * (matrix->m + 1) + sizeof(char) * matrix->n * (matrix->max_length_seq_name + 1);
 				/* array for row strings */
-				matrix_seq_data->row = (char **) malloc((matrix->n) * sizeof(char *));
+				matrix->row = (char **) malloc((matrix->n) * sizeof(char *));
 		#endif
 
 				/* send names and/or seq and names */
@@ -1226,16 +1207,16 @@ return val;
 				position = 0;
 				for ( i = 0; i < matrix->n; i++){
 		#ifndef MPI_SEND_ONLY_MATRIX_NAMES
-					matrix_seq_data->row[i] = (char*) malloc(sizeof(char) * (matrix->m + 1));
-					memcpy((char*) (matrix_seq_data->row[i]), pack_data + position, matrix->m + 1);
+					matrix->row[i] = (char*) malloc(sizeof(char) * (matrix->m + 1));
+					memcpy((char*) (matrix->row[i]), pack_data + position, matrix->m + 1);
 					position += matrix->m + 1;
 		#endif
-					matrix_seq_data->rowtitle[i] = (char*) malloc(sizeof(char) * (matrix->max_length_seq_name + 1));
-					memcpy((char*) (matrix_seq_data->rowtitle[i]), pack_data + position, matrix->max_length_seq_name + 1);
+					matrix->rowtitle[i] = (char*) malloc(sizeof(char) * (matrix->max_length_seq_name + 1));
+					memcpy((char*) (matrix->rowtitle[i]), pack_data + position, matrix->max_length_seq_name + 1);
 					position += matrix->max_length_seq_name + 1;
 				}
 				/* print data.... */
-		//		print_data_seq(matrix_seq_data, matrix->n, myMPIid);
+		//		print_data_seq(matrix, matrix->n, myMPIid);
 				/* END send names and/or seq and names */
 
 				/* send binary data */
@@ -1294,7 +1275,7 @@ return val;
 					p_bstack_overall = treestack_new();
 					log_progress = LVB_TRUE;
 					/* get the length and the tree */
-					getsoln(matrix, rcstruct,  myMPIid, log_progress, matrix_seq_data, p_bstack_overall, enc_mat);
+					getsoln(matrix, rcstruct,  myMPIid, log_progress, p_bstack_overall, enc_mat);
 					/* "file-local" dynamic heap memory */
 					treestack_free(p_bstack_overall);
 
@@ -1313,7 +1294,7 @@ return val;
 				/* clean memory */
 				for (i = 0; i < matrix->n; i++) free(enc_mat[i]);
 				free(enc_mat);
-				rowfree(matrix_seq_data, matrix->n);
+				rowfree(matrix, matrix->n);
 				free(pack_data);
 				free(p_pack_data_binary);
 				free(p_bstack_overall);
@@ -1325,8 +1306,8 @@ return val;
 
 		MPI_Type_free(&mpi_matrix);
 		MPI_Type_free(&mpi_params);
-		free(matrix_seq_data);
-	    free(matrix);
+		free(matrix);
+	    // free(matrix);
 	    if (rcstruct.verbose == LVB_TRUE) {
 	        printf("Process finish: %d\n", myMPIid);
 	    }
