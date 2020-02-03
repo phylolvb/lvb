@@ -1066,7 +1066,7 @@ myMPIid = 0;
 if(rcstruct.algorithm_selection ==2)
 treestack_free(&stack_treevo);
 treestack_free(&bstack_overall);
-rowfree(matrix, matrix->n);
+rowfree(matrix);
 free(matrix);
 
 MPI_Barrier(MPI_COMM_WORLD);
@@ -1166,7 +1166,7 @@ return val;
 					/* clean memory */
 					for (i = 0; i < matrix->n; i++) free(enc_mat[i]);
 					free(enc_mat);
-					rowfree(matrix, matrix->n);
+					rowfree(matrix);
 					free(pack_data);
 					free(p_pack_data_binary);
 					free(p_bstack_overall);
@@ -1294,7 +1294,7 @@ return val;
 				/* clean memory */
 				for (i = 0; i < matrix->n; i++) free(enc_mat[i]);
 				free(enc_mat);
-				rowfree(matrix, matrix->n);
+				rowfree(matrix);
 				free(pack_data);
 				free(p_pack_data_binary);
 				free(p_bstack_overall);

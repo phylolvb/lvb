@@ -429,7 +429,7 @@ long get_random_maxaccept(void);
 long lvb_reroot(Dataptr restrict, Branch *const barray, const long oldroot, const long newroot, Lvb_bool b_with_sset);
 void lvb_treeprint (Dataptr, FILE *const, const Branch *const, const long);
 void matchange(Dataptr, const Params);
-void rowfree(Dataptr, int n_lines);
+void rowfree(Dataptr);
 int phylip_dna_matrin(char *, int, Dataptr);
 long tree_bytes_without_sset(Dataptr restrict matrix);
 long treecmp(Dataptr restrict matrix, const Branch *const tree_1, const Branch *const tree_2, long root, Lvb_bool b_First);
@@ -475,7 +475,7 @@ long lvb_reroot(Dataptr restrict, Branch *const barray, const long oldroot, cons
 void lvb_treeprint (Dataptr, FILE *const, const Branch *const, const long);
 void makesets(Dataptr restrict, const Branch *const tree_2, const int root);
 void matchange(Dataptr, const Params);
-void phylip_dna_matrin(char *, int, Dataptr);
+int phylip_dna_matrin(char *, int, Dataptr);
 void rowfree(Dataptr);
 long setstcmp_with_sset2(Dataptr restrict matrix, Objset *const oset_1);
 long tree_bytes_without_sset(Dataptr restrict matrix);
