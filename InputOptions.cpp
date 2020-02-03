@@ -43,12 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "InputOptions.h"
 
-#ifndef NP_Implementation
 int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat)
-#else
-int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat)
-#endif
-
 {
 
 		CReadFiles readFiles = CReadFiles();
@@ -56,12 +51,8 @@ int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat)
 
 		/// read file
 		std::string sz_file_name = std::string(file_name);
-		#ifndef NP_Implementation
 		n_error_code = readFiles.read_file(file_name, n_file_type);
 		if (n_error_code != EXIT_SUCCESS) return n_error_code;
-		#else
-		readFiles.read_file(file_name, n_file_type);
-		#endif
 
 		/* scalars */
 		//cout << (long) readFiles.get_length_sequences() << endl;
@@ -69,106 +60,59 @@ int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat)
 		p_lvbmat->original_m = p_lvbmat->m;
 		p_lvbmat->n = (long) readFiles.get_number_seqs();
 		p_lvbmat->nbranches = brcnt(p_lvbmat->n); 		/* possible number of braches */
-		#ifndef NP_Implementation
 		p_lvbmat->max_length_seq_name = readFiles.get_max_length_seq_name();
-		#endif
 
 		/* it is used in tree compare */
 		p_lvbmat->nsets = p_lvbmat->n - 3;				/* sets per tree */
 		p_lvbmat->mssz = p_lvbmat->n - 2;				/* maximum objects per set */
 
 		/* array for row title strings */
-		#ifndef NP_Implementation
 		p_lvbmat->rowtitle = (char **) malloc((p_lvbmat->n) * sizeof(char *));
 		if (p_lvbmat->rowtitle == NULL) return readFiles.exit_error(1 , "Fail to allocate memory...");
-		#else
-		p_lvbmat->rowtitle = (char **) malloc((p_lvbmat->n) * sizeof(char *));
-    	if (p_lvbmat->rowtitle == NULL) readFiles.exit_error(1 , "Fail to allocate memory...");
-		#endif
 
 		/* array for row strings */
-		#ifndef NP_Implementation
 		p_lvbmat->row = (char **) malloc((p_lvbmat->n) * sizeof(char *));
 		if (p_lvbmat->row == NULL) return readFiles.exit_error(1 , "Fail to allocate memory...");
-		#else
-		p_lvbmat->row = (char **) malloc((p_lvbmat->n) * sizeof(char *));
-   		if (p_lvbmat->row == NULL) readFiles.exit_error(1 , "Fail to allocate memory...");
-		#endif
 
 		/* we want null-terminated strings, so we cannot simply point to
 		 * the same, non-null-terminated arrays as are found in PHYLIP's
 		 * data structures */
 		for (int i = 0; i < p_lvbmat->n; i++)
 		{
-			#ifndef NP_Implementation
 			p_lvbmat->rowtitle[i] = (char*) malloc(sizeof(char) * (readFiles.get_max_length_seq_name() + 1));
 			p_lvbmat->row[i] = (char*) malloc(sizeof(char) * (p_lvbmat->m + 1));
-			#else
-			p_lvbmat->rowtitle[i] = (char*) malloc(sizeof(char) * (readFiles.get_max_length_seq_name() + 1));
-    		p_lvbmat->row[i] = (char*) malloc(sizeof(char) * (p_lvbmat->m + 1));
-			#endif
 		}
 		for (int i = 0; i < p_lvbmat->n; i++) 
 		{
-			#ifndef NP_Implementation
 			for (int j = 0; j < p_lvbmat->m; j++) p_lvbmat->row[i][j] = readFiles.get_char_sequences(i, j);
 			p_lvbmat->row[i][p_lvbmat->m] = '\0';
-			#else
-			for (int j = 0; j < p_lvbmat->m; j++) p_lvbmat->row[i][j] = readFiles.get_char_sequences(i, j);
-        	p_lvbmat->row[i][p_lvbmat->m] = '\0';
-			#endif
 		}
 		for (int i = 0; i < p_lvbmat->n; i++) 
 		{
-			#ifndef NP_Implementation
 			for (int j = 0; j < readFiles.get_length_seq_name(i); j++) p_lvbmat->rowtitle[i][j] = readFiles.get_char_seq_name(i, j);
 			p_lvbmat->rowtitle[i][readFiles.get_length_seq_name(i)] = '\0';
-			#else
-			for (int j = 0; j < readFiles.get_length_seq_name(i); j++) p_lvbmat->rowtitle[i][j] = readFiles.get_char_seq_name(i, j);
-        	p_lvbmat->rowtitle[i][readFiles.get_length_seq_name(i)] = '\0';
-			#endif
 		}
 	/*	std::string file_name_out = "/home/mmp/Downloads/file_nexus_nex_out.fas";
 		readFiles.save_file(file_name_out);*/
 		return EXIT_SUCCESS;
 	}
 
-	#ifndef NP_Implementation
-	void free_lvbmat_structure(DataStructure *p_lvbmat, int n_size){
+	void free_lvbmat_structure(DataStructure *p_lvbmat){
 		if (p_lvbmat->row != NULL){
-			for(int i = 0; i < n_size; ++i) free(p_lvbmat->row[i]);
+			for(int i = 0; i < p_lvbmat->n; ++i) free(p_lvbmat->row[i]);
 			free(p_lvbmat->row);
 			p_lvbmat->row = NULL;
 		}
 		if (p_lvbmat->rowtitle != NULL){
-			for(int i = 0; i < n_size; ++i) free(p_lvbmat->rowtitle[i]);
+			for(int i = 0; i < p_lvbmat->n; ++i) free(p_lvbmat->rowtitle[i]);
 			free(p_lvbmat->rowtitle);
 			p_lvbmat->rowtitle = NULL;
 		}
-	//	free(p_lvbmat);
-	//	p_lvbmat = NULL;
 	}
 
 		long brcnt(long n){
 			return (n << 1) - 3;
 		}; /* return number of branches in unrooted binary tree structure containing n tips */
-	#else
-	void free_lvbmat_structure(DataStructure *p_lvbmat){
-
-	if (p_lvbmat->row != NULL){
-		for(int i = 0; i < p_lvbmat->n; ++i) free(p_lvbmat->row[i]);
-		free(p_lvbmat->row);
-		p_lvbmat->row = NULL;
-	}
-	if (p_lvbmat->rowtitle != NULL){
-		for(int i = 0; i < p_lvbmat->n; ++i) free(p_lvbmat->rowtitle[i]);
-		free(p_lvbmat->rowtitle);
-		p_lvbmat->rowtitle = NULL;
-	}
-	//	free(p_lvbmat);
-	//	p_lvbmat = NULL;
-	}
-	#endif
 
 void phylip_mat_dims_in_external(char *file_name, int n_file_type, long *species_ptr, long *sites_ptr, int *max_length_name){
 
@@ -191,15 +135,11 @@ void print_formats_available(){
 
 }
 
-/* "dcbvsi:o:f:p" */
+// needs refining 
 void usage(char *p_file_name)
 {
 	#ifndef NP_Implementation
-#ifdef MAP_REDUCE_SINGLE
 	printf("Usage: lvb -i <alignment> [options]\n");
-#else
-	printf("Usage: lvb -i <alignment> [options]\n");
-#endif
 
 	printf("lvb seeks parsimonious trees from an aligned nucleotide data matrix.\n"
 			"It uses heuristic searches consisting of simulated annealing followed by hill-climbing.\n\n");
@@ -273,15 +213,9 @@ void usage(char *p_file_name)
 
 
 int read_parameters(Params *prms, int argc, char **argv){
-
 	int c;
 	opterr = 0;
-
-	#ifndef NP_Implementation
-	while ((c = getopt (argc, argv, "t:c:vs:i:o:l:f:p:N:SC:a:")) != -1)
-	#else
-	while ((c = getopt (argc, argv, "t:c:b:vs:i:o:l:f:p:a:")) != -1)
-	#endif
+	while ((c = getopt (argc, argv, "t:c:b:vs:i:o:l:f:p:N:SC:a:")) != -1)
 	{
 		switch (c)
 		{
@@ -357,11 +291,7 @@ int read_parameters(Params *prms, int argc, char **argv){
 				break;
 			case 'f':	/* format */
 				if (optarg == NULL){
-					#ifndef NP_Implementation
 					fprintf (stderr, "Option -%c requires an argument -f [phylip|fasta|nexus|clustal]\n", optopt);
-					#else
-					fprintf (stderr, "Option -%c requires an argument -f [phylip|fasta|nexus|clustal]\n", optopt);
-					#endif
 					usage(argv[0]);
 					return 1;
 				}
@@ -392,11 +322,11 @@ int read_parameters(Params *prms, int argc, char **argv){
 				prms->n_processors_available = atoi(optarg);
 				if (prms->n_processors_available < 1) prms->n_processors_available = 1;
 				break;
-				#ifndef NP_Implementation
+#ifndef NP_Implementation // MR + MPI
 			case 'S':	/* number of seeds to try */
 				prms->n_flag_save_read_states = DO_SAVE_READ_STATES;
 				break;
-#ifndef MAP_REDUCE_SINGLE
+#ifndef MAP_REDUCE_SINGLE //MPI
 			case 'N':	/* number of seeds to try */
 				if (optarg == NULL){
 					fprintf (stderr, "Option -%c requires an argument -N <int>\n", optopt);
@@ -423,14 +353,14 @@ int read_parameters(Params *prms, int argc, char **argv){
 				prms->n_make_test = atoi(optarg);
 				break;
 #endif
-#else
-		//	case 'b':	/* bootstrap */
-		//		if (optarg == NULL){
-		//			fprintf (stderr, "Option -%c requires an argument -b <int>\n", optopt);
-		//			usage(argv[0]);
-		//		}
-		//		prms->bootstraps = atoi(optarg);
-		//		break;
+#else // NP
+		/*	case 'b':	// bootstrap 
+				if (optarg == NULL){
+					fprintf (stderr, "Option -%c requires an argument -b <int>\n", optopt);
+					usage(argv[0]);
+				}
+				prms->bootstraps = atoi(optarg);
+				break; */
 			case 't':
 				if (optarg == NULL){
 					fprintf (stderr, "Option -%c requires an argument -p <file name>\n", optopt);
