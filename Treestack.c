@@ -639,7 +639,7 @@ None.
 
 //needs reducing
 #ifndef NP_Implementation
-void treestack_free(Treestack *sp)
+void treestack_free(Dataptr restrict matrix, Treestack *sp)
 #else
 void treestack_free(Dataptr restrict matrix, Treestack *sp)
 #endif

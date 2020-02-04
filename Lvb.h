@@ -48,13 +48,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //    #define MPI_Implementation
 
 #include "DataStructure.h"
-#ifndef NP_Implementation
-#include <mpi.h>
-#endif
 #include "Mapreduce.h"
 #include "Blockmacros.h"
 #include "Keyvalue.h"
-
 #include <ctype.h>
 #include <errno.h>
 #include <limits.h>
@@ -76,32 +72,32 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#ifdef MAP_REDUCE_SINGLE
-	#include <omp.h>
-	#include "sys/stat.h"
-	#include <iostream>
+#ifndef NP_Implementation
+	#include <mpi.h>
+	#ifdef MAP_REDUCE_SINGLE
+		#include <omp.h>
+		#include "sys/stat.h"
+		#include <iostream>
 
-	using namespace MAPREDUCE_NS;
-	using namespace std;
-	#define __STDC_LIMIT_MACROS
+		using namespace MAPREDUCE_NS;
+		using namespace std;
+		#define __STDC_LIMIT_MACROS
+	#endif
 #endif
 
 /* the program */
 #define PROGNAM "lvb"			/* program file name */
 #define LVB_VERSION "IN DEVELOPMENT"	/* version of program */
 #define LVB_SUBVERSION "4.0"		/* version details e.g. date */
-#ifdef NP_Implementation
-	#define LVB_IMPLEMENTATION "NP"
-#endif
-
-#ifdef MPI_Implementation
+#ifndef NP_Implementation
 #ifdef MAP_REDUCE_SINGLE
-	#define LVB_IMPLEMENTATION "MR"
+#define LVB_IMPLEMENTATION "MR"
 #else
-	#define LVB_IMPLEMENTATION "MPI"
+#define LVB_IMPLEMENTATION "MPI"
 #endif
+#else
+#define LVB_IMPLEMENTATION "NP"
 #endif
-
 
 /* set if is to compile with 64 or 32 bits */
 #ifndef COMPILE_32_BITS
@@ -154,15 +150,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef NP_Implementation
 #define CHECKPOINT_INTERVAL 1800	/* checkpoint ~every ... seconds */
 #define CHECKPOINT_FNAM_BASE "lvb_checkpoint"
-
+#endif
 /* limits that could be changed but, if increased enormously, might lead to
  * some trouble at some point */
 #define MAX_N 1000000	/* max. rows */
 #define MAX_M 5000000	/* max. cols */
-#else
-#define MAX_N 1000000	/* max. rows */
-#define MAX_M 5000000	/* max. cols */
-#endif
 
 /* implementation-independent limits */
 #define LVB_EPS 1E-11		/* 0.0 < DBL_EPSILON < LVB_EPS */
@@ -177,13 +169,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define INITIAL_INCREMENT 0.00001	/* step size to get initial temp. */
 #define FROZEN_T 0.0001		/* helps to decide whether system is frozen */
 
-#ifdef NP_Implementation
 typedef	struct	/* object set derived from a cladogram */
 {
-	int *set;	/* arrays of object sets */
-	int cnt;	/* sizes of object sets */
+	long *set;	/* arrays of object sets */
+	long cnt;	/* sizes of object sets */
 }	Objset;
-#endif
 
 #ifndef NP_Implementation
 /* MPI definitions... */
@@ -230,7 +220,6 @@ typedef	struct	/* object set derived from a cladogram */
 #endif
 
 /* branch of tree */
-#ifndef NP_Implementation
 typedef struct
 {
     long parent;		/* parent branch number, UNSET in root */
@@ -239,42 +228,19 @@ typedef struct
     long changes;		/* changes associated with this branch */
     Lvb_bit_length *sset;	/* statesets for all sites */
 } Branch;
-#else
-typedef struct
-{
-    long parent;		/* parent branch number, UNSET in root */
-    long left;			/* index of first child in tree array */
-    long right;			/* index of second child in tree array */
-    long changes;		/* changes associated with this branch */
-    Lvb_bit_length *sset;	/* statesets for all sites */
-} Branch;
-#endif
 
 /* tree stacks */
-#ifndef NP_Implementation
 typedef struct
 {
+	long root;		/* root of tree */
     Branch *tree;	/* pointer to first branch in tree array */
-    long root;		/* root of tree */
-} Treestack_element;
-#else
-typedef struct
-{
-    int root;		/* root of tree */
-	Branch *tree;	/* pointer to first branch in tree array */
     Objset *p_sset; // array with sset with the root always on zero
 } Treestack_element;
-#endif
 
 typedef struct
 {
-	#ifndef NP_Implementation
     long size;			/* number of trees currently allocated for */
     long next;			/* next unused element of stack */
-	#else
-	long size;			/* number of trees currently allocated for */
-    long next;			/* next unused element of stack */
-	#endif
     Treestack_element *stack;	/* pointer to first element in stack */
 } Treestack;
 
@@ -400,91 +366,78 @@ bool logfile_exists (const char *filename);
 int get_nprocs_conf();
 int get_nprocs();
 
-#ifndef NP_Implementation
-#ifdef MAP_REDUCE_SINGLE
-	long anneal(Dataptr restrict, Treestack *, Treestack *, const Branch *const, Params rcstruct, Params *p_rcstruct, long, const double,
-		const long, const long, const long, FILE *const, long *, int, Lvb_bool, MISC *misc, MapReduce *mrStackTree, MapReduce *mrBuffer);
-#else
-	long anneal(Dataptr restrict, Treestack *, Treestack *, const Branch *const, Params rcstruct, Params *p_rcstruct, long, const double,
-		const long, const long, const long, FILE *const, long *, int, Lvb_bool, int *p_n_state_progress, int *p_n_number_tried_seed);
-#endif
 long arbreroot(Dataptr, Branch *const, const long);
 long childadd(Branch *const, const long, const long);
-void defaults_params(Params *const);
-unsigned long checkpoint_uni(FILE *);
-unsigned long restore_uni(FILE *);
-void checkpoint_treestack(FILE *, Treestack *, Dataptr, Lvb_bool b_with_sset);
-void restore_treestack(FILE *, Treestack *, Dataptr, Lvb_bool b_with_sset);
+void defaults_params(Params *const prms);
 void dna_makebin(Dataptr restrict, Lvb_bit_length **);
-#ifdef MAP_REDUCE_SINGLE
-	long deterministic_hillclimb(Dataptr, Treestack *, const Branch *const, Params rcstruct,
-			long, FILE * const, long *, int myMPIid, Lvb_bool, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer);
-#else
-	long deterministic_hillclimb(Dataptr, Treestack *, const Branch *const, Params rcstruct,
-			long, FILE * const, long *, int myMPIid, Lvb_bool);
-#endif
-double get_initial_t(Dataptr, const Branch *const, Params rcstruct, long, int myMPIid, Lvb_bool);
-long getplen(Dataptr restrict, Branch *, Params rcstruct, const long, long *restrict p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs);
-long get_random_maxaccept(void);
 long lvb_reroot(Dataptr restrict, Branch *const barray, const long oldroot, const long newroot, Lvb_bool b_with_sset);
 void lvb_treeprint (Dataptr, FILE *const, const Branch *const, const long);
 void matchange(Dataptr, const Params);
 void rowfree(Dataptr);
 int phylip_dna_matrin(char *, int, Dataptr);
 long tree_bytes_without_sset(Dataptr restrict matrix);
-long treecmp(Dataptr restrict matrix, const Branch *const tree_1, const Branch *const tree_2, long root, Lvb_bool b_First);
-void treedump_b(Dataptr, FILE *const, const Branch *const, Lvb_bool);
-void treestack_free(Treestack *);
 Treestack *treestack_new(void);
-long treestack_print(Dataptr, Treestack *, FILE *const, Lvb_bool);
-void dnapars_wrapper(void);
+int count(Branch *const, int);
+int addtoarray(Branch *const, int, int *, int);
+long treestack_push(Dataptr, Treestack *, const Branch *const, const long, Lvb_bool b_with_sset);
+long treestack_print(Dataptr, Treestack *, FILE *const, Lvb_bool onerandom);
+void treestack_free(Dataptr restrict matrix, Treestack *);
+
+
+
+
+
+#ifndef NP_Implementation
 #ifdef MAP_REDUCE_SINGLE
+	long anneal(Dataptr restrict, Treestack *, Treestack *, const Branch *const, Params rcstruct, Params *p_rcstruct, long, const double,
+		const long, const long, const long, FILE *const, long *, int, Lvb_bool, MISC *misc, MapReduce *mrStackTree, MapReduce *mrBuffer);
 	uint64_t tree_setpush(Dataptr restrict matrix, const Branch *const tree, const long root, MapReduce *mrObj, MISC *misc);
 	void map_clean(uint64_t itask, char *key, int keybytes, char *value, int valuebytes, KeyValue *kv, void *ptr);
 	void reduce_count(char *key, int keybytes, char *multivalue, int nvalues, int *valuebytes, KeyValue *kv, void *ptr);
 	void reduce_sets(char *key, int keybytes, char *multivalue, int nvalues, int *valuebytes, KeyValue *kv, void *ptr);
 	void reduce_filter(char *key, int keybytes, char *multivalue, int nvalues, int *valuebytes, KeyValue *kv, void *ptr);
 	void print_sets(Dataptr restrict matrix, Treestack *sp, MISC *misc);
+	long deterministic_hillclimb(Dataptr, Treestack *, const Branch *const, Params rcstruct,
+			long, FILE * const, long *, int myMPIid, Lvb_bool, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer);
+#else
+	long anneal(Dataptr restrict, Treestack *, Treestack *, const Branch *const, Params rcstruct, Params *p_rcstruct, long, const double,
+		const long, const long, const long, FILE *const, long *, int, Lvb_bool, int *p_n_state_progress, int *p_n_number_tried_seed);
+	long deterministic_hillclimb(Dataptr, Treestack *, const Branch *const, Params rcstruct,
+		long, FILE * const, long *, int myMPIid, Lvb_bool);
 #endif
+unsigned long checkpoint_uni(FILE *);
+unsigned long restore_uni(FILE *);
+void checkpoint_treestack(FILE *, Treestack *, Dataptr, Lvb_bool b_with_sset);
+void restore_treestack(FILE *, Treestack *, Dataptr, Lvb_bool b_with_sset);
+double get_initial_t(Dataptr, const Branch *const, Params rcstruct, long, int myMPIid, Lvb_bool);
+long getplen(Dataptr restrict, Branch *, Params rcstruct, const long, long *restrict p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs);
+long get_random_maxaccept(void);
+long treecmp(Dataptr restrict matrix, const Branch *const tree_1, const Branch *const tree_2, long root, Lvb_bool b_First);
+void treedump_b(Dataptr, FILE *const, const Branch *const, Lvb_bool);
+void dnapars_wrapper(void);
 IterationTemperature *get_alloc_main_calc_iterations(void);
 void add_temperature_cal_iterations(IterationTemperature *p_data, SendInfoToMaster *p_info_temp, int n_process);
 Lvb_bool is_possible_to_continue(IterationTemperature *p_data, double d_temperature, int n_iteration, int l_tree_length, int n_max_number_process, int n_count_call);
 void release_main_calc_iterations(IterationTemperature *p_data);
 long treestack_push_only(Dataptr restrict matrix, Treestack *sp, const Branch *const barray, const long root, Lvb_bool b_with_sset);
-long treestack_push(Dataptr, Treestack *, const Branch *const, long, Lvb_bool b_with_sset);
-int count(Branch *const, int);
-int addtoarray(Branch *const, int, int *, int);
+
 
 #else
 long anneal(Dataptr restrict, Treestack *, Treestack *, const Branch *const, Params rcstruct, Params *p_rcstruct, long, const double,
 const long, const long, const long, FILE *const, long *, int, Lvb_bool, const long *);
-long arbreroot(Dataptr, Branch *const, const long);
-long childadd(Branch *const, const long, const long);
 void copy_sset(Dataptr restrict matrix, Objset *p_sset_1);
-void defaults_params(Params *const prms);
 long deterministic_hillclimb(Dataptr, Treestack *, const Branch *const, Params rcstruct, long, FILE * const, long *, int, Lvb_bool, const long *);
-void dna_makebin(Dataptr restrict, Lvb_bit_length **);
 void dump_stack_to_screen(Dataptr restrict matrix, Treestack *sp);
 void dump_objset_to_screen(Dataptr restrict matrix, Objset *oset_1);
 void dump_objset_to_screen_sset_2(Dataptr restrict matrix);
-double get_initial_t(Dataptr, const Branch *const, Params rcstruct, long, int, Lvb_bool, const long *);
+double get_initial_t(Dataptr, const Branch *const, Params rcstruct, long, int myMPIid, Lvb_bool, const long *);
 long getminlen(const Dataptr);
-long getplen(Dataptr restrict, Branch *, Params rcstruct, const long, long *restrict p_todo_arr,
-long *p_todo_arr_sum_changes, int *p_runs, const long *restrict);
-long lvb_reroot(Dataptr restrict, Branch *const barray, const long oldroot, const long newroot, Lvb_bool b_with_sset);
-void lvb_treeprint (Dataptr, FILE *const, const Branch *const, const long);
+long getplen(Dataptr restrict, Branch *, Params rcstruct, const long, long *restrict p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs, const long *restrict);
 void makesets(Dataptr restrict, const Branch *const tree_2, const int root);
-void matchange(Dataptr, const Params);
-int phylip_dna_matrin(char *, int, Dataptr);
-void rowfree(Dataptr);
 long setstcmp_with_sset2(Dataptr restrict matrix, Objset *const oset_1);
-long tree_bytes_without_sset(Dataptr restrict matrix);
 long treecmp(Dataptr restrict, Objset *, const Branch *const, Lvb_bool b_first);
-void treestack_free(Dataptr restrict matrix, Treestack *);
-Treestack * treestack_new(void);
-long treestack_print(Dataptr, Treestack *, FILE *const, Lvb_bool onerandom);
-long treestack_push(Dataptr, Treestack *, const Branch *const, const long, Lvb_bool b_with_sset);
-int count(Branch *const, int);
-int addtoarray(Branch *const, int, int *, int);
+
+
+
 #endif
 #endif /* LVB_LVB_H */

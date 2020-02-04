@@ -49,13 +49,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* maximum number of object sets per tree */
 #define MAX_SSET_SIZE (MAX_N - 3)
 
-typedef	struct	/* object set derived from a cladogram */
-{
-	long *set;	/* arrays of object sets */
-	long cnt;	/* sizes of object sets */
-}	Objset;
 #endif
-
 
 static void cr_bpnc(const Branch *const barray, const long branch);
 static void cr_chaf(const Branch *const barray, const long destination, const long newchild);
@@ -78,9 +72,9 @@ static void sort(Objset *const oset_1, Objset *const oset_2, const long nels, Lv
 static void ssarralloc(Dataptr restrict matrix, Objset *nobjset_1, Objset *nobjset_2);
 static void tree_make_canonical(Dataptr restrict, Branch *const barray, long *objnos);
 #else
-static void getobjs(Dataptr, const Branch *const barray, const int root, int *const objarr, int *const cnt);
+static void getobjs(Dataptr, const Branch *const barray, const int root, int *const objarr, long *const cnt);
 static long *randleaf(Dataptr restrict, Branch *const barray, const Lvb_bool *const leafmask, const long objs);
-static void realgetobjs(Dataptr restrict, const Branch *const barray, const int root, int *const objarr, int *const cnt);
+static void realgetobjs(Dataptr restrict, const Branch *const barray, const int root, int *const objarr, long *const cnt);
 static long setstcmp(Dataptr restrict, Objset *const oset_1, Objset *const oset_2, Lvb_bool b_First);
 static void sort(Dataptr matrix, Objset *const oset_2, const long nels);
 static void ssarralloc(Dataptr restrict matrix, Objset *nobjset_2);
@@ -786,7 +780,7 @@ void copy_sset(Dataptr restrict matrix, Objset *p_sset_1){
 
 	long to_copy;
 	for (long i = 0; i < matrix->nsets; i++){
-		to_copy = sset_2[i].cnt * sizeof(int);
+		to_copy = sset_2[i].cnt * sizeof(long);
 		if (p_sset_1[i].set == NULL){	// need to alloc memory
 			p_sset_1[i].set = alloc(to_copy, "object set object arrays");
 
@@ -1316,7 +1310,7 @@ static long setstcmp(Dataptr matrix, Objset *const oset_1, Objset *const oset_2,
 		#ifndef NP_Implementation
     	if (memcmp(oset_1[i].set, oset_2[i].set, sizeof(long) * oset_1[i].cnt) != 0) return 1;
 		#else
-		if (memcmp(oset_1[i].set, oset_2[i].set, sizeof(int) * oset_1[i].cnt) != 0) return 1;
+		if (memcmp(oset_1[i].set, oset_2[i].set, sizeof(long) * oset_1[i].cnt) != 0) return 1;
     }
     return 0;
 } /* end setstcmp() */
@@ -1507,7 +1501,7 @@ static void ssarralloc(Dataptr matrix, Objset *nobjset_2)
 {
     long i; 	/* loop counter */
     for (i = 0; i < matrix->nsets; i++){
-    	nobjset_2[i].set = alloc(matrix->mssz * sizeof(int), "object set object arrays");
+    	nobjset_2[i].set = alloc(matrix->mssz * sizeof(long), "object set object arrays");
     	nobjset_2[i].cnt = UNSET;
     }
 
@@ -1662,7 +1656,7 @@ static void fillsets(Dataptr matrix, Objset *const sstruct, const Branch *const 
 #ifndef NP_Implementation
 static void getobjs(Dataptr matrix, const Branch *const barray, const long root, long *const objarr, long *const cnt)
 #else
-static void getobjs(Dataptr matrix, const Branch *const barray, const int root, int *const objarr, int *const cnt)
+static void getobjs(Dataptr matrix, const Branch *const barray, const int root, int *const objarr, long *const cnt)
 #endif
 /* fill objarr (which must be large enough) with numbers of all objects
  * in the tree in barray in the clade starting at branch root;
@@ -1677,7 +1671,7 @@ static void getobjs(Dataptr matrix, const Branch *const barray, const int root, 
 #ifndef NP_Implementation
 static void realgetobjs(Dataptr matrix, const Branch *const barray, const long root, long *const objarr, long *const cnt)
 #else
-static void realgetobjs(Dataptr matrix, const Branch *const barray, const int root, int *const objarr, int *const cnt)
+static void realgetobjs(Dataptr matrix, const Branch *const barray, const int root, int *const objarr, long *const cnt)
 #endif
 /* fill objarr (which must be large enough) with numbers of all objects
  * in the tree in barray in the clade starting at branch root;

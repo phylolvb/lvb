@@ -513,7 +513,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, int myMPIid, Lvb_b
 			if (n_state_progress == MESSAGE_ANNEAL_FINISHED_AND_REPEAT || n_state_progress == MESSAGE_ANNEAL_KILLED_AND_REPEAT){
 				l_iterations = 0;		/* start iterations from zero */
 				free(tree);
-				treestack_free(bstack_overall);
+				treestack_free(matrix, bstack_overall);
 				printf("Process:%d   try seed number process:%d   new seed:%d", myMPIid, n_number_tried_seed_next, rcstruct.seed);
 				rinit(rcstruct.seed); /* at this point the structure has a need see passed by master process */
 			}
@@ -1064,8 +1064,8 @@ myMPIid = 0;
 #ifdef MAP_REDUCE_SINGLE
 
 if(rcstruct.algorithm_selection ==2)
-treestack_free(&stack_treevo);
-treestack_free(&bstack_overall);
+treestack_free(matrix, &stack_treevo);
+treestack_free(matrix, &bstack_overall);
 rowfree(matrix);
 free(matrix);
 
@@ -1277,7 +1277,7 @@ return val;
 					/* get the length and the tree */
 					getsoln(matrix, rcstruct,  myMPIid, log_progress, p_bstack_overall, enc_mat);
 					/* "file-local" dynamic heap memory */
-					treestack_free(p_bstack_overall);
+					treestack_free(matrix, p_bstack_overall);
 
 					/* only print the time end the process finish */
 					cleanup();
