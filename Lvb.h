@@ -382,7 +382,7 @@ int addtoarray(Branch *const, int, int *, int);
 long treestack_push(Dataptr, Treestack *, const Branch *const, const long, Lvb_bool b_with_sset);
 long treestack_print(Dataptr, Treestack *, FILE *const, Lvb_bool onerandom);
 void treestack_free(Dataptr restrict matrix, Treestack *);
-
+long getminlen(const Dataptr);
 
 
 
@@ -420,6 +420,7 @@ void add_temperature_cal_iterations(IterationTemperature *p_data, SendInfoToMast
 Lvb_bool is_possible_to_continue(IterationTemperature *p_data, double d_temperature, int n_iteration, int l_tree_length, int n_max_number_process, int n_count_call);
 void release_main_calc_iterations(IterationTemperature *p_data);
 long treestack_push_only(Dataptr restrict matrix, Treestack *sp, const Branch *const barray, const long root, Lvb_bool b_with_sset);
+void copy_sset(Dataptr restrict matrix, Objset *p_sset_1);
 
 
 #else
@@ -431,7 +432,6 @@ void dump_stack_to_screen(Dataptr restrict matrix, Treestack *sp);
 void dump_objset_to_screen(Dataptr restrict matrix, Objset *oset_1);
 void dump_objset_to_screen_sset_2(Dataptr restrict matrix);
 double get_initial_t(Dataptr, const Branch *const, Params rcstruct, long, int myMPIid, Lvb_bool, const long *);
-long getminlen(const Dataptr);
 long getplen(Dataptr restrict, Branch *, Params rcstruct, const long, long *restrict p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs, const long *restrict);
 void makesets(Dataptr restrict, const Branch *const tree_2, const int root);
 long setstcmp_with_sset2(Dataptr restrict matrix, Objset *const oset_1);

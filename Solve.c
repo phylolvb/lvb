@@ -378,17 +378,15 @@ long anneal(Dataptr restrict matrix, Treestack *bstackp, Treestack *treevo, cons
 	   			// fprintf (pFile, "Iteration\tAlgorithm\tAccepted\tLength\tTemperature\tCurrent_HI\n");
 				}
 				}
-				#ifndef NP_Implementation
-				r_lenmin = (double) matrix->min_len_tree;
-				#ifdef MAP_REDUCE_SINGLE
-				(void)lenmin;
-				#else
+				
+				lenmin = getminlen(matrix);
+				r_lenmin = (double) lenmin;
+				
+				#ifdef MPI
+				#ifndef MAP_REDUCE_SINGLE
 				*p_n_state_progress = MESSAGE_ANNEAL_FINISHED_AND_REPEAT; /* we consider always is necessary to repeat */
 	    		last_checkpoint_time = time(NULL);
 				#endif
-				#else
-    			lenmin = getminlen(matrix);
-    			r_lenmin = (double) lenmin;
 				#endif
 				
 			while (1) {

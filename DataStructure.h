@@ -87,9 +87,7 @@ typedef struct data
      char **row;			// array of row strings */
      char **rowtitle;	                // array of row title strings */
      long max_length_seq_name; 	        // length of the sequence names */
-#ifndef NP_Implementation
      long min_len_tree;	                // minimum length of any tree based on matrix */     
-#endif
 } *Dataptr, DataStructure;
 
 /* user- or programmer-configurable parameters */

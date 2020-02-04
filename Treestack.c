@@ -50,12 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static void upsize(Dataptr restrict matrix, Treestack *sp)
 /* increase allocation for tree stack *sp */
 {
-    #ifndef NP_Implementation
-    long i;	/* loop counter */
-    #else
-    long i, j; // loop counter
-    #endif
-
+    long i, j;	/* loop counter */
     sp->size++;
  
     /* allocate for stack itself */
@@ -76,15 +71,13 @@ static void upsize(Dataptr restrict matrix, Treestack *sp)
     for (i = sp->next; i < sp->size; i++){
     	sp->stack[i].tree = treealloc(matrix, LVB_FALSE);
     	sp->stack[i].root = -1;
-        #ifdef NP_Implementation
 
         /* set memory for sset */
-    	sp->stack[sp->next].p_sset = alloc(matrix->nsets * sizeof(Objset), "object set object arrays");
+    	sp->stack[sp->next].p_sset = (Objset *) alloc(matrix->nsets * sizeof(Objset), "object set object arrays");
     	for (j = 0; j < matrix->nsets; j++){
     		sp->stack[sp->next].p_sset[j].set = NULL; // alloc(to_copy, "object set object arrays");
     		sp->stack[sp->next].p_sset[j].cnt = UNSET;
         }
-        #endif
     }
  
 } /* end upsize() */
@@ -96,54 +89,20 @@ static void dopush(Dataptr restrict matrix, Treestack *sp, const Branch *const b
     if (sp->next == sp->size) upsize(matrix, sp);
     treecopy(matrix, sp->stack[sp->next].tree, barray, b_with_sset);
     sp->stack[sp->next].root = root;
-    #ifdef NP_Implementation
     /* need to copy the sset_2 to the sp->stack[sp->next].sset  */
     copy_sset(matrix, sp->stack[sp->next].p_sset);
-    #endif
     sp->next++;
  
 } /* end dopush() */
-
-/**********
-
-=head1 treestack_cnt - RETURN COUNT OF TREES ON STACK
-
-=head2 SYNOPSIS
-
-long treestack_cnt(Treestack s);
-
-=head2 DESCRIPTION
-
-Return the number of trees currently stored on the stack C<s>.
-
-=head2 PARAMETERS
-
-=head3 INPUT
-
-=over 4
-
-=item s
-
-The tree stack whose size we wish to know.
-
-=back
-
-=head2 RETURN
-
-Returns number of trees on stack C<s>.
-
-=cut
-
-**********/
 
 #ifndef NP_Implementation
 /* ********** checkpoint_treestack() - checkpoint the tree stack ********** */
 
 /* The layout of the treestack, when dumped to file, is as follows.
- * o long int: the number of trees on the stack; and
- * o trees, each stored as:
- *     - long int, the root of the tree; followed by
- *     - array of Branch, the contents of the tree. */
+  o long int: the number of trees on the stack; and
+  o trees, each stored as:
+    - long int, the root of the tree; followed by
+    - array of Branch, the contents of the tree. */
 
 void checkpoint_treestack(FILE *fp, Treestack *s, Dataptr restrict matrix, Lvb_bool b_with_sset)
 {
@@ -230,30 +189,6 @@ void restore_treestack(FILE *fp, Treestack *sp, Dataptr restrict matrix, Lvb_boo
 }
 #endif
 
-/**********
-
-=head1 treestack_new - RETURN A NEW TREE STACK
-
-=head2 SYNOPSIS
-
-    Treestack treestack_new(void);
-
-=head2 DESCRIPTION
-
-Returns a new tree stack.
-
-=head2 PARAMETERS
-
-None.
-
-=head2 RETURN
-
-Returns a new, empty tree stack.
-
-=cut
-
-**********/ 
-
 Treestack * treestack_new(void)
 {
     Treestack * p_stack;
@@ -266,59 +201,10 @@ Treestack * treestack_new(void)
     return p_stack; //return s;
 } /* end treestack_new() */
 
-/**********
-
-=head1 treestack_push - PUSH TREE ONTO TREE STACK
-
-=head2 SYNOPSIS
-
-    long treestack_push(Treestack *sp, const Branch *const barray,
-    const long root);
-
-=head2 DESCRIPTION
-
-Push copy of a tree onto an existing tree stack. Will not push if its
-topology is already present on the stack. The stack will increase its
-own memory allocation if necessary.
-
-=head2 PARAMETERS
-
-=head3 INPUT
-
-=over 4
-
-=item barray
-
-Pointer to first element of array containing tree to be pushed.
-
-=item root
-
-Root branch number of tree to be pushed.
-
-=back
-
-=head3 INOUT
-
-=over 4
-
-=item sp
-
-Pointer to tree stack that will receive a new copy of the tree.
-
-=back
-
-=head2 RETURN
-
-Returns 1 if the tree was pushed, or 0 if not.
-
-=cut
-
-**********/
-
 //needs reducing
-#ifndef NP_Implementation
 long treestack_push(Dataptr restrict matrix, Treestack *sp, const Branch *const barray, const long root, Lvb_bool b_with_sset)
 {
+#ifndef NP_Implementation
 	long i, new_root = root;			/* loop counter */
 	long stackroot;		/* root of current tree */
 	static Branch *copy_2 = NULL;	/* possibly re-rooted tree 2 */
@@ -342,18 +228,8 @@ long treestack_push(Dataptr restrict matrix, Treestack *sp, const Branch *const 
 		if (treecmp(matrix, sp->stack[i].tree, copy_2, stackroot, b_First) == 0) return 0;
 		b_First = LVB_FALSE;
 	}
-
-	/* topology is new so must be pushed */
-	lvb_assert(root < matrix->n);
-
-    /* topology is new so must be pushed */
-    dopush(matrix, sp, barray, root, b_with_sset);
-    return 1;
-
-} /* end treestack_push() */
 #else
-long treestack_push(Dataptr restrict matrix, Treestack *sp, const Branch *const barray, const long root, Lvb_bool b_with_sset)
-{
+
 #define MIN_THREAD_SEARCH_SSET		5
 
     int i, slice = 0, slice_tail, new_root = 0;
@@ -406,76 +282,21 @@ long treestack_push(Dataptr restrict matrix, Treestack *sp, const Branch *const 
     		}
     	}
     }
-
+#endif
     /* topology is new so must be pushed */
     lvb_assert(root < matrix->n);
     dopush(matrix, sp, barray, root, b_with_sset);
     return 1;
 
 } /* end treestack_push() */
-#endif
 
 #ifndef NP_Implementation
 long treestack_push_only(Dataptr restrict matrix, Treestack *sp, const Branch *const barray, const long root, Lvb_bool b_with_sset)
 {
-
     dopush(matrix, sp, barray, root, b_with_sset);
     return 1;
 }
-
-//uint64_t mrStack_push(Dataptr restrict matrix, Treestack *sp, Branch *barray, const long root, MapReduce *mrObj, MISC *misc)
-//{
-//    	uint64_t nKV = tree_setpush(matrix, barray, root, mrObj, misc);
-//    	return nKV;
-//}
 #endif
-
-/**********
-
-=head1 treestack_pop - POP TREE OFF TREE STACK
-
-=head2 SYNOPSIS
-
-    long treestack_pop(Branch *barray, long *root, Treestack *sp);
-    
-=head2 DESCRIPTION
-
-Pop a tree off a tree stack.
-
-=head2 PARAMETERS
-
-=head3 OUTPUT
-
-=over 4
-
-=item barray
-
-Pointer to first element of array to contain the popped tree. There
-must be sufficient space in this array prior to the call.
-
-=item root
-
-Pointer to scalar that will receive the index of the root in C<barray>.
-
-=back
-
-=head3 INOUT
-
-=over 4
-
-=item sp
-
-Pointer to tree stack from which we will pop the tree.
-
-=back
-
-=head2 RETURN
-
-Returns 1 if a tree was popped, or 0 if the stack was empty.
-
-=cut
-
-**********/
 
 long treestack_pop(Dataptr restrict matrix, Branch *barray, long *root, Treestack *sp, Lvb_bool b_with_sset)
 {
@@ -494,12 +315,7 @@ long treestack_pop(Dataptr restrict matrix, Branch *barray, long *root, Treestac
 
 } /* end treestack_pop() */
 
-// needs reducing
-#ifndef NP_Implementation
 long treestack_print(Dataptr restrict matrix, Treestack *sp, FILE *const outfp, Lvb_bool onerandom)
-#else
-long treestack_print(Dataptr restrict matrix, Treestack *sp, FILE *const outfp, Lvb_bool onerandom)
-#endif
 {
     const long d_obj1 = 0L;	/* 1st obj. for output trees */
     long root;			/* root of current tree */
@@ -537,48 +353,6 @@ long treestack_print(Dataptr restrict matrix, Treestack *sp, FILE *const outfp, 
 
 } /* end treestack_print() */
 
-/**********
-
-=head1 treestack_dump - DUMP AND CLEAR TREE STACK
-
-=head2 SYNOPSIS
-
-    long treestack_dump(Treestack *sp, FILE *const outfp);
-
-=head2 DESCRIPTION
-
-Pop all trees off a stack and dump them.
-
-=head2 PARAMETERS
-
-=head3 OUTPUT
-
-=over4
-
-=item outfp
-
-Pointer to the file to which we wish to output trees.
-
-=back
-
-=head3 INOUT
-
-=over 4
-
-=item sp
-
-The stack to be emptied and dumped.
-
-=back
-
-=head2 RETURN
-
-Returns the number of trees dumped.
-
-=cut
-
-**********/
-
 long treestack_dump(Dataptr restrict matrix, Treestack *sp, FILE *const outfp)
 /* pop all trees on stack *sp and dump them to file outfp;
  * first branch (number 0); return number of trees dumped */
@@ -604,67 +378,24 @@ long treestack_dump(Dataptr restrict matrix, Treestack *sp, FILE *const outfp)
 
 } /* end treestack_dump() */
 
-/**********
-
-=head1 treestack_free - DEALLOCATE TREE STACK
-
-=head2 SYNOPSIS
-
-    void treestack_free(Treestack *sp);
-
-=head2 DESCRIPTION 
-
-Clear a tree stack and deallocate dynamically allocated heap
-memory associated with it.
-
-=head2 PARAMETERS
-
-=head3 INOUT 
-
-=over 4
-
-=item sp
-
-The stack to be emptied and deallocated.
-
-=back
-
-=head2 RETURN
-
-None.
-
-=cut    
-
-**********/
-
 //needs reducing
-#ifndef NP_Implementation
 void treestack_free(Dataptr restrict matrix, Treestack *sp)
-#else
-void treestack_free(Dataptr restrict matrix, Treestack *sp)
-#endif
 /* free all memory in tree stack *sp */
 {
-    #ifndef NP_Implementation
-    long i;	/* loop counter */
-    #else
-    int i, j; // loop counter
-    #endif
+    long i, j; // loop counter
 
     for (i = 0; i < sp->size; i++){
     	if (sp->stack[i].tree != NULL) free(sp->stack[i].tree);
         sp->stack[i].tree = NULL;
         sp->stack[i].root = -1;
 
-        #ifdef NP_Implementation
         if (sp->stack[i].p_sset != NULL){
-        	for (j = 0; j < (int)matrix->nsets; j++){
+        	for (j = 0; j < (long)matrix->nsets; j++){
 				if (sp->stack[i].p_sset[j].set != NULL) free(sp->stack[i].p_sset[j].set);
 				sp->stack[i].p_sset[j].cnt = UNSET;
 			}
         	free(sp->stack[i].p_sset);
         }
-        #endif
     }
     free(sp->stack);
     sp->next = 0;
@@ -673,87 +404,12 @@ void treestack_free(Dataptr restrict matrix, Treestack *sp)
  
 } /* end bstfree() */
 
-/**********
-
-=head1 treestack_clear - EMPTY TREE STACK
-
-=head2 SYNOPSIS
-
-    void treestack_clear(Treestack *sp);
-
-=head2 DESCRIPTION
-
-Empty a tree stack but do not deallocate memory associated with it.
-This memory will be available for re-use when trees are pushed onto the
-stack again.
-
-=head2 PARAMETERS
-
-=head3 INOUT
-
-=over 4
-
-=item sp
-
-The stack to be emptied.
-
-=back
-
-=head2 RETURN
-
-None.
-
-=cut
-
-**********/
-
 void treestack_clear(Treestack *sp)
 /* clear stack *sp; note its allocation is not changed */
 {
     sp->next = 0;	/* clear stack */
 
 } /* end treestack_clear() */
-
-
-/**********
-
-=head1 treestack_transfer - TRANSFER TREES BETWEEN TREE STACKS
-
-=head2 SYNOPSIS
-
-    void treestack_transfer(Treestack *destp, Treestack *sourcep);
-
-=head2 DESCRIPTION
-
-Transfer one tree stack in its entirety to another. Order of the transferred
-trees is not preserved. Current contents and current order of the destination
-stack are preserved. Duplicate topologies are not transferred. The source
-stack is emptied but not deallocated.
-
-=head2 PARAMETERS
-
-=head3 INOUT
-
-=over 4
-
-=item destp
-
-Pointer to the stack to be added to.
-
-=item sourcep
-
-Pointer to the stack to be transferred to C<destp> and cleared.
-
-=back
-
-=head2 RETURN
-
-Number of trees actually transferred (excluding duplicates which
-are not transferred).
-
-=cut
-
-**********/
 
 long treestack_transfer(Dataptr restrict matrix, Treestack *destp, Treestack *sourcep, Lvb_bool b_with_sset)
 {

@@ -46,9 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static void logcut(const Lvb_bool *const cut, const long m);
 static long constchar(Dataptr restrict matrix, Lvb_bool *const togo, const Lvb_bool verbose);
 static void cutcols(Dataptr restrict matrix, const Lvb_bool *const tocut, long n_columns_to_change);
-#ifndef NP_Implementation
-static long getminlen(const Dataptr restrict matrix);
-#endif
+long getminlen(const Dataptr restrict matrix);
 
 static char *getstatev(const Dataptr restrict matrix, const long k)
 	/* return pointer to string containing 1 instance of each character state in
@@ -264,9 +262,7 @@ void dna_makebin(Dataptr restrict mat, Lvb_bit_length **enc_mat)
 		matrix->nwords = words_per_row(matrix->m);
 		matrix->tree_bytes = tree_bytes(matrix);
 		matrix->tree_bytes_without_sset = tree_bytes_without_sset(matrix);
-		#ifndef NP_Implementation
 		matrix->min_len_tree = getminlen(matrix);
-		#endif
 	}
 	if (matrix->m < MIN_M)
 		crash("after constant columns are ignored, data matrix has\n"
@@ -319,9 +315,7 @@ return the number of columns cut */
     matrix->tree_bytes = tree_bytes(matrix);
 	matrix->row = newrow;
 	matrix->tree_bytes_without_sset = tree_bytes_without_sset(matrix);
-	#ifndef NP_Implementation
     matrix->min_len_tree = getminlen(matrix);
-	#endif
 } /* end cutcols() */
 
 

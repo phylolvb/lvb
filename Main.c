@@ -364,12 +364,6 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, int myMPIid, Lvb_b
 
 			free(misc->count);
 			free(total_count);
-		//} else {
-		//	treestack_push_only(matrix, &bstack_overall, tree, initroot);
-		//	misc->ID = bstack_overall.next;
-		//	misc->SB = 1;
-		//        tree_setpush(matrix, tree, initroot, mrBuffer, misc);
-		//        mrTreeStack->add(mrBuffer);
 		}
 
 		treelength = deterministic_hillclimb(matrix, &bstack_overall, tree, rcstruct, initroot, stdout,
@@ -389,13 +383,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, int myMPIid, Lvb_b
 			fnamlen = sprintf(fnam, "%s_start%ld_cycle%ld", RESFNAM, start, cyc);
 			lvb_assert(fnamlen < LVB_FNAMSIZE);	/* really too late */
 			resfp = clnopen(fnam, "w");
-		#ifdef MAP_REDUCE_SINGLE
 			treec = treestack_print(matrix, &bstack_overall, resfp, LVB_FALSE);
-		#endif
-
-		#ifdef NP_Implementation
-		treec = treestack_print(matrix, &bstack_overall, resfp, LVB_FALSE);
-		#endif
 			clnclose(resfp, fnam);
 			fprintf(sumfp, "%ld\t%ld\n", treelength, treec);
 

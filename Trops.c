@@ -48,7 +48,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef NP_Implementation
 /* maximum number of object sets per tree */
 #define MAX_SSET_SIZE (MAX_N - 3)
-
 #endif
 
 static void cr_bpnc(const Branch *const barray, const long branch);
@@ -155,20 +154,6 @@ static void make_dirty_below(Dataptr restrict matrix, Branch *tree, long dirty_n
     } while (tree[dirty_node].parent != UNSET);
 
 } /* end make_dirty_below() */
-
-// Not make_dirty_tree currently used
-// #ifndef NP_Implementation
-// static void make_dirty_tree(Dataptr restrict matrix, Branch *tree)
-/* mark all branches in tree tree as dirty: internal, external and root */
-// {
-//     long i, j;					/* loop counter */
-//     for (i = 0; i < matrix->nbranches; i++){
-//     	for (j = 0; j < matrix->nwords; j++){ /* overkill beyond j=0, but harmless */
-//     		tree[i].sset[j] = 0U;
-//     	}
-//     }
-// } /* end make_dirty_tree() */
-// #endif
 
 void mutate_deterministic(Dataptr restrict matrix, Branch *const desttree,
     const Branch *const sourcetree, long root, long p, Lvb_bool left)
@@ -596,18 +581,11 @@ long lvb_reroot(Dataptr restrict matrix, Branch *const barray, const long oldroo
     long parnt;					/* parent of current branch */
     long sister = UNSET;		/* sister of current branch */
     long previous;				/* previous branch */
-	#ifndef NP_Implementation			
     static long oldparent[MAX_BRANCHES];	/* element i was old parent of i */
-	#else
-	static int *oldparent = NULL;	/* element i was old parent of i */
-	#endif
 
     /* check new root is a leaf but not the current root */
     lvb_assert(newroot < matrix->n);
     lvb_assert(newroot != oldroot);
-	#ifdef NP_Implementation
-	if (oldparent == NULL) oldparent = alloc(matrix->nbranches * sizeof(int), "old parent alloc");
-	#endif
 
     /* create record of parents as they are now */
     for (current = 0; current < matrix->nbranches; current++)
@@ -775,17 +753,16 @@ void treecopy(Dataptr restrict matrix, Branch *const dest, const Branch *const s
     }
 } /* end treecopy() */
 
-#ifdef NP_Implementation
 void copy_sset(Dataptr restrict matrix, Objset *p_sset_1){
 
 	long to_copy;
 	for (long i = 0; i < matrix->nsets; i++){
 		to_copy = sset_2[i].cnt * sizeof(long);
 		if (p_sset_1[i].set == NULL){	// need to alloc memory
-			p_sset_1[i].set = alloc(to_copy, "object set object arrays");
+			p_sset_1[i].set = (long *) alloc(to_copy, "object set object arrays");
 
 		}else if (p_sset_1[i].cnt != sset_2[i].cnt){
-			p_sset_1[i].set = realloc(p_sset_1[i].set, to_copy);
+			p_sset_1[i].set = (long *) realloc(p_sset_1[i].set, to_copy);
 			if (p_sset_1[i].set == NULL){
 			     crash("out of memory: cannot increase allocation for best sset %ld elements", to_copy);
 			}
@@ -794,7 +771,6 @@ void copy_sset(Dataptr restrict matrix, Objset *p_sset_1){
 		p_sset_1[i].cnt = sset_2[i].cnt;
 	}
 }
-#endif
 
 void randtree(Dataptr matrix, Branch *const barray)
 /* fill barray with a random tree, where barray[0] is the root; all branches
@@ -1172,26 +1148,14 @@ static void cr_uxe(FILE *const stream, const char *const msg)
 
 } /* end cr_uxe */
 
-	#ifndef NP_Implementation
 	void lvb_treeprint (Dataptr matrix, FILE *const stream, const Branch *const barray, const long root)
-	#else
-	void lvb_treeprint (Dataptr matrix, FILE *const stream, const Branch *const barray, const long root)
-	#endif
 	/* print tree in barray (of root root) in bracketed text form to stream stream,
 	 * in unrooted form */
 	{
-		#ifndef NP_Implementation
 		ur_print(matrix, stream, barray, root);
-		#else
-		ur_print(matrix, stream, barray, root);
-		#endif
 	} /* end lvb_treeprint() */
 
-	#ifndef NP_Implementation
 	static void ur_print(Dataptr matrix, FILE *const stream, const Branch *const barray, const long root)
-	#else
-	static void ur_print(Dataptr matrix, FILE *const stream, const Branch *const barray, const long root)
-	#endif
 	/* send tree in barray, of root root, to file pointed to by stream in
 	 * unrooted form */
 	{
@@ -1205,13 +1169,8 @@ static void cr_uxe(FILE *const stream, const char *const msg)
 	    if (doneabsroot == LVB_FALSE)	/* print whole tree */
 	    {
 			/* start tree */
-			#ifndef NP_Implementation
 			tmp_title = (char *) alloc(strlen(matrix->rowtitle[obj]) + 1, "temp. title");
 			strcpy(tmp_title, matrix->rowtitle[obj]);
-			#else
-			tmp_title = alloc(strlen(matrix->rowtitle[obj]) + 1, "temp. title");
-			strcpy(tmp_title, matrix->rowtitle[obj]);
-			#endif
 
 			while(tmp_title[strlen(tmp_title) - 1] == ' '){
 				tmp_title[strlen(tmp_title) - 1] = '\0';
@@ -1221,13 +1180,8 @@ static void cr_uxe(FILE *const stream, const char *const msg)
 			usecomma = LVB_TRUE;
 			doneabsroot = LVB_TRUE;
 
-			#ifndef NP_Implementation
 			ur_print(matrix, stream, barray, barray[root].left);
 			ur_print(matrix, stream, barray, barray[root].right);
-			#else
-			ur_print(matrix, stream, barray, barray[root].left);
-			ur_print(matrix, stream, barray, barray[root].right);
-			#endif
 			/* end tree */
 			fprintf(stream, ");\n");
 			if (ferror(stream))
@@ -1242,13 +1196,8 @@ static void cr_uxe(FILE *const stream, const char *const msg)
 			if (usecomma == LVB_TRUE) fprintf(stream, "%s", CLADESEP);
 			if (root < matrix->n)	/* leaf */
 			{
-				#ifndef NP_Implementation
 				tmp_title = (char *) alloc(strlen(matrix->rowtitle[obj]) + 1, "temp. title");
 				strcpy(tmp_title, matrix->rowtitle[obj]);
-				#else
-				tmp_title = alloc(strlen(matrix->rowtitle[obj]) + 1, "temp. title");
-				strcpy(tmp_title, matrix->rowtitle[obj]);
-				#endif
 				while(tmp_title[strlen(tmp_title) - 1] == ' '){
 					tmp_title[strlen(tmp_title) - 1] = '\0';
 				}
@@ -1260,13 +1209,8 @@ static void cr_uxe(FILE *const stream, const char *const msg)
 			{
 				fprintf(stream, "(");
 				usecomma = LVB_FALSE;
-				#ifndef NP_Implementation
 				ur_print(matrix, stream, barray, barray[root].left);
 				ur_print(matrix, stream, barray, barray[root].right);
-				#else
-				ur_print(matrix, stream, barray, barray[root].left);
-				ur_print(matrix, stream, barray, barray[root].right);
-				#endif
 				fputc(')', stream);
 				usecomma = LVB_TRUE;
 			}
@@ -1307,15 +1251,12 @@ static long setstcmp(Dataptr matrix, Objset *const oset_1, Objset *const oset_2,
     /* compare the set arrays */
     for (i = 0; i < matrix->nsets; i++){
     	if (oset_1[i].cnt != oset_2[i].cnt) return 1;
-		#ifndef NP_Implementation
-    	if (memcmp(oset_1[i].set, oset_2[i].set, sizeof(long) * oset_1[i].cnt) != 0) return 1;
-		#else
 		if (memcmp(oset_1[i].set, oset_2[i].set, sizeof(long) * oset_1[i].cnt) != 0) return 1;
-    }
+		}
     return 0;
 } /* end setstcmp() */
 
-
+#ifdef NP_Implementation
 long setstcmp_with_sset2(Dataptr matrix, Objset *const oset_1)
 /* return 0 if the same sets of objects are in oset_1 and oset_2,
  * and non-zero otherwise */
@@ -1325,10 +1266,10 @@ long setstcmp_with_sset2(Dataptr matrix, Objset *const oset_1)
     for (i = 0; i < matrix->nsets; i++){
     	if (oset_1[i].cnt != sset_2[i].cnt) return 1;
     	if (memcmp(oset_1[i].set, sset_2[i].set, sizeof(int) * oset_1[i].cnt) != 0) return 1;
-		#endif
     }
     return 0;
 } /* end setstcmp() */
+#endif
 
 #ifndef NP_Implementation
 void sort_array(long *p_array, int n_left, int n_right){
