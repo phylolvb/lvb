@@ -176,23 +176,6 @@ static void rstart(int i, int j, int k, int l)
 	uni_uj = 33;	/*  of UNI -- i and j should be SAVEd in UNI()     */
 }
 
-
-/* ~rinit: this takes a single integer in the range
-		0 <= ijkl <= 900 000 000
-	and produces the four smaller integers needed for rstart. It is
- *	based on the ideas contained in the RMARIN subroutine in
- *		F. James, "A Review of Pseudorandom Number Generators",
- *			Comp. Phys. Commun. Oct 1990, p.340
- *	To reduce the modifications to the existing code, rinit now
- *	takes the role of a preprocessor for rstart.
- *
- *	This is useful for the parallel version of the code as James
- *	states that any integer ijkl will produce a statistically
- *	independent sequence of random numbers.
- *
- *     Very funny. If that statement was worth anything he would have provided
- *     a proof to go with it. spb 12/12/90 
- */
 void rinit(int ijkl)
 {
 	int i, j, k, l, ij, kl;

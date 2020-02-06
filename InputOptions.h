@@ -54,11 +54,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <getopt.h>
 using namespace std;
 
-#ifdef __cplusplus
-	extern "C" int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat);
-	extern "C" void phylip_mat_dims_in_external(char *file_name, int n_file_type, long *species_ptr, long *sites_ptr, int *max_length_name);
-	extern "C" int read_parameters(Params *prms, int argc, char **argv);
-#endif
+extern "C" int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat);
+extern "C" void phylip_mat_dims_in_external(char *file_name, int n_file_type, long *species_ptr, long *sites_ptr, int *max_length_name);
+extern "C" int read_parameters(Params *prms, int argc, char **argv);
 
 void phylip_mat_dims_in_external(char *file_name, int n_file_type, long *species_ptr, long *sites_ptr, int *max_length_name);
 int read_parameters(Params *prms, int argc, char **argv);

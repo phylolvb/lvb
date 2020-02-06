@@ -80,9 +80,7 @@ double get_initial_t(Dataptr restrict matrix, const Branch *const inittree, Para
     /* Variables specific to the get_initial_temperature() procedure*/
     int acc_pos_trans = 0;        /* Number of accepted positve transitions */
     double increment_size = INITIAL_INCREMENT; /* Step size by which the temperature is increased */
-	#ifdef NP_Implementation
 	long lenmin; // minimum length of any tree
-    #endif
 	int prop_pos_trans = 0;       /* Number of proposed positve transitions */
     double r_acc_to_prop = 0;   /* Ratio of accepted to proposed positve transitions */
     int sample_size = 100;                /* Sample size used to estimate the ratio */
@@ -105,12 +103,8 @@ double get_initial_t(Dataptr restrict matrix, const Branch *const inittree, Para
 	#endif
 	);
 	
-	#ifndef NP_Implementation
-    r_lenmin = (double) matrix->min_len_tree;
-	#else
-    lenmin = getminlen(matrix);
+	lenmin = getminlen(matrix);
     r_lenmin = (double) lenmin;
-	#endif
 
     /* Log progress to standard output if chosen*/
 	if (log_progress) printf("  Starting temperature: ");

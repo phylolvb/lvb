@@ -886,8 +886,8 @@ int get_other_seed_to_run_a_process(){
     long i;			/* loop counter */
     long replicate_no = 0L;	/* current bootstrap replicate number */
     double total_iter = 0.0;	/* total iterations across all replicates */
-    long *weight_arr;  		/* weights for sites */
 #endif
+	long *weight_arr;  		/* weights for sites */
 
 	// entitle standard output
 	#if defined (MAP_REDUCE_SINGLE) || defined (NP_Implementation)
