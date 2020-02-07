@@ -267,7 +267,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, int myMPIid, Lvb_b
 		t0 = get_initial_t(matrix, tree, rcstruct, initroot, misc->rank, log_progress);
 		#endif
 		#ifdef NP_Implementation
-		t0 = get_initial_t(matrix, tree, rcstruct, initroot, myMPIid, log_progress, weight_arr);
+		t0 = get_initial_t(matrix, tree, rcstruct, initroot, myMPIid, log_progress);
 		#endif
 		// t0 = 0.01;
 
@@ -297,7 +297,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, int myMPIid, Lvb_b
 				fprintf(sumfp, "%ld\t%ld\t%ld\t", start, cyc, getplen(matrix, tree, rcstruct, initroot, p_todo_arr, p_todo_arr_sum_changes, p_runs));
 				#endif
 				#ifdef NP_Implementation
-				fprintf(sumfp, "%ld\t%ld\t%ld\t", start, cyc, getplen(matrix, tree, rcstruct, initroot, p_todo_arr, p_todo_arr_sum_changes, p_runs, weight_arr));
+				fprintf(sumfp, "%ld\t%ld\t%ld\t", start, cyc, getplen(matrix, tree, rcstruct, initroot, p_todo_arr, p_todo_arr_sum_changes, p_runs));
 				#endif
 				free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
 				logtree1(matrix, tree, start, cyc, initroot);
@@ -982,12 +982,6 @@ myMPIid = 0;
     treEvo = fopen ("treEvo.tre","w");
     do{
 		iter = 0;
-		if (rcstruct.bootstraps > 0){
-			get_bootstrap_weights(weight_arr, matrix->m, matrix->original_m - matrix->m);
-		}
-		else{
-			for (i = 0; i < matrix->m; i++) weight_arr[i] = 1;    // logstim();    // logstim();ss, weight_arr, &iter);
-		}
 
 		final_length = getsoln(matrix, rcstruct, myMPIid, log_progress, weight_arr, &iter);
 

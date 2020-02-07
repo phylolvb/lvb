@@ -102,11 +102,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	    p_proposed_tree = treealloc(matrix, LVB_TRUE);
 	    treecopy(matrix, p_current_tree, inittree, LVB_TRUE);      /* current configuration */
 	    alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-	    len = getplen(matrix, p_current_tree, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs
-		#ifdef NP_Implementation
-		,weights
-		#endif
-		);
+	    len = getplen(matrix, p_current_tree, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 		
 		// todo = alloc(matrix->nbranches * sizeof(unsigned int), "old parent alloc");
 		
@@ -118,11 +114,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 			for (i = 0; i < todo_cnt; i++) {
 				for (j = 0; j < 2; j++) {
 					mutate_deterministic(matrix, p_proposed_tree, p_current_tree, root, todo[i], leftright[j]);
-					lendash = getplen(matrix, p_proposed_tree, rcstruct, rootdash, p_todo_arr, p_todo_arr_sum_changes, p_runs
-					#ifdef NP_Implementation
-					, weights
-					#endif
-					);
+					lendash = getplen(matrix, p_proposed_tree, rcstruct, rootdash, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 
 					lvb_assert (lendash >= 1L);
 					deltalen = lendash - len;
@@ -335,7 +327,7 @@ long anneal(Dataptr restrict matrix, Treestack *bstackp, Treestack *treevo, cons
 		len = getplen(matrix, p_current_tree, *p_rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 		#else
 		alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-		len = getplen(matrix, p_current_tree, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs, weights);
+		len = getplen(matrix, p_current_tree, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 		#endif
 
 		dect = LVB_FALSE;		/* made LVB_TRUE as necessary at end of loop */
@@ -478,11 +470,7 @@ long anneal(Dataptr restrict matrix, Treestack *bstackp, Treestack *treevo, cons
 			strcpy(change,"NNI"); }
 			}
 
-			lendash = getplen(matrix, p_proposed_tree, *p_rcstruct, rootdash, p_todo_arr, p_todo_arr_sum_changes, p_runs
-			#ifdef NP_Implementation
-			, weights
-			#endif
-			);
+			lendash = getplen(matrix, p_proposed_tree, *p_rcstruct, rootdash, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 			lvb_assert (lendash >= 1L);
 			deltalen = lendash - len;
 			deltah = (r_lenmin / (double) len) - (r_lenmin / (double) lendash);

@@ -44,11 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Lvb.h"
 
 
-double get_initial_t(Dataptr restrict matrix, const Branch *const inittree, Params rcstruct, long root, int myMPIid, Lvb_bool log_progress
-#ifdef NP_Implementation
-, const long *weights
-#endif
-)
+double get_initial_t(Dataptr restrict matrix, const Branch *const inittree, Params rcstruct, long root, int myMPIid, Lvb_bool log_progress)
 
 /* Determine the starting temperature for the annealing search 
  * by finding the temperature T at which 65% of proposed 
@@ -97,11 +93,7 @@ double get_initial_t(Dataptr restrict matrix, const Branch *const inittree, Para
     treecopy(matrix, x, inittree, LVB_TRUE);	/* current configuration */
     alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
 	
-	len = getplen(matrix, x, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs
-	#ifdef NP_Implementation
-	, weights
-	#endif
-	);
+	len = getplen(matrix, x, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 	
 	lenmin = getminlen(matrix);
     r_lenmin = (double) lenmin;
@@ -127,11 +119,7 @@ double get_initial_t(Dataptr restrict matrix, const Branch *const inittree, Para
 			if (iter & 0x01) mutate_spr(matrix, xdash, x, root);	/* global change */
 			else mutate_nni(matrix, xdash, x, root);	/* local change */
 
-			lendash = getplen(matrix, xdash, rcstruct, rootdash, p_todo_arr, p_todo_arr_sum_changes, p_runs
-			#ifdef NP_Implementation
-			, weights
-			#endif
-			);
+			lendash = getplen(matrix, xdash, rcstruct, rootdash, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 
 			lvb_assert (lendash >= 1L);
 			deltalen = lendash - len;

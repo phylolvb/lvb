@@ -312,7 +312,6 @@ void clnremove(const char *const);
 void crash(const char *const, ...);
 char *f2str(FILE *const);
 Lvb_bool file_exists(const char *const);
-void get_bootstrap_weights(long *, long, long);
 int getparam(Params *, int argc, char **argv);
 void alloc_memory_to_getplen(Dataptr restrict matrix, long **p_todo_arr, long **p_todo_arr_sum_changes, int **p_runs);
 void free_memory_to_getplen(long **p_todo_arr, long **p_todo_arr_sum_changes, int **p_runs);
@@ -431,8 +430,8 @@ long deterministic_hillclimb(Dataptr, Treestack *, const Branch *const, Params r
 void dump_stack_to_screen(Dataptr restrict matrix, Treestack *sp);
 void dump_objset_to_screen(Dataptr restrict matrix, Objset *oset_1);
 void dump_objset_to_screen_sset_2(Dataptr restrict matrix);
-double get_initial_t(Dataptr, const Branch *const, Params rcstruct, long, int myMPIid, Lvb_bool, const long *);
-long getplen(Dataptr restrict, Branch *, Params rcstruct, const long, long *restrict p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs, const long *restrict);
+double get_initial_t(Dataptr, const Branch *const, Params rcstruct, long, int myMPIid, Lvb_bool);
+long getplen(Dataptr restrict, Branch *, Params rcstruct, const long, long *restrict p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs);
 void makesets(Dataptr restrict, const Branch *const tree_2, const int root);
 long setstcmp_with_sset2(Dataptr restrict matrix, Objset *const oset_1);
 long treecmp(Dataptr restrict, Objset *, const Branch *const, Lvb_bool b_first);

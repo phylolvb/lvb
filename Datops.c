@@ -319,26 +319,7 @@ return the number of columns cut */
 } /* end cutcols() */
 
 
-void get_bootstrap_weights(long *weight_arr, long m, long extras)
-/* Fill first m elements of array whose first element is pointed to by
- * weight_arr with weights for a single bootstrap resample. This is
- * obtained on the assumption that extras constant characters were in
- * the original sequence, but are not represented in weight_arr. This
- * gives a bootstrap sample with these constant characters effectively
- * included. */
-{
-    long samples = 0;	/* size of the sample so far */
-    long site;		/* number of current site to add to sample */
 
-    memset(weight_arr, 0, m * sizeof(long));
-
-    while (samples < (m + extras)){
-    	site = randpint(m + extras - 1);
-    	if (site < m) weight_arr[site] += 1;
-    	samples++;
-    }
-
-} /* end get_bootstrap_weights() */
 
 static void logcut(const Lvb_bool *const cut, const long m)
 /* log message saying columns for which m-element array cut is LVB_TRUE are
