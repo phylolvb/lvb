@@ -165,7 +165,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, int myMPIid, Lvb_b
 , Treestack* bstack_overall, Lvb_bit_length **enc_mat
 #endif
 #else
-, const long *weight_arr, long *iter_p
+, long *iter_p
 #endif
 )
 
@@ -315,7 +315,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, int myMPIid, Lvb_b
 
 		#ifdef NP_Implementation
 		treelength = anneal(matrix, &bstack_overall, &stack_treevo, tree, rcstruct, &rcstruct, initroot, t0, maxaccept,
-    	maxpropose, maxfail, stdout, iter_p, myMPIid, log_progress, weight_arr);
+    	maxpropose, maxfail, stdout, iter_p, myMPIid, log_progress);
 		treestack_pop(matrix, tree, &initroot, &bstack_overall, LVB_FALSE);
 		treestack_push(matrix, &bstack_overall, tree, initroot, LVB_FALSE); //identical
 		#endif
@@ -887,7 +887,6 @@ int get_other_seed_to_run_a_process(){
     long replicate_no = 0L;	/* current bootstrap replicate number */
     double total_iter = 0.0;	/* total iterations across all replicates */
 #endif
-	long *weight_arr;  		/* weights for sites */
 
 	// entitle standard output
 	#if defined (MAP_REDUCE_SINGLE) || defined (NP_Implementation)
@@ -975,7 +974,6 @@ myMPIid = 0;
     }
     else log_progress = LVB_TRUE;
 
-    weight_arr = (long*) alloc(sizeof(long) * matrix->m, "alloc data structure");
     outtreefp = clnopen(rcstruct.file_name_out, "w");
     FILE * treEvo;
     if(rcstruct.algorithm_selection ==2)
@@ -983,7 +981,7 @@ myMPIid = 0;
     do{
 		iter = 0;
 
-		final_length = getsoln(matrix, rcstruct, myMPIid, log_progress, weight_arr, &iter);
+		final_length = getsoln(matrix, rcstruct, myMPIid, log_progress, &iter);
 
 		if (rcstruct.bootstraps > 0) trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_TRUE);
 		else trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_FALSE);
@@ -1063,7 +1061,6 @@ treestack_free(matrix, &stack_treevo);
 treestack_free(matrix, &bstack_overall);
 rowfree(matrix);
 free(matrix);
-free(weight_arr); 
 #endif
 
 if (cleanup() == LVB_TRUE) val = EXIT_FAILURE;

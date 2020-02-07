@@ -382,8 +382,8 @@ long treestack_push(Dataptr, Treestack *, const Branch *const, const long, Lvb_b
 long treestack_print(Dataptr, Treestack *, FILE *const, Lvb_bool onerandom);
 void treestack_free(Dataptr restrict matrix, Treestack *);
 long getminlen(const Dataptr);
-
-
+double get_initial_t(Dataptr, const Branch *const, Params rcstruct, long, int myMPIid, Lvb_bool);
+long getplen(Dataptr restrict, Branch *, Params rcstruct, const long, long *restrict p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs);
 
 
 #ifndef NP_Implementation
@@ -396,20 +396,17 @@ long getminlen(const Dataptr);
 	void reduce_sets(char *key, int keybytes, char *multivalue, int nvalues, int *valuebytes, KeyValue *kv, void *ptr);
 	void reduce_filter(char *key, int keybytes, char *multivalue, int nvalues, int *valuebytes, KeyValue *kv, void *ptr);
 	void print_sets(Dataptr restrict matrix, Treestack *sp, MISC *misc);
-	long deterministic_hillclimb(Dataptr, Treestack *, const Branch *const, Params rcstruct,
-			long, FILE * const, long *, int myMPIid, Lvb_bool, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer);
+	long deterministic_hillclimb(Dataptr, Treestack *, const Branch *const, Params rcstruct, long, FILE * const, long *, int, Lvb_bool, 
+		MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer);
 #else
 	long anneal(Dataptr restrict, Treestack *, Treestack *, const Branch *const, Params rcstruct, Params *p_rcstruct, long, const double,
 		const long, const long, const long, FILE *const, long *, int, Lvb_bool, int *p_n_state_progress, int *p_n_number_tried_seed);
-	long deterministic_hillclimb(Dataptr, Treestack *, const Branch *const, Params rcstruct,
-		long, FILE * const, long *, int myMPIid, Lvb_bool);
+	long deterministic_hillclimb(Dataptr, Treestack *, const Branch *const, Params rcstruct, long, FILE * const, long *, int, Lvb_bool);
 #endif
 unsigned long checkpoint_uni(FILE *);
 unsigned long restore_uni(FILE *);
 void checkpoint_treestack(FILE *, Treestack *, Dataptr, Lvb_bool b_with_sset);
 void restore_treestack(FILE *, Treestack *, Dataptr, Lvb_bool b_with_sset);
-double get_initial_t(Dataptr, const Branch *const, Params rcstruct, long, int myMPIid, Lvb_bool);
-long getplen(Dataptr restrict, Branch *, Params rcstruct, const long, long *restrict p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs);
 long get_random_maxaccept(void);
 long treecmp(Dataptr restrict matrix, const Branch *const tree_1, const Branch *const tree_2, long root, Lvb_bool b_First);
 void treedump_b(Dataptr, FILE *const, const Branch *const, Lvb_bool);
@@ -421,17 +418,14 @@ void release_main_calc_iterations(IterationTemperature *p_data);
 long treestack_push_only(Dataptr restrict matrix, Treestack *sp, const Branch *const barray, const long root, Lvb_bool b_with_sset);
 void copy_sset(Dataptr restrict matrix, Objset *p_sset_1);
 
-
 #else
 long anneal(Dataptr restrict, Treestack *, Treestack *, const Branch *const, Params rcstruct, Params *p_rcstruct, long, const double,
-const long, const long, const long, FILE *const, long *, int, Lvb_bool, const long *);
+const long, const long, const long, FILE *const, long *, int, Lvb_bool);
 void copy_sset(Dataptr restrict matrix, Objset *p_sset_1);
-long deterministic_hillclimb(Dataptr, Treestack *, const Branch *const, Params rcstruct, long, FILE * const, long *, int, Lvb_bool, const long *);
+long deterministic_hillclimb(Dataptr, Treestack *, const Branch *const, Params rcstruct, long, FILE * const, long *, int, Lvb_bool);
 void dump_stack_to_screen(Dataptr restrict matrix, Treestack *sp);
 void dump_objset_to_screen(Dataptr restrict matrix, Objset *oset_1);
 void dump_objset_to_screen_sset_2(Dataptr restrict matrix);
-double get_initial_t(Dataptr, const Branch *const, Params rcstruct, long, int myMPIid, Lvb_bool);
-long getplen(Dataptr restrict, Branch *, Params rcstruct, const long, long *restrict p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs);
 void makesets(Dataptr restrict, const Branch *const tree_2, const int root);
 long setstcmp_with_sset2(Dataptr restrict matrix, Objset *const oset_1);
 long treecmp(Dataptr restrict, Objset *, const Branch *const, Lvb_bool b_first);

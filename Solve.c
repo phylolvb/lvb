@@ -65,9 +65,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 			#ifdef MAP_REDUCE_SINGLE 
 			, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer
 			#endif
-			#ifdef NP_Implementation
-			, const long *weights
-			#endif
 			)
 	/* perform a deterministic hill-climbing optimization on the tree in inittree,
 	 * using NNI on all internal branches until no changes are accepted; return the
@@ -203,16 +200,14 @@ else {
 
 long anneal(Dataptr restrict matrix, Treestack *bstackp, Treestack *treevo, const Branch *const inittree, Params rcstruct, Params *p_rcstruct,
 		long root, const double t0, const long maxaccept, const long maxpropose,
-		const long maxfail, FILE *const lenfp, long *current_iter, int myMPIid, Lvb_bool log_progress,
+		const long maxfail, FILE *const lenfp, long *current_iter, int myMPIid, Lvb_bool log_progress
 
 #ifndef NP_Implementation
 #ifdef MAP_REDUCE_SINGLE
-		MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer
+		, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer
 #else
-		int *p_n_state_progress, int *p_n_number_tried_seed
+		, int *p_n_state_progress, int *p_n_number_tried_seed
 #endif
-#else
-		const long *weights
 #endif
 )
 
