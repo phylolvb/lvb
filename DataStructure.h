@@ -49,10 +49,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define FORMAT_NEXUS 		2
 #define FORMAT_CLUSTAL          3
 
-#ifdef NP_Implementation
-#define MAX_BOOTSTRAPS 1000000 // max bootstrap replicates
-#endif
-
 #define LVB_FNAMSIZE 2000		/* maximum bytes for file names */
 typedef enum { LVB_FALSE, LVB_TRUE } Lvb_bool;	/* boolean type */
 
@@ -112,7 +108,6 @@ typedef struct
      int n_checkpoint_interval;		/* value in seconds when a checkpoint file is going to be saved, default(CHECKPOINT_INTERVAL)*/
      int n_make_test;				/* it is only used for tests */      
      #else
-     long bootstraps;                          // number of bootstrap replicates
      long n_number_max_trees;                  //maximum number of trees saved?
      #endif
      char file_name_in[LVB_FNAMSIZE];	        /* input file name */

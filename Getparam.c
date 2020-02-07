@@ -96,8 +96,6 @@ void defaults_params(Params *const prms)
     prms->n_flag_save_read_states = DONT_SAVE_READ_STATES;
     prms->n_flag_is_finished_process = CHECK_POINT_PROCESS_NOT_FINISHED;
     prms->n_flag_is_possible_read_state_files = CHECK_POINT_NOT_READ_STATE_FILES;
-#else
-    prms->bootstraps = 0; //default = 0
 #endif
 
     /* meaningful value that is not user-configurable */

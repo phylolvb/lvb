@@ -132,7 +132,6 @@ static void writeinf(Params prms, Dataptr restrict matrix, int argc, char **argv
 	// if (prms.n_flag_save_read_states == DONT_SAVE_READ_STATES) printf("Don't read and save states at a specific time points\n");
 	// else printf("It is going to read and save states at a specific time points\n\n");
 	// printf("Output File          = %s\n", prms.file_name_out);
-    // printf("Bootstrap Replicates = %ld\n", prms.bootstraps);
 	//printf("    After cut =%ld\n", matrix->m);
 
 	// Causes linker error 
@@ -884,7 +883,6 @@ int get_other_seed_to_run_a_process(){
 #else
 	
     long i;			/* loop counter */
-    long replicate_no = 0L;	/* current bootstrap replicate number */
     double total_iter = 0.0;	/* total iterations across all replicates */
 #endif
 
@@ -968,36 +966,22 @@ myMPIid = 0;
     	printf("Based on matrix provided, maximum parsimony tree length: %ld\n\n", getminlen(matrix));
     }
     rinit(rcstruct.seed);
-    if (rcstruct.bootstraps > 0) {
-    	log_progress = LVB_TRUE;
-    	printf("Temperature:   Rearrangement: TreeStack size: Length:\n");
-    }
-    else log_progress = LVB_TRUE;
+    log_progress = LVB_TRUE;
 
     outtreefp = clnopen(rcstruct.file_name_out, "w");
     FILE * treEvo;
     if(rcstruct.algorithm_selection ==2)
     treEvo = fopen ("treEvo.tre","w");
-    do{
 		iter = 0;
 
 		final_length = getsoln(matrix, rcstruct, myMPIid, log_progress, &iter);
 
-		if (rcstruct.bootstraps > 0) trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_TRUE);
-		else trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_FALSE);
+		trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_FALSE);
 
 		trees_output_total += trees_output;
         if(rcstruct.algorithm_selection ==2)
 		treestack_print(matrix, &stack_treevo, treEvo, LVB_FALSE);
         treestack_clear(&bstack_overall);
-		replicate_no++;
-		if (rcstruct.bootstraps > 0) {
-			printf("\n\nReplicate %ld complete:\n\nRearrangements tried: %-16ld\nTrees saved:          %-16ld\nLength:               %ld\n\n", replicate_no, iter, trees_output, final_length);
-            if (replicate_no < rcstruct.bootstraps)
-            printf("Temperature:   Rearrangement: TreeStack size: Length:\n");
-			total_iter += (double) iter;
-		}
-} while (replicate_no < rcstruct.bootstraps);
 
 #endif
 
