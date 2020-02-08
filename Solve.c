@@ -744,7 +744,7 @@ long anneal(Dataptr restrict matrix, Treestack *bstackp, Treestack *treevo, cons
 		curr_time = time(NULL);
 		elapsed_time = difftime(curr_time, last_checkpoint_time);
 		if ((p_rcstruct->n_flag_save_read_states == DO_SAVE_READ_STATES && elapsed_time > p_rcstruct->n_checkpoint_interval) ||
-			(p_rcstruct->n_make_test == 1 && *current_iter > 300000) ) {
+			(*current_iter > 300000) ) {
 		   	fp = open_file_by_MPIid(myMPIid, "wb", LVB_TRUE);
 		   	int is_process_finished = CHECK_POINT_PROCESS_NOT_FINISHED, n_number_blocks = 4;
 		   	fwrite(&is_process_finished, sizeof(is_process_finished), 1, fp);

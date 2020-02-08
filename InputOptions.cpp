@@ -138,11 +138,7 @@ void print_formats_available(){
 // needs refining 
 void usage(char *p_file_name)
 {
-	#ifndef NP_Implementation
 	printf("Usage: lvb -i <alignment> [options]\n");
-
-	printf("lvb seeks parsimonious trees from an aligned nucleotide data matrix.\n"
-			"It uses heuristic searches consisting of simulated annealing followed by hill-climbing.\n\n");
 
 	printf("\n    -c [g|l] (g) cooling schedule. The schedule chosen\n"
 			"       will affect the quality and speed of the simulated annealing\n"
@@ -153,12 +149,20 @@ void usage(char *p_file_name)
 	printf("    -i input file name.\n"
 			"       default: 'infile'\n");
 	printf("    -o output file name.\n"
-			"       default: 'outfile'\n");
+			"       Default: 'outfile'.\n");
 	printf("    -s specify a random number seed, or use default.\n"
-			"       default: it is taken from the system clock.\n");
+			"       Default: it is taken from the system clock.\n");
 	printf("\n    -a algorithm zero (0) NNI + SPR,\n"
 	        "       algorithm one (1) NNI + SPR + TBR.\n"
 			"		algorithm two (2) Point based calculations.\n");
+	printf("    -v [t|f] (f) verbose.\n");
+	printf("    -f [phylip|fasta|nexus|clustal] (phylip) file format of input file.\n"
+			"       default: phylip format\n");
+	printf("    -p (1) Threads available."
+			"       default: only one thread available\n");
+	printf("    -h print this help.\n");
+	printf("    -? print this help.\n");
+#ifndef NP_Implementation	
 #ifndef MAP_REDUCE_SINGLE
 	printf("    -N specify the number of seeds to try, need to be greater than number of mpi process.\n"
 			"       default: it is the number of mpi process.\n");
@@ -170,41 +174,9 @@ void usage(char *p_file_name)
 			"       The state files need to be in the same directory where the lvb_mpi is called.\n"
 			"       The states files has the names \"state_<number of mpi process>.dat>\"\n"
 			"       default: it is not going to save/read states.\n");
-	printf("    -v [t|f] (f) verbose.\n");
-	printf("    -f [phylip|fasta|nexus|clustal] (phylip) file format of input file.\n"
-			"       default: phylip format\n");
-	printf("    -p (1) Threads available."
-			"       default: only one thread available\n");
-	printf("    -h print this help.\n");
-	printf("    -? print this help.\n");
 	#else
-	printf("lvb seeks parsimonious trees from an aligned nucleotide data matrix.\n"
-			"It uses heuristic searches consisting of simulated annealing followed\n"
-			"by hill-climbing.\n\n");
-
-	printf("Usage: lvb -i <alignment> [options]\n");
-	printf("\n       Default (0).");
-	printf("\n    -c [g|l] (g) cooling schedule. The schedule chosen will\n"
-			"       affect the quality and speed of the simulated annealing search.\n"
-			"       The GEOMETRIC (g) schedule will take significantly less time,\n"
-			"       but may produce lower quality results. The LINEAR (l) schedule may\n"
-			"       produce higher quality results, at the cost of increased runtime.\n"
-			"       Default (g), the GEOMETRIC schedule.\n");
-	printf("    -i input file name.\n"
-			"       Default: 'infile'.\n");
-	printf("    -o output file name.\n"
-			"       Default: 'outfile'.\n");
-	printf("    -s specify a random number seed, or use default.\n"
-			"       Default: it is taken from the system clock.\n");
-	printf("    -v turn verbose mode on.\n");
-	printf("    -f [clustal|fasta|nexus|phylip].\n"
-			"       Default is 'PHYLIP' format\n");
-	printf("    -p (1) Number of threads to be used.\n"
-			"       Default: one thread.\n");
 	printf("    -t (0) Max number of trees to be saved. Once reached, LVB will stop."
 				"          Default: all of them will be saved.\n");
-	printf("    -h print help.\n");
-	printf("    -? print help.\n");
 	#endif
 	exit(0);
 }
@@ -340,15 +312,6 @@ int read_parameters(Params *prms, int argc, char **argv){
 					return 1;
 				}
 				prms->n_checkpoint_interval = atoi(optarg);
-				break;
-			/* this options is not visible to the regular users, only for making tests */
-			case 't':	/* only used for tests */
-				if (optarg == NULL){
-					fprintf (stderr, "Option -%c requires an argument -t <int>\n", optopt);
-					usage(argv[0]);
-					return 1;
-				}
-				prms->n_make_test = atoi(optarg);
 				break;
 #endif
 #else // NP

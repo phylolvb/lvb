@@ -43,17 +43,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Lvb.h"
 
-#ifndef NP_Implementation
 #ifdef __PPC64__
 #include <Popcntll_macro.h>
 #endif
 
 long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const long root,
 	     long *restrict p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs)
-#else
-long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const long root, 
-		long *restrict p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs)
-#endif
 {
     long branch;				/* current branch number */
     long changes = 0;			/* tree length (number of changes) */
@@ -152,8 +147,6 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 								#endif
 									ch = __builtin_popcountll(u);
 								#endif
-								#ifndef NP_Implementation
-							#endif
 							#endif
 #else
 								ch = __builtin_popcount(u);
@@ -193,8 +186,6 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 				#endif
 					ch = __builtin_popcountll(u);
 				#endif
-			#ifndef NP_Implementation
-			#endif
 			#endif
 #else
 				ch = __builtin_popcount(u);
@@ -221,8 +212,6 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 				#endif
 					ch = __builtin_popcountll(u);
 				#endif
-			#ifndef NP_Implementation
-			#endif
 			#endif
 #else
 				ch = __builtin_popcount(u);
@@ -252,17 +241,12 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 
 		long ch;					/* partial changes */
 		long j;						/* loop counter */
-
-		#ifndef NP_Implementation
 		Lvb_bit_length u;				/* for s. set and length calcs */
 		Lvb_bit_length x;				/* batch of 8 left state sets */
 		Lvb_bit_length y;				/* batch of 8 right state sets */
-		#else
+		#ifdef NP_Implementation
 		Lvb_bit_length not_u;				/* complement of u */
 		Lvb_bit_length shifted;			/* ~u, shifted in partial len calcs */
-		Lvb_bit_length u;					/* for s. set and length calcs */
-		Lvb_bit_length x;					/* batch of 8 left state sets */
-		Lvb_bit_length y;					/* batch of 8 right state sets */
 		#endif
 
 		for (i = matrix->n; i < matrix->nbranches; i++) {
@@ -317,8 +301,6 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 						#endif
 								ch = __builtin_popcountll(u);
 							#endif
-						#ifndef NP_Implementation
-						#endif
 						#endif
 #else
 							ch = __builtin_popcount(u);
@@ -368,8 +350,6 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 			#endif
 				ch = __builtin_popcountll(u);
 			#endif
-		#ifndef NP_Implementation
-		#endif
 		#endif
 #else
 			ch = __builtin_popcount(u);
@@ -395,8 +375,6 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 			#endif
 				ch = __builtin_popcountll(u);
 			#endif
-		#ifndef NP_Implementation
-		#endif
 		#endif
 #else
 			ch = __builtin_popcount(u);

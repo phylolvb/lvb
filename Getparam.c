@@ -118,10 +118,6 @@ void defaults_params(Params *const prms)
     strcpy(prms->file_name_out, OUTTREEFNAM);
     prms->n_file_format = FORMAT_PHYLIP;
     prms->n_processors_available = 1;
-#ifndef NP_Implementation
-    /* it is olnly used for tests */
-    prms->n_make_test = 0;	/* by default is not making any test */
-#endif
 } /* end defaults_params() */
 
 int getparam(Params *prms, int argc, char **argv)
