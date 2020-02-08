@@ -705,13 +705,6 @@ long anneal(Dataptr restrict matrix, Treestack *bstackp, Treestack *treevo, cons
 			}
 			iter++;
 
-#ifdef NP_Implementation
-
-		if (rcstruct.n_number_max_trees > 0 && bstackp->next >= rcstruct.n_number_max_trees){
-			break;
-		}
-#endif
-
 	if (rcstruct.algorithm_selection == 2)
 	{
 	if (changeAcc == 1) {

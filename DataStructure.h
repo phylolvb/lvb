@@ -105,9 +105,7 @@ typedef struct
      int n_flag_is_finished_process;		/* is set to one when the process is finished  */
 							/* 	set to zero is necessary to start from a specific state */
      int n_flag_is_possible_read_state_files;	/* if is possible to read the states or not. */
-     int n_checkpoint_interval;		/* value in seconds when a checkpoint file is going to be saved, default(CHECKPOINT_INTERVAL)*/    
-     #else
-     long n_number_max_trees;                  //maximum number of trees saved?
+     int n_checkpoint_interval;		/* value in seconds when a checkpoint file is going to be saved, default(CHECKPOINT_INTERVAL)*/  
      #endif
      char file_name_in[LVB_FNAMSIZE];	        /* input file name */
      char file_name_out[LVB_FNAMSIZE];	        /* output file name */

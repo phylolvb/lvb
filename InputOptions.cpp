@@ -138,46 +138,68 @@ void print_formats_available(){
 // needs refining 
 void usage(char *p_file_name)
 {
-	printf("Usage: lvb -i <alignment> [options]\n");
+	printf(" Usage: lvb -i <alignment> [options]\n");
+	
+	printf("\n");
 
-	printf("\n    -c [g|l] (g) cooling schedule. The schedule chosen\n"
-			"       will affect the quality and speed of the simulated annealing\n"
-			"       search. The GEOMETRIC (g) schedule will take significantly less time,\n"
-			"       but may produce lower quality results. The LINEAR (l) schedule may\n"
-			"       produce higher quality results, at the cost of increased runtime.\n"
-			"       default (g), is the GEOMETRIC schedule.\n");
-	printf("    -i input file name.\n"
-			"       default: 'infile'\n");
-	printf("    -o output file name.\n"
-			"       Default: 'outfile'.\n");
-	printf("    -s specify a random number seed, or use default.\n"
-			"       Default: it is taken from the system clock.\n");
-	printf("\n    -a algorithm zero (0) NNI + SPR,\n"
-	        "       algorithm one (1) NNI + SPR + TBR.\n"
-			"		algorithm two (2) Point based calculations.\n");
-	printf("    -v [t|f] (f) verbose.\n");
-	printf("    -f [phylip|fasta|nexus|clustal] (phylip) file format of input file.\n"
-			"       default: phylip format\n");
-	printf("    -p (1) Threads available."
-			"       default: only one thread available\n");
-	printf("    -h print this help.\n");
-	printf("    -? print this help.\n");
-#ifndef NP_Implementation	
-#ifndef MAP_REDUCE_SINGLE
-	printf("    -N specify the number of seeds to try, need to be greater than number of mpi process.\n"
-			"       default: it is the number of mpi process.\n");
-#endif
-	printf("    -C value in seconds when a checkpoint file is going to be saved.\n"
-					"       default: 1800\n");
-	printf("    -S if defined it is going to read and save states at a specific time points.\n"
-			"       If you want to read a state the command line need to be exactly the previous\n        on save state point plus -S flag.\n"
-			"       The state files need to be in the same directory where the lvb_mpi is called.\n"
-			"       The states files has the names \"state_<number of mpi process>.dat>\"\n"
-			"       default: it is not going to save/read states.\n");
-	#else
-	printf("    -t (0) Max number of trees to be saved. Once reached, LVB will stop."
-				"          Default: all of them will be saved.\n");
-	#endif
+	printf(" Help options: \n");
+	printf("    Display program instructions      -h \n");
+	printf("    Display program instructions      -? \n");
+	//printf("  Display program information     -# \n");
+
+	printf("\n");
+
+	printf(" General Preferences: \n");
+	printf("   Verbose mode                       -v [ON|OFF]         Engage verbose mode; default: OFF\n");
+
+	printf("\n");
+
+	printf(" Input/Output Preferences: \n");
+	printf("    Input file                        -i [FILE]           Input file name \n");
+	printf("    Input file format                 -f [STRING]         'phylip'|'fasta'|'nexus'|'clustal' \n");
+	printf("    Output file                       -o [FILE]           Output file name; default: 'outfile'\n");
+
+	printf("\n");
+
+	printf(" Search Origin Preferences: \n");
+	printf("    Starting seed                     -s [VALUE]          Specify a starting seed; default: generated from system clock\n");
+
+
+	printf("\n");
+
+	printf(" Topological Rearrangement Preferences: \n");
+	printf("     Rearrangement algorithm          -a [VALUE]          Iterations of NNI + SPR (0)\n"
+		   "                                                          TBR followed by iterations of NNI + SPR (1)\n"
+		   "                                                          Pseudo counts determining probability of NNI, SPR, or TBR iterations (2)\n");
+
+	printf("\n");
+
+	printf(" Simulated Annealing Preferences: \n");
+	printf("    Cooling schedule                  -c [G|L]            SA cooling schedule; GEOMETRIC (G) or LINEAR (L); default: G \n");
+
+	printf("\n");
+
+	printf(" Parallelisation Preferences: \n");
+	printf("    Fine-grain multithreading         -p [VALUE]          Number of threads requested; default: one thread \n");
+
+	printf("\n");
+
+//#ifndef NP_Implementation	
+//#ifndef MAP_REDUCE_SINGLE
+//	printf("    -N specify the number of seeds to try, need to be greater than number of mpi process.\n"
+//			"       default: it is the number of mpi process.\n");
+//#endif
+//#endif
+// MPI
+//	printf("    -C value in seconds when a checkpoint file is going to be saved.\n"
+//					"       default: 1800\n");
+// MPI + MR
+//	printf("    -S if defined it is going to read and save states at a specific time points.\n"
+//			"       If you want to read a state the command line need to be exactly the previous\n        on save state point plus -S flag.\n"
+//			"       The state files need to be in the same directory where the lvb_mpi is called.\n"
+//			"       The states files has the names \"state_<number of mpi process>.dat>\"\n"
+//			"       default: it is not going to save/read states.\n");
+
 	exit(0);
 }
 
@@ -314,16 +336,6 @@ int read_parameters(Params *prms, int argc, char **argv){
 				prms->n_checkpoint_interval = atoi(optarg);
 				break;
 #endif
-#else // NP
-			case 't':
-				if (optarg == NULL){
-					fprintf (stderr, "Option -%c requires an argument -p <file name>\n", optopt);
-					usage(argv[0]);
-					exit(1);
-				}
-				prms->n_number_max_trees = atoi(optarg);
-				if (prms->n_number_max_trees < 1) prms->n_number_max_trees = 0;
-				break;
 #endif
 			case '?':
 			case 'h':
