@@ -295,18 +295,10 @@ long anneal(Dataptr restrict matrix, Treestack *bstackp, Treestack *treevo, cons
 #endif
 
 	    /* variables that could calculate immediately */
-		#ifndef NP_Implementation
-	    double log_wrapper_LVB_EPS   = log_wrapper(LVB_EPS);
-	    double	log_wrapper_grad_geom = log_wrapper(grad_geom);
-	    double	log_wrapper_t0        = log_wrapper(t0);
-
-		#else
-		const double log_wrapper_LVB_EPS = log_wrapper(LVB_EPS);
+	    const double log_wrapper_LVB_EPS = log_wrapper(LVB_EPS);
 	    const double log_wrapper_grad_geom = log_wrapper(grad_geom);
-    	const double log_wrapper_t0 =  log_wrapper(t0);
+	    const double log_wrapper_t0 = log_wrapper(t0);
     	/* REND variables that could calculate immediately */
-   	
-		#endif
 	    
 		alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
 
@@ -317,13 +309,8 @@ long anneal(Dataptr restrict matrix, Treestack *bstackp, Treestack *treevo, cons
 
 
 		treecopy(matrix, p_current_tree, inittree, LVB_TRUE);	/* current configuration */
-
-		#ifndef NP_Implementation
-		len = getplen(matrix, p_current_tree, *p_rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
-		#else
 		alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
 		len = getplen(matrix, p_current_tree, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
-		#endif
 
 		dect = LVB_FALSE;		/* made LVB_TRUE as necessary at end of loop */
 		lvb_assert( ((float) t >= (float) LVB_EPS) && (t <= 1.0) && (grad_geom >= LVB_EPS) && (grad_linear >= LVB_EPS));

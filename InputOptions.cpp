@@ -117,7 +117,7 @@ int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat)
 void phylip_mat_dims_in_external(char *file_name, int n_file_type, long *species_ptr, long *sites_ptr, int *max_length_name){
 
 	CReadFiles readFiles = CReadFiles();
-	/// read file
+// read file
 	std::string sz_file_name = std::string(file_name);
 	readFiles.read_file(file_name, n_file_type);
 

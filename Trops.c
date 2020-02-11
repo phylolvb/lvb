@@ -1222,14 +1222,7 @@ long setstcmp_with_sset2(Dataptr matrix, Objset *const oset_1)
     }
     return 0;
 } /* end setstcmp() */
-#endif
 
-#ifndef NP_Implementation
-void sort_array(long *p_array, int n_left, int n_right){
-	int l_hold, r_hold;
-	long l_pivot = *(p_array + ((n_left + n_right) / 2));
-	long l_temp;
-#else
 void dump_stack_to_screen(Dataptr matrix, Treestack *sp){
 	for (int i = 0; i < sp->next; i++){
 		printf("Stack number: %d\n", i);
@@ -1252,11 +1245,12 @@ void dump_objset_to_screen_sset_2(Dataptr matrix){
 	dump_objset_to_screen(matrix, sset_2);
 }
 
-void sort_array(long *p_array, int n_left, int n_right){
+#endif
+
+	void sort_array(long *p_array, int n_left, int n_right){
 	int l_hold, r_hold;
 	long l_pivot = *(p_array + ((n_left + n_right) / 2));
 	long l_temp;
-#endif
 
 	l_hold = n_left;		//i=l;
 	r_hold = n_right;     //j=r;
