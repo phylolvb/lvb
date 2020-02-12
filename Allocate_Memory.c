@@ -39,7 +39,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== mops.c - basic memory operation ========== */
+/* ========== Allocate_Memory.c - basic memory operation ========== */
 
 #include "Lvb.h"
 

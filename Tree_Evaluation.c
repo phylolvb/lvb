@@ -39,7 +39,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== parsim.c - tree evaluation ========== */
+/* ========== Tree_Evaluation.c - tree evaluation ========== */
 
 #include "Lvb.h"
 

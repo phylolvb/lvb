@@ -45,6 +45,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef NP_Implementation
 #include "Store_states.h"
+#else
+#include "Optimise_Tree.h"
 #endif
 
 static void upsize(Dataptr restrict matrix, Treestack *sp)

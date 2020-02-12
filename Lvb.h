@@ -48,7 +48,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //    #define MPI_Implementation
 
 #include "DataStructure.h"
-#include "Mapreduce.h"
+#include "MapReduce.h"
 #include "Blockmacros.h"
 #include "Keyvalue.h"
 #include <ctype.h>
@@ -425,7 +425,6 @@ long deterministic_hillclimb(Dataptr, Treestack *, const Branch *const, Params r
 void dump_stack_to_screen(Dataptr restrict matrix, Treestack *sp);
 void dump_objset_to_screen(Dataptr restrict matrix, Objset *oset_1);
 void dump_objset_to_screen_sset_2(Dataptr restrict matrix);
-void makesets(Dataptr restrict, const Branch *const tree_2, const int root);
 long setstcmp_with_sset2(Dataptr restrict matrix, Objset *const oset_1);
 long treecmp(Dataptr restrict, Objset *, const Branch *const, Lvb_bool b_first);
 

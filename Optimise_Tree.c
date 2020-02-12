@@ -39,61 +39,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== trops.c - tree operations ========== */
+/* ========== Optimise_Tree.c - tree operations ========== */
 
-#include "Lvb.h"
-
-#define CLADESEP ","	/* clade separator for trees */
-
-#ifndef NP_Implementation
-/* maximum number of object sets per tree */
-#define MAX_SSET_SIZE (MAX_N - 3)
-#endif
-
-static void cr_bpnc(const Branch *const barray, const long branch);
-static void cr_chaf(const Branch *const barray, const long destination, const long newchild);
-static void cr_uxe(FILE *const stream, const char *const msg);
-static int osetcmp(const void *oset1, const void *oset2);
-static void fillsets(Dataptr, Objset *const sstruct, const Branch *const tree, const long root);
-static long getsister(const Branch *const barray, const long branch);
-static Lvb_bool *randtopology(Dataptr restrict, Branch *const barray, const long nobjs);
-static void getobjs(Dataptr, const Branch *const barray, const long root, long *const objarr, long *const cnt);
-static void realgetobjs(Dataptr restrict, const Branch *const barray, const long root, long *const objarr, long *const cnt);
-static long *randleaf(Dataptr restrict, Branch *const barray, const Lvb_bool *const leafmask, const long objs);
-static long setstcmp(Dataptr restrict, Objset *const oset_1, Objset *const oset_2, Lvb_bool b_First);
-static void ur_print(Dataptr restrict, FILE *const stream, const Branch *const barray, const long root);
-
-
-#ifndef NP_Implementation
-static void makesets(Dataptr matrix, const Branch *const tree_1, const Branch *const tree_2, const long root, Lvb_bool b_First);
-static int objnocmp(const void *o1, const void *o2);
-
-static void sort(Objset *const oset_1, Objset *const oset_2, const long nels, Lvb_bool b_First);
-static void ssarralloc(Dataptr restrict matrix, Objset *nobjset_1, Objset *nobjset_2);
-static void tree_make_canonical(Dataptr restrict, Branch *const barray, long *objnos);
-
-#else
-static void sort(Dataptr matrix, Objset *const oset_2, const long nels);
-static void ssarralloc(Dataptr restrict matrix, Objset *nobjset_2);
-static void tree_make_canonical(Dataptr restrict, Branch *const barray, long *objnos);
-
-#endif
-
-#ifndef NP_Implementation
-#ifdef MAP_REDUCE_SINGLE
-	static long makeset_single(Dataptr, const Branch *const tree, const long root);
-	void map_pushSets(int itask, KeyValue *kv, void *ptr);
-#endif
-
-
-/* object sets for tree 1 in comparison */
-static Objset sset_1[MAX_N - 3] = { { NULL, 0 } };
-#endif
-
-/* object sets for tree 2 in comparison */
-static Objset sset_2[MAX_N - 3] = { { NULL, 0 } };
-
-// ----------------------------------------------------------------------------
+#include "Optimise_Tree.h"
 
 void nodeclear(Branch *const barray, const long brnch)
 /* Initialize all scalars in branch brnch to UNSET or zero as appropriate,
@@ -774,11 +722,7 @@ void randtree(Dataptr matrix, Branch *const barray)
  * in this random tree are marked as "dirty" */
 {
     Lvb_bool *leafmask;		/* LVB_TRUE where branch in array is a leaf */
-	#ifndef NP_Implementation
     long *objnos;		/* element i is obj associated with branch i */
-	#else
-	long *objnos;		/* element i is obj associated with branch i */
-	#endif
 
     treeclear(matrix, barray);
     leafmask = randtopology(matrix, barray, matrix->n);
@@ -1034,16 +978,6 @@ void treeswap(Branch **const tree1, long *const root1,
 
 } /* end treeswap() */
 
-#ifndef NP_Implementation
-void treedump_b(Dataptr matrix, FILE *const stream, const Branch *const tree, Lvb_bool b_with_sset)
-/* dump tree as binary data to file pointed to by stream */
-{
-    lvb_assert(b_with_sset == LVB_FALSE);	/* not implemented for ssets */
-    fwrite(tree, matrix->tree_bytes_without_sset, 1, stream);
-    lvb_assert(ferror(stream) == 0);
-}
-#endif
-
 void treedump(Dataptr matrix, FILE *const stream, const Branch *const tree, Lvb_bool b_with_sset)
 /* send tree as table of integers to file pointed to by stream */
 {
@@ -1071,6 +1005,14 @@ void treedump(Dataptr matrix, FILE *const stream, const Branch *const tree, Lvb_
 	cr_uxe(stream, "dumping tree");
 
 } /* end treedump() */
+
+void treedump_b(Dataptr matrix, FILE *const stream, const Branch *const tree, Lvb_bool b_with_sset)
+/* dump tree as binary data to file pointed to by stream */
+{
+    lvb_assert(b_with_sset == LVB_FALSE);	/* not implemented for ssets */
+    fwrite(tree, matrix->tree_bytes_without_sset, 1, stream);
+    lvb_assert(ferror(stream) == 0);
+}
 
 void treedump_screen(Dataptr matrix, const Branch *const tree)
 /* send tree as table of integers to file pointed to by stream */
@@ -1198,7 +1140,7 @@ static long setstcmp(Dataptr matrix, Objset *const oset_1, Objset *const oset_2,
 
 	#ifndef NP_Implementation
     /* sort the set arrays and their constituent sets */
-    sort(oset_1, oset_2, matrix->nsets, b_First);
+    sort(matrix, oset_1, oset_2, matrix->nsets, b_First);
 	#endif
 
     /* compare the set arrays */
@@ -1270,15 +1212,18 @@ void dump_objset_to_screen_sset_2(Dataptr matrix){
 	if (l_hold < n_right) sort_array(p_array, l_hold, n_right);
 }
 
-#ifndef NP_Implementation
-static void sort(Objset *const oset_1, Objset *const oset_2, const long nels, Lvb_bool b_First)
+static void sort(Dataptr matrix, Objset *const oset_1, Objset *const oset_2, const long nels, Lvb_bool b_First)
 /* sort the nels object sets in oset so that each is in order, and sort oset so
  * that the sets themselves are in order of size and content */
 {
-    long i;	/* loop counter */
-
+	long i;	/* loop counter */
+	
     /* first sort each set member list */
-    for (i = 0; i < nels; i++){
+	#ifdef NP_Implementation
+	omp_set_dynamic(0);	  /* disable dinamic threathing */
+	#pragma omp parallel for num_threads(matrix->n_threads_getplen)
+	#endif
+    	for (i = 0; i < nels; i++){
     	if (oset_1[i].cnt > 2) sort_array(oset_1[i].set, 0, oset_1[i].cnt - 1);
     	else qsort(oset_1[i].set, (size_t) oset_1[i].cnt, sizeof(long), objnocmp);
     	if (b_First == LVB_TRUE){
@@ -1291,21 +1236,6 @@ static void sort(Objset *const oset_1, Objset *const oset_2, const long nels, Lv
    	qsort(oset_1, (size_t) nels, sizeof(Objset), osetcmp);
    	if (b_First == LVB_TRUE) qsort(oset_2, (size_t) nels, sizeof(Objset), osetcmp);
 } /* end sort() */
-#else
-static void sort(Dataptr matrix, Objset *const oset_2, const long nels)
-/* sort the nels object sets in oset so that each is in order, and sort oset so
- * that the sets themselves are in order of size and content */
-{
-    /* first sort each set member list */
-	omp_set_dynamic(0);	  /* disable dinamic threathing */
-	#pragma omp parallel for num_threads(matrix->n_threads_getplen)
-    	for (long i = 0; i < nels; i++)
-    		sort_array(oset_2[i].set, 0, oset_2[i].cnt - 1);
-
-   	/* now sort the arrays of sets by size and content */
-   	qsort(oset_2, (size_t) nels, sizeof(Objset), osetcmp);
-} /* end sort() */
-#endif
 
 static int osetcmp(const void *oset1, const void *oset2)
 /* comparison function for object sets (type Objset):
@@ -1360,7 +1290,7 @@ void makesets(Dataptr matrix, const Branch *const tree_2, const int root)
     }
 
     fillsets(matrix, sset_2, tree_2, root);
-    sort(matrix, sset_2, matrix->nsets);
+    sort(matrix, sset_2, NULL, matrix->nsets, LVB_FALSE);
 	#endif
 } /* end makesets() */
 
@@ -1426,7 +1356,7 @@ static void ssarralloc(Dataptr matrix, Objset *nobjset_2)
 			  root = d_obj1;
 
 			  fillsets(matrix, sset_2, Tree, root);
-			  sort(sset_2, NULL, matrix->nsets, LVB_FALSE);
+			  sort(matrix, sset_2, NULL, matrix->nsets, LVB_FALSE);
 
 			  for(int j=0; j< matrix->nsets; j++) {
 				  set = (long *) alloc( sset_2[j].cnt * sizeof(long), "int array for tree comp using MR");
@@ -1470,7 +1400,7 @@ static void ssarralloc(Dataptr matrix, Objset *nobjset_2)
 		root = d_obj1;
 
 		fillsets(matrix, sset_1, copy_tree, root);
-		sort(sset_1, NULL, misc->nsets, LVB_FALSE);
+		sort(matrix, sset_1, NULL, misc->nsets, LVB_FALSE);
 
 		MPI_Barrier(MPI_COMM_WORLD);
 		uint64_t nKV = mrObj->map(misc->nprocs, map_pushSets, misc);
@@ -1575,7 +1505,6 @@ static void realgetobjs(Dataptr matrix, const Branch *const barray, const long r
 
 } /* end realgetobjs() */
 
-#ifndef NP_Implementation
 static int objnocmp(const void *o1, const void *o2)
 /* comparison function for comparing object numbers:
  * return negative if *o1 < *o2, zero if *o1 == *o2,
@@ -1589,7 +1518,6 @@ static int objnocmp(const void *o1, const void *o2)
     return 0;
 
 } /* end objnocmp() */
-#endif
 
 void ss_init(Dataptr matrix, Branch *tree, Lvb_bit_length **enc_mat)
 /* copy m states from enc_mat to the stateset arrays for the leaves in tree,

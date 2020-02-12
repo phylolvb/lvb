@@ -152,14 +152,14 @@ DOCS_PROGRAMMER = 	$(DOCS_PROG_DIR)/Treestack.html \
 		  			$(DOCS_PROG_DIR)/Fops.html \
 		  			$(DOCS_PROG_DIR)/Search_Parameters.html \
 					  $(DOCS_PROG_DIR)/Admin.html \
-					  $(DOCS_PROG_DIR)/Mops.html \
+					  $(DOCS_PROG_DIR)/Allocate_Memory.html \
 					  $(DOCS_PROG_DIR)/Mathematical_Wrapper.html \
 					  $(DOCS_PROG_DIR)/Random_Number_Generator.html \
 					  $(DOCS_PROG_DIR)/Log.html \
-					  $(DOCS_PROG_DIR)/Parsim.html \
+					  $(DOCS_PROG_DIR)/Tree_Evaluation.html \
 					  $(DOCS_PROG_DIR)/Solve.html \
 					  $(DOCS_PROG_DIR)/Sops.html \
-					  $(DOCS_PROG_DIR)/Trops.html \
+					  $(DOCS_PROG_DIR)/Optimise_Tree.html \
 					  $(DOCS_PROG_DIR)/Wrapper.html
 
 TEST_MANUAL = $(DOCS_PROG_DIR)/go.html
@@ -178,14 +178,14 @@ LVB_LIB_OBJS = Admin.$(OBJ) \
 	Fops.$(OBJ) \
 	Search_Parameters.$(OBJ) \
 	Starting_Temperature.$(OBJ) \
-	Mops.$(OBJ) \
+	Allocate_Memory.$(OBJ) \
 	Mathematical_Wrapper.$(OBJ) \
 	Random_Number_Generator.$(OBJ) \
-	Parsim.$(OBJ) \
+	Tree_Evaluation.$(OBJ) \
 	Solve.$(OBJ) \
 	Store_states.$(OBJ) \
 	Sops.$(OBJ) \
-	Trops.$(OBJ) \
+	Optimise_Tree.$(OBJ) \
 	Log.$(OBJ) \
     Wrapper.$(OBJ)
 
@@ -206,7 +206,7 @@ else
 	LVB_PROG = lvb_mrmpi$(EXE)
 
 	# Object files that will go into the LVB library
-	LVB_LIB_OBJS += MRsubroutine.$(OBJ)
+	LVB_LIB_OBJS += MapReduce.$(OBJ)
 endif
 
 LVB_READ_FILE_OBJS = 	$(LVB_READ_FILE_DIR)MSA_Input.$(OBJ) \
