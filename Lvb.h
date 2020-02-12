@@ -63,8 +63,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "Myuni.h"
-#include "Mymaths.h"
+#include "Random_Number_Generator.h"
+#include "Mathematical_Wrapper.h"
 #include "Clock.h"
 #include "Log.h"
 #include <sys/utsname.h>
@@ -312,7 +312,7 @@ void clnremove(const char *const);
 void crash(const char *const, ...);
 char *f2str(FILE *const);
 Lvb_bool file_exists(const char *const);
-int getparam(Params *, int argc, char **argv);
+int Search_Parameters(Params *, int argc, char **argv);
 void alloc_memory_to_getplen(Dataptr restrict matrix, long **p_todo_arr, long **p_todo_arr_sum_changes, int **p_runs);
 void free_memory_to_getplen(long **p_todo_arr, long **p_todo_arr_sum_changes, int **p_runs);
 double get_predicted_length(double, double, long, long, long, long);
@@ -382,7 +382,6 @@ long treestack_push(Dataptr, Treestack *, const Branch *const, const long, Lvb_b
 long treestack_print(Dataptr, Treestack *, FILE *const, Lvb_bool onerandom);
 void treestack_free(Dataptr restrict matrix, Treestack *);
 long getminlen(const Dataptr);
-double get_initial_t(Dataptr, const Branch *const, Params rcstruct, long, int myMPIid, Lvb_bool);
 long getplen(Dataptr restrict, Branch *, Params rcstruct, const long, long *restrict p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs);
 
 

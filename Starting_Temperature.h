@@ -39,15 +39,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== mymaths.h - interface for mymaths.c ========== */
-
 #include "Lvb.h"
 
-#ifndef LVB_MYMATHS_H
-#define LVB_MYMATHS_H
+#ifndef Starting_Temperature_H
+#define Starting_Temperature_H
 
-double exp_wrapper(double) /*@globals errno@*/ /*@modifies nothing@*/ ;
-double log_wrapper(double) /*@globals errno@*/ /*@modifies nothing@*/ ;
-double pow_wrapper(double, double) /*@globals errno@*/ /*@modifies nothing@*/ ;
 
-#endif /* LVB_MYMATHS_H */
+double get_initial_t(Dataptr, const Branch *const, Params rcstruct, long, int myMPIid, Lvb_bool);
+
+#endif // Starting_Temperature_H

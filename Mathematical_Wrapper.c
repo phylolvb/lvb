@@ -39,7 +39,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== mymaths.c - wrappers for standard maths functions ========== */
+/* ========== Mathematical_Wrapper.c - wrappers for standard maths functions ========== */
 
 /*
 
@@ -51,40 +51,6 @@ C<errno> or its return value.
 **********/
 
 #include "Lvb.h"
-
-
-/**********
-
-=head1 exp_wrapper - INTERFACE TO exp()
-
-=head2 SYNOPSIS
-
-    double exp_wrapper(double x1);
-
-=head2 DESCRIPTION
-
-Calculates natural antilog of a number, or crashes verbosely on
-underflow, overflow or domain error.
-
-=head2 PARAMETERS
-
-=head3 INPUT
-
-=over 4
-
-=item x1
-
-The number whose antilogarithm we wish to calculate.
-
-=back
-
-=head2 RETURN
-
-Returns I<e>**C<x1>.
-
-=cut
-
-**********/
 
 double exp_wrapper(double x)
 /*@globals errno@*/ /*@modifies nothing@*/
@@ -105,39 +71,6 @@ double exp_wrapper(double x)
 
 }	/* end exp_wrapper() */
 
-/**********
-
-=head1 log_wrapper - INTERFACE TO log()
-
-=head2 SYNOPSIS
-
-    double log_wrapper(double x2);
-
-=head2 DESCRIPTION
-
-Calculates natural logarithm of a number, or crashes verbosely on
-domain error.
-
-=head2 PARAMETERS
-
-=head3 INPUT
-
-=over4
-
-=item x2
-
-The number whose natural logarithm we wish to calculate.
-
-=back
-
-=head2 RETURN
-
-Returns I<ln>(C<x2>).
-
-=cut
-
-**********/
-
 double log_wrapper(double x)
 /*@globals errno@*/ /*@modifies nothing@*/
 {
@@ -155,43 +88,6 @@ double log_wrapper(double x)
     return val;
 
 }	/* end log_wrapper() */
-
-/**********
-
-=head1 pow_wrapper - interface to pow()
-
-=head2 SYNOPSIS
-
-    double pow_wrapper(double x3, double y);
-
-=head2 DESCRIPTION
-
-Raises one number to the power of another, or crashes verbosely on
-domain error, range error or underflow.
-
-=head2 PARAMETERS
-
-=head3 INPUT
-
-=over4
-
-=item x3
-
-The number to be raised to the power of C<y>.
-
-=item y
-
-The number to the power of which C<x3> is to be raised.
-
-=back
-
-=head2 RETURN
-
-Returns C<x3>**C<y>.
-
-=cut
-
-**********/
 
 double pow_wrapper(double x, double y)
 /*@globals errno@*/ /*@modifies nothing@*/

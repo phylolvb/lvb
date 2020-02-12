@@ -39,9 +39,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== getstartt.c - function to determine starting temperature ========== */
+/* ========== Starting_Temperature.c - function to determine starting temperature ========== */
 
-#include "Lvb.h"
+// #include "Lvb.h"
+#include "Starting_Temperature.h"
 
 
 double get_initial_t(Dataptr restrict matrix, const Branch *const inittree, Params rcstruct, long root, int myMPIid, Lvb_bool log_progress)

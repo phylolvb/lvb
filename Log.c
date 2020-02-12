@@ -41,7 +41,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== log.c - logfile parameters ========== */
 
-#include "Lvb.h"
 #include "Log.h"
 
 bool logfile_exists (const char *filename)

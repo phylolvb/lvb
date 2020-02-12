@@ -39,14 +39,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== datops.c - data matrix operations ========== */
+/* ========== MSA_Handling.c - data matrix operations ========== */
 
-#include "Lvb.h"
-
-static void logcut(const Lvb_bool *const cut, const long m);
-static long constchar(Dataptr restrict matrix, Lvb_bool *const togo, const Lvb_bool verbose);
-static void cutcols(Dataptr restrict matrix, const Lvb_bool *const tocut, long n_columns_to_change);
-long getminlen(const Dataptr restrict matrix);
+#include "MSA_Handling.h"
 
 static char *getstatev(const Dataptr restrict matrix, const long k)
 	/* return pointer to string containing 1 instance of each character state in

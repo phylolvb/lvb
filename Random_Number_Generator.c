@@ -39,7 +39,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== myuni.c - random number generation ========== */
+/* ========== Random_Number_Generator.c - random number generation ========== */
 
 /* exactly as suppplied by EPCC, except rcsid added, printf() then
  * exit() replaced with crash() (and braces made redundant removed),
@@ -215,3 +215,26 @@ void rinit(int ijkl)
 /*        printf("rinit: initialising RNG via rstart(%d, %d, %d, %d)\n", i, j, k, l); */
 	rstart(i, j, k, l);
 }
+
+long randpint(const long upper)
+{
+    double frand;	/* random real */
+    double fupper;	/* upper limit */
+    long rand;		/* return value */
+
+    lvb_assert(upper >= 0);
+
+    fupper = (double) upper;
+    frand = uni();
+    frand = frand * fupper;		/* scale to right range */
+    rand = (long) (frand + 0.5);	/* round to nearest integer */
+
+    /* guard against arithmetic inaccuracy */
+    if (rand < 0)
+	rand = 0;
+    else if (rand > upper)
+	rand = upper;
+
+    return rand;
+
+} /* end randpint() */

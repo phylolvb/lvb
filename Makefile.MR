@@ -147,17 +147,16 @@ DOCS_PROGRAMMER = 	$(DOCS_PROG_DIR)/Treestack.html \
 					$(DOCS_PROG_DIR)/Main.html \
 		  			$(DOCS_PROG_DIR)/Cleanup.html \
 					  $(DOCS_PROG_DIR)/Clock.html \
-		  			$(DOCS_PROG_DIR)/Datops.html \
+		  			$(DOCS_PROG_DIR)/MSA_Handling.html \
 		  			$(DOCS_PROG_DIR)/Err.html \
 		  			$(DOCS_PROG_DIR)/Fops.html \
-		  			$(DOCS_PROG_DIR)/Getparam.html \
+		  			$(DOCS_PROG_DIR)/Search_Parameters.html \
 					  $(DOCS_PROG_DIR)/Admin.html \
 					  $(DOCS_PROG_DIR)/Mops.html \
-					  $(DOCS_PROG_DIR)/Mymaths.html \
-					  $(DOCS_PROG_DIR)/Myuni.html \
+					  $(DOCS_PROG_DIR)/Mathematical_Wrapper.html \
+					  $(DOCS_PROG_DIR)/Random_Number_Generator.html \
 					  $(DOCS_PROG_DIR)/Log.html \
 					  $(DOCS_PROG_DIR)/Parsim.html \
-					  $(DOCS_PROG_DIR)/Randpint.html \
 					  $(DOCS_PROG_DIR)/Solve.html \
 					  $(DOCS_PROG_DIR)/Sops.html \
 					  $(DOCS_PROG_DIR)/Trops.html \
@@ -174,16 +173,15 @@ LVB_LIB_OBJS = Admin.$(OBJ) \
 	Treestack.$(OBJ) \
 	Cleanup.$(OBJ) \
 	Clock.$(OBJ) \
-	Datops.$(OBJ) \
+	MSA_Handling.$(OBJ) \
 	Err.$(OBJ) \
 	Fops.$(OBJ) \
-	Getparam.$(OBJ) \
-	Getstartt.$(OBJ) \
+	Search_Parameters.$(OBJ) \
+	Starting_Temperature.$(OBJ) \
 	Mops.$(OBJ) \
-	Mymaths.$(OBJ) \
-	Myuni.$(OBJ) \
+	Mathematical_Wrapper.$(OBJ) \
+	Random_Number_Generator.$(OBJ) \
 	Parsim.$(OBJ) \
-	Randpint.$(OBJ) \
 	Solve.$(OBJ) \
 	Store_states.$(OBJ) \
 	Sops.$(OBJ) \
@@ -211,8 +209,8 @@ else
 	LVB_LIB_OBJS += MRsubroutine.$(OBJ)
 endif
 
-LVB_READ_FILE_OBJS = 	$(LVB_READ_FILE_DIR)MSAInput.$(OBJ) \
-						$(LVB_READ_FILE_DIR)InputOptions.$(OBJ) \
+LVB_READ_FILE_OBJS = 	$(LVB_READ_FILE_DIR)MSA_Input.$(OBJ) \
+						$(LVB_READ_FILE_DIR)Input_Options.$(OBJ) \
 						$(LVB_READ_FILE_DIR)Info.$(OBJ)
 
 LVB_PROG_OBJS = Main.$(OBJ)

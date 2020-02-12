@@ -79,7 +79,7 @@ int main(int argc, char **argv)
     	rinit(SEED);
     	matrix = (Dataptr) alloc(sizeof(DataStructure), "alloc data structure");
     	matrix_seq_data = (DataSeqPtr) alloc(sizeof(DataSeqStructure), "alloc data structure");
-    	getparam(&rcstruct, argc, argv);
+    	Search_Parameters(&rcstruct, argc, argv);
     	phylip_dna_matrin("infile", FORMAT_PHYLIP, matrix, matrix_seq_data);
     	matchange(matrix, matrix_seq_data, rcstruct);
 

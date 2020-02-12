@@ -42,6 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* ========== main.c - LVB ========== */
 
 #include "Lvb.h"
+#include "Starting_Temperature.h"
 
 #ifndef NP_Implementation
 #include <inttypes.h>
@@ -896,7 +897,7 @@ int get_other_seed_to_run_a_process(){
 
 myMPIid = 0;
 
-getparam(&rcstruct, argc, argv);
+Search_Parameters(&rcstruct, argc, argv);
 
 /* read and alloc space to the data structure */
 
@@ -1041,7 +1042,7 @@ return val;
 	End = clock();
 	Overall_Time_taken = ((double) (End - Start)) /CLOCKS_PER_SEC;
 
-	n_error_code = getparam(&rcstruct, argc, argv);
+	n_error_code = Search_Parameters(&rcstruct, argc, argv);
 			if (n_error_code == EXIT_SUCCESS){
 				/* read and alloc space to the data structure */
 				n_error_code = phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix);

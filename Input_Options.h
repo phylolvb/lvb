@@ -47,7 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef MAP_REDUCE_SINGLE
 #include "Lvb.h"
 #endif
-#include "MSAInput.h"
+#include "MSA_Input.h"
 #include "DataStructure.h"
 #include <stdio.h>
 #include <string.h>

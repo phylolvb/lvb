@@ -39,20 +39,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== myuni.h - header for RNG functions in myuni.c ========== */
+/* ========== Mathematical_Wrapper.h - interface for Mathematical_Wrapper.c ========== */
 
 #include "Lvb.h"
 
-#include <float.h>
-#include <limits.h>
+#ifndef LVB_Mathematical_Wrapper_H
+#define LVB_Mathematical_Wrapper_H
 
-/* set max. random number seed value suitable for rinit() */
-#if 900000001L > INT_MAX
-#error LVB WARNING: type int not suitable, try with a 32-bit or larger system
-#else
-#define MAX_SEED 900000000
-#endif  /* if 900000001L > INT_MAX */
+double exp_wrapper(double) /*@globals errno@*/ /*@modifies nothing@*/ ;
+double log_wrapper(double) /*@globals errno@*/ /*@modifies nothing@*/ ;
+double pow_wrapper(double, double) /*@globals errno@*/ /*@modifies nothing@*/ ;
 
-/* external uni functions */
-double uni(void);
-void rinit(int ijkl);
+#endif /* LVB_Mathematical_Wrapper_H */

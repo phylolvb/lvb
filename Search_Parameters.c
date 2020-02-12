@@ -39,14 +39,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== getparam.c - get and set configurable parameters ========== */
+/* ========== Search_Parameters.c - get and set configurable parameters ========== */
 
 #include "Lvb.h"
 
 #include <unistd.h>
 
 #ifdef MAP_REDUCE_SINGLE
-	#include "InputOptions.h"
+	#include "Input_Options.h"
 #else
 	int read_parameters(Params *prms, int argc, char **argv);
 #endif
@@ -116,7 +116,7 @@ void defaults_params(Params *const prms)
     prms->n_processors_available = 1;
 } /* end defaults_params() */
 
-int getparam(Params *prms, int argc, char **argv)
+int Search_Parameters(Params *prms, int argc, char **argv)
 /* Get configuration parameters. This function fills *prms with
    run-time configuration parameters */
 {
@@ -139,4 +139,4 @@ int getparam(Params *prms, int argc, char **argv)
 #else
     read_parameters(prms, argc, argv);
 #endif
-} /* end getparam() */
+} /* end Search_Parameters() */

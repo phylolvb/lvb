@@ -43,56 +43,56 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Lvb.h"
 
-enum { SAME, DIFFERENT };	/* strings same or different */
+// enum { SAME, DIFFERENT };	/* strings same or different */
 
-long cistrcmp(const char *const s1, const char *const s2)
-{
-    size_t i;		/* loop counter */
-    size_t len1;	/* length of s1 */
-    size_t len2;	/* length of s2 */
-    int character_1;	/* current character of s1 */
-    int character_2;	/* current character of s2 */
+//long cistrcmp(const char *const s1, const char *const s2)
+//{
+//    size_t i;		/* loop counter */
+//    size_t len1;	/* length of s1 */
+//    size_t len2;	/* length of s2 */
+//    int character_1;	/* current character of s1 */
+//    int character_2;	/* current character of s2 */
 
-    len1 = strlen(s1);
-    len2 = strlen(s2);
+//    len1 = strlen(s1);
+//    len2 = strlen(s2);
 
-    if (len1 != len2)	/* can't be identical */
-	return DIFFERENT;
+//    if (len1 != len2)	/* can't be identical */
+//	return DIFFERENT;
 
-    for (i = 0; i < len1; i++)
-    {
-        character_1 = tolower(s1[i]);
-        character_2 = tolower(s2[i]);
-	if (character_1 != character_2)
-	    return DIFFERENT;
-    }
-    return SAME;
+//    for (i = 0; i < len1; i++)
+//    {
+//        character_1 = tolower(s1[i]);
+//        character_2 = tolower(s2[i]);
+//	if (character_1 != character_2)
+//	    return DIFFERENT;
+//    }
+//    return SAME;
+//
+//} /* end cistrcmp() */
 
-} /* end cistrcmp() */
+//char *nextnonwspc(const char *string)
+//{
+//    while (isspace(*string))
+//	string++;
+//    if (*string)
+//	return (char *) string;
+//    else
+//	return NULL;
 
-char *nextnonwspc(const char *string)
-{
-    while (isspace(*string))
-	string++;
-    if (*string)
-	return (char *) string;
-    else
-	return NULL;
+//} /* end nextnonwspc() */
 
-} /* end nextnonwspc() */
+//char *supper(char *const s)
+//{
+//    int character;		/* current character in uppercase */
+//    char *elementptr = s;	/* pointer to current character */
+//
+//    while (*elementptr)
+//    {
+//        character = toupper(*elementptr);
+//	*elementptr = (char) character;
+//	elementptr++;
+//    }
 
-char *supper(char *const s)
-{
-    int character;		/* current character in uppercase */
-    char *elementptr = s;	/* pointer to current character */
+//    return s;
 
-    while (*elementptr)
-    {
-        character = toupper(*elementptr);
-	*elementptr = (char) character;
-	elementptr++;
-    }
-
-    return s;
-
-} /* end supper() */
+// } /* end supper() */

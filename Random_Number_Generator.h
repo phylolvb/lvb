@@ -39,32 +39,20 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== wrapper.c - LVB to PHYLIP interface ========== */
+/* ========== Random_Number_Generator.h - header for RNG functions in Random_Number_Generator.c ========== */
 
 #include "Lvb.h"
 
-#ifdef MAP_REDUCE_SINGLE // MR
-	#include "Input_Options.h"
-#else 
-	int read_file(char *file_name, int n_file_format, Dataptr p_lvbmat);
-	void phylip_mat_dims_in_external(char *file_name, int n_file_format, long *species_ptr, long *sites_ptr, int *max_length_name);
-#endif
+#include <float.h>
+#include <limits.h>
 
-	int phylip_dna_matrin(char *p_file_name, int n_file_format, Dataptr lvbmat)
-	{
-		int n_error_code = read_file(p_file_name, n_file_format, lvbmat);
-		if (n_error_code != EXIT_SUCCESS) return n_error_code;
+/* set max. random number seed value suitable for rinit() */
+#if 900000001L > INT_MAX
+#error LVB WARNING: type int not suitable, try with a 32-bit or larger system
+#else
+#define MAX_SEED 900000000
+#endif  /* if 900000001L > INT_MAX */
 
-		/* check number of sequences is in range for LVB */
-	    if (lvbmat->n < MIN_N) crash("The data matrix must have at least %ld sequences.", MIN_N);
-	    else if (lvbmat->n > MAX_N) crash("The data matrix must have no more than %ld sequences.", MAX_N);
-	    /* check number of sites is in range for LVB */
-	    else if (lvbmat->m < MIN_M) crash("The data matrix must have at least %ld sites.", MIN_M);
-	    else if (lvbmat->m > MAX_M) crash("The data matrix must have no more than %ld sites.", MAX_M);
-	    return EXIT_SUCCESS;
-	} /* end phylip_dna_matrin() */
-
-void phylip_mat_dims_in(char *p_file_name, int n_file_format, long *species_ptr, long *sites_ptr, int *max_length_name)
-{
-	phylip_mat_dims_in_external(p_file_name, n_file_format, species_ptr, sites_ptr, max_length_name);
-}
+/* external uni functions */
+double uni(void);
+void rinit(int ijkl);

@@ -39,29 +39,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== randpint.c - random positive integer operations ========== */
-
 #include "Lvb.h"
 
-long randpint(const long upper)
-{
-    double frand;	/* random real */
-    double fupper;	/* upper limit */
-    long rand;		/* return value */
+#ifndef MSA_Handling_H
+#define MSA_Handling_H
 
-    lvb_assert(upper >= 0);
+static void logcut(const Lvb_bool *const cut, const long m);
+static long constchar(Dataptr restrict matrix, Lvb_bool *const togo, const Lvb_bool verbose);
+static void cutcols(Dataptr restrict matrix, const Lvb_bool *const tocut, long n_columns_to_change);
+long getminlen(const Dataptr restrict matrix);
 
-    fupper = (double) upper;
-    frand = uni();
-    frand = frand * fupper;		/* scale to right range */
-    rand = (long) (frand + 0.5);	/* round to nearest integer */
-
-    /* guard against arithmetic inaccuracy */
-    if (rand < 0)
-	rand = 0;
-    else if (rand > upper)
-	rand = upper;
-
-    return rand;
-
-} /* end randpint() */
+#endif // MSA_Handling_H
