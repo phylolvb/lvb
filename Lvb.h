@@ -47,7 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //  #define NP_Implementation
 //    #define MPI_Implementation
 
-#include "DataStructure.h"
+#include "LVB_Strucutures.h"
 #include "MapReduce.h"
 #include "Blockmacros.h"
 #include "Keyvalue.h"

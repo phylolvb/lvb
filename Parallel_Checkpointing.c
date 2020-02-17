@@ -39,10 +39,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ********** store_states.c - solving functions ********** */
+/* ********** Parallel_Checkpointing.c - solving functions ********** */
 
 #include "Lvb.h"
-#include "Store_states.h"
+#include "Parallel_Checkpointing.h"
 
 #define CRC32_POLYNOMIAL 					0xEDB88320
 #define MINIMUM_FILE_CHEKPOINT_SIZE			100	/* value in bytes, this is a  */
@@ -111,7 +111,7 @@ Lvb_bool test_block_data(FILE *fp){
 
 /* Each structure/block starts with:			*/
 /*		1: unsigned long n_length_bytes_block	*/
-/*		2: unsigned short type_block, IDs are defined in store_states.h*/
+/*		2: unsigned short type_block, IDs are defined in Parallel_Checkpointing.h*/
 /*		3: block/structure with data			*/
 /*		4: unsigned long CRC32 checksum,		*/
 /*		Important: the checksum is calculated with n_length_bytes_block, type_block

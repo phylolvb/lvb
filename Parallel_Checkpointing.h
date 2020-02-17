@@ -40,7 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-/* ********** store_states.h - interface for store_states.c ********** */
+/* ********** Parallel_Checkpointing.h - interface for Parallel_Checkpointing.c ********** */
 
 #include "Lvb.h"
 
@@ -50,8 +50,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define STATE_BLOCK_ANNEAL					4
 #define STATE_BLOCK_ONLY_TESTS_FAIL			50
 
-#ifndef LVB_STORE_STATES_H
-#define LVB_STORE_STATES_H
+#ifndef LVB_Parallel_Checkpointing_H
+#define LVB_Parallel_Checkpointing_H
 
 
 unsigned long CalculateBlockCRC32(unsigned long ulCount, unsigned char *ucBuffer, unsigned long previousUlCRC);
@@ -85,4 +85,4 @@ unsigned long restore_anneal(FILE *fp, Dataptr restrict matrix, long *accepted, 
     double *grad_linear, Branch *p_current_tree, Lvb_bool b_with_sset_current_tree,
 	Branch *p_proposed_tree, Lvb_bool b_with_sset_proposed_tree);
 
-#endif /* LVB_STORE_STATES_H */
+#endif /* LVB_Parallel_Checkpointing_H */

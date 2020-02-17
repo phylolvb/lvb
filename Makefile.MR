@@ -33,7 +33,7 @@
 # LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
 # CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
 # SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# INTError_HandlingUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
@@ -89,7 +89,7 @@
 #
 # If make returns:
 # 'make : mpicc: command not found'
-# 'make: *** [admin.o] ERROR 127'
+# 'make: *** [admin.o] Error_HandlingOR 127'
 # add openmpi to PATH:
 #                     export PATH=/usr/lib64/openmpi/bin:$PATH
 
@@ -143,24 +143,24 @@ LIB_EXT = a		# UNIX
 	@echo 'Building file: $<'
 	$(CC) $(CFLAGS) -c $<
 
-DOCS_PROGRAMMER = 	$(DOCS_PROG_DIR)/Treestack.html \
+DOCS_PROGRAMMER = 	$(DOCS_PROG_DIR)/Treestack_Handling.html \
 					$(DOCS_PROG_DIR)/Main.html \
-		  			$(DOCS_PROG_DIR)/Cleanup.html \
+		  			$(DOCS_PROG_DIR)/Secure_Exit.html \
 					  $(DOCS_PROG_DIR)/Clock.html \
 		  			$(DOCS_PROG_DIR)/MSA_Handling.html \
-		  			$(DOCS_PROG_DIR)/Err.html \
-		  			$(DOCS_PROG_DIR)/Fops.html \
+		  			$(DOCS_PROG_DIR)/Error_Handling.html \
+		  			$(DOCS_PROG_DIR)/File_Administration.html \
 		  			$(DOCS_PROG_DIR)/Search_Parameters.html \
-					  $(DOCS_PROG_DIR)/Admin.html \
+					  $(DOCS_PROG_DIR)/System_Check.html \
 					  $(DOCS_PROG_DIR)/Allocate_Memory.html \
 					  $(DOCS_PROG_DIR)/Mathematical_Wrapper.html \
 					  $(DOCS_PROG_DIR)/Random_Number_Generator.html \
 					  $(DOCS_PROG_DIR)/Log.html \
-					  $(DOCS_PROG_DIR)/Tree_Evaluation.html \
+					  $(DOCS_PROG_DIR)/Topology_Evaluation.html \
 					  $(DOCS_PROG_DIR)/Solve.html \
-					  $(DOCS_PROG_DIR)/Sops.html \
+					  $(DOCS_PROG_DIR)/Testing.html \
 					  $(DOCS_PROG_DIR)/Optimise_Tree.html \
-					  $(DOCS_PROG_DIR)/Wrapper.html
+					  $(DOCS_PROG_DIR)/Phylip_Wrapper.html
 
 TEST_MANUAL = $(DOCS_PROG_DIR)/go.html
 
@@ -169,25 +169,25 @@ TEST_MANUAL = $(DOCS_PROG_DIR)/go.html
 DOCS = $(DOCS_PROGRAMMER) \
        $(TEST_MANUAL)
 
-LVB_LIB_OBJS = Admin.$(OBJ) \
-	Treestack.$(OBJ) \
-	Cleanup.$(OBJ) \
+LVB_LIB_OBJS = System_Check.$(OBJ) \
+	Treestack_Handling.$(OBJ) \
+	Secure_Exit.$(OBJ) \
 	Clock.$(OBJ) \
 	MSA_Handling.$(OBJ) \
-	Err.$(OBJ) \
-	Fops.$(OBJ) \
+	Error_Handling.$(OBJ) \
+	File_Administration.$(OBJ) \
 	Search_Parameters.$(OBJ) \
 	Starting_Temperature.$(OBJ) \
 	Allocate_Memory.$(OBJ) \
 	Mathematical_Wrapper.$(OBJ) \
 	Random_Number_Generator.$(OBJ) \
-	Tree_Evaluation.$(OBJ) \
+	Topology_Evaluation.$(OBJ) \
 	Solve.$(OBJ) \
-	Store_states.$(OBJ) \
-	Sops.$(OBJ) \
+	Parallel_Checkpointing.$(OBJ) \
+	Testing.$(OBJ) \
 	Optimise_Tree.$(OBJ) \
 	Log.$(OBJ) \
-    Wrapper.$(OBJ)
+  Phylip_Wrapper.$(OBJ)
 
 ifeq ($(WHICH_MAKE),MAKE_LVB_MPI)
 
@@ -197,7 +197,7 @@ ifeq ($(WHICH_MAKE),MAKE_LVB_MPI)
 	LVB_PROG = lvb_mpi$(EXE)
 
 	# Object files that will go into the LVB library
-	LVB_LIB_OBJS += Interaction_temperature.$(OBJ)
+	LVB_LIB_OBJS += Parallel_Regulation.$(OBJ)
 else
 
 	# LVB library

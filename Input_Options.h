@@ -48,7 +48,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Lvb.h"
 #endif
 #include "MSA_Input.h"
-#include "DataStructure.h"
+#include "LVB_Strucutures.h"
 #include <stdio.h>
 #include <string.h>
 #include <getopt.h>

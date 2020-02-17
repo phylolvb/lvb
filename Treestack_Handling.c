@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Lvb.h"
 
 #ifndef NP_Implementation
-#include "Store_states.h"
+#include "Parallel_Checkpointing.h"
 #else
 #include "Optimise_Tree.h"
 #endif

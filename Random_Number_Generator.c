@@ -66,7 +66,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Lvb.h"
 
 #ifndef NP_Implementation
-#include "Store_states.h"
+#include "Parallel_Checkpointing.h"
 #endif
 
 static void rstart(int i, int j, int k, int l);
