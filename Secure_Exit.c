@@ -47,11 +47,11 @@ Lvb_bool cleanup(void)
 /* prevent apparent memory leaks to help debugging, log end time; return
  * LVB_TRUE on write error to stdout, LVB_FALSE otherwise */
 {
-    time_t endtim;	/* time at end of run */
+    // time_t endtim;	/* time at end of run */
     Lvb_bool val = LVB_TRUE;	/* return value */
 
-    endtim = time(NULL);
-    printf("\n");
+    // endtim = time(NULL);
+    // printf("\n");
     // printf("Ending at: %s", ctime(&endtim));
     // printf("\n");
 

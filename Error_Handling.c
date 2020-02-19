@@ -57,7 +57,8 @@ void crash(const char *const fmt, ...)
 	#ifndef NP_Implementation
 	int n_error_code = 1;
 	MPI_Abort(MPI_COMM_WORLD, n_error_code);
-	exit(1);
+	cleanup();
+	exit(EXIT_FAILURE);
 	#else
 	cleanup();
 	exit(EXIT_FAILURE);

@@ -81,7 +81,6 @@ static void tree_make_canonical(Dataptr restrict, Branch *const barray, long *ob
 
 #ifndef NP_Implementation
 #ifdef MAP_REDUCE_SINGLE
-	static long makeset_single(Dataptr, const Branch *const tree, const long root);
 	void map_pushSets(int itask, KeyValue *kv, void *ptr);
 #endif
 

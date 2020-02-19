@@ -343,13 +343,13 @@ long anneal(Dataptr restrict matrix, Treestack *bstackp, Treestack *treevo, cons
 
 		/*Writing output to table.tsv*/
     			FILE * pFile;
+				pFile = (FILE *) alloc(sizeof(FILE), "alloc FILE structure");
     			char change[10]="";
     			if ((log_progress == LVB_TRUE) && (*current_iter == 0)) {
 					if (rcstruct.verbose == LVB_TRUE)
 				{
 	  			pFile = fopen ("changeAccepted.tsv","w");
 	   			fprintf (pFile, "Iteration\tAlgorithm\tAccepted\tLength\tTemperature\n");
-	   			// fprintf (pFile, "Iteration\tAlgorithm\tAccepted\tLength\tTemperature\tCurrent_HI\n");
 				}
 				}
 				
@@ -457,14 +457,6 @@ long anneal(Dataptr restrict matrix, Treestack *bstackp, Treestack *treevo, cons
 			deltalen = lendash - len;
 			deltah = (r_lenmin / (double) len) - (r_lenmin / (double) lendash);
 			if (deltah > 1.0) deltah = 1.0; /* getminlen() problem with ambiguous sites */
-
-			/*
-			 {
-			 if (iter % 2000 == 0) {
-			 treestack_push(matrix, treevo, p_current_tree, rootdash, LVB_FALSE);
-			 }
-			 }
-			*/
 			
 			#ifdef MAP_REDUCE_SINGLE
 			MPI_Bcast(&deltalen, 1, MPI_LONG, 0, MPI_COMM_WORLD);
@@ -573,26 +565,6 @@ long anneal(Dataptr restrict matrix, Treestack *bstackp, Treestack *treevo, cons
 				{
 					if (rcstruct.algorithm_selection == 2)
 					w_changes_prop ++;
-
-/* Mathematically,
-				 *     Pacc = e ** (-1/T * deltaH)
-				 *     therefore ln Pacc = -1/T * deltaH
-				 *
-				 * Computationally, if Pacc is going to be small, we
-				 * can assume Pacc is 0 without actually working it
-				 * out.
-				 * i.e.,
-				 *     if ln Pacc < ln eps, let Pacc = 0
-				 * substituting,
-				 *     if -deltaH / T < ln eps, let Pacc = 0
-				 * rearranging,
-				 *     if -deltaH < T * ln eps, let Pacc = 0
-				 * This lets us work out whether Pacc will be very
-				 * close to zero without dividing anything by T. This
-				 * should prevent overflow. Since T is no less
-				 * than eps and ln eps is going to have greater
-				 * magnitude than eps, underflow when calculating
-				 * T * ln eps is not possible. */
 				if (-deltah < t * log_wrapper_LVB_EPS)
 				{
 					pacc = 0.0;
@@ -640,14 +612,6 @@ long anneal(Dataptr restrict matrix, Treestack *bstackp, Treestack *treevo, cons
 #endif
 				if (failedcnt >= maxfail && t < FROZEN_T)	/* system frozen */
 				{
-					/* Preliminary experiments yielded that the freezing
-					 * criterion used in previous versions of LVB is not
-					 * suitable for the new version and regularly results
-					 * in premature termination of the search. An easy fix
-					 * is to only apply the freezing criterion in the
-					 * temperature ranges of previous versions of LVB
-					 * (LVB_EPS < t < 10^-4). Future work will look at optimising
-					 * maxpropose, maxaccept and maxfail directly. */
 					break; /* end of cooling, break from while(1) */
 				}
 				else{	/* system not frozen, so further decrease temp. */
@@ -658,12 +622,7 @@ long anneal(Dataptr restrict matrix, Treestack *bstackp, Treestack *treevo, cons
 			if (dect == LVB_TRUE)
 			{
 				t_n++;	/* originally n is 0 */
-
-				#ifndef NP_Implementation
-				if (p_rcstruct->cooling_schedule == 0)  /* Geometric cooling */
-				#else
 				if (rcstruct.cooling_schedule == 0) // Geometric cooling
-				#endif
 				{
 					/* Ensure t doesn't go out of bound */
 					ln_t = ((double) t_n) * log_wrapper_grad_geom + log_wrapper_t0;

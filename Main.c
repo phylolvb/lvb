@@ -181,6 +181,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, int myMPIid, Lvb_b
 		long treelength = LONG_MAX;		/* length of each tree found */
 		long initroot;			/* initial tree's root */
 		FILE *sumfp;			/* best length file */
+		sumfp = (FILE *) alloc(sizeof(FILE), "alloc FILE structure");
 		Branch *tree;			/* initial tree */
 		long *p_todo_arr; /* [MAX_BRANCHES + 1];	 list of "dirty" branch nodes */
 	    long *p_todo_arr_sum_changes; /*used in openMP, to sum the partial changes */
@@ -192,7 +193,9 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, int myMPIid, Lvb_b
 		#ifndef NP_Implementation
 		#ifndef MAP_REDUCE_SINGLE // MPI
 	    long trees_output;		/* number of trees output for current rep. */
+		
 	    FILE *outtreefp;		/* best trees found overall */
+		outtreefp = (FILE *) alloc(sizeof(FILE), "alloc FILE structure");
 	    long l_iterations = 0;			/* iterations of annealing algorithm */
 	    int n_state_progress;		/* has a state to see if is necessary to repeat or finish */
 	    int n_number_tried_seed_next = myMPIid; 	/* it has the number of tried seed */
@@ -790,10 +793,11 @@ int get_other_seed_to_run_a_process(){
 
 	int val;			/* return value */
 	long iter;			/* iterations of annealing algorithm */
-	long trees_output_total;	/* number of trees output, overall */
-	long trees_output;		/* number of trees output for current rep. */
+	long trees_output_total = 0;	/* number of trees output, overall */
+	long trees_output = 0;		/* number of trees output for current rep. */
 	long final_length;		/* length of shortest tree(s) found */
 	FILE *outtreefp;		/* best trees found overall */
+	outtreefp = (FILE *) alloc(sizeof(FILE), "alloc FILE structure");
 
 	#endif
 
@@ -936,6 +940,8 @@ Search_Parameters(&rcstruct, argc, argv);
 
 		outtreefp = clnopen(rcstruct.file_name_out, "w");
 		FILE * treEvo;
+		treEvo = (FILE *) alloc(sizeof(FILE), "alloc FILE structure");
+		
 		if(rcstruct.algorithm_selection ==2)
 		treEvo = fopen ("treEvo.tre","w");
 	    iter = 0;
@@ -952,8 +958,8 @@ Search_Parameters(&rcstruct, argc, argv);
 		#ifdef MAP_REDUCE_SINGLE
 		}
 		#endif
-
 		trees_output_total += trees_output;
+		
         if(rcstruct.algorithm_selection ==2)
 		treestack_print(matrix, &stack_treevo, treEvo, LVB_FALSE);
         treestack_clear(&bstack_overall);

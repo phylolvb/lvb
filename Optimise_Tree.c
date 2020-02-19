@@ -1404,14 +1404,14 @@ static void ssarralloc(Dataptr matrix, Objset *nobjset_2)
 
 		MPI_Barrier(MPI_COMM_WORLD);
 		uint64_t nKV = mrObj->map(misc->nprocs, map_pushSets, misc);
-	//    mrObj->broadcast(0);
-	//    mrObj->collate(NULL);
-	//    uint64_t nKV = mrObj->reduce(reduce_sets, NULL);
+	    //mrObj->broadcast(0);
+	    //mrObj->collate(NULL);
+	    //uint64_t nKV = mrObj->reduce(reduce_sets, NULL);
 
 		return nKV;
 	}
 
-	void reduce_sets(char *key, int keybytes, char *multivalue, int nvalues, int *valuebytes, KeyValue *kv, void *ptr)
+	/* void reduce_sets(char *key, int keybytes, char *multivalue, int nvalues, int *valuebytes, KeyValue *kv, void *ptr)
 	{
 	   char *value;
 	   uint64_t nvalues_total;
@@ -1422,7 +1422,7 @@ static void ssarralloc(Dataptr matrix, Objset *nobjset_2)
 	   if(valuebytes[0] > 0) kv->add( key, keybytes, value, valuebytes[0] );
 
 	   END_BLOCK_LOOP
-	}
+	} */
 
 	void map_pushSets(int itask, KeyValue *kv, void *ptr)
 	{

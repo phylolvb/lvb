@@ -62,7 +62,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		int macro_nblocks = 1;
 		totalnvalues = nvalues;
 	//	cerr << "totalnvalues 1 = " << totalnvalues << endl;
-
 		MapReduce *macro_mr = NULL;
 		if (!(multivalue)) {
 			macro_mr = (MapReduce *) (valuebytes);

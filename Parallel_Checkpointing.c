@@ -354,6 +354,8 @@ unsigned long restore_anneal(FILE *fp, Dataptr restrict matrix, long *accepted, 
 	unsigned long checksum = 0, checksum_read, n_read_values;
 	unsigned short type_block;
 	Lvb_bit_length **p_array;
+	p_array = (Lvb_bit_length **) alloc(sizeof(Lvb_bit_length), "alloc Lvb_bit_length structure");
+
 
 	if (b_with_sset_current_tree == LVB_TRUE || b_with_sset_proposed_tree == LVB_TRUE){
 		p_array = (Lvb_bit_length **) alloc(matrix->nbranches * sizeof(Lvb_bit_length *), "alloc array Lvb_bit_length");
@@ -438,7 +440,7 @@ Lvb_bool compare_params(Params *p_rcstruct, Params *p_rcstruct_2, Lvb_bool b_tes
 Lvb_bool is_parameters_are_same_from_state(Params *p_rcstruct, int myMPIid, Lvb_bool b_test_different_seeds){
 
 	Params rcstruct;
-	FILE *fp = open_file_by_MPIid(myMPIid, "rb", LVB_FALSE);
+	FILE *fp = open_file_by_MPIid(myMPIid, (char *) "rb", LVB_FALSE);
 	lvb_assert(point_file_pointer_to_block(fp, STATE_BLOCK_PARAMETERS) == LVB_TRUE);
 
 	/* read parameters block and compare with the one that was saved before */

@@ -39,7 +39,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== sops.c - string manipulation functions ========== */
+/* ========== Treestack_Handling.c - Treestack Manipulation Functions ========== */
 
 #include "Lvb.h"
 
@@ -206,6 +206,8 @@ Treestack * treestack_new(void)
 //needs reducing
 long treestack_push(Dataptr restrict matrix, Treestack *sp, const Branch *const barray, const long root, Lvb_bool b_with_sset)
 {
+    #define MIN_THREAD_SEARCH_SSET		5
+
 #ifndef NP_Implementation
 	long i, new_root = root;			/* loop counter */
 	long stackroot;		/* root of current tree */
@@ -231,9 +233,6 @@ long treestack_push(Dataptr restrict matrix, Treestack *sp, const Branch *const 
 		b_First = LVB_FALSE;
 	}
 #else
-
-#define MIN_THREAD_SEARCH_SSET		5
-
     int i, slice = 0, slice_tail, new_root = 0;
     static Branch *copy_2 = NULL;			/* possibly re-rooted tree 2 */
     Lvb_bool b_First = LVB_TRUE;

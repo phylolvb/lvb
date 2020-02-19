@@ -392,7 +392,7 @@ long getplen(Dataptr restrict, Branch *, Params rcstruct, const long, long *rest
 	uint64_t tree_setpush(Dataptr restrict matrix, const Branch *const tree, const long root, MapReduce *mrObj, MISC *misc);
 	void map_clean(uint64_t itask, char *key, int keybytes, char *value, int valuebytes, KeyValue *kv, void *ptr);
 	void reduce_count(char *key, int keybytes, char *multivalue, int nvalues, int *valuebytes, KeyValue *kv, void *ptr);
-	void reduce_sets(char *key, int keybytes, char *multivalue, int nvalues, int *valuebytes, KeyValue *kv, void *ptr);
+	//void reduce_sets(char *key, int keybytes, char *multivalue, int nvalues, int *valuebytes, KeyValue *kv, void *ptr);
 	void reduce_filter(char *key, int keybytes, char *multivalue, int nvalues, int *valuebytes, KeyValue *kv, void *ptr);
 	void print_sets(Dataptr restrict matrix, Treestack *sp, MISC *misc);
 	long deterministic_hillclimb(Dataptr, Treestack *, const Branch *const, Params rcstruct, long, FILE * const, long *, int, Lvb_bool, 
