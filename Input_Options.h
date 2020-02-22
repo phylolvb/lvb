@@ -51,7 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef MAP_REDUCE_SINGLE
   #include "Lvb.h"
 #endif
-#include "LVB_Strucutures.h"
+#include "LVB_Structures.h"
 #include "MSA_Input.h"
 
 using namespace std;
