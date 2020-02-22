@@ -38,23 +38,12 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
+#ifndef CLOCK_H_
+#define CLOCK_H_
 
-/* ========== log.c - logfile parameters ========== */
+#include "lvb.h"
 
-#include "Log.h"
+void log_Time();
+void logstim(void);
 
-bool logfile_exists(const char *filename) {
-  struct stat buffer;
-  return (stat (filename, &buffer) == 0);
-
-  #ifdef NP_Implementation
-    #define LVB_IMPLEMENTATION "NP"
-  #endif
-  #ifdef MPI_Implementation
-    #ifdef MAP_REDUCE_SINGLE
-      #define LVB_IMPLEMENTATION "MR"
-    #else
-      #define LVB_IMPLEMENTATION "MPI"
-    #endif
-  #endif
-}
+#endif  // CLOCK_H_

@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== Treestack_Handling.c - Treestack Manipulation Functions ========== */
 
-#include "Lvb.h"
+#include "lvb.h"
 
 #ifndef NP_Implementation
 #include "Parallel_Checkpointing.h"

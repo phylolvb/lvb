@@ -39,7 +39,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include <Lvb.h>
+#include <lvb.h>
 
 /* check pow_wrapper crashes verbosely on domain error if both
  * parameters are zero */

@@ -9,7 +9,7 @@ and Chris Wood.
 Fernando Guntoro, Maximilian Strobl and Chris Wood.
 (c) Copyright 2019 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
 Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
- 
+
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -39,23 +39,51 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include "Clock.h"
+/* ========== err.c - error functions ========== */
 
-void log_Time() {
-  time_t timer;
-  char buffer[26];
-  struct tm* tm_info;
+#include "lvb.h"
 
-  time(&timer);
-  tm_info = localtime(&timer);
+void crash(const char *const fmt, ...) {
+  const char *const warning = "\nFATAL ERROR";  // dire warning
+  va_list args;  // arguments
 
-  strftime(buffer, 26, "%H:%M (%d/%m/%Y)", tm_info);
-  puts(buffer);
+  va_start(args, fmt);
+  printf("%s: ", warning);
+  vprintf(fmt, args);
+  va_end(args);
+  printf("\n");
+
+  #ifndef NP_Implementation
+    int n_error_code = 1;
+    MPI_Abort(MPI_COMM_WORLD, n_error_code);
+    cleanup();
+    exit(EXIT_FAILURE);
+  #else
+    cleanup();
+    exit(EXIT_FAILURE);
+  #endif
+}  // end crash()
+
+void lvb_assertion_fail(const char *test, const char *file, int line) {
+/* Log dire warning followed by message of form "assertion failed at
+ * '<file>' line <line>: <test>", and exit abnormally. This function
+ * should only be called through the lvb_assert() macro. */
+  crash("assertion failed at '%s' line %d: %s", file, line, test);
 }
 
-void logstim(void) {
-  time_t tim;
+void scream(const char *const format, ...) {
+/* log a dire warning, partly composed of vprintf-acceptable user-supplied
+ * message */
+  const char *const warning = "ERROR";
+  va_list args;  // supplied message
 
-  tim = time(NULL);
-  printf("Starting at: %s\n", ctime(&tim));
-}
+  va_start(args, format);
+  printf("%s: ", warning);
+  vprintf(format, args);
+  va_end(args);
+  printf("\n");
+
+  /* flush standard output so the warning is immediately visible */
+  if (fflush(stdout) == EOF)
+    crash("write error on log");  // may not work!
+}  // end scream()

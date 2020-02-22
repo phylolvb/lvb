@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== Topology_Evaluation.c - tree evaluation ========== */
 
-#include "Lvb.h"
+#include "lvb.h"
 
 #ifdef __PPC64__
 #include <Popcntll_macro.h>

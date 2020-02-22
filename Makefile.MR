@@ -33,7 +33,7 @@
 # LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
 # CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
 # SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-# INTError_HandlingUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
@@ -89,7 +89,7 @@
 #
 # If make returns:
 # 'make : mpicc: command not found'
-# 'make: *** [admin.o] Error_HandlingOR 127'
+# 'make: *** [admin.o] ERROR 127'
 # add openmpi to PATH:
 #                     export PATH=/usr/lib64/openmpi/bin:$PATH
 
@@ -146,16 +146,16 @@ LIB_EXT = a		# UNIX
 DOCS_PROGRAMMER = 	$(DOCS_PROG_DIR)/Treestack_Handling.html \
 					$(DOCS_PROG_DIR)/Main.html \
 		  			$(DOCS_PROG_DIR)/Secure_Exit.html \
-					  $(DOCS_PROG_DIR)/Clock.html \
+					  $(DOCS_PROG_DIR)/clock.html \
 		  			$(DOCS_PROG_DIR)/MSA_Handling.html \
-		  			$(DOCS_PROG_DIR)/Error_Handling.html \
-		  			$(DOCS_PROG_DIR)/File_Administration.html \
+		  			$(DOCS_PROG_DIR)/error_handling.html \
+		  			$(DOCS_PROG_DIR)/file_administration.html \
 		  			$(DOCS_PROG_DIR)/Search_Parameters.html \
-					  $(DOCS_PROG_DIR)/System_Check.html \
-					  $(DOCS_PROG_DIR)/Allocate_Memory.html \
+					  $(DOCS_PROG_DIR)/system_check.html \
+					  $(DOCS_PROG_DIR)/allocate_memory.html \
 					  $(DOCS_PROG_DIR)/Mathematical_Wrapper.html \
 					  $(DOCS_PROG_DIR)/Random_Number_Generator.html \
-					  $(DOCS_PROG_DIR)/Log.html \
+					  $(DOCS_PROG_DIR)/log_file.html \
 					  $(DOCS_PROG_DIR)/Topology_Evaluation.html \
 					  $(DOCS_PROG_DIR)/Solve.html \
 					  $(DOCS_PROG_DIR)/Testing.html \
@@ -169,16 +169,16 @@ TEST_MANUAL = $(DOCS_PROG_DIR)/go.html
 DOCS = $(DOCS_PROGRAMMER) \
        $(TEST_MANUAL)
 
-LVB_LIB_OBJS = System_Check.$(OBJ) \
+LVB_LIB_OBJS = system_check.$(OBJ) \
 	Treestack_Handling.$(OBJ) \
 	Secure_Exit.$(OBJ) \
-	Clock.$(OBJ) \
+	clock.$(OBJ) \
 	MSA_Handling.$(OBJ) \
-	Error_Handling.$(OBJ) \
-	File_Administration.$(OBJ) \
+	error_handling.$(OBJ) \
+	file_administration.$(OBJ) \
 	Search_Parameters.$(OBJ) \
 	Starting_Temperature.$(OBJ) \
-	Allocate_Memory.$(OBJ) \
+	allocate_memory.$(OBJ) \
 	Mathematical_Wrapper.$(OBJ) \
 	Random_Number_Generator.$(OBJ) \
 	Topology_Evaluation.$(OBJ) \
@@ -186,7 +186,7 @@ LVB_LIB_OBJS = System_Check.$(OBJ) \
 	Parallel_Checkpointing.$(OBJ) \
 	Testing.$(OBJ) \
 	Optimise_Tree.$(OBJ) \
-	Log.$(OBJ) \
+	log_file.$(OBJ) \
   Phylip_Wrapper.$(OBJ)
 
 ifeq ($(WHICH_MAKE),MAKE_LVB_MPI)
@@ -210,8 +210,8 @@ else
 endif
 
 LVB_READ_FILE_OBJS = 	$(LVB_READ_FILE_DIR)MSA_Input.$(OBJ) \
-						$(LVB_READ_FILE_DIR)Input_Options.$(OBJ) \
-						$(LVB_READ_FILE_DIR)Info.$(OBJ)
+						$(LVB_READ_FILE_DIR)input_options.$(OBJ) \
+						$(LVB_READ_FILE_DIR)info.$(OBJ)
 
 LVB_PROG_OBJS = Main.$(OBJ)
 LVB_LIB_OBJS_OUTPUT = $(LVB_LIB_OBJS)

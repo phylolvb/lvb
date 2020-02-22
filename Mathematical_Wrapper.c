@@ -50,7 +50,7 @@ C<errno> or its return value.
 
 **********/
 
-#include "Lvb.h"
+#include "lvb.h"
 
 double exp_wrapper(double x)
 /*@globals errno@*/ /*@modifies nothing@*/

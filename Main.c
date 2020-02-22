@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== main.c - LVB ========== */
 
-#include "Lvb.h"
+#include "lvb.h"
 #include "Starting_Temperature.h"
 
 #ifndef NP_Implementation
@@ -982,16 +982,16 @@ Search_Parameters(&rcstruct, argc, argv);
 	End = clock();
 	Overall_Time_taken = ((double) (End - Start)) /CLOCKS_PER_SEC;
 
-	if (logfile_exists ("logfile.tsv"))
+	if (logfile_exists ("log_file.tsv"))
 	{
 		FILE * logfile;
-    	logfile = fopen ("logfile.tsv","a+");
+    	logfile = fopen ("log_file.tsv","a+");
 		fprintf (logfile, "%s\t%ld\t%ld\t%ld\t%.2lf\n", LVB_IMPLEMENTATION, iter, trees_output_total, final_length, Overall_Time_taken);
 		fclose(logfile);
 	}
 	else {
 		FILE * logfile;
-	    logfile = fopen ("logfile.tsv","a+");
+	    logfile = fopen ("log_file.tsv","a+");
 		fprintf (logfile, "Implementation\tRearrangements\tTopologies\tScore\tRuntime\n");
 		fprintf (logfile, "%s\t%ld\t%ld\t%ld\t%.2lf\n", LVB_IMPLEMENTATION, iter, trees_output_total, final_length, Overall_Time_taken);
 		fclose(logfile);

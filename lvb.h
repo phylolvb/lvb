@@ -62,14 +62,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 #include <time.h>
 
-#include "LVB_Structures.h"
+#include "lvb_structures.h"
 #include "MapReduce.h"
-#include "Blockmacros.h"
-#include "Keyvalue.h"
+#include "block_macros.h"
+#include "key_value.h"
 #include "Random_Number_Generator.h"
 #include "Mathematical_Wrapper.h"
-#include "Clock.h"
-#include "Log.h"
+#include "clock.h"
+#include "log_file.h"
 
 #ifndef NP_Implementation
   #include <mpi.h>
@@ -327,7 +327,7 @@ void print_LVB_INFO();
 // clock.h functions
 void log_Time();
 void logstim(void);
-// log.h functions
+// log_file.h functions
 bool logfile_exists(const char *filename);
 
 int get_nprocs_conf();

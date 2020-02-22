@@ -40,7 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-#include "Lvb.h"
+#include "lvb.h"
 #include "Store_states.h"
 
 #define RAND_TREES 705		/* compare treestacks of this many trees */

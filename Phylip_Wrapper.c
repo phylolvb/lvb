@@ -41,10 +41,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== wrapper.c - LVB to PHYLIP interface ========== */
 
-#include "Lvb.h"
+#include "lvb.h"
 
 #ifdef MAP_REDUCE_SINGLE // MR
-	#include "Input_Options.h"
+	#include "input_options.h"
 #else 
 	int read_file(char *file_name, int n_file_format, Dataptr p_lvbmat);
 	void phylip_mat_dims_in_external(char *file_name, int n_file_format, long *species_ptr, long *sites_ptr, int *max_length_name);

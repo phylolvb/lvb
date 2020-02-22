@@ -11,7 +11,7 @@ Fernando Guntoro, Maximilian Strobl and Chris Wood.
 Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
 
 All rights reserved.
- 
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
@@ -38,36 +38,23 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
+#ifndef LOG_FILE_H_
+#define LOG_FILE_H_
 
-/* ========== admin.c - LVB library data and administration ========== */
+#include <stdbool.h>
+#include "lvb.h"
 
-#include "Lvb.h"
+#ifdef NP_Implementation
+  #define LVB_IMPLEMENTATION "NP"
+#endif
+#ifdef MPI_Implementation
+  #ifdef MAP_REDUCE_SINGLE
+    #define LVB_IMPLEMENTATION "MR"
+  #else
+    #define LVB_IMPLEMENTATION "MPI"
+  #endif
+#endif
 
-static void functionality_check(void)
-/* To the extent possible, check that standard functions and data types match
- * LVB's expectations. Crash verbosely if they are found not to. */
-{
-    if (time(NULL) == -1) crash("cannot get system time");
+bool logfile_exists(const char *filename);
 
-    if ((((long) INT_MAX) < 2147483647L) || ((sizeof(void *) * CHAR_BIT) < 32) || ((sizeof(size_t) * CHAR_BIT) < 32)) {
-        crash("program requires at least a 32-bit system");
-    }
-
-    /* LVB_EPS is assumed to be bigger than DBL_EPSILON in code that guards
-     * against floating-point arithmetic problems */
-    if (DBL_EPSILON >= LVB_EPS)
-        crash("program requires greater floating point precision");
-    #ifdef MPI_Implementation
-    if (!((LVB_EPS + INITIAL_INCREMENT) != INITIAL_INCREMENT))
-        crash("LVB_EPS and INITIAL_INCREMENT are incompatible with floating point precision");
-    #endif // MPI_Implementation
-
-} // end functionality_check()
-
-// checks that some features of the system are suitable for use with LVB
-
-void lvb_initialize(void)
-{
-    functionality_check();
-
-} // end lvb_initialize()
+#endif  // LOG_FILE_H_

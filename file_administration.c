@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== fops.c - file operations ========== */
 
-#include "Lvb.h"
+#include "lvb.h"
 
 Lvb_bool file_exists(const char *const nam) {
   Lvb_bool val;  // return value

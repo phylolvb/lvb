@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== Mathematical_Wrapper.h - interface for Mathematical_Wrapper.c ========== */
 
-#include "Lvb.h"
+#include "lvb.h"
 
 #ifndef LVB_Mathematical_Wrapper_H
 #define LVB_Mathematical_Wrapper_H

@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== Starting_Temperature.c - function to determine starting temperature ========== */
 
-// #include "Lvb.h"
+// #include "lvb.h"
 #include "Starting_Temperature.h"
 
 

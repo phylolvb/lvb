@@ -39,7 +39,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include "Lvb.h"
+#include "lvb.h"
 
 #ifndef Starting_Temperature_H
 #define Starting_Temperature_H

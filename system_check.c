@@ -11,7 +11,7 @@ Fernando Guntoro, Maximilian Strobl and Chris Wood.
 Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
 
 All rights reserved.
-
+ 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
@@ -39,40 +39,30 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== Allocate_Memory.c - basic memory operation ========== */
+/* ========== admin.c - LVB library data and administration ========== */
 
-#include "Lvb.h"
+#include "lvb.h"
 
-void *alloc(const size_t bytes, const char *const msg) {
-  void *p;  // pointer to first byte of new memory, if any
+static void functionality_check(void) {
+  // To the extent possible, check that standard functions and data types match
+  // LVB's expectations. Crash verbosely if they are found not to. */
+  if (time(NULL) == -1)
+    crash("cannot get system time");
 
-  if ((bytes == 0) || (bytes > MAX_ALLOC)) {
-    p = NULL;
-  } else {
-    p = malloc(bytes);
-    if (p == NULL)
-    crash("out of memory: cannot allocate for %s", msg);
-    }
-    return p;
-}  // end alloc()
+  if ((((long) INT_MAX) < 2147483647L) || ((sizeof(void *) * CHAR_BIT) < 32) || ((sizeof(size_t) * CHAR_BIT) < 32)) {
+    crash("program requires at least a 32-bit system");
+  }
 
-void alloc_memory_to_getplen(Dataptr restrict matrix, long **p_todo_arr,
-                            long **p_todo_arr_sum_changes, int **p_runs) {
-  *p_todo_arr = (long *) alloc((matrix->nbranches - matrix->n)
-    * sizeof(long), "alloc to count runs");
+  // LVB_EPS is assumed to be bigger than DBL_EPSILON in code that guards
+  // against floating-point arithmetic problems
+  if (DBL_EPSILON >= LVB_EPS)
+    crash("program requires greater floating point precision");
+  #ifdef MPI_Implementation
+    if (!((LVB_EPS + INITIAL_INCREMENT) != INITIAL_INCREMENT))
+      crash("LVB_EPS and INITIAL_INCREMENT are incompatible with floating point precision");
+  #endif
+}  // end functionality_check()
 
-  *p_todo_arr_sum_changes = (long *) alloc(matrix->n_threads_getplen
-    * (1 + matrix->nbranches - matrix->n)
-    * sizeof(long), "alloc to count runs");
-
-  *p_runs = (int *) alloc(matrix->n_threads_getplen
-    * (matrix->nbranches - matrix->n)
-    * sizeof(int), "alloc to count runs");
-}
-
-void free_memory_to_getplen(long **p_todo_arr, long **p_todo_arr_sum_changes,
-                            int **p_runs) {
-  free(*p_todo_arr);
-  free(*p_todo_arr_sum_changes);
-  free(*p_runs);
-}
+void lvb_initialize(void) {
+    functionality_check();
+}  // end lvb_initialize()

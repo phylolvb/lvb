@@ -39,7 +39,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include "Info.h"
+#include "info.h"
 
 void print_LVB_INFO() {
   cout << "==============================================="

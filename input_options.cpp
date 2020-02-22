@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== ReadFile.cpp - command-line inputs ========== */
 
-#include "Input_Options.h"
+#include "input_options.h"
 
 int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat) {
   CReadFiles readFiles = CReadFiles();

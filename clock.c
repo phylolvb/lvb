@@ -9,7 +9,7 @@ and Chris Wood.
 Fernando Guntoro, Maximilian Strobl and Chris Wood.
 (c) Copyright 2019 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
 Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
-
+ 
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -38,12 +38,24 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
-#ifndef LOG_H_
-#define LOG_H_
 
-#include "Lvb.h"
-#include <stdbool.h>
+#include "clock.h"
 
-bool logfile_exists(const char *filename);
+void log_Time() {
+  time_t timer;
+  char buffer[26];
+  struct tm* tm_info;
 
-#endif  // LOG_H_
+  time(&timer);
+  tm_info = localtime(&timer);
+
+  strftime(buffer, 26, "%H:%M (%d/%m/%Y)", tm_info);
+  puts(buffer);
+}
+
+void logstim(void) {
+  time_t tim;
+
+  tim = time(NULL);
+  printf("Starting at: %s\n", ctime(&tim));
+}

@@ -40,7 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-#include "Lvb.h"
+#include "lvb.h"
 #include "Store_states.h"
 
 #define SEED 40291989		/* arbitrary */
