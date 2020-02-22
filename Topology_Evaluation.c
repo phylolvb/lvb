@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lvb.h"
 
 #ifdef __PPC64__
-#include <Popcntll_macro.h>
+#include <popcntll_macro.h>
 #endif
 
 long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const long root,

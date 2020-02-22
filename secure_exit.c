@@ -43,26 +43,26 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lvb.h"
 
-Lvb_bool cleanup(void)
-/* prevent apparent memory leaks to help debugging, log end time; return
- * LVB_TRUE on write error to stdout, LVB_FALSE otherwise */
-{
-    // time_t endtim;	/* time at end of run */
-    Lvb_bool val = LVB_TRUE;	/* return value */
+Lvb_bool cleanup(void) {
+  // prevent apparent memory leaks to help debugging, log end time; return
+  // LVB_TRUE on write error to stdout, LVB_FALSE otherwise */
 
-    // endtim = time(NULL);
-    // printf("\n");
-    // printf("Ending at: %s", ctime(&endtim));
-    // printf("\n");
+  // time_t endtim;         // time at end of run
+  Lvb_bool val = LVB_TRUE;  // return value
 
-    /* log file won't be used again */
-#ifndef MPI_Implementation
+  // endtim = time(NULL);
+  // printf("\n");
+  // printf("Ending at: %s", ctime(&endtim));
+  // printf("\n");
+
+  // log file won't be used again
+  #ifndef MPI_Implementation
     fflush(stdout);
-    if (ferror(stdout) != 0) val = LVB_TRUE;
-    else val = LVB_FALSE;
-#endif
+    if (ferror(stdout) != 0)
+      val = LVB_TRUE;
+    else
+      val = LVB_FALSE;
+  #endif
 
     return val;
-} /* end cleanup() */
-
-
+}  // end cleanup()

@@ -39,15 +39,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== Mathematical_Wrapper.h - interface for Mathematical_Wrapper.c ========== */
+/* ========== mathematical_wrapper.h - interface for mathematical_wrapper.c ========== */
+
+#ifndef MATHEMATICAL_WRAPPER_H_
+#define MATHEMATICAL_WRAPPER_H_
 
 #include "lvb.h"
 
-#ifndef LVB_Mathematical_Wrapper_H
-#define LVB_Mathematical_Wrapper_H
+double exp_wrapper(double) /*@globals errno@*/ /*@modifies nothing@*/;
+double log_wrapper(double) /*@globals errno@*/ /*@modifies nothing@*/;
+double pow_wrapper(double, double) /*@globals errno@*/ /*@modifies nothing@*/;
 
-double exp_wrapper(double) /*@globals errno@*/ /*@modifies nothing@*/ ;
-double log_wrapper(double) /*@globals errno@*/ /*@modifies nothing@*/ ;
-double pow_wrapper(double, double) /*@globals errno@*/ /*@modifies nothing@*/ ;
-
-#endif /* LVB_Mathematical_Wrapper_H */
+#endif  // MATHEMATICAL_WRAPPER_H_

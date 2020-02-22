@@ -145,7 +145,7 @@ LIB_EXT = a		# UNIX
 
 DOCS_PROGRAMMER = 	$(DOCS_PROG_DIR)/Treestack_Handling.html \
 					$(DOCS_PROG_DIR)/Main.html \
-		  			$(DOCS_PROG_DIR)/Secure_Exit.html \
+		  			$(DOCS_PROG_DIR)/secure_exit.html \
 					  $(DOCS_PROG_DIR)/clock.html \
 		  			$(DOCS_PROG_DIR)/MSA_Handling.html \
 		  			$(DOCS_PROG_DIR)/error_handling.html \
@@ -153,14 +153,14 @@ DOCS_PROGRAMMER = 	$(DOCS_PROG_DIR)/Treestack_Handling.html \
 		  			$(DOCS_PROG_DIR)/Search_Parameters.html \
 					  $(DOCS_PROG_DIR)/system_check.html \
 					  $(DOCS_PROG_DIR)/allocate_memory.html \
-					  $(DOCS_PROG_DIR)/Mathematical_Wrapper.html \
+					  $(DOCS_PROG_DIR)/mathematical_wrapper.html \
 					  $(DOCS_PROG_DIR)/Random_Number_Generator.html \
 					  $(DOCS_PROG_DIR)/log_file.html \
 					  $(DOCS_PROG_DIR)/Topology_Evaluation.html \
 					  $(DOCS_PROG_DIR)/Solve.html \
 					  $(DOCS_PROG_DIR)/Testing.html \
 					  $(DOCS_PROG_DIR)/Optimise_Tree.html \
-					  $(DOCS_PROG_DIR)/Phylip_Wrapper.html
+					  $(DOCS_PROG_DIR)/phylip_wrapper.html
 
 TEST_MANUAL = $(DOCS_PROG_DIR)/go.html
 
@@ -171,7 +171,7 @@ DOCS = $(DOCS_PROGRAMMER) \
 
 LVB_LIB_OBJS = system_check.$(OBJ) \
 	Treestack_Handling.$(OBJ) \
-	Secure_Exit.$(OBJ) \
+	secure_exit.$(OBJ) \
 	clock.$(OBJ) \
 	MSA_Handling.$(OBJ) \
 	error_handling.$(OBJ) \
@@ -179,7 +179,7 @@ LVB_LIB_OBJS = system_check.$(OBJ) \
 	Search_Parameters.$(OBJ) \
 	Starting_Temperature.$(OBJ) \
 	allocate_memory.$(OBJ) \
-	Mathematical_Wrapper.$(OBJ) \
+	mathematical_wrapper.$(OBJ) \
 	Random_Number_Generator.$(OBJ) \
 	Topology_Evaluation.$(OBJ) \
 	Solve.$(OBJ) \
@@ -187,7 +187,7 @@ LVB_LIB_OBJS = system_check.$(OBJ) \
 	Testing.$(OBJ) \
 	Optimise_Tree.$(OBJ) \
 	log_file.$(OBJ) \
-  Phylip_Wrapper.$(OBJ)
+  phylip_wrapper.$(OBJ)
 
 ifeq ($(WHICH_MAKE),MAKE_LVB_MPI)
 

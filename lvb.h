@@ -67,7 +67,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "block_macros.h"
 #include "key_value.h"
 #include "Random_Number_Generator.h"
-#include "Mathematical_Wrapper.h"
+#include "mathematical_wrapper.h"
 #include "clock.h"
 #include "log_file.h"
 

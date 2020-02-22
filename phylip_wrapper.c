@@ -39,25 +39,37 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ********** popcnt_ll_macro.h - rapid inline popcnt macro ********** */
+/* ========== wrapper.c - LVB to PHYLIP interface ========== */
 
-#ifndef LVB_POPCNTLL_MACRO_H
-#define LVB_POPCNTLL_MACRO_H
+#include "lvb.h"
 
-/* based on popcount_2 at http://en.wikipedia.org/wiki/Hamming_weight
- * 1 June 2015 */
+#ifdef MAP_REDUCE_SINGLE
+  #include "input_options.h"
+#else
+  int read_file(char *file_name, int n_file_format, Dataptr p_lvbmat);
+  void phylip_mat_dims_in_external(char *file_name, int n_file_format, long *species_ptr, long *sites_ptr, int *max_length_name);
+#endif
 
-#define LVB_POPCNTLL_m1 0x5555555555555555ULL
-#define LVB_POPCNTLL_m2 0x3333333333333333ULL
-#define LVB_POPCNTLL_m4 0x0f0f0f0f0f0f0f0fULL
+int phylip_dna_matrin(char *p_file_name, int n_file_format, Dataptr lvbmat) {
+  int n_error_code = read_file(p_file_name, n_file_format, lvbmat);
 
-#define LVB_POPCNT_LL(X) \
-    X -= (X >> 1) & LVB_POPCNTLL_m1; \
-    X = (X & LVB_POPCNTLL_m2) + ((X >> 2) & LVB_POPCNTLL_m2); \
-    X = (X + (X >> 4)) & LVB_POPCNTLL_m4; \
-    X += X >>  8; \
-    X += X >> 16; \
-    X += X >> 32; \
-    X = X & 0x7f;
+  if (n_error_code != EXIT_SUCCESS)
+    return n_error_code;
 
-#endif /* LVB_POPCNTLL_MACRO_H */
+  /* check number of sequences is in range for LVB */
+  if (lvbmat->n < MIN_N)
+    crash("The data matrix must have at least %ld sequences.", MIN_N);
+  else if (lvbmat->n > MAX_N)
+    crash("The data matrix must have no more than %ld sequences.", MAX_N);
+  /* check number of sites is in range for LVB */
+  else if (lvbmat->m < MIN_M)
+    crash("The data matrix must have at least %ld sites.", MIN_M);
+  else if (lvbmat->m > MAX_M)
+    crash("The data matrix must have no more than %ld sites.", MAX_M);
+
+  return EXIT_SUCCESS;
+} /* end phylip_dna_matrin() */
+
+void phylip_mat_dims_in(char *p_file_name, int n_file_format, long *species_ptr, long *sites_ptr, int *max_length_name) {
+  phylip_mat_dims_in_external(p_file_name, n_file_format, species_ptr, sites_ptr, max_length_name);
+}
