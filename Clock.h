@@ -38,8 +38,12 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
+#ifndef CLOCK_H_
+#define CLOCK_H_
 
 #include "Lvb.h"
 
 void log_Time();
 void logstim(void);
+
+#endif  // CLOCK_H_

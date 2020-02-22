@@ -43,20 +43,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Log.h"
 
-bool logfile_exists (const char *filename)
-	{
-		struct stat buffer;
-		return (stat (filename, &buffer) == 0);
+bool logfile_exists(const char *filename) {
+  struct stat buffer;
+  return (stat (filename, &buffer) == 0);
 
-		#ifdef NP_Implementation
-		#define LVB_IMPLEMENTATION "NP"
-		#endif
-
-		#ifdef MPI_Implementation
-		#ifdef MAP_REDUCE_SINGLE
-		#define LVB_IMPLEMENTATION "MR"
-		#else
-		#define LVB_IMPLEMENTATION "MPI"
-		#endif
-		#endif
-	} 
+  #ifdef NP_Implementation
+    #define LVB_IMPLEMENTATION "NP"
+  #endif
+  #ifdef MPI_Implementation
+    #ifdef MAP_REDUCE_SINGLE
+      #define LVB_IMPLEMENTATION "MR"
+    #else
+      #define LVB_IMPLEMENTATION "MPI"
+    #endif
+  #endif
+}

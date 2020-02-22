@@ -41,63 +41,65 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Info.h"
 
-void print_LVB_INFO()
-{
-	cout << "================================================================================\n\n";
-    cout << "LVB v." << LVB_VERSION << " ";
-	#ifdef MAP_REDUCE_SINGLE 
-		cout << LVB_MAP_REDUCE; 
-	#endif 
-	cout << "built for Linux 64-bit \n";
-    
-	cout << "Released: " << LVB_RELEASE_DATE " by the Barker Lab\n"
-            "Developed by: Joseph Guscott and Daniel Barker\n"
-            "For help, see the GitHub Wiki page at: " << LVB_WIKI "\n"
-            "Please send any questions to joseph.guscott@ed.ac.uk or daniel.barker@ed.ac.uk\n\n";
-	cout << "================================================================================\n\n";
+void print_LVB_INFO() {
+  cout << "==============================================="
+          "=================================\n\n";
+  cout << "LVB v." << LVB_VERSION << " ";
+  #ifdef MAP_REDUCE_SINGLE
+    cout << LVB_MAP_REDUCE;
+  #endif
+  cout << "built for Linux 64-bit \n";
+
+  cout << "Released: " << LVB_RELEASE_DATE " by the Barker Lab\n"
+  "Developed by: Joseph Guscott and Daniel Barker\n"
+  "For help, see the GitHub Wiki page at: " << LVB_WIKI "\n"
+  "Please send any questions to joseph.guscott@ed.ac.uk"
+  " or daniel.barker@ed.ac.uk\n\n";
+  cout << "==============================================="
+          "=================================\n\n";
 }
 
-void print_LVB_COPYRIGHT()
-{
-    cout << "(c) Copyright 2003-2012 by Daniel Barker\n"
-			"(c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl\n"
-			"(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro\n"
-			"and Maximilian Strobl\n"
-			"(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro,\n"
-			"Maximilian Strobl and Chris Wood.\n"
-  			"(c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,\n"
-			"Fernando Guntoro, Maximilian Strobl and Chris Wood.\n"
-			"(c) Copyright 2019 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,\n"
-			"Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.\n"
-			"All rights reserved.\n"
-			"\n"
-			"Redistribution and use in source and binary forms, with or without\n"
-			"modification, are permitted provided that the following conditions\n"
-			"are met:\n"
-			"\n"
-			"1. Redistributions of source code must retain the above copyright\n"
-			"notice, this list of conditions and the following disclaimer.\n"
-			"\n"
-			"2. Redistributions in binary form must reproduce the above\n"
-			"copyright notice, this list of conditions and the following\n"
-			"disclaimer in the documentation and/or other materials provided\n"
-			"with the distribution.\n"
-			"\n"
-			"3. Neither the name of the copyright holder nor the names of its\n"
-			"contributors may be used to endorse or promote products derived\n"
-			"from this software without specific prior written permission.\n"
-			"\n"
-			"THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS\n"
-			"\"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT\n"
-			"LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS\n"
-			"FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE\n"
-			"COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,\n"
-			"INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES\n"
-			"(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR\n"
-			"SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)\n"
-			"HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,\n"
-			"STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)\n"
-			"ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF\n"
-			"ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n\n";
+void print_LVB_COPYRIGHT() {
+  cout << "(c) Copyright 2003-2012 by Daniel Barker\n"
+  "(c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl\n"
+  "(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro\n"
+  "and Maximilian Strobl\n"
+  "(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro,\n"
+  "Maximilian Strobl and Chris Wood.\n"
+  "(c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,\n"
+  "Fernando Guntoro, Maximilian Strobl and Chris Wood.\n"
+  "(c) Copyright 2019 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,\n"
+  "Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, "
+  "Martyn Winn and Chris Wood.\n"
+  "All rights reserved.\n"
+  "\n"
+  "Redistribution and use in source and binary forms, with or without\n"
+  "modification, are permitted provided that the following conditions\n"
+  "are met:\n"
+  "\n"
+  "1. Redistributions of source code must retain the above copyright\n"
+  "notice, this list of conditions and the following disclaimer.\n"
+  "\n"
+  "2. Redistributions in binary form must reproduce the above\n"
+  "copyright notice, this list of conditions and the following\n"
+  "disclaimer in the documentation and/or other materials provided\n"
+  "with the distribution.\n"
+  "\n"
+  "3. Neither the name of the copyright holder nor the names of its\n"
+  "contributors may be used to endorse or promote products derived\n"
+  "from this software without specific prior written permission.\n"
+  "\n"
+  "THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS\n"
+  "\"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT\n"
+  "LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS\n"
+  "FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE\n"
+  "COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,\n"
+  "INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES\n"
+  "INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR\n"
+  "SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)\n"
+  "HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,\n"
+  "STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)\n"
+  "ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF\n"
+  "ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n\n";
 }
 

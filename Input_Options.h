@@ -41,17 +41,19 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== ReadFile.h - interface for ReadFile.cpp ========== */
 
-#ifndef READFILE_H_
-#define READFILE_H_
+#ifndef INPUT_OPTIONS_H_
+#define INPUT_OPTIONS_H_
 
-#ifdef MAP_REDUCE_SINGLE
-#include "Lvb.h"
-#endif
-#include "MSA_Input.h"
-#include "LVB_Strucutures.h"
 #include <stdio.h>
 #include <string.h>
 #include <getopt.h>
+
+#ifdef MAP_REDUCE_SINGLE
+  #include "Lvb.h"
+#endif
+#include "LVB_Strucutures.h"
+#include "MSA_Input.h"
+
 using namespace std;
 
 extern "C" int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat);
@@ -64,4 +66,4 @@ void free_lvbmat_structure(DataStructure *p_lvbmat);
 int read_file(char *file_name, int n_file_type, DataStructure *p_lvbmat);
 long brcnt(long n);
 
-#endif /* READFILE_H_ */
+#endif /* INPUT_OPTIONS_H_ */

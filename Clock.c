@@ -41,26 +41,21 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Clock.h"
 
-void log_Time()
-{
-    time_t timer;
-    char buffer[26];
-    struct tm* tm_info;
+void log_Time() {
+  time_t timer;
+  char buffer[26];
+  struct tm* tm_info;
 
-    time(&timer);
-    tm_info = localtime(&timer);
+  time(&timer);
+  tm_info = localtime(&timer);
 
-    strftime(buffer, 26, "%H:%M (%d/%m/%Y)", tm_info);
-    puts(buffer);
-
+  strftime(buffer, 26, "%H:%M (%d/%m/%Y)", tm_info);
+  puts(buffer);
 }
 
-void logstim(void)
-/* log start time with message */
-{
-    time_t tim;	/* time */
+void logstim(void) {
+  time_t tim;
 
-    tim = time(NULL);
-    printf("Starting at: %s\n", ctime(&tim));
-
-} /* end logstim() */
+  tim = time(NULL);
+  printf("Starting at: %s\n", ctime(&tim));
+}

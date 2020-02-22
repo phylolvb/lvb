@@ -38,8 +38,12 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
+#ifndef LOG_H_
+#define LOG_H_
 
 #include "Lvb.h"
 #include <stdbool.h>
 
-bool logfile_exists (const char *filename);
+bool logfile_exists(const char *filename);
+
+#endif  // LOG_H_
