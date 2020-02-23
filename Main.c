@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* ========== main.c - LVB ========== */
 
 #include "lvb.h"
-#include "Starting_Temperature.h"
+#include "starting_temperature.h"
 
 #ifndef NP_Implementation
 #include <inttypes.h>

@@ -30,7 +30,7 @@ doi: [10.1093/bioinformatics/btg402](https://dx.doi.org/10.1093/bioinformatics/b
 
 ## Branches
 
-**master**
-**dev**
-**msc**
+* master
+* dev
+* msc
 

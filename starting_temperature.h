@@ -41,10 +41,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lvb.h"
 
-#ifndef Starting_Temperature_H
-#define Starting_Temperature_H
-
+#ifndef STARTING_TEMPERATURE_H_
+#define STARTING_TEMPERATURE_H_
 
 double get_initial_t(Dataptr, const Branch *const, Params rcstruct, long, int myMPIid, Lvb_bool);
 
-#endif // Starting_Temperature_H
+#endif  // STARTING_TEMPERATURE_H_

@@ -181,4 +181,3 @@ interaction_temperature.c - decide which processes continue their search
 		free_next_temperature(p_data->p_temperature);
 		free(p_data);
 	}
-

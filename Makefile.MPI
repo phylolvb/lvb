@@ -176,7 +176,7 @@ LVB_LIB_OBJS = system_check.$(OBJ) \
 	error_handling.$(OBJ) \
 	file_administration.$(OBJ) \
 	Search_Parameters.$(OBJ) \
-	Starting_Temperature.$(OBJ) \
+	starting_temperature.$(OBJ) \
 	allocate_memory.$(OBJ) \
 	mathematical_wrapper.$(OBJ) \
 	Random_Number_Generator.$(OBJ) \
