@@ -114,24 +114,24 @@ LVB_PROG = lvb$(EXE)
 
 # Object files that will go into the LVB library
 
-LVB_LIB_OBJS = system_check.$(OBJ) \
-               Treestack_Handling.$(OBJ) \
-               secure_exit.$(OBJ) \
+LVB_LIB_OBJS = allocate_memory.$(OBJ) \
 			   clock.$(OBJ) \
-               MSA_Handling.$(OBJ) \
-               error_handling.$(OBJ) \
-               file_administration.$(OBJ) \
-               Search_Parameters.$(OBJ) \
-               starting_temperature.$(OBJ) \
+			   error_handling.$(OBJ) \
+			   file_administration.$(OBJ) \
 			   log_file.$(OBJ) \
-               allocate_memory.$(OBJ) \
-               mathematical_wrapper.$(OBJ) \
-               Random_Number_Generator.$(OBJ) \
-               Topology_Evaluation.$(OBJ) \
-               Solve.$(OBJ) \
-               Testing.$(OBJ) \
-               Optimise_Tree.$(OBJ) \
-               phylip_wrapper.$(OBJ)
+			   mathematical_wrapper.$(OBJ) \
+			   MSA_Handling.$(OBJ) \
+			   Optimise_Tree.$(OBJ) \
+               phylip_wrapper.$(OBJ) \
+			   Random_Number_Generator.$(OBJ) \
+			   Search_Parameters.$(OBJ) \
+			   secure_exit.$(OBJ) \
+			   Solve.$(OBJ) \
+			   starting_temperature.$(OBJ) \
+			   system_check.$(OBJ) \
+			   Testing.$(OBJ) \
+			   Topology_Evaluation.$(OBJ) \
+			   Treestack_Handling.$(OBJ)
 
 LVB_READ_FILE_OBJS = 	$(LVB_READ_FILE_DIR)MSA_Input.$(OBJ) \
 			$(LVB_READ_FILE_DIR)input_options.$(OBJ) \

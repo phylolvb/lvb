@@ -169,25 +169,27 @@ TEST_MANUAL = $(DOCS_PROG_DIR)/go.html
 DOCS = $(DOCS_PROGRAMMER) \
        $(TEST_MANUAL)
 
-LVB_LIB_OBJS = system_check.$(OBJ) \
-	Treestack_Handling.$(OBJ) \
-	secure_exit.$(OBJ) \
-	clock.$(OBJ) \
-	MSA_Handling.$(OBJ) \
-	error_handling.$(OBJ) \
-	file_administration.$(OBJ) \
-	Search_Parameters.$(OBJ) \
-	starting_temperature.$(OBJ) \
-	allocate_memory.$(OBJ) \
-	mathematical_wrapper.$(OBJ) \
-	Random_Number_Generator.$(OBJ) \
-	Topology_Evaluation.$(OBJ) \
-	Solve.$(OBJ) \
-	Parallel_Checkpointing.$(OBJ) \
-	Testing.$(OBJ) \
-	Optimise_Tree.$(OBJ) \
-	log_file.$(OBJ) \
-  phylip_wrapper.$(OBJ)
+LVB_LIB_OBJS = allocate_memory.$(OBJ) \
+			   clock.$(OBJ) \
+			   error_handling.$(OBJ) \
+			   file_administration.$(OBJ) \
+			   log_file.$(OBJ) \
+			   mapreduce.$(OBJ) \
+			   mathematical_wrapper.$(OBJ) \
+			   MSA_Handling.$(OBJ) \
+			   Optimise_Tree.$(OBJ) \
+			   Parallel_Checkpointing.$(OBJ) \
+			   Parallel_Regulation.$(OBJ) \
+               phylip_wrapper.$(OBJ) \
+			   Random_Number_Generator.$(OBJ) \
+			   Search_Parameters.$(OBJ) \
+			   secure_exit.$(OBJ) \
+			   Solve.$(OBJ) \
+			   starting_temperature.$(OBJ) \
+			   system_check.$(OBJ) \
+			   Testing.$(OBJ) \
+			   Topology_Evaluation.$(OBJ) \
+			   Treestack_Handling.$(OBJ)
 
 ifeq ($(WHICH_MAKE),MAKE_LVB_MPI)
 
@@ -206,7 +208,7 @@ else
 	LVB_PROG = lvb_mrmpi$(EXE)
 
 	# Object files that will go into the LVB library
-	LVB_LIB_OBJS += MapReduce.$(OBJ)
+	LVB_LIB_OBJS += mapreduce.$(OBJ)
 endif
 
 LVB_READ_FILE_OBJS = 	$(LVB_READ_FILE_DIR)MSA_Input.$(OBJ) \

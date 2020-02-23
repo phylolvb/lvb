@@ -204,7 +204,7 @@ else
 	LVB_PROG = lvb_mrmpi$(EXE)
 
 	# Object files that will go into the LVB library
-	LVB_LIB_OBJS += MapReduce.$(OBJ)
+	LVB_LIB_OBJS += mapreduce.$(OBJ)
 endif
 
 LVB_READ_FILE_OBJS = 	$(LVB_READ_FILE_DIR)MSA_Input.$(OBJ) \

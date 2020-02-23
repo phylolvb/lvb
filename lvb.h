@@ -63,9 +63,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <time.h>
 
 #include "lvb_structures.h"
-#include "MapReduce.h"
-#include "block_macros.h"
-#include "key_value.h"
+
 #include "Random_Number_Generator.h"
 #include "mathematical_wrapper.h"
 #include "clock.h"
@@ -73,9 +71,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef NP_Implementation
   #include <mpi.h>
+  #include "mapreduce.h"
+  #include "block_macros.h"
+  #include "key_value.h"
   #ifdef MAP_REDUCE_SINGLE
     #include <iostream>
-
     using namespace MAPREDUCE_NS;
     using namespace std;
     #define __STDC_LIMIT_MACROS
