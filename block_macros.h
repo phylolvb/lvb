@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef BLOCKMACROS_H_
 #define BLOCKMACROS_H_
 
-//#ifdef MAP_REDUCE_SINGLE
+#ifdef MAP_REDUCE_SINGLE
 
   // macros to loop over blocks when reduce multivalues
   // may span more than 1 block
@@ -67,6 +67,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
     #define END_BLOCK_LOOP }
 
-//  #endif
+  #endif
 
 #endif  // BLOCKMACROS_H_

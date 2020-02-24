@@ -761,10 +761,13 @@ static void tree_make_canonical(Dataptr restrict matrix, Branch *const barray, l
 	Lvb_bool swap_made;							/* flag to indicate swap made */
 	long tmp;								/* for swapping */
 
+	FILE * f = fopen("topologies_canonical", "wb");
+
     do {
 		swap_made = LVB_FALSE;
 		for (i = 0; i < nbranches; i++)
 			{
+				fprintf(f, "%d\n", objnos[i]);
 			obj_no = objnos[i];
 			if ((obj_no != UNSET) && (obj_no != i)) {
 				tmp_1 = barray[obj_no];
@@ -778,6 +781,7 @@ static void tree_make_canonical(Dataptr restrict matrix, Branch *const barray, l
 				if (tmp_2.left   == obj_no) tmp_2.left   = impossible_1;
 				if (tmp_2.right  == obj_no) tmp_2.right  = impossible_1;
 				barray[i]      = tmp_1;
+				
 				barray[obj_no] = tmp_2;
 				wherever_was_now_say(matrix, barray, impossible_1, i);
 				wherever_was_now_say(matrix, barray, impossible_2, obj_no);
@@ -789,6 +793,7 @@ static void tree_make_canonical(Dataptr restrict matrix, Branch *const barray, l
 		}
     } while (swap_made == LVB_TRUE);
 
+	fclose(f);
     /* patch up assignment of sset memory to prevent trouble in treecopy() */
     for (i = 0; i < nbranches; i++)
 	{
@@ -1137,6 +1142,8 @@ static long setstcmp(Dataptr matrix, Objset *const oset_1, Objset *const oset_2,
  * and non-zero otherwise */
 {
     long i;		/* loop counter */
+	FILE *f_1 = fopen("topologies_setstcmp_1", "wb");
+	FILE *f_2 = fopen("topologies_setstcmp_2", "wb");
 
 	#ifndef NP_Implementation
     /* sort the set arrays and their constituent sets */
@@ -1145,9 +1152,13 @@ static long setstcmp(Dataptr matrix, Objset *const oset_1, Objset *const oset_2,
 
     /* compare the set arrays */
     for (i = 0; i < matrix->nsets; i++){
+		fprintf(f_1, "%d-1\n", oset_1[i].set);
+		fprintf(f_2, "%d-1\n", oset_2[i].set);
     	if (oset_1[i].cnt != oset_2[i].cnt) return 1;
 		if (memcmp(oset_1[i].set, oset_2[i].set, sizeof(long) * oset_1[i].cnt) != 0) return 1;
 		}
+	fclose(f_1);
+	fclose(f_2);
     return 0;
 } /* end setstcmp() */
 
@@ -1189,7 +1200,7 @@ void dump_objset_to_screen_sset_2(Dataptr matrix){
 
 #endif
 
-	void sort_array(long *p_array, int n_left, int n_right){
+void sort_array(long *p_array, int n_left, int n_right){
 	int l_hold, r_hold;
 	long l_pivot = *(p_array + ((n_left + n_right) / 2));
 	long l_temp;
@@ -1292,6 +1303,7 @@ void makesets(Dataptr matrix, const Branch *const tree_2, const int root)
     fillsets(matrix, sset_2, tree_2, root);
     sort(matrix, sset_2, NULL, matrix->nsets, LVB_FALSE);
 	#endif
+
 } /* end makesets() */
 
 #ifndef NP_Implementation

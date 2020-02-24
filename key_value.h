@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef KEYVALUE_H_
 #define KEYVALUE_H_
 
-//#ifdef MAP_REDUCE_SINGLE
+#ifdef MAP_REDUCE_SINGLE
 
   #include <mpi.h>
   #include "stdio.h"
@@ -159,6 +159,6 @@ class KeyValue {
 
   }  // namespace MAPREDUCE_NS
 
-//#endif
+#endif
 
 #endif  // KEYVALUE_H_

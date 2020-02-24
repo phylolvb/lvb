@@ -39,7 +39,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-//#ifdef MAP_REDUCE_SINGLE
+#ifdef MAP_REDUCE_SINGLE
 
 #include "lvb.h"
 #include "mapreduce.h"
@@ -151,4 +151,4 @@ void reduce_filter(char *key, int keybytes, char *multivalue, int nvalues, int *
     }
 }
 
-//#endif
+#endif

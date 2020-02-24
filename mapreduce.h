@@ -55,7 +55,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef MAPREDUCE_H_
 #define MAPREDUCE_H_
 
-//#ifdef MAP_REDUCE_SINGLE
+#ifdef MAP_REDUCE_SINGLE
 
   #include <mpi.h>
   #include "stdint.h"
@@ -299,5 +299,5 @@ class MapReduce {
 
 }  // namespace MAPREDUCE_NS
 
-    //#endif
+    #endif
 #endif  // MAPREDUCE_H_
