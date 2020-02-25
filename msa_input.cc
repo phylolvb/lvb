@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== CReadFiles.cpp - data matrix inputs ========== */
 
-#include "MSA_Input.h"
+#include "msa_input.h"
 
 CReadFiles::CReadFiles() {
 

@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   #include "lvb.h"
 #endif
 #include "lvb_structures.h"
-#include "MSA_Input.h"
+#include "msa_input.h"
 
 using namespace std;
 

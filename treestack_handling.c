@@ -39,14 +39,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== Treestack_Handling.c - Treestack Manipulation Functions ========== */
+/* ========== treestack_handling.c - Treestack Manipulation Functions ========== */
 
 #include "lvb.h"
 
 #ifndef NP_Implementation
-#include "Parallel_Checkpointing.h"
+#include "parallel_checkpointing.h"
 #else
-#include "Optimise_Tree.h"
+#include "optimise_tree.h"
 #endif
 
 static void upsize(Dataptr restrict matrix, Treestack *sp)

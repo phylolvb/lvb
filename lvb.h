@@ -64,7 +64,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lvb_structures.h"
 
-#include "Random_Number_Generator.h"
+#include "random_number_generator.h"
 #include "mathematical_wrapper.h"
 #include "clock.h"
 #include "log_file.h"

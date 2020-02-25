@@ -39,7 +39,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== Topology_Evaluation.c - tree evaluation ========== */
+/* ========== topology_evaluation.c - tree evaluation ========== */
 
 #include "lvb.h"
 

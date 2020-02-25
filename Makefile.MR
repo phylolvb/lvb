@@ -143,23 +143,23 @@ LIB_EXT = a		# UNIX
 	@echo 'Building file: $<'
 	$(CC) $(CFLAGS) -c $<
 
-DOCS_PROGRAMMER = 	$(DOCS_PROG_DIR)/Treestack_Handling.html \
-					$(DOCS_PROG_DIR)/Main.html \
+DOCS_PROGRAMMER = 	$(DOCS_PROG_DIR)/treestack_handling.html \
+					$(DOCS_PROG_DIR)/main.html \
 		  			$(DOCS_PROG_DIR)/secure_exit.html \
 					  $(DOCS_PROG_DIR)/clock.html \
-		  			$(DOCS_PROG_DIR)/MSA_Handling.html \
+		  			$(DOCS_PROG_DIR)/msa_handling.html \
 		  			$(DOCS_PROG_DIR)/error_handling.html \
 		  			$(DOCS_PROG_DIR)/file_administration.html \
-		  			$(DOCS_PROG_DIR)/Search_Parameters.html \
+		  			$(DOCS_PROG_DIR)/search_parameters.html \
 					  $(DOCS_PROG_DIR)/system_check.html \
 					  $(DOCS_PROG_DIR)/allocate_memory.html \
 					  $(DOCS_PROG_DIR)/mathematical_wrapper.html \
-					  $(DOCS_PROG_DIR)/Random_Number_Generator.html \
+					  $(DOCS_PROG_DIR)/random_number_generator.html \
 					  $(DOCS_PROG_DIR)/log_file.html \
-					  $(DOCS_PROG_DIR)/Topology_Evaluation.html \
-					  $(DOCS_PROG_DIR)/Solve.html \
-					  $(DOCS_PROG_DIR)/Testing.html \
-					  $(DOCS_PROG_DIR)/Optimise_Tree.html \
+					  $(DOCS_PROG_DIR)/topology_evaluation.html \
+					  $(DOCS_PROG_DIR)/solve.html \
+					  $(DOCS_PROG_DIR)/testing.html \
+					  $(DOCS_PROG_DIR)/optimise_tree.html \
 					  $(DOCS_PROG_DIR)/phylip_wrapper.html
 
 TEST_MANUAL = $(DOCS_PROG_DIR)/go.html
@@ -176,20 +176,20 @@ LVB_LIB_OBJS = allocate_memory.$(OBJ) \
 			   log_file.$(OBJ) \
 			   mapreduce.$(OBJ) \
 			   mathematical_wrapper.$(OBJ) \
-			   MSA_Handling.$(OBJ) \
-			   Optimise_Tree.$(OBJ) \
-			   Parallel_Checkpointing.$(OBJ) \
-			   Parallel_Regulation.$(OBJ) \
+			   msa_handling.$(OBJ) \
+			   optimise_tree.$(OBJ) \
+			   parallel_checkpointing.$(OBJ) \
+			   parallel_regulation.$(OBJ) \
                phylip_wrapper.$(OBJ) \
-			   Random_Number_Generator.$(OBJ) \
-			   Search_Parameters.$(OBJ) \
+			   random_number_generator.$(OBJ) \
+			   search_parameters.$(OBJ) \
 			   secure_exit.$(OBJ) \
-			   Solve.$(OBJ) \
+			   solve.$(OBJ) \
 			   starting_temperature.$(OBJ) \
 			   system_check.$(OBJ) \
-			   Testing.$(OBJ) \
-			   Topology_Evaluation.$(OBJ) \
-			   Treestack_Handling.$(OBJ)
+			   testing.$(OBJ) \
+			   topology_evaluation.$(OBJ) \
+			   treestack_handling.$(OBJ)
 
 ifeq ($(WHICH_MAKE),MAKE_LVB_MPI)
 
@@ -199,7 +199,7 @@ ifeq ($(WHICH_MAKE),MAKE_LVB_MPI)
 	LVB_PROG = lvb_mpi$(EXE)
 
 	# Object files that will go into the LVB library
-	LVB_LIB_OBJS += Parallel_Regulation.$(OBJ)
+	LVB_LIB_OBJS += parallel_regulation.$(OBJ)
 else
 
 	# LVB library
@@ -211,11 +211,11 @@ else
 	LVB_LIB_OBJS += mapreduce.$(OBJ)
 endif
 
-LVB_READ_FILE_OBJS = 	$(LVB_READ_FILE_DIR)MSA_Input.$(OBJ) \
+LVB_READ_FILE_OBJS = 	$(LVB_READ_FILE_DIR)msa_input.$(OBJ) \
 						$(LVB_READ_FILE_DIR)input_options.$(OBJ) \
 						$(LVB_READ_FILE_DIR)info.$(OBJ)
 
-LVB_PROG_OBJS = Main.$(OBJ)
+LVB_PROG_OBJS = main.$(OBJ)
 LVB_LIB_OBJS_OUTPUT = $(LVB_LIB_OBJS)
 
 

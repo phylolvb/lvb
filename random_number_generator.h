@@ -39,7 +39,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== Random_Number_Generator.h - header for RNG functions in Random_Number_Generator.c ========== */
+/* ========== random_number_generator.h - header for RNG functions in random_number_generator.c ========== */
 
 #include "lvb.h"
 
