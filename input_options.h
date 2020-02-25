@@ -39,7 +39,31 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include "Lvb.h"
-#include <stdbool.h>
+/* ========== ReadFile.h - interface for ReadFile.cpp ========== */
 
-bool logfile_exists (const char *filename);
+#ifndef INPUT_OPTIONS_H_
+#define INPUT_OPTIONS_H_
+
+#include <stdio.h>
+#include <string.h>
+#include <getopt.h>
+
+#ifdef MAP_REDUCE_SINGLE
+  #include "lvb.h"
+#endif
+#include "lvb_structures.h"
+#include "MSA_Input.h"
+
+using namespace std;
+
+extern "C" int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat);
+extern "C" void phylip_mat_dims_in_external(char *file_name, int n_file_type, long *species_ptr, long *sites_ptr, int *max_length_name);
+extern "C" int read_parameters(Params *prms, int argc, char **argv);
+
+void phylip_mat_dims_in_external(char *file_name, int n_file_type, long *species_ptr, long *sites_ptr, int *max_length_name);
+int read_parameters(Params *prms, int argc, char **argv);
+void free_lvbmat_structure(DataStructure *p_lvbmat);
+int read_file(char *file_name, int n_file_type, DataStructure *p_lvbmat);
+long brcnt(long n);
+
+#endif /* INPUT_OPTIONS_H_ */

@@ -28,3 +28,9 @@ doi: [10.1016/j.ympev.2016.05.001](https://doi.org/10.1016/j.ympev.2016.05.001)
 *Bioinformatics*, 20, 274–275.
 doi: [10.1093/bioinformatics/btg402](https://dx.doi.org/10.1093/bioinformatics/btg402)
 
+## Branches
+
+* master
+* dev
+* msc
+

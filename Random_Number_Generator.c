@@ -63,7 +63,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *		not callable from Fortran (yet)
  */
 
-#include "Lvb.h"
+#include "lvb.h"
 
 #ifndef NP_Implementation
 #include "Parallel_Checkpointing.h"

@@ -9,7 +9,7 @@ and Chris Wood.
 Fernando Guntoro, Maximilian Strobl and Chris Wood.
 (c) Copyright 2019 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
 Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
-
+ 
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -39,32 +39,23 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== wrapper.c - LVB to PHYLIP interface ========== */
+#include "clock.h"
 
-#include "Lvb.h"
+void log_Time() {
+  time_t timer;
+  char buffer[26];
+  struct tm* tm_info;
 
-#ifdef MAP_REDUCE_SINGLE // MR
-	#include "Input_Options.h"
-#else 
-	int read_file(char *file_name, int n_file_format, Dataptr p_lvbmat);
-	void phylip_mat_dims_in_external(char *file_name, int n_file_format, long *species_ptr, long *sites_ptr, int *max_length_name);
-#endif
+  time(&timer);
+  tm_info = localtime(&timer);
 
-	int phylip_dna_matrin(char *p_file_name, int n_file_format, Dataptr lvbmat)
-	{
-		int n_error_code = read_file(p_file_name, n_file_format, lvbmat);
-		if (n_error_code != EXIT_SUCCESS) return n_error_code;
+  strftime(buffer, 26, "%H:%M (%d/%m/%Y)", tm_info);
+  puts(buffer);
+}
 
-		/* check number of sequences is in range for LVB */
-	    if (lvbmat->n < MIN_N) crash("The data matrix must have at least %ld sequences.", MIN_N);
-	    else if (lvbmat->n > MAX_N) crash("The data matrix must have no more than %ld sequences.", MAX_N);
-	    /* check number of sites is in range for LVB */
-	    else if (lvbmat->m < MIN_M) crash("The data matrix must have at least %ld sites.", MIN_M);
-	    else if (lvbmat->m > MAX_M) crash("The data matrix must have no more than %ld sites.", MAX_M);
-	    return EXIT_SUCCESS;
-	} /* end phylip_dna_matrin() */
+void logstim(void) {
+  time_t tim;
 
-void phylip_mat_dims_in(char *p_file_name, int n_file_format, long *species_ptr, long *sites_ptr, int *max_length_name)
-{
-	phylip_mat_dims_in_external(p_file_name, n_file_format, species_ptr, sites_ptr, max_length_name);
+  tim = time(NULL);
+  printf("Starting at: %s\n", ctime(&tim));
 }

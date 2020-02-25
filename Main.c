@@ -41,8 +41,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== main.c - LVB ========== */
 
-#include "Lvb.h"
-#include "Starting_Temperature.h"
+#include "lvb.h"
+#include "starting_temperature.h"
 
 #ifndef NP_Implementation
 #include <inttypes.h>
@@ -259,12 +259,12 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, int myMPIid, Lvb_b
 		randtree(matrix, tree);	/* initialise required variables */
 		ss_init(matrix, tree, enc_mat);
 		initroot = 0;
-		#ifdef MAP_REDUCE_SINGLE
-		t0 = get_initial_t(matrix, tree, rcstruct, initroot, misc->rank, log_progress);
-		#endif
-		#ifdef NP_Implementation
-		t0 = get_initial_t(matrix, tree, rcstruct, initroot, myMPIid, log_progress);
-		#endif
+		 #ifdef MAP_REDUCE_SINGLE
+		 t0 = get_initial_t(matrix, tree, rcstruct, initroot, misc->rank, log_progress);
+		 #endif
+		 #ifdef NP_Implementation
+		 t0 = get_initial_t(matrix, tree, rcstruct, initroot, myMPIid, log_progress);
+		 #endif
 		// t0 = 0.01;
 
 		randtree(matrix, tree);	/* begin from scratch */

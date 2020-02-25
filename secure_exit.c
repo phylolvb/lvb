@@ -39,55 +39,30 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== err.c - error functions ========== */
+/* ========== cleanup.c - prepare for exit ========== */
 
-#include "Lvb.h"
+#include "lvb.h"
 
-void crash(const char *const fmt, ...)
-{
-	const char *const warning = "\nFATAL ERROR";	/* dire warning */
-	va_list args;					/* arguments */
+Lvb_bool cleanup(void) {
+  // prevent apparent memory leaks to help debugging, log end time; return
+  // LVB_TRUE on write error to stdout, LVB_FALSE otherwise */
 
-	va_start(args, fmt);
-	printf("%s: ", warning);
-	vprintf(fmt, args);
-	va_end(args);
-	printf("\n");
+  // time_t endtim;         // time at end of run
+  Lvb_bool val = LVB_TRUE;  // return value
 
-	#ifndef NP_Implementation
-	int n_error_code = 1;
-	MPI_Abort(MPI_COMM_WORLD, n_error_code);
-	cleanup();
-	exit(EXIT_FAILURE);
-	#else
-	cleanup();
-	exit(EXIT_FAILURE);
-	#endif
-}	/* end crash() */
+  // endtim = time(NULL);
+  // printf("\n");
+  // printf("Ending at: %s", ctime(&endtim));
+  // printf("\n");
 
-void lvb_assertion_fail(const char *test, const char *file, int line)
-/* Log dire warning followed by message of form "assertion failed at
- * '<file>' line <line>: <test>", and exit abnormally. This function
- * should only be called through the lvb_assert() macro. */
-{
-    crash("assertion failed at '%s' line %d: %s", file, line, test);
-}
+  // log file won't be used again
+  #ifndef MPI_Implementation
+    fflush(stdout);
+    if (ferror(stdout) != 0)
+      val = LVB_TRUE;
+    else
+      val = LVB_FALSE;
+  #endif
 
-void scream(const char *const format, ...)
-/* log a dire warning, partly composed of vprintf-acceptable user-supplied
- * message */
-{
-	const char *const warning = "ERROR";
-	va_list args;		/* supplied message */
-
-	va_start(args, format);
-	printf("%s: ", warning);
-	vprintf(format, args);
-	va_end(args);
-	printf("\n");
-
-	/* flush standard output so the warning is immediately visible */
-	if (fflush(stdout) == EOF)
-		crash("write error on log");	/* may not work! */
-
-}	/* end scream() */
+    return val;
+}  // end cleanup()

@@ -9,7 +9,7 @@ and Chris Wood.
 Fernando Guntoro, Maximilian Strobl and Chris Wood.
 (c) Copyright 2019 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
 Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
- 
+
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -38,29 +38,23 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
+#ifndef LOG_FILE_H_
+#define LOG_FILE_H_
 
-#include "Clock.h"
+#include <stdbool.h>
+#include "lvb.h"
 
-void log_Time()
-{
-    time_t timer;
-    char buffer[26];
-    struct tm* tm_info;
+#ifdef NP_Implementation
+  #define LVB_IMPLEMENTATION "NP"
+#endif
+#ifdef MPI_Implementation
+  #ifdef MAP_REDUCE_SINGLE
+    #define LVB_IMPLEMENTATION "MR"
+  #else
+    #define LVB_IMPLEMENTATION "MPI"
+  #endif
+#endif
 
-    time(&timer);
-    tm_info = localtime(&timer);
+bool logfile_exists(const char *filename);
 
-    strftime(buffer, 26, "%H:%M (%d/%m/%Y)", tm_info);
-    puts(buffer);
-
-}
-
-void logstim(void)
-/* log start time with message */
-{
-    time_t tim;	/* time */
-
-    tim = time(NULL);
-    printf("Starting at: %s\n", ctime(&tim));
-
-} /* end logstim() */
+#endif  // LOG_FILE_H_

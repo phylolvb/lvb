@@ -11,7 +11,7 @@ Fernando Guntoro, Maximilian Strobl and Chris Wood.
 Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
 
 All rights reserved.
- 
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
@@ -39,35 +39,51 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== admin.c - LVB library data and administration ========== */
+/* ========== err.c - error functions ========== */
 
-#include "Lvb.h"
+#include "lvb.h"
 
-static void functionality_check(void)
-/* To the extent possible, check that standard functions and data types match
- * LVB's expectations. Crash verbosely if they are found not to. */
-{
-    if (time(NULL) == -1) crash("cannot get system time");
+void crash(const char *const fmt, ...) {
+  const char *const warning = "\nFATAL ERROR";  // dire warning
+  va_list args;  // arguments
 
-    if ((((long) INT_MAX) < 2147483647L) || ((sizeof(void *) * CHAR_BIT) < 32) || ((sizeof(size_t) * CHAR_BIT) < 32)) {
-        crash("program requires at least a 32-bit system");
-    }
+  va_start(args, fmt);
+  printf("%s: ", warning);
+  vprintf(fmt, args);
+  va_end(args);
+  printf("\n");
 
-    /* LVB_EPS is assumed to be bigger than DBL_EPSILON in code that guards
-     * against floating-point arithmetic problems */
-    if (DBL_EPSILON >= LVB_EPS)
-        crash("program requires greater floating point precision");
-    #ifdef MPI_Implementation
-    if (!((LVB_EPS + INITIAL_INCREMENT) != INITIAL_INCREMENT))
-        crash("LVB_EPS and INITIAL_INCREMENT are incompatible with floating point precision");
-    #endif // MPI_Implementation
+  #ifndef NP_Implementation
+    int n_error_code = 1;
+    MPI_Abort(MPI_COMM_WORLD, n_error_code);
+    cleanup();
+    exit(EXIT_FAILURE);
+  #else
+    cleanup();
+    exit(EXIT_FAILURE);
+  #endif
+}  // end crash()
 
-} // end functionality_check()
+void lvb_assertion_fail(const char *test, const char *file, int line) {
+/* Log dire warning followed by message of form "assertion failed at
+ * '<file>' line <line>: <test>", and exit abnormally. This function
+ * should only be called through the lvb_assert() macro. */
+  crash("assertion failed at '%s' line %d: %s", file, line, test);
+}
 
-// checks that some features of the system are suitable for use with LVB
+void scream(const char *const format, ...) {
+/* log a dire warning, partly composed of vprintf-acceptable user-supplied
+ * message */
+  const char *const warning = "ERROR";
+  va_list args;  // supplied message
 
-void lvb_initialize(void)
-{
-    functionality_check();
+  va_start(args, format);
+  printf("%s: ", warning);
+  vprintf(format, args);
+  va_end(args);
+  printf("\n");
 
-} // end lvb_initialize()
+  /* flush standard output so the warning is immediately visible */
+  if (fflush(stdout) == EOF)
+    crash("write error on log");  // may not work!
+}  // end scream()

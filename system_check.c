@@ -11,7 +11,7 @@ Fernando Guntoro, Maximilian Strobl and Chris Wood.
 Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
 
 All rights reserved.
-
+ 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
@@ -39,7 +39,30 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include "Lvb.h"
+/* ========== admin.c - LVB library data and administration ========== */
 
-void log_Time();
-void logstim(void);
+#include "lvb.h"
+
+static void functionality_check(void) {
+  // To the extent possible, check that standard functions and data types match
+  // LVB's expectations. Crash verbosely if they are found not to. */
+  if (time(NULL) == -1)
+    crash("cannot get system time");
+
+  if ((((long) INT_MAX) < 2147483647L) || ((sizeof(void *) * CHAR_BIT) < 32) || ((sizeof(size_t) * CHAR_BIT) < 32)) {
+    crash("program requires at least a 32-bit system");
+  }
+
+  // LVB_EPS is assumed to be bigger than DBL_EPSILON in code that guards
+  // against floating-point arithmetic problems
+  if (DBL_EPSILON >= LVB_EPS)
+    crash("program requires greater floating point precision");
+  #ifdef MPI_Implementation
+    if (!((LVB_EPS + INITIAL_INCREMENT) != INITIAL_INCREMENT))
+      crash("LVB_EPS and INITIAL_INCREMENT are incompatible with floating point precision");
+  #endif
+}  // end functionality_check()
+
+void lvb_initialize(void) {
+    functionality_check();
+}  // end lvb_initialize()

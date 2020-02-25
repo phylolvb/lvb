@@ -385,8 +385,6 @@ long words_per_row(const long m)
     return words;
 }
 
-
-
 long bytes_per_row(const long m)
 /* return the number of 8-bit bytes required to hold an encoded row of the
  * data matrix for m state sets, assuming half a byte per state set rounded up

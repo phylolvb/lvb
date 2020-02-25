@@ -39,25 +39,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ********** popcnt_ll_macro.h - rapid inline popcnt macro ********** */
+/* ========== log_file.c - logfile parameters ========== */
 
-#ifndef LVB_POPCNTLL_MACRO_H
-#define LVB_POPCNTLL_MACRO_H
+#include "log_file.h"
 
-/* based on popcount_2 at http://en.wikipedia.org/wiki/Hamming_weight
- * 1 June 2015 */
-
-#define LVB_POPCNTLL_m1 0x5555555555555555ULL
-#define LVB_POPCNTLL_m2 0x3333333333333333ULL
-#define LVB_POPCNTLL_m4 0x0f0f0f0f0f0f0f0fULL
-
-#define LVB_POPCNT_LL(X) \
-    X -= (X >> 1) & LVB_POPCNTLL_m1; \
-    X = (X & LVB_POPCNTLL_m2) + ((X >> 2) & LVB_POPCNTLL_m2); \
-    X = (X + (X >> 4)) & LVB_POPCNTLL_m4; \
-    X += X >>  8; \
-    X += X >> 16; \
-    X += X >> 32; \
-    X = X & 0x7f;
-
-#endif /* LVB_POPCNTLL_MACRO_H */
+bool logfile_exists(const char *filename) {
+  struct stat buffer;
+  
+  return (stat (filename, &buffer) == 0);
+}

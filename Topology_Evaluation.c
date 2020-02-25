@@ -41,11 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== Topology_Evaluation.c - tree evaluation ========== */
 
-#include "Lvb.h"
-
-#ifdef __PPC64__
-#include <Popcntll_macro.h>
-#endif
+#include "lvb.h"
 
 long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const long root,
 	     long *restrict p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs)
@@ -61,22 +57,13 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
     long todo_cnt = 0;			/* count of branches "to do" */
     long l_end = 0;
 
-//#define	PRINT_PRINTF
-
     /* calculate state sets and changes where not already known */
     if (matrix->n_threads_getplen > 1){	/* only if is greather than 1 that use the thread version */
-
-#ifdef	PRINT_PRINTF
-	printf("start openMP\n");
-#endif
 
 		/* get the branches to touch */
 		memset(p_runs, 0, matrix->n_threads_getplen * (matrix->nbranches - matrix->n) * sizeof(int));
 		for (i = matrix->n; i < matrix->nbranches; i++) {
 			if (barray[i].sset[0] == 0U){
-#ifdef	PRINT_PRINTF
-			printf("touch: %d   left:%d  right:%d\n", i, barray[i].left, barray[i].right);
-#endif
 				*(p_todo_arr + todo_cnt++) = i;
 			}
 			else{
@@ -103,30 +90,16 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 			done = 0;
 			l_end = matrix->n_slice_size_getplen * (omp_get_thread_num() + 1);
 			if (matrix->n_threads_getplen == (omp_get_thread_num() + 1)) l_end += matrix->nwords - (matrix->n_slice_size_getplen * matrix->n_threads_getplen);
-#ifdef	PRINT_PRINTF
-	printf("1 : Thread# %d: begin = %d    l_end: %d\n", omp_get_thread_num(), matrix->n_slice_size_getplen * omp_get_thread_num(), l_end);
-#endif
 			while (done < todo_cnt) {
 				for (i = 0; i < todo_cnt; i++) {
 					branch = *(p_todo_arr + i);
-#ifdef	PRINT_PRINTF
-	printf("1 : Thread# %d: try to make branch: %d     is_possible_to_run: %d\n", omp_get_thread_num(), branch,
-			*(p_runs + ((branch - matrix->n) * matrix->n_threads_getplen) + omp_get_thread_num()));
-#endif
 					if (*(p_runs + ((branch - matrix->n) * matrix->n_threads_getplen) + omp_get_thread_num()) == 0) /* "dirty" */
 					{
 						left = barray[branch].left;
 						right = barray[branch].right;
-#ifdef	PRINT_PRINTF
-	printf("1 : Thread# %d: left = %d  is_possible_to_run: %d\n", omp_get_thread_num(), left, *(p_runs + ((left - matrix->n) * matrix->n_threads_getplen) + omp_get_thread_num()));
-	printf("1 : Thread# %d: right = %d  is_possible_to_run: %d\n", omp_get_thread_num(), right, *(p_runs + ((right - matrix->n) * matrix->n_threads_getplen) + omp_get_thread_num()));
-#endif
 						if ((left < matrix->n || *(p_runs + ((left - matrix->n) * matrix->n_threads_getplen) + omp_get_thread_num()) == 1) &&
 								(right < matrix->n || *(p_runs + ((right - matrix->n) * matrix->n_threads_getplen) + omp_get_thread_num()) == 1))
 						{
-#ifdef	PRINT_PRINTF
-				printf("1 : Thread# %d: make branch: %d\n", omp_get_thread_num(), branch);
-#endif
 							n_changes_temp = 0;
 							Lvb_bit_length *restrict l_ssets = barray[left].sset;
 							Lvb_bit_length *restrict r_ssets = barray[right].sset;
@@ -135,22 +108,8 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 								y = r_ssets[j];
 
 								u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
-#ifdef COMPILE_64_BITS
-							#if (defined(__x86_64__) && defined(__GNUC__) && __GNUC__ >= 4 && __GNUC_MINOR__ >= 2)
 								__asm__ ("popcnt %1, %0" : "=r" (ch) : "0" (u));
-							#else
-								#ifndef NP_Implementation
-								#ifdef __PPC64__
-									ch = u;
-									LVB_POPCNT_LL(ch);
-								#else
-								#endif
-									ch = __builtin_popcountll(u);
-								#endif
-							#endif
-#else
-								ch = __builtin_popcount(u);
-#endif
+
 								ch = LENGTH_WORD - ch;
 								u >>= 3;
 								n_changes_temp += ch;
@@ -173,23 +132,7 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 				y = barray[right].sset[j];
 
 				u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
-
-#ifdef COMPILE_64_BITS
-			#if (defined(__x86_64__) && defined(__GNUC__) && __GNUC__ >= 4 && __GNUC_MINOR__ >= 2)
 				__asm__ ("popcnt %1, %0" : "=r" (ch) : "0" (u));
-			#else
-				#ifndef NP_Implementation
-				#ifdef __PPC64__
-					ch = u;
-					LVB_POPCNT_LL(ch);
-				#else
-				#endif
-					ch = __builtin_popcountll(u);
-				#endif
-			#endif
-#else
-				ch = __builtin_popcount(u);
-#endif
 
 				ch = LENGTH_WORD - ch;
 				u >>= 3;
@@ -199,23 +142,7 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 				y = barray[root].sset[j];
 
 				u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
-
-#ifdef COMPILE_64_BITS
-			#if (defined(__x86_64__) && defined(__GNUC__) && __GNUC__ >= 4 && __GNUC_MINOR__ >= 2)
 				__asm__ ("popcnt %1, %0" : "=r" (ch) : "0" (u));
-			#else
-			#ifndef NP_Implementation
-				#ifdef __PPC64__
-					ch = u;
-					LVB_POPCNT_LL(ch);
-				#else
-				#endif
-					ch = __builtin_popcountll(u);
-				#endif
-			#endif
-#else
-				ch = __builtin_popcount(u);
-#endif
 				ch = LENGTH_WORD - ch;
 				n_changes_temp += ch;
 			}
@@ -251,9 +178,6 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 
 		for (i = matrix->n; i < matrix->nbranches; i++) {
 			if (barray[i].sset[0] == 0U){
-#ifdef	PRINT_PRINTF
-			printf("touch: %d   left:%d  right:%d\n", i, barray[i].left, barray[i].right);
-#endif
 				*(p_todo_arr + todo_cnt++) = i;
 				barray[i].changes = 0;
 			}
@@ -276,47 +200,13 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 						for (j = 0; j < matrix->nwords; j++){
 							x = l_ssets[j];
 							y = r_ssets[j];
-#ifdef	PRINT_PRINTF
-	printf("       branch: %d   left = %d\n", branch, left);
-	printf("       branch: %d   right = %d\n", branch, right);
-#endif
 							u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
-#ifdef	PRINT_PRINTF
-	#ifdef COMPILE_64_BITS
-		printf("		u: 0x%016llX    count_bits: %d\n", u, __builtin_popcountll(u));
-	#else
-		printf("		u: 0x%X    count_bits: %d   x&y: 0x%X\n", u, __builtin_popcount(u), x & y);
-	#endif
-#endif
-
-#ifdef COMPILE_64_BITS
-						#if (defined(__x86_64__) && defined(__GNUC__) && __GNUC__ >= 4 && __GNUC_MINOR__ >= 2)
 							__asm__ ("popcnt %1, %0" : "=r" (ch) : "0" (u));
-						#else
-						#ifndef NP_Implementation
-							#ifdef __PPC64__
-								ch = u;
-								LVB_POPCNT_LL(ch);
-							#else
-						#endif
-								ch = __builtin_popcountll(u);
-							#endif
-						#endif
-#else
-							ch = __builtin_popcount(u);
-#endif
 							ch = LENGTH_WORD - ch;
 
 							u >>= 3;
 							
 							barray[branch].sset[j] = (x & y) | ((x | y) & ((u + MASK_SEVEN) ^ MASK_EIGHT));
-#ifdef	PRINT_PRINTF
-	#ifdef COMPILE_64_BITS
-		printf("      branch:%d   0x%016llX\n", branch, barray[branch].sset[j]);
-	#else
-		printf("      branch:%d   0x%X\n", branch, barray[branch].sset[j]);
-	#endif
-#endif
 							barray[branch].changes += ch;
 							changes += ch;
 						}
@@ -337,23 +227,7 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 			y = barray[right].sset[j];
 
 			u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
-
-#ifdef COMPILE_64_BITS
-		#if (defined(__x86_64__) && defined(__GNUC__) && __GNUC__ >= 4 && __GNUC_MINOR__ >= 2)
 			__asm__ ("popcnt %1, %0" : "=r" (ch) : "0" (u));
-		#else
-		#ifndef NP_Implementation
-			#ifdef __PPC64__
-				ch = u;
-				LVB_POPCNT_LL(ch);
-			#else
-			#endif
-				ch = __builtin_popcountll(u);
-			#endif
-		#endif
-#else
-			ch = __builtin_popcount(u);
-#endif
 			ch = LENGTH_WORD - ch;
 			u >>= 3;
 			changes += ch;
@@ -362,33 +236,13 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 			y = barray[root].sset[j];
 
 			u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
-
-#ifdef COMPILE_64_BITS
-		#if (defined(__x86_64__) && defined(__GNUC__) && __GNUC__ >= 4 && __GNUC_MINOR__ >= 2)
 			__asm__ ("popcnt %1, %0" : "=r" (ch) : "0" (u));
-		#else
-		#ifndef NP_Implementation
-			#ifdef __PPC64__
-				ch = u;
-				LVB_POPCNT_LL(ch);
-			#else
-			#endif
-				ch = __builtin_popcountll(u);
-			#endif
-		#endif
-#else
-			ch = __builtin_popcount(u);
-#endif
 			ch = LENGTH_WORD - ch;
 			changes += ch;
 		}
     }
 
     lvb_assert(changes > 0);
-#ifdef	PRINT_PRINTF
-    printf("changes: %d\n", changes);
-#endif
- //   exit(1);
     return changes;
 
 } /* end getplen() */

@@ -39,20 +39,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include <iostream>
+#include "lvb.h"
 
-using namespace std;
+#ifndef STARTING_TEMPERATURE_H_
+#define STARTING_TEMPERATURE_H_
 
-#define PROGNAM "LVB "			
-#define LVB_VERSION "4.0"	
-#define LVB_MAP_REDUCE "MapReduce Multicore version "
-#define LVB_RELEASE_DATE "February 2019" 
-#define LVB_WIKI "github.com/phylolvb/lvb"
+double get_initial_t(Dataptr, const Branch *const, Params rcstruct, long, int myMPIid, Lvb_bool);
 
-#ifdef NP_Implementation
-extern "C" void print_LVB_COPYRIGHT();
-extern "C" void print_LVB_INFO();
-#endif
-
-void print_LVB_COPYRIGHT();
-void print_LVB_INFO();
+#endif  // STARTING_TEMPERATURE_H_

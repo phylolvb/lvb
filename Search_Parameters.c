@@ -41,12 +41,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== Search_Parameters.c - get and set configurable parameters ========== */
 
-#include "Lvb.h"
+#include "lvb.h"
 
 #include <unistd.h>
 
 #ifdef MAP_REDUCE_SINGLE
-	#include "Input_Options.h"
+	#include "input_options.h"
 #else
 	int read_parameters(Params *prms, int argc, char **argv);
 #endif

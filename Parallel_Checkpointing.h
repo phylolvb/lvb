@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ********** Parallel_Checkpointing.h - interface for Parallel_Checkpointing.c ********** */
 
-#include "Lvb.h"
+#include "lvb.h"
 
 #define STATE_BLOCK_UNI						1
 #define STATE_BLOCK_PARAMETERS				2

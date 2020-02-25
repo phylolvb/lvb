@@ -39,24 +39,37 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== log.c - logfile parameters ========== */
+/* ========== wrapper.c - LVB to PHYLIP interface ========== */
 
-#include "Log.h"
+#include "lvb.h"
 
-bool logfile_exists (const char *filename)
-	{
-		struct stat buffer;
-		return (stat (filename, &buffer) == 0);
+#ifdef MAP_REDUCE_SINGLE
+  #include "input_options.h"
+#else
+  int read_file(char *file_name, int n_file_format, Dataptr p_lvbmat);
+  void phylip_mat_dims_in_external(char *file_name, int n_file_format, long *species_ptr, long *sites_ptr, int *max_length_name);
+#endif
 
-		#ifdef NP_Implementation
-		#define LVB_IMPLEMENTATION "NP"
-		#endif
+int phylip_dna_matrin(char *p_file_name, int n_file_format, Dataptr lvbmat) {
+  int n_error_code = read_file(p_file_name, n_file_format, lvbmat);
 
-		#ifdef MPI_Implementation
-		#ifdef MAP_REDUCE_SINGLE
-		#define LVB_IMPLEMENTATION "MR"
-		#else
-		#define LVB_IMPLEMENTATION "MPI"
-		#endif
-		#endif
-	} 
+  if (n_error_code != EXIT_SUCCESS)
+    return n_error_code;
+
+  /* check number of sequences is in range for LVB */
+  if (lvbmat->n < MIN_N)
+    crash("The data matrix must have at least %ld sequences.", MIN_N);
+  else if (lvbmat->n > MAX_N)
+    crash("The data matrix must have no more than %ld sequences.", MAX_N);
+  /* check number of sites is in range for LVB */
+  else if (lvbmat->m < MIN_M)
+    crash("The data matrix must have at least %ld sites.", MIN_M);
+  else if (lvbmat->m > MAX_M)
+    crash("The data matrix must have no more than %ld sites.", MAX_M);
+
+  return EXIT_SUCCESS;
+} /* end phylip_dna_matrin() */
+
+void phylip_mat_dims_in(char *p_file_name, int n_file_format, long *species_ptr, long *sites_ptr, int *max_length_name) {
+  phylip_mat_dims_in_external(p_file_name, n_file_format, species_ptr, sites_ptr, max_length_name);
+}

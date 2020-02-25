@@ -39,30 +39,34 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== cleanup.c - prepare for exit ========== */
+#ifndef BLOCKMACROS_H_
+#define BLOCKMACROS_H_
 
-#include "Lvb.h"
+#ifdef MAP_REDUCE_SINGLE
 
-Lvb_bool cleanup(void)
-/* prevent apparent memory leaks to help debugging, log end time; return
- * LVB_TRUE on write error to stdout, LVB_FALSE otherwise */
-{
-    // time_t endtim;	/* time at end of run */
-    Lvb_bool val = LVB_TRUE;	/* return value */
+  // macros to loop over blocks when reduce multivalues
+  // may span more than 1 block
+  // use CHECK_FOR_BLOCKS initially to get # of blocks in the multivalue
+  // enclose code for each block between BEGIN_BLOCK_LOOP and END_BLOCK_LOOP
+  // NOTE: DO NOT put a semicolon afer these macros
 
-    // endtim = time(NULL);
-    // printf("\n");
-    // printf("Ending at: %s", ctime(&endtim));
-    // printf("\n");
+  #define CHECK_FOR_BLOCKS(multivalue, valuebytes, nvalues, totalnvalues)  \
+    int macro_nblocks = 1; \
+    totalnvalues = nvalues; \
+    MapReduce *macro_mr = NULL; \
+    if (!(multivalue)) { \
+      macro_mr = (MapReduce *) (valuebytes); \
+      totalnvalues = macro_mr->multivalue_blocks(macro_nblocks); \
+    }
 
-    /* log file won't be used again */
-#ifndef MPI_Implementation
-    fflush(stdout);
-    if (ferror(stdout) != 0) val = LVB_TRUE;
-    else val = LVB_FALSE;
-#endif
+  #define BEGIN_BLOCK_LOOP(multivalue, valuebytes, nvalues)  \
+  for (int macro_iblock = 0; macro_iblock < macro_nblocks; macro_iblock++) { \
+    if (macro_mr)  \
+      (nvalues) = macro_mr->multivalue_block(macro_iblock, \
+        &(multivalue), &(valuebytes));
 
-    return val;
-} /* end cleanup() */
+    #define END_BLOCK_LOOP }
 
+  #endif
 
+#endif  // BLOCKMACROS_H_

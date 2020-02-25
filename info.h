@@ -39,15 +39,25 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== Mathematical_Wrapper.h - interface for Mathematical_Wrapper.c ========== */
+#ifndef INFO_H_
+#define INFO_H_
 
-#include "Lvb.h"
+#include <iostream>
 
-#ifndef LVB_Mathematical_Wrapper_H
-#define LVB_Mathematical_Wrapper_H
+using namespace std;
 
-double exp_wrapper(double) /*@globals errno@*/ /*@modifies nothing@*/ ;
-double log_wrapper(double) /*@globals errno@*/ /*@modifies nothing@*/ ;
-double pow_wrapper(double, double) /*@globals errno@*/ /*@modifies nothing@*/ ;
+#define PROGNAM "LVB "
+#define LVB_VERSION "4.0"
+#define LVB_MAP_REDUCE "MapReduce Multicore version "
+#define LVB_RELEASE_DATE "February 2019"
+#define LVB_WIKI "github.com/phylolvb/lvb"
 
-#endif /* LVB_Mathematical_Wrapper_H */
+#ifdef NP_Implementation
+  extern "C" void print_LVB_COPYRIGHT();
+  extern "C" void print_LVB_INFO();
+#endif
+
+void print_LVB_COPYRIGHT();
+void print_LVB_INFO();
+
+#endif  // INFO_H_

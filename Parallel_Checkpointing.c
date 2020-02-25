@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ********** Parallel_Checkpointing.c - solving functions ********** */
 
-#include "Lvb.h"
+#include "lvb.h"
 #include "Parallel_Checkpointing.h"
 
 #define CRC32_POLYNOMIAL 					0xEDB88320

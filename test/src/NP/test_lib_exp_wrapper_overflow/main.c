@@ -36,7 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include <Lvb.h>
+#include <lvb.h>
 
 /* check exp_wrapper() crashes verbosely on overflow */
 
