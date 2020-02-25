@@ -767,7 +767,7 @@ static void tree_make_canonical(Dataptr restrict matrix, Branch *const barray, l
 		swap_made = LVB_FALSE;
 		for (i = 0; i < nbranches; i++)
 			{
-				fprintf(f, "%d\n", objnos[i]);
+				fprintf(f, "%ld\n", objnos[i]);
 			obj_no = objnos[i];
 			if ((obj_no != UNSET) && (obj_no != i)) {
 				tmp_1 = barray[obj_no];
@@ -1152,8 +1152,9 @@ static long setstcmp(Dataptr matrix, Objset *const oset_1, Objset *const oset_2,
 
     /* compare the set arrays */
     for (i = 0; i < matrix->nsets; i++){
-		fprintf(f_1, "%d-1\n", oset_1[i].set);
-		fprintf(f_2, "%d-1\n", oset_2[i].set);
+		// loop .set[0]
+		fprintf(f_1, "%ld-1\n", oset_1[i].set[0]);
+		fprintf(f_2, "%ld-1\n", oset_2[i].set[0]);
     	if (oset_1[i].cnt != oset_2[i].cnt) return 1;
 		if (memcmp(oset_1[i].set, oset_2[i].set, sizeof(long) * oset_1[i].cnt) != 0) return 1;
 		}
@@ -1187,8 +1188,9 @@ void dump_stack_to_screen(Dataptr matrix, Treestack *sp){
 void dump_objset_to_screen(Dataptr matrix, Objset *oset_1){
 	printf("################\n##################\n");
 	for (int i = 0; i < matrix->nsets; i++){
-		printf("%d    %d    ", i, oset_1[i].cnt);
-		for (int x = 0; x < oset_1[i].cnt; x++) printf("%d   ", oset_1[i].set[x]);
+		// SEGFAULT vvv
+		printf("%d    %ld    ", i, oset_1[i].cnt);
+		for (int x = 0; x < oset_1[i].cnt; x++) printf("%ld   ", oset_1[i].set[x]);
 		printf("\n");
 	}
 	printf("\n");

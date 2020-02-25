@@ -128,8 +128,8 @@ else
 	CFLAGS += -DMPI_Implementation -DMAP_REDUCE_SINGLE
 	CXXFLAGS += -DMPI_Implementation -DMAP_REDUCE_SINGLE
 	## LM = -lm /home/s1880345/mrmpi-7Apr14/src/libmrmpi_mpicc.a 		## Eddie
-	LM = -lm /home/s1880345/bin/libmrmpi_mpicc.a						## Desktop
-	## LM = -lm /home/joe/Packages/mrmpi-7Apr14/src/libmrmpi_mpicc.a	## Laptop
+	## LM = -lm /home/s1880345/bin/libmrmpi_mpicc.a						## Desktop
+	LM = -lm /home/joe/Packages/mrmpi-7Apr14/src/libmrmpi_mpicc.a	## Laptop
 endif
 
 # System-dependent macros - OK for Linux and UNIX-like systems, for others will
