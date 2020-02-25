@@ -83,10 +83,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 // set if is to compile with 64 or 32 bits
-#ifndef COMPILE_32_BITS
-  #define COMPILE_64_BITS
-#endif
-
 #ifndef NP_Implementation
   #define MPI_SEND_ONLY_MATRIX_NAMES  // if defined only send the names of the matrix
                                         // sometimes the data matrix are huge and it's only necessary to pass
@@ -103,25 +99,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define NIBBLE_WIDTH        4    // width of nibble in bits
 #define NIBBLE_WIDTH_BITS   2    // bitwise multiply the NIBBLE_WIDTH
 
-#ifdef COMPILE_64_BITS
-  typedef uint64_t Lvb_bit_length;                             // define 64 bits
-  #define NUMBER_OF_BITS                                   64
-  #define LENGTH_WORD                                      16  // length of number packed bases
-  #define LENGTH_WORD_BITS_MULTIPLY                        4   // multiply of number packed bases
-  #define MINIMUM_WORDS_PER_SLICE_GETPLEN                  30  // minimum words per slice that run gplen threading
-  #define MINIMUM_SIZE_NUMBER_WORDS_TO_ACTIVATE_THREADING  60  // need to have this size to activate the threading
-  #define MASK_SEVEN                                       0x7777777777777777U
-  #define MASK_EIGHT                                       0x8888888888888888U
-#else  // default 32 bits
-  typedef uint32_t Lvb_bit_length;                                       // define 32 bits */
-  #define NUMBER_OF_BITS                                   32
-  #define LENGTH_WORD                                      8             // length of number packed bases */
-  #define LENGTH_WORD_BITS_MULTIPLY                        3             // multiply of number packed bases */
-  #define MINIMUM_WORDS_PER_SLICE_GETPLEN                  30            // minimum words per slice that run gplen threading */
-  #define MINIMUM_SIZE_NUMBER_WORDS_TO_ACTIVATE_THREADING  60            // need to have this size to activate the threading */
-  #define MASK_SEVEN                                       0x77777777U
-  #define MASK_EIGHT                                       0x88888888U
-#endif
+typedef uint64_t Lvb_bit_length;                             // define 64 bits
+#define NUMBER_OF_BITS                                   64
+#define LENGTH_WORD                                      16  // length of number packed bases
+#define LENGTH_WORD_BITS_MULTIPLY                        4   // multiply of number packed bases
+#define MINIMUM_WORDS_PER_SLICE_GETPLEN                  30  // minimum words per slice that run gplen threading
+#define MINIMUM_SIZE_NUMBER_WORDS_TO_ACTIVATE_THREADING  60  // need to have this size to activate the threading
+#define MASK_SEVEN                                       0x7777777777777777U
+#define MASK_EIGHT                                       0x8888888888888888U
 
 // values some people may feel the dangerous urge to change
 #define LVB_INPUTSTRING_SIZE 2000   // max. bytes for interactive input

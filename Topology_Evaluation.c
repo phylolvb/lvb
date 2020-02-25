@@ -43,10 +43,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lvb.h"
 
-#ifdef __PPC64__
-#include <popcntll_macro.h>
-#endif
-
 long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const long root,
 	     long *restrict p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs)
 {
@@ -112,22 +108,8 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 								y = r_ssets[j];
 
 								u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
-#ifdef COMPILE_64_BITS
-							#if (defined(__x86_64__) && defined(__GNUC__) && __GNUC__ >= 4 && __GNUC_MINOR__ >= 2)
 								__asm__ ("popcnt %1, %0" : "=r" (ch) : "0" (u));
-							#else
-								#ifndef NP_Implementation // parall
-								#ifdef __PPC64__ // ibm
-									ch = u;
-									LVB_POPCNT_LL(ch);
-								#else
-								#endif //end ibm
-									ch = __builtin_popcountll(u);
-								#endif // parallel
-							#endif // if defin
-#else
-								ch = __builtin_popcount(u);
-#endif
+
 								ch = LENGTH_WORD - ch;
 								u >>= 3;
 								n_changes_temp += ch;
@@ -150,23 +132,7 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 				y = barray[right].sset[j];
 
 				u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
-
-#ifdef COMPILE_64_BITS
-			#if (defined(__x86_64__) && defined(__GNUC__) && __GNUC__ >= 4 && __GNUC_MINOR__ >= 2)
 				__asm__ ("popcnt %1, %0" : "=r" (ch) : "0" (u));
-			#else
-				#ifndef NP_Implementation
-				#ifdef __PPC64__
-					ch = u;
-					LVB_POPCNT_LL(ch);
-				#else
-				#endif
-					ch = __builtin_popcountll(u);
-				#endif
-			#endif
-#else
-				ch = __builtin_popcount(u);
-#endif
 
 				ch = LENGTH_WORD - ch;
 				u >>= 3;
@@ -176,23 +142,7 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 				y = barray[root].sset[j];
 
 				u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
-
-#ifdef COMPILE_64_BITS
-			#if (defined(__x86_64__) && defined(__GNUC__) && __GNUC__ >= 4 && __GNUC_MINOR__ >= 2)
 				__asm__ ("popcnt %1, %0" : "=r" (ch) : "0" (u));
-			#else
-			#ifndef NP_Implementation
-				#ifdef __PPC64__
-					ch = u;
-					LVB_POPCNT_LL(ch);
-				#else
-				#endif
-					ch = __builtin_popcountll(u);
-				#endif
-			#endif
-#else
-				ch = __builtin_popcount(u);
-#endif
 				ch = LENGTH_WORD - ch;
 				n_changes_temp += ch;
 			}
@@ -251,23 +201,7 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 							x = l_ssets[j];
 							y = r_ssets[j];
 							u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
-
-#ifdef COMPILE_64_BITS
-						#if (defined(__x86_64__) && defined(__GNUC__) && __GNUC__ >= 4 && __GNUC_MINOR__ >= 2)
 							__asm__ ("popcnt %1, %0" : "=r" (ch) : "0" (u));
-						#else
-						#ifndef NP_Implementation
-							#ifdef __PPC64__
-								ch = u;
-								LVB_POPCNT_LL(ch);
-							#else
-						#endif
-								ch = __builtin_popcountll(u);
-							#endif
-						#endif
-#else
-							ch = __builtin_popcount(u);
-#endif
 							ch = LENGTH_WORD - ch;
 
 							u >>= 3;
@@ -293,23 +227,7 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 			y = barray[right].sset[j];
 
 			u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
-
-#ifdef COMPILE_64_BITS
-		#if (defined(__x86_64__) && defined(__GNUC__) && __GNUC__ >= 4 && __GNUC_MINOR__ >= 2)
 			__asm__ ("popcnt %1, %0" : "=r" (ch) : "0" (u));
-		#else
-		#ifndef NP_Implementation
-			#ifdef __PPC64__
-				ch = u;
-				LVB_POPCNT_LL(ch);
-			#else
-			#endif
-				ch = __builtin_popcountll(u);
-			#endif
-		#endif
-#else
-			ch = __builtin_popcount(u);
-#endif
 			ch = LENGTH_WORD - ch;
 			u >>= 3;
 			changes += ch;
@@ -318,23 +236,7 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 			y = barray[root].sset[j];
 
 			u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
-
-#ifdef COMPILE_64_BITS
-		#if (defined(__x86_64__) && defined(__GNUC__) && __GNUC__ >= 4 && __GNUC_MINOR__ >= 2)
 			__asm__ ("popcnt %1, %0" : "=r" (ch) : "0" (u));
-		#else
-		#ifndef NP_Implementation
-			#ifdef __PPC64__
-				ch = u;
-				LVB_POPCNT_LL(ch);
-			#else
-			#endif
-				ch = __builtin_popcountll(u);
-			#endif
-		#endif
-#else
-			ch = __builtin_popcount(u);
-#endif
 			ch = LENGTH_WORD - ch;
 			changes += ch;
 		}

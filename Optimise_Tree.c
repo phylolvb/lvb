@@ -761,13 +761,10 @@ static void tree_make_canonical(Dataptr restrict matrix, Branch *const barray, l
 	Lvb_bool swap_made;							/* flag to indicate swap made */
 	long tmp;								/* for swapping */
 
-	FILE * f = fopen("topologies_canonical", "wb");
-
     do {
 		swap_made = LVB_FALSE;
 		for (i = 0; i < nbranches; i++)
 			{
-				fprintf(f, "%ld\n", objnos[i]);
 			obj_no = objnos[i];
 			if ((obj_no != UNSET) && (obj_no != i)) {
 				tmp_1 = barray[obj_no];
@@ -793,7 +790,6 @@ static void tree_make_canonical(Dataptr restrict matrix, Branch *const barray, l
 		}
     } while (swap_made == LVB_TRUE);
 
-	fclose(f);
     /* patch up assignment of sset memory to prevent trouble in treecopy() */
     for (i = 0; i < nbranches; i++)
 	{
@@ -1141,7 +1137,7 @@ static long setstcmp(Dataptr matrix, Objset *const oset_1, Objset *const oset_2,
 /* return 0 if the same sets of objects are in oset_1 and oset_2,
  * and non-zero otherwise */
 {
-    long i;		/* loop counter */
+    long i, n;		/* loop counter */
 	FILE *f_1 = fopen("topologies_setstcmp_1", "wb");
 	FILE *f_2 = fopen("topologies_setstcmp_2", "wb");
 
@@ -1152,9 +1148,10 @@ static long setstcmp(Dataptr matrix, Objset *const oset_1, Objset *const oset_2,
 
     /* compare the set arrays */
     for (i = 0; i < matrix->nsets; i++){
-		// loop .set[0]
-		fprintf(f_1, "%ld-1\n", oset_1[i].set[0]);
-		fprintf(f_2, "%ld-1\n", oset_2[i].set[0]);
+		for (n = 0; i < matrix->nsets; i++){
+		fprintf(f_1, "%ld-1\n", oset_1[i].set[n]);
+		fprintf(f_2, "%ld-1\n", oset_2[i].set[n]);
+		}
     	if (oset_1[i].cnt != oset_2[i].cnt) return 1;
 		if (memcmp(oset_1[i].set, oset_2[i].set, sizeof(long) * oset_1[i].cnt) != 0) return 1;
 		}
