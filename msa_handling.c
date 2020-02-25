@@ -39,9 +39,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== MSA_Handling.c - data matrix operations ========== */
+/* ========== msa_handling.c - data matrix operations ========== */
 
-#include "MSA_Handling.h"
+#include "msa_handling.h"
 
 static char *getstatev(const Dataptr restrict matrix, const long k)
 	/* return pointer to string containing 1 instance of each character state in

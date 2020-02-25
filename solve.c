@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lvb.h"
 
 #ifndef NP_Implementation
-#include "Parallel_Checkpointing.h"
+#include "parallel_checkpointing.h"
 #endif
 
 	static void lenlog(FILE *lengthfp, Treestack *bstackp, int myMPIid, long iteration, long length, double temperature)

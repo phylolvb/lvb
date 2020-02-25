@@ -39,7 +39,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== Search_Parameters.c - get and set configurable parameters ========== */
+/* ========== search_parameters.c - get and set configurable parameters ========== */
 
 #include "lvb.h"
 

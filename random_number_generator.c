@@ -39,7 +39,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== Random_Number_Generator.c - random number generation ========== */
+/* ========== random_number_generator.c - random number generation ========== */
 
 /* exactly as suppplied by EPCC, except rcsid added, printf() then
  * exit() replaced with crash() (and braces made redundant removed),
@@ -66,7 +66,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lvb.h"
 
 #ifndef NP_Implementation
-#include "Parallel_Checkpointing.h"
+#include "parallel_checkpointing.h"
 #endif
 
 static void rstart(int i, int j, int k, int l);

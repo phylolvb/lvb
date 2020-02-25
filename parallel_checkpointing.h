@@ -40,7 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-/* ********** Parallel_Checkpointing.h - interface for Parallel_Checkpointing.c ********** */
+/* ********** parallel_checkpointing.h - interface for parallel_checkpointing.c ********** */
 
 #include "lvb.h"
 

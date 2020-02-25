@@ -39,9 +39,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== Optimise_Tree.c - tree operations ========== */
+/* ========== optimise_tree.c - tree operations ========== */
 
-#include "Optimise_Tree.h"
+#include "optimise_tree.h"
 
 void nodeclear(Branch *const barray, const long brnch)
 /* Initialize all scalars in branch brnch to UNSET or zero as appropriate,

@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef NP_Implementation
 #include <inttypes.h>
-#include "Parallel_Checkpointing.h"
+#include "parallel_checkpointing.h"
 #endif
 
 	static Treestack bstack_overall;	/* overall best tree stack */
