@@ -94,7 +94,7 @@ double val = -1;  // return value, initialized to stop warnings
 if (x < 0) {
   if ((ceil(y) != y) || (floor(y) != y)) {
     crash("internal error detected in function pow_wrapper():\n"
-    #ifndef NP_Implementation
+    #ifdef MAP_REDUCE_SINGLE
       "domain error. x is %g, y is %g, ceil(y) is %g, floor(y) is %g",
       x, y, ceil(y), floor(y));
     #else

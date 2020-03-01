@@ -172,23 +172,6 @@ void usage(char *p_file_name) {
   printf("    Fine-grain multithreading         -p [VALUE]          Number of threads requested; default: one thread \n");
 
   printf("\n");
-
-  // #ifndef NP_Implementation
-  // #ifndef MAP_REDUCE_SINGLE
-  // printf("    -N specify the number of seeds to try, need to be greater than number of mpi process.\n"
-  //  "       default: it is the number of mpi process.\n");
-  // #endif
-  // #endif
-  // MPI
-  // printf("    -C value in seconds when a checkpoint file is going to be saved.\n"
-  //        "       default: 1800\n");
-  // MPI + MR
-  // printf("    -S if defined it is going to read and save states at a specific time points.\n"
-  //  "       If you want to read a state the command line need to be exactly the previous\n        on save state point plus -S flag.\n"
-  //  "       The state files need to be in the same directory where the lvb_mpi is called.\n"
-  //  "       The states files has the names \"state_<number of mpi process>.dat>\"\n"
-  //  "       default: it is not going to save/read states.\n");
-
   exit(0);
 }
 
@@ -296,30 +279,6 @@ int read_parameters(Params *prms, int argc, char **argv) {
             prms->n_processors_available = atoi(optarg);
             if (prms->n_processors_available < 1) prms->n_processors_available = 1;
         break;
-
-        #ifndef NP_Implementation
-          case 'S':  // number of seeds to try
-            prms->n_flag_save_read_states = DO_SAVE_READ_STATES;
-            break;
-        #ifndef MAP_REDUCE_SINGLE
-          case 'N':  // number of seeds to try
-            if (optarg == NULL) {
-              fprintf(stderr, "Option -%c requires an argument -N <int>\n", optopt);
-              usage(argv[0]);
-              return 1;
-            }
-            prms->n_seeds_need_to_try = atoi(optarg);
-        break;
-          case 'C':  // checkpoint in seconds
-            if (optarg == NULL) {
-              fprintf(stderr, "Option -%c requires an argument -C <int>\n", optopt);
-              usage(argv[0]);
-              return 1;
-            }
-            prms->n_checkpoint_interval = atoi(optarg);
-        break;
-        #endif
-        #endif
           case '?':
           case 'h':
           default:

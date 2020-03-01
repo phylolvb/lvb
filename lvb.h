@@ -69,24 +69,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "clock.h"
 #include "log_file.h"
 
-#ifndef NP_Implementation
+#ifdef MAP_REDUCE_SINGLE
   #include <mpi.h>
   #include "mapreduce.h"
   #include "block_macros.h"
   #include "key_value.h"
-  #ifdef MAP_REDUCE_SINGLE
     #include <iostream>
     using namespace MAPREDUCE_NS;
     using namespace std;
     #define __STDC_LIMIT_MACROS
-  #endif
-#endif
-
-// set if is to compile with 64 or 32 bits
-#ifndef NP_Implementation
-  #define MPI_SEND_ONLY_MATRIX_NAMES  // if defined only send the names of the matrix
-                                        // sometimes the data matrix are huge and it's only necessary to pass
-                                        // the names of the other process
 #endif
 
 // DNA bases: bits to set in statesets
@@ -114,11 +105,6 @@ typedef uint64_t Lvb_bit_length;                             // define 64 bits
 // #define STAT_LOG_INTERVAL 10000  // min. interval for progress log
 #define UNSET (-1)                  // value of integral vars when unset
 
-#ifndef NP_Implementation
-  #define CHECKPOINT_INTERVAL 1800  // checkpoint ~every ... seconds
-  #define CHECKPOINT_FNAM_BASE "lvb_checkpoint"
-#endif
-
 // limits that could be changed but, if increased enormously, might lead to
 // some trouble at some point
 #define MAX_N 1000000  // max. rows
@@ -141,47 +127,6 @@ typedef struct {  // object set derived from a cladogram
   long *set;      // arrays of object sets
   long cnt;       // sizes of object sets
 } Objset;
-
-#ifndef NP_Implementation
-  // MPI definitions...
-  #define MPI_MAIN_PROCESS                0  // main process
-
-  #define MPI_TAG_MATRIX                  1
-  #define MPI_TAG_NAME_AND_SEQ_DATA       2
-  #define MPI_TAG_BINARY_DATA             3
-  #define MPI_TAG_PARAMS                  4
-  #define MPI_TAG_SEND_TEMP_MASTER        5
-  #define MPI_TAG_SEND_FINISHED           6
-  #define MPI_TAG_SEND_RESTART            7
-  #define MPI_TAG_MANAGEMENT_MASTER       8
-
-  #define MPI_FINISHED               0x00
-  #define MPI_IS_TO_RESTART_ANNEAL   0x01
-  #define MPI_IS_TO_CONTINUE_ANNEAL  0x02
-  #define MPI_IS_NOT_TO_RESTART      0x03
-  #define MPI_IS_TO_CONTINUE         0x04
-  // END MPI definitions...
-
-  // anneal state
-  #define MESSAGE_ANNEAL_IS_RUNNING_OR_WAIT_TO_RUN        0x00
-  #define MESSAGE_ANNEAL_FINISHED_AND_NOT_REPEAT          0x01
-  #define MESSAGE_ANNEAL_FINISHED_AND_REPEAT              0x02
-  #define MESSAGE_ANNEAL_KILLED                           0x03
-  #define MESSAGE_ANNEAL_KILLED_AND_REPEAT                0x04
-  #define MESSAGE_ANNEAL_KILLED_AND_NOT_REPEAT            0x05
-  #define MESSAGE_ANNEAL_STOP_PROCESS_WAIT_FINAL_MESSAGE  0x06
-  #define MESSAGE_ANNEAL_STOP_PROCESS                     0x07
-  #define MESSAGE_BEGIN_CONTROL                           0x08
-  // anneal state
-
-  // Define calc iterations algorithm
-  #define CALC_ITERATION_ONLY_RELEASE_AFTER_NUMBER_CHUNCHS  5  // the number of chunk of iterations that need to be
-                                                               // to start release
-                                                               // Ex: if 3 the algorithm doesn't kill the process in the first three chunk of temperatures
-  #define CALC_ITERATION_NUMBER_STD_TO_RESTART_PROCESS      1  // if for a specific process the length exceeds this many SD from the mean
-                                                               // then the process need to restart with other seed
-  // END  Define calc iterations algorithm
-#endif
 
 // branch of tree
 typedef struct {
@@ -210,14 +155,13 @@ typedef struct {
 #define GRAD_LINEAR (3.64 * 1E-8)  // temperature gradient
 #define MAXPROPOSE_SLOW 2000L      // maxpropose for "slow" searches
 #define MAXFAIL_SLOW 40L           // maxfail for "slow" searches
-#ifndef NP_Implementation
+#ifdef MAP_REDUCE_SINGLE
   #define MAXACCEPT_MIN 5L         // minimum value for maxaccept
-  #ifdef MAP_REDUCE_SINGLE
-    #define MAXACCEPT_MAX 5L       // maximum value for maxaccept
-  #else
-    #define MAXACCEPT_MAX 500L     // maximum value for maxaccept
-  #endif
+  #define MAXACCEPT_MAX 5L       // maximum value for maxaccept
+#else
+  #define MAXACCEPT_MAX 500L     // maximum value for maxaccept
 #endif
+
 
 #define MAXACCEPT_SLOW 5L          // maxaccept for "slow" searches
 
@@ -337,23 +281,17 @@ void treestack_free(Dataptr restrict matrix, Treestack *);
 long getminlen(const Dataptr);
 long getplen(Dataptr restrict, Branch *, Params rcstruct, const long, long *restrict p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs);
 
-#ifndef NP_Implementation
-  #ifdef MAP_REDUCE_SINGLE
-    long anneal(Dataptr restrict, Treestack *, Treestack *, const Branch *const, Params rcstruct, Params *p_rcstruct, long, const double,
-                const long, const long, const long, FILE *const, long *, int, Lvb_bool, MISC *misc, MapReduce *mrStackTree, MapReduce *mrBuffer);
-    uint64_t tree_setpush(Dataptr restrict matrix, const Branch *const tree, const long root, MapReduce *mrObj, MISC *misc);
-    void map_clean(uint64_t itask, char *key, int keybytes, char *value, int valuebytes, KeyValue *kv, void *ptr);
-    void reduce_count(char *key, int keybytes, char *multivalue, int nvalues, int *valuebytes, KeyValue *kv, void *ptr);
-    // void reduce_sets(char *key, int keybytes, char *multivalue, int nvalues, int *valuebytes, KeyValue *kv, void *ptr);
-    void reduce_filter(char *key, int keybytes, char *multivalue, int nvalues, int *valuebytes, KeyValue *kv, void *ptr);
-    void print_sets(Dataptr restrict matrix, Treestack *sp, MISC *misc);
-    long deterministic_hillclimb(Dataptr, Treestack *, const Branch *const, Params rcstruct, long, FILE * const, long *, int, Lvb_bool,
-                                 MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer);
-  #else
-  long anneal(Dataptr restrict, Treestack *, Treestack *, const Branch *const, Params rcstruct, Params *p_rcstruct, long, const double,
-              const long, const long, const long, FILE *const, long *, int, Lvb_bool, int *p_n_state_progress, int *p_n_number_tried_seed);
-  long deterministic_hillclimb(Dataptr, Treestack *, const Branch *const, Params rcstruct, long, FILE * const, long *, int, Lvb_bool);
-  #endif
+#ifdef MAP_REDUCE_SINGLE
+long anneal(Dataptr restrict, Treestack *, Treestack *, const Branch *const, Params rcstruct, Params *p_rcstruct, long, const double,
+            const long, const long, const long, FILE *const, long *, int, Lvb_bool, MISC *misc, MapReduce *mrStackTree, MapReduce *mrBuffer);
+uint64_t tree_setpush(Dataptr restrict matrix, const Branch *const tree, const long root, MapReduce *mrObj, MISC *misc);
+void map_clean(uint64_t itask, char *key, int keybytes, char *value, int valuebytes, KeyValue *kv, void *ptr);
+void reduce_count(char *key, int keybytes, char *multivalue, int nvalues, int *valuebytes, KeyValue *kv, void *ptr);
+// void reduce_sets(char *key, int keybytes, char *multivalue, int nvalues, int *valuebytes, KeyValue *kv, void *ptr);
+void reduce_filter(char *key, int keybytes, char *multivalue, int nvalues, int *valuebytes, KeyValue *kv, void *ptr);
+void print_sets(Dataptr restrict matrix, Treestack *sp, MISC *misc);
+long deterministic_hillclimb(Dataptr, Treestack *, const Branch *const, Params rcstruct, long, FILE * const, long *, int, Lvb_bool,
+                             MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer);
 unsigned long checkpoint_uni(FILE *);
 unsigned long restore_uni(FILE *);
 void checkpoint_treestack(FILE *, Treestack *, Dataptr, Lvb_bool b_with_sset);
@@ -362,10 +300,6 @@ long get_random_maxaccept(void);
 long treecmp(Dataptr restrict matrix, const Branch *const tree_1, const Branch *const tree_2, long root, Lvb_bool b_First);
 void treedump_b(Dataptr, FILE *const, const Branch *const, Lvb_bool);
 void dnapars_wrapper(void);
-IterationTemperature *get_alloc_main_calc_iterations(void);
-void add_temperature_cal_iterations(IterationTemperature *p_data, SendInfoToMaster *p_info_temp, int n_process);
-Lvb_bool is_possible_to_continue(IterationTemperature *p_data, double d_temperature, int n_iteration, int l_tree_length, int n_max_number_process, int n_count_call);
-void release_main_calc_iterations(IterationTemperature *p_data);
 long treestack_push_only(Dataptr restrict matrix, Treestack *sp, const Branch *const barray, const long root, Lvb_bool b_with_sset);
 void copy_sset(Dataptr restrict matrix, Objset *p_sset_1);
 

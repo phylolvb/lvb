@@ -1114,7 +1114,7 @@ static void cr_uxe(FILE *const stream, const char *const msg)
 
 	} /* end ur_print() */
 
-#ifndef NP_Implementation
+#ifdef MAP_REDUCE_SINGLE
 long treecmp(Dataptr matrix, const Branch *const tree_1, const Branch *const tree_2, long root, Lvb_bool b_First)
 #else
 long treecmp(Dataptr matrix, Objset *sset_1, const Branch *const tree_2, Lvb_bool b_First)
@@ -1123,7 +1123,7 @@ long treecmp(Dataptr matrix, Objset *sset_1, const Branch *const tree_2, Lvb_boo
  * that of tree_2 (of root root_2), or non-zero if different */
 {
 //	b_First = LVB_TRUE;
-	#ifndef NP_Implementation
+	#ifdef MAP_REDUCE_SINGLE
 	makesets(matrix, tree_1, tree_2, root, b_First);
 	return setstcmp(matrix, sset_1, sset_2, b_First);
 	#else
@@ -1141,7 +1141,7 @@ static long setstcmp(Dataptr matrix, Objset *const oset_1, Objset *const oset_2,
 	FILE *f_1 = fopen("topologies_setstcmp_1", "wb");
 	FILE *f_2 = fopen("topologies_setstcmp_2", "wb");
 
-	#ifndef NP_Implementation
+	#ifdef MAP_REDUCE_SINGLE
     /* sort the set arrays and their constituent sets */
     sort(matrix, oset_1, oset_2, matrix->nsets, b_First);
 	#endif
@@ -1276,7 +1276,7 @@ static int osetcmp(const void *oset1, const void *oset2)
 
 } /* end osetcmp() */
 
-#ifndef NP_Implementation
+#ifdef MAP_REDUCE_SINGLE
 static void makesets(Dataptr matrix, const Branch *const tree_1, const Branch *const tree_2, const long root, Lvb_bool b_First)
 #else
 void makesets(Dataptr matrix, const Branch *const tree_2, const int root)
@@ -1287,7 +1287,7 @@ void makesets(Dataptr matrix, const Branch *const tree_2, const int root)
  * the trees must have the same object in the root branch;
  * arrays will be overwritten on subsequent calls */
 {
-	#ifndef NP_Implementation
+	#ifdef MAP_REDUCE_SINGLE
     if (sset_1[0].set == NULL){	/* first call, allocate memory */
 		ssarralloc(matrix, sset_1, sset_2);
     }
@@ -1305,7 +1305,7 @@ void makesets(Dataptr matrix, const Branch *const tree_2, const int root)
 
 } /* end makesets() */
 
-#ifndef NP_Implementation
+#ifdef MAP_REDUCE_SINGLE
 static void ssarralloc(Dataptr matrix, Objset *nobjset_1, Objset *nobjset_2)
 /* Fill nobjset[0..nsets-1] with pointers each pointing to newly
  * allocated space for setsize objects; assumes nobjset points to the
@@ -1337,7 +1337,6 @@ static void ssarralloc(Dataptr matrix, Objset *nobjset_2)
 } /* end ssarralloc() */
 #endif
 
-#ifndef NP_Implementation
 #ifdef MAP_REDUCE_SINGLE
 	void print_sets(Dataptr matrix, Treestack *sp, MISC *misc)
 	{
@@ -1448,7 +1447,6 @@ static void ssarralloc(Dataptr matrix, Objset *nobjset_2)
 		}
 
 	}
-#endif
 #endif
 
 static void fillsets(Dataptr matrix, Objset *const sstruct, const Branch *const tree, const long root)

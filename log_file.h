@@ -46,14 +46,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef NP_Implementation
   #define LVB_IMPLEMENTATION "NP"
-#endif
-#ifdef MPI_Implementation
-  #ifdef MAP_REDUCE_SINGLE
-    #define LVB_IMPLEMENTATION "MR"
   #else
-    #define LVB_IMPLEMENTATION "MPI"
+    #define LVB_IMPLEMENTATION "MR"
   #endif
-#endif
 
 bool logfile_exists(const char *filename);
 

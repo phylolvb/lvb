@@ -51,7 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	int read_parameters(Params *prms, int argc, char **argv);
 #endif
 
-#ifndef NP_Implementation
+#ifdef MAP_REDUCE_SINGLE
 long get_random_maxaccept(void)
 /* return a random integer value, for use as the maxaccept parameter in
  * the simulated annealing search */
@@ -70,7 +70,7 @@ int get_default_seed(void)
 
     tim = time(NULL);
     lvb_assert(tim != -1);
-    #ifndef NP_Implementation
+    #ifdef MAP_REDUCE_SINGLE
     ul_seed = (unsigned long) tim;
     ul_seed = ul_seed % (1UL + (unsigned long) MAX_SEED);
     #else
@@ -86,18 +86,6 @@ void defaults_params(Params *const prms)
 /* set seed in *prms to unacceptable value, and other parameters to their
  * defaults_params from lvb.h */
 {
-#ifdef MPI_Implementation 
-    prms->n_seeds_need_to_try = 1;
-    prms->n_checkpoint_interval = CHECKPOINT_INTERVAL;
-#endif
-
-#ifndef NP_Implementation
-    /* by default dont read and save states */
-    prms->n_flag_save_read_states = DONT_SAVE_READ_STATES;
-    prms->n_flag_is_finished_process = CHECK_POINT_PROCESS_NOT_FINISHED;
-    prms->n_flag_is_possible_read_state_files = CHECK_POINT_NOT_READ_STATE_FILES;
-#endif
-
     /* meaningful value that is not user-configurable */
     prms->verbose = LVB_FALSE;
 
@@ -122,20 +110,9 @@ int Search_Parameters(Params *prms, int argc, char **argv)
 {
         defaults_params(prms);
 
-#ifndef NP_Implementation
-
-#ifdef MPI_Implementation
-        int n_default_seed = prms->seed;
-#endif
-        int n_error_code = read_parameters(prms, argc, argv);
-
-#ifdef MPI_Implementation
-        /* change initial seed because the user defined one */
-        if (prms->seed != n_default_seed){
-	        srand(prms->seed);
-        }
-#endif
-        return n_error_code;
+#ifdef MAP_REDUCE_SINGLE
+  int n_error_code = read_parameters(prms, argc, argv);
+  return n_error_code;
 #else
     read_parameters(prms, argc, argv);
 #endif

@@ -53,15 +53,13 @@ void crash(const char *const fmt, ...) {
   va_end(args);
   printf("\n");
 
-  #ifndef NP_Implementation
+  #ifdef MAP_REDUCE_SINGLE
     int n_error_code = 1;
     MPI_Abort(MPI_COMM_WORLD, n_error_code);
-    cleanup();
-    exit(EXIT_FAILURE);
-  #else
-    cleanup();
-    exit(EXIT_FAILURE);
   #endif
+
+  cleanup();
+  exit(EXIT_FAILURE);
 }  // end crash()
 
 void lvb_assertion_fail(const char *test, const char *file, int line) {

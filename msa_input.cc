@@ -596,16 +596,11 @@ int CReadFiles::clean_data(){
 	n_max_length_name_seq = 0;
 
 	/// get the extension from the file name
-#ifdef WINDOWS_KEY_WORD
-	if (sz_file_name.find_last_of("\\") != string::npos){
-		sz_only_file_name = sz_file_name.substr(sz_file_name.find_last_of("\\") + 1, sz_file_name.length() - sz_file_name.find_last_of("\\"));
-	}
-#else
+
 	// linux and mac
 	if (sz_file_name.find_last_of("/") != string::npos){
 		sz_only_file_name = sz_file_name.substr(sz_file_name.find_last_of("/") + 1, sz_file_name.length() - sz_file_name.find_last_of("/"));
 	}
-#endif
 	else sz_only_file_name = sz_file_name;
 
 

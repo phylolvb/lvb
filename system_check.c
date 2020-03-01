@@ -57,10 +57,6 @@ static void functionality_check(void) {
   // against floating-point arithmetic problems
   if (DBL_EPSILON >= LVB_EPS)
     crash("program requires greater floating point precision");
-  #ifdef MPI_Implementation
-    if (!((LVB_EPS + INITIAL_INCREMENT) != INITIAL_INCREMENT))
-      crash("LVB_EPS and INITIAL_INCREMENT are incompatible with floating point precision");
-  #endif
 }  // end functionality_check()
 
 void lvb_initialize(void) {

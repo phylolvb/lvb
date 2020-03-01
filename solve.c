@@ -43,10 +43,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lvb.h"
 
-#ifndef NP_Implementation
-#include "parallel_checkpointing.h"
-#endif
-
 	static void lenlog(FILE *lengthfp, Treestack *bstackp, int myMPIid, long iteration, long length, double temperature)
 
 	/* write a message to file pointer lengthfp; iteration gives current iteration;
@@ -202,12 +198,9 @@ long anneal(Dataptr restrict matrix, Treestack *bstackp, Treestack *treevo, cons
 		long root, const double t0, const long maxaccept, const long maxpropose,
 		const long maxfail, FILE *const lenfp, long *current_iter, int myMPIid, Lvb_bool log_progress
 
-#ifndef NP_Implementation
+
 #ifdef MAP_REDUCE_SINGLE
 		, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer
-#else
-		, int *p_n_state_progress, int *p_n_number_tried_seed
-#endif
 #endif
 )
 
@@ -252,46 +245,9 @@ long anneal(Dataptr restrict matrix, Treestack *bstackp, Treestack *treevo, cons
 	    double grad_linear = GRAD_LINEAR; 	/* gradient of the linear schedule */
 		long lenmin;						// minimum length for any tree
 
-#ifndef NP_Implementation
-#ifndef MAP_REDUCE_SINGLE
-		time_t curr_time;				/* current time */
-	    double elapsed_time;			/* approximate time since last checkpoint (in seconds) */
-	    time_t last_checkpoint_time;		/* approximate time of last checkpoint */
-	    FILE *fp;					/* for checkpoint/restore */
-	    int nFlag;
-	    MPI_Request request_handle_send = 0, request_message_from_master = 0;
-		MPI_Status mpi_status;
-
-		/* structure to use sending temperature and number of interactions to master process */
-		int				nItems = 3;
-		int          	blocklengths[3] = {2, 1, 1};
-		MPI_Datatype 	types[3] = {MPI_INT, MPI_LONG, MPI_DOUBLE};
-		MPI_Datatype 	mpi_recv_data;
-		MPI_Aint     	displacements[3];
-		displacements[0] = offsetof(SendInfoToMaster, n_iterations);
-		displacements[1] = offsetof(SendInfoToMaster, l_length);
-		displacements[2] = offsetof(SendInfoToMaster, temperature);
-		MPI_Type_create_struct(nItems, blocklengths, displacements, types, &mpi_recv_data);
-		MPI_Type_commit(&mpi_recv_data);
-
-		nItems = 1;
-		int          	blocklengths_2[1] = {3};
-		MPI_Datatype 	types_2[1] = {MPI_INT};
-		MPI_Datatype 	mpi_data_from_master;
-		MPI_Aint     	displacements_2[1];
-		displacements_2[0] = offsetof(RecvInfoFromMaster, n_seed);
-		MPI_Type_create_struct(nItems, blocklengths_2, displacements_2, types_2, &mpi_data_from_master);
-		MPI_Type_commit(&mpi_data_from_master);
-
-		/* REND variables that could calculate immediately */
-		SendInfoToMaster * p_data_info_to_master;
-		p_data_info_to_master = (SendInfoToMaster *) malloc(sizeof(SendInfoToMaster));
-		RecvInfoFromMaster * p_data_info_from_master;
-		p_data_info_from_master = (RecvInfoFromMaster *) malloc(sizeof(RecvInfoFromMaster));
-#else
+#ifdef MAP_REDUCE_SINGLE
 	    int *total_count;
 	    int check_cmp;
-#endif
 #endif
 
 	    /* variables that could calculate immediately */
@@ -356,13 +312,6 @@ long anneal(Dataptr restrict matrix, Treestack *bstackp, Treestack *treevo, cons
 				lenmin = getminlen(matrix);
 				r_lenmin = (double) lenmin;
 				
-				#ifdef MPI
-				#ifndef MAP_REDUCE_SINGLE
-				*p_n_state_progress = MESSAGE_ANNEAL_FINISHED_AND_REPEAT; /* we consider always is necessary to repeat */
-	    		last_checkpoint_time = time(NULL);
-				#endif
-				#endif
-				
 			while (1) {
 				int changeAcc = 0;
 				*current_iter += 1;
@@ -375,40 +324,6 @@ long anneal(Dataptr restrict matrix, Treestack *bstackp, Treestack *treevo, cons
 	        		if(misc->rank == 0)  
 					#endif
 					lenlog(lenfp, bstackp, myMPIid, *current_iter, len, t);
-	        
-			#ifndef NP_Implementation
-			#ifndef MAP_REDUCE_SINGLE 
-			/* send temperature to the master process*/
-					if (request_handle_send != 0) { MPI_Wait(&request_handle_send, MPI_STATUS_IGNORE); }
-					p_data_info_to_master->n_iterations = *current_iter;
-					p_data_info_to_master->n_seed = p_rcstruct->seed;
-					p_data_info_to_master->l_length = lenbest;
-					p_data_info_to_master->temperature = t;
-					/* printf("Process:%d   send temperature:%.3g   iterations:%ld\n", myMPIid, t, *current_iter); */
-					MPI_Isend(p_data_info_to_master, 1, mpi_recv_data, MPI_MAIN_PROCESS, MPI_TAG_SEND_TEMP_MASTER, MPI_COMM_WORLD, &request_handle_send);
-
-					/* now get the message to continue or not, but need in second iteration... */
-					if (request_message_from_master != 0) {
-						MPI_Wait(&request_message_from_master, MPI_STATUS_IGNORE);
-						MPI_Test(&request_message_from_master, &nFlag, &mpi_status);
-						if (nFlag == 0) { printf("ERROR, mpi waiting is not working File:%s  Line:%d\n", __FILE__, __LINE__); }
-						if (nFlag == 1){
-							if (p_data_info_from_master->n_is_to_continue == MPI_IS_TO_RESTART_ANNEAL){	/*it's there and need to restart*/
-								MPI_Cancel(&request_handle_send);
-								request_message_from_master = 0;
-								request_handle_send = 0;
-								*p_n_state_progress = MESSAGE_ANNEAL_KILLED;
-								break;
-							}
-							/* otherwise need to proceed... */
-						}
-					}
-					/* printf("Process:%d   receive management\n", myMPIid); */
-					/* need to get other message to proceed... */
-					MPI_Irecv(p_data_info_from_master, 1, mpi_data_from_master, MPI_MAIN_PROCESS, MPI_TAG_MANAGEMENT_MASTER, MPI_COMM_WORLD, &request_message_from_master);
-			#endif
-			#endif
-
 					}
 			}
 			lvb_assert(t > DBL_EPSILON);
@@ -677,61 +592,6 @@ long anneal(Dataptr restrict matrix, Treestack *bstackp, Treestack *treevo, cons
     /* free "local" dynamic heap memory */
 	if (rcstruct.verbose == LVB_TRUE)
 	fclose(pFile);
-
-	#ifndef NP_Implementation
-	#ifndef MAP_REDUCE_SINGLE
-		curr_time = time(NULL);
-		elapsed_time = difftime(curr_time, last_checkpoint_time);
-		if ((p_rcstruct->n_flag_save_read_states == DO_SAVE_READ_STATES && elapsed_time > p_rcstruct->n_checkpoint_interval) ||
-			(*current_iter > 300000) ) {
-		   	fp = open_file_by_MPIid(myMPIid, "wb", LVB_TRUE);
-		   	int is_process_finished = CHECK_POINT_PROCESS_NOT_FINISHED, n_number_blocks = 4;
-		   	fwrite(&is_process_finished, sizeof(is_process_finished), 1, fp);
-			fwrite(&n_number_blocks, sizeof(n_number_blocks), 1, fp);
-			checkpoint_treestack(fp, bstackp, matrix, LVB_FALSE);
-			checkpoint_uni(fp);
-			checkpoint_anneal(fp, matrix, accepted, dect, deltah, deltalen, failedcnt, iter, *current_iter, len, lenbest,
-			lendash, ln_t, t_n, t0, pacc, proposed, r_lenmin, root, t, grad_geom, grad_linear,
-			p_current_tree, LVB_TRUE, p_proposed_tree, LVB_TRUE);
-			checkpoint_params(fp, p_rcstruct);
-			last_checkpoint_time = curr_time;
-			lvb_assert(fclose(fp) == 0);
-			rename_file_name(myMPIid); /* atomic operation to rename the file name */
-			printf("Checkpoint saved MPIid: %d\n", myMPIid);
-		    }
-	    /* cancel some request messages if it is necessary */
-	    if (request_message_from_master != 0) MPI_Cancel(&request_message_from_master);
-	    if (request_handle_send != 0) MPI_Cancel(&request_handle_send);
-
-	    /* Send FINISH message to master */
-	    if (*p_n_state_progress == MESSAGE_ANNEAL_KILLED || *p_n_state_progress == MESSAGE_ANNEAL_FINISHED_AND_REPEAT){	/* it's necessary to send this message */
-	    	/* send the MPI_ID then the root can translate for the number of tried_seed */
-	    	int n_finish_message = MPI_FINISHED;
-	    	MPI_Isend(&n_finish_message, 1, MPI_INT, MPI_MAIN_PROCESS, MPI_TAG_SEND_FINISHED, MPI_COMM_WORLD, &request_handle_send);
-	    	MPI_Wait(&request_handle_send, MPI_STATUS_IGNORE); /* need to do this because the receiver is asynchronous */
-
-	    	/* need to wait for information if is necessary to run another */
-	    	/* this one need to print the result */
-	    	MPI_Status mpi_status;
-	    	MPI_Recv(p_data_info_from_master, 1, mpi_data_from_master, MPI_MAIN_PROCESS, MPI_TAG_SEND_RESTART, MPI_COMM_WORLD, &mpi_status); /* this one waits until the master receive all confirmations */
-
-	    	if (p_data_info_from_master->n_is_to_continue == MPI_IS_NOT_TO_RESTART){
-	    		if (*p_n_state_progress == MESSAGE_ANNEAL_KILLED) *p_n_state_progress = MESSAGE_ANNEAL_KILLED_AND_NOT_REPEAT;
-	    		else *p_n_state_progress = MESSAGE_ANNEAL_FINISHED_AND_NOT_REPEAT;
-	    	}
-	    	else{
-	    		p_rcstruct->seed = p_data_info_from_master->n_seed;  /* new seed */
-	    		if (*p_n_state_progress == MESSAGE_ANNEAL_KILLED) *p_n_state_progress = MESSAGE_ANNEAL_KILLED_AND_REPEAT;
-	    		else *p_n_state_progress = MESSAGE_ANNEAL_FINISHED_AND_REPEAT;
-	    	}
-	    	*p_n_number_tried_seed = p_data_info_from_master->n_process_tried;  /* it's necessary to create a file with trees */
-	    }
-	    free(p_data_info_to_master);
-	    free(p_data_info_from_master);
-
-#endif
-#endif
-
 	free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
     free(p_current_tree);
     free(p_proposed_tree);

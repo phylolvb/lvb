@@ -43,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define CLADESEP ","	/* clade separator for trees */
 
-#ifndef NP_Implementation
+#ifdef MAP_REDUCE_SINGLE
 /* maximum number of object sets per tree */
 #define MAX_SSET_SIZE (MAX_N - 3)
 #endif
@@ -63,7 +63,7 @@ static void ur_print(Dataptr restrict, FILE *const stream, const Branch *const b
 static int objnocmp(const void *o1, const void *o2);
 
 
-#ifndef NP_Implementation
+#ifdef MAP_REDUCE_SINGLE
 static void makesets(Dataptr matrix, const Branch *const tree_1, const Branch *const tree_2, const long root, Lvb_bool b_First);
 
 
@@ -79,11 +79,9 @@ static void tree_make_canonical(Dataptr restrict, Branch *const barray, long *ob
 
 #endif
 
-#ifndef NP_Implementation
+
 #ifdef MAP_REDUCE_SINGLE
 	void map_pushSets(int itask, KeyValue *kv, void *ptr);
-#endif
-
 /* object sets for tree 1 in comparison */
 static Objset sset_1[MAX_N - 3] = { { NULL, 0 } };
 #endif

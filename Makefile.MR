@@ -128,8 +128,8 @@ else
 	CFLAGS += -DMPI_Implementation -DMAP_REDUCE_SINGLE
 	CXXFLAGS += -DMPI_Implementation -DMAP_REDUCE_SINGLE
 	## LM = -lm /home/s1880345/mrmpi-7Apr14/src/libmrmpi_mpicc.a 		## Eddie
-	LM = -lm /home/s1880345/bin/libmrmpi_mpicc.a						## Desktop
-	## LM = -lm /home/joe/Packages/mrmpi-7Apr14/src/libmrmpi_mpicc.a	## Laptop
+	## LM = -lm /home/s1880345/bin/libmrmpi_mpicc.a						## Desktop
+	LM = -lm /home/joe/Packages/mrmpi-7Apr14/src/libmrmpi_mpicc.a	## Laptop
 endif
 
 # System-dependent macros - OK for Linux and UNIX-like systems, for others will
@@ -178,8 +178,6 @@ LVB_LIB_OBJS = allocate_memory.$(OBJ) \
 			   mathematical_wrapper.$(OBJ) \
 			   msa_handling.$(OBJ) \
 			   optimise_tree.$(OBJ) \
-			   parallel_checkpointing.$(OBJ) \
-			   parallel_regulation.$(OBJ) \
                phylip_wrapper.$(OBJ) \
 			   random_number_generator.$(OBJ) \
 			   search_parameters.$(OBJ) \
@@ -199,7 +197,6 @@ ifeq ($(WHICH_MAKE),MAKE_LVB_MPI)
 	LVB_PROG = lvb_mpi$(EXE)
 
 	# Object files that will go into the LVB library
-	LVB_LIB_OBJS += parallel_regulation.$(OBJ)
 else
 
 	# LVB library
