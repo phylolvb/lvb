@@ -38,7 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lvb.h"
 
-/* test for supper() */
+/* test for ConvertToUpperCase() */
 
 int main(void)
 {
@@ -50,20 +50,20 @@ int main(void)
     char *copy;		/* copy of string */
     char *value;	/* copy of pointer value */
 
-    lvb_initialize();
+    LVBPreChecks();
 
-    copy = alloc(strlen(s), "copy of the string");
+    copy = Alloc(strlen(s), "copy of the string");
     strcpy(copy, s);
-    value = supper(s);
+    value = ConvertToUpperCase(s);
     lvb_assert(value == s);
     lvb_assert(strcmp(copy, s) == 0);
     free(copy);
     
-    value = supper(t);
+    value = ConvertToUpperCase(t);
     lvb_assert(value == t);
     lvb_assert(strcmp(s, t) == 0);
 
-    value = supper(u);
+    value = ConvertToUpperCase(u);
     lvb_assert(value == u);
     lvb_assert(strcmp(u, "") == 0);
 

@@ -43,7 +43,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lvb.h"
 
-void log_Time();
-void logstim(void);
+void GetSystemTime();
 
 #endif  // CLOCK_H_

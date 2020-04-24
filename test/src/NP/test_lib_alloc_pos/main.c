@@ -54,15 +54,15 @@ int main(void)
 {
     long i;	/* loop counter */
 
-    lvb_initialize();
+    LVBPreChecks();
 
     /* Check that a zero byte allocation returns a NULL pointer. */
-    lp = alloc(0, "zero-byte array");
+    lp = Alloc(0, "zero-byte array");
     lvb_assert(lp == NULL);
 
     /* Check that a fairly large allocation succeeds and that the
      * memory allocated may be written to. */
-    lp = alloc(TEST_ALLOC_LONGS * sizeof(long), "test array 1");
+    lp = Alloc(TEST_ALLOC_LONGS * sizeof(long), "test array 1");
     lvb_assert(lp != NULL);
     for (i = 0; i < TEST_ALLOC_LONGS; i++)
 	lp[i] = 1;
@@ -71,7 +71,7 @@ int main(void)
 
     /* Basic check that heap is OK after free: allocate something else
      * and check we may write to it */
-    cp = alloc(TEST_ALLOC_CHARS, "test array 2");
+    cp = Alloc(TEST_ALLOC_CHARS, "test array 2");
     for (i = 0; i < TEST_ALLOC_CHARS; i++)
     	cp[i] = 'X';
 

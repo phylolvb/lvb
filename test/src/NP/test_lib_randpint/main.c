@@ -38,7 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <lvb.h>
 
-/* Test for randpint(). Simply checks it works and doesn't always give
+/* Test for RandomNumberGenerator(). Simply checks it works and doesn't always give
  * the same answer. (There's perhaps a miniscule chance it would give
  * the same answer, but if so, it really is miniscule.) The random
  * number generator is seeded from the clock so it's usually going to
@@ -56,7 +56,7 @@ int main(void)
     unsigned long ul_seed;		/* seed, from system time */
     Lvb_bool all_same = LVB_TRUE;	/* all 'random' values same */
 
-    lvb_initialize();
+    LVBPreChecks();
 
     /* seed random number generator from system clock */
     tim = time(NULL);
@@ -66,10 +66,10 @@ int main(void)
     lvb_assert(ul_seed <= MAX_SEED);
     rinit((int) ul_seed);
  
-    first_rand_val = randpint(UPPER_LIM);
+    first_rand_val = RandomNumberGenerator(UPPER_LIM);
     for (i = 0; i < LOOP_CNT; i++)
     {
-        rand_val = randpint(UPPER_LIM);
+        rand_val = RandomNumberGenerator(UPPER_LIM);
 	lvb_assert(rand_val <= UPPER_LIM);
 	lvb_assert(rand_val >= 0);
 	if (rand_val != first_rand_val)

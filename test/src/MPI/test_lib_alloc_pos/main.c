@@ -2,16 +2,13 @@
 
 (c) Copyright 2003-2012 by Daniel Barker
 (c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl
-(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
-(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
-and Chris Wood.
-(c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
-Fernando Guntoro, Maximilian Strobl and Chris Wood.
-(c) Copyright 2019 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
-Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
-
+(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro and Maximilian Strobl
+(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl
+and Chris Wood
+(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Chang Sik Kim,
+Maximilian Strobl and Martyn Winn
 All rights reserved.
-
+ 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
@@ -56,15 +53,15 @@ char *cp = NULL;	/* pointer to start of an allocated array */
 int main(int argc, char **argv)
 {
     long i;	/* loop counter */
-    lvb_initialize();
+    LVBPreChecks();
 
     /* Check that a zero byte allocation returns a NULL pointer. */
-    lp = (long *) alloc(0, "zero-byte array");
+    lp = (long *) Alloc(0, "zero-byte array");
     lvb_assert(lp == NULL);
 
     /* Check that a fairly large allocation succeeds and that the
      * memory allocated may be written to. */
-    lp = (long *) alloc(TEST_ALLOC_LONGS * sizeof(long), "test array 1");
+    lp = (long *) Alloc(TEST_ALLOC_LONGS * sizeof(long), "test array 1");
     lvb_assert(lp != NULL);
     for (i = 0; i < TEST_ALLOC_LONGS; i++)
 	lp[i] = 1;
@@ -73,7 +70,7 @@ int main(int argc, char **argv)
 
     /* Basic check that heap is OK after free: allocate something else
      * and check we may write to it */
-    cp = (char *) alloc(TEST_ALLOC_CHARS, "test array 2");
+    cp = (char *) Alloc(TEST_ALLOC_CHARS, "test array 2");
     for (i = 0; i < TEST_ALLOC_CHARS; i++)
     	cp[i] = 'X';
 

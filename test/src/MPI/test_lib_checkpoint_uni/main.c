@@ -2,16 +2,13 @@
 
 (c) Copyright 2003-2012 by Daniel Barker
 (c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl
-(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
-(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
-and Chris Wood.
-(c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
-Fernando Guntoro, Maximilian Strobl and Chris Wood.
-(c) Copyright 2019 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
-Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
-
+(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro and Maximilian Strobl
+(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl
+and Chris Wood
+(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Chang Sik Kim,
+Maximilian Strobl and Martyn Winn
 All rights reserved.
-
+ 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
@@ -41,7 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "lvb.h"
-#include "Store_states.h"
+
 
 /* test of checkpoint_uni() and restore_uni() */
 

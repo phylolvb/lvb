@@ -38,7 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <lvb.h>
 
-/* positive test for cistrcmp() */
+/* positive test for CompareStrings() */
 
 int main(void)
 {
@@ -52,12 +52,12 @@ int main(void)
     static char s3[] = "`1234567890-=!\"$%^&*("
      ")_+QWERTYUIOPASDFGHJKLZXCVBNN[]{};'#:@~,./<>? \t\n\r";
 
-    lvb_initialize();
+    LVBPreChecks();
 
-    lvb_assert(cistrcmp(s1, s1) == 0);
-    lvb_assert(cistrcmp(s3 + 5, s3) != 0);
-    lvb_assert(cistrcmp(s1, s2) == 0);
-    lvb_assert(cistrcmp(s2, s3) != 0);
+    lvb_assert(CompareStrings(s1, s1) == 0);
+    lvb_assert(CompareStrings(s3 + 5, s3) != 0);
+    lvb_assert(CompareStrings(s1, s2) == 0);
+    lvb_assert(CompareStrings(s2, s3) != 0);
 
     printf("test passed\n");
     return 0;

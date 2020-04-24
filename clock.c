@@ -41,7 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "clock.h"
 
-void log_Time() {
+void GetSystemTime() {
   time_t timer;
   char buffer[26];
   struct tm* tm_info;
@@ -51,11 +51,4 @@ void log_Time() {
 
   strftime(buffer, 26, "%H:%M (%d/%m/%Y)", tm_info);
   puts(buffer);
-}
-
-void logstim(void) {
-  time_t tim;
-
-  tim = time(NULL);
-  printf("Starting at: %s\n", ctime(&tim));
 }

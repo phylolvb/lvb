@@ -35,7 +35,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-# test for crash().
+# test for CrashVerbosely().
 
 # run testprog.exe
 $output = `./testprog.exe`;

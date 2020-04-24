@@ -2,16 +2,13 @@
 
 (c) Copyright 2003-2012 by Daniel Barker
 (c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl
-(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
-(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
-and Chris Wood.
-(c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
-Fernando Guntoro, Maximilian Strobl and Chris Wood.
-(c) Copyright 2019 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
-Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
-
+(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro and Maximilian Strobl
+(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl
+and Chris Wood
+(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Chang Sik Kim,
+Maximilian Strobl and Martyn Winn
 All rights reserved.
-
+ 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
@@ -41,18 +38,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <lvb.h>
 
-/* test for crash() */
+/* test for CrashVerbosely() */
 
 int main(int argc, char **argv)
 {
     long i = 32447881;
 
 	MPI_Init(&argc, &argv);
-    lvb_initialize();
+    LVBPreChecks();
 
-    crash("%ld is causing trouble", i);
+    CrashVerbosely("%ld is causing trouble", i);
 
-    /* if we reach here, crash() isn't working */
+    /* if we reach here, CrashVerbosely() isn't working */
     printf("test failed\n");
-    return 0;	/* program success indicates crash()'s failure */
+    return 0;	/* program success indicates CrashVerbosely()'s failure */
 }

@@ -36,7 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "lvb.h"
-#include "Store_states.h"
+
 
 /* test of checkpoint_uni() and restore_uni() */
 
@@ -77,30 +77,30 @@ int main(int argc, char **argv)
     MPI_Comm_rank(MPI_COMM_WORLD, &my_id);
     if (my_id == 0) {
     	rinit(SEED);
-    	matrix = (Dataptr) alloc(sizeof(DataStructure), "alloc data structure");
-    	matrix_seq_data = (DataSeqPtr) alloc(sizeof(DataSeqStructure), "alloc data structure");
-    	Search_Parameters(&rcstruct, argc, argv);
-    	phylip_dna_matrin("infile", FORMAT_PHYLIP, matrix, matrix_seq_data);
-    	matchange(matrix, matrix_seq_data, rcstruct);
+    	matrix = (Dataptr) Alloc(sizeof(DataStructure), "alloc data structure");
+    	matrix_seq_data = (DataSeqPtr) Alloc(sizeof(DataSeqStructure), "alloc data structure");
+    	PassSearchParameters(&rcstruct, argc, argv);
+    	CheckDNAMatrixInput("infile", FORMAT_PHYLIP, matrix, matrix_seq_data);
+    	CutMatrixColumns(matrix, matrix_seq_data, rcstruct);
 
     	fp = fopen("uni_anneal", "wb");
     	/* fill a treestack without checkpointing */
     	Lvb_bool b_with_sset_current_tree = LVB_TRUE;
     	Lvb_bool b_with_sset_proposed_tree = LVB_TRUE;
-    	p_current_tree = treealloc(matrix, b_with_sset_current_tree);
-    	p_proposed_tree = treealloc(matrix, b_with_sset_proposed_tree);
-    	p_current_tree_2 = treealloc(matrix, b_with_sset_current_tree);
-    	p_proposed_tree_2 = treealloc(matrix, b_with_sset_proposed_tree);
+    	p_current_tree = AllocBlankTreeArray(matrix, b_with_sset_current_tree);
+    	p_proposed_tree = AllocBlankTreeArray(matrix, b_with_sset_proposed_tree);
+    	p_current_tree_2 = AllocBlankTreeArray(matrix, b_with_sset_current_tree);
+    	p_proposed_tree_2 = AllocBlankTreeArray(matrix, b_with_sset_proposed_tree);
     	rinit(SEED);
-    	randtree(matrix, p_current_tree);// rootdash = arbreroot(matrix, p_current_tree, rootdash);
-    	randtree(matrix, p_proposed_tree);// rootdash = arbreroot(matrix, p_proposed_tree, rootdash);
+    	GenerateRandomTree(matrix, p_current_tree);// rootdash = RandomTreeRoot(matrix, p_current_tree, rootdash);
+    	GenerateRandomTree(matrix, p_proposed_tree);// rootdash = RandomTreeRoot(matrix, p_proposed_tree, rootdash);
     	r_lenmin = (double) matrix->min_len_tree;
-    	checkpoint_anneal(fp, matrix, accepted, dect, deltah, deltalen, failedcnt, iter, current_iter, len, lenbest,
+    	checkpoint_Anneal(fp, matrix, accepted, dect, deltah, deltalen, failedcnt, iter, current_iter, len, lenbest,
     						lendash, ln_t, t_n, t0, pacc, proposed, r_lenmin, rootdash, t, grad_geom, grad_linear,
     						p_current_tree, b_with_sset_current_tree, p_proposed_tree, b_with_sset_proposed_tree);
     	lvb_assert(fclose(fp) == 0);
 		fp = fopen("uni_anneal", "rb");
-    	restore_anneal(fp, matrix, &accepted_2, &dect_2, &deltah_2, &deltalen_2, &failedcnt_2, &iter_2, &current_iter_2, &len_2, &lenbest_2,
+    	restore_Anneal(fp, matrix, &accepted_2, &dect_2, &deltah_2, &deltalen_2, &failedcnt_2, &iter_2, &current_iter_2, &len_2, &lenbest_2,
     			    &lendash_2, &ln_t_2, &t_n_2, &t0_2, &pacc_2, &proposed_2, &r_lenmin_2, &rootdash_2, &t_2, &grad_geom_2,
     				&grad_linear_2, p_current_tree_2, b_with_sset_current_tree, p_proposed_tree_2, b_with_sset_proposed_tree);
     	lvb_assert(fclose(fp) == 0);
@@ -113,8 +113,8 @@ int main(int argc, char **argv)
 				rootdash == rootdash_2 && t == t_2 && grad_geom == grad_geom_2 &&
 				grad_linear == grad_linear_2) {
 
-    		treedump_screen(matrix, p_current_tree);
-    		treedump_screen(matrix, p_current_tree_2);
+    		PushTreeToScreen(matrix, p_current_tree);
+    		PushTreeToScreen(matrix, p_current_tree_2);
     		printf("test passed\n");
     	}
     	else {

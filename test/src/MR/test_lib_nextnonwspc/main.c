@@ -38,7 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lvb.h"
 
-/* test for nextnonwspc() */
+/* test for TestNextNonWhiteSpaceCharacter() */
 
 int main(void)
 {
@@ -46,11 +46,11 @@ int main(void)
     const char *p2 = "\b\a!\"$%^&*()_+NO_SPACE+IN$HERE!@#~'";
     const char *p3 = "\v\t\r\n \f\aHello Goodbye \n";
 
-    lvb_initialize();
+    LVBPreChecks();
 
-    lvb_assert(nextnonwspc(p1) == NULL);
-    lvb_assert(nextnonwspc(p2) == p2);
-    lvb_assert(nextnonwspc(p3) == p3 + 6);
+    lvb_assert(TestNextNonWhiteSpaceCharacter(p1) == NULL);
+    lvb_assert(TestNextNonWhiteSpaceCharacter(p2) == p2);
+    lvb_assert(TestNextNonWhiteSpaceCharacter(p3) == p3 + 6);
 
     printf("test passed\n");
     return 0;

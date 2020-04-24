@@ -38,17 +38,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <lvb.h>
 
-/* test for crash() */
+/* test for CrashVerbosely() */
 
 int main(void)
 {
     long i = 32447881;
 
-    lvb_initialize();
+    LVBPreChecks();
 
-    crash("%ld is causing trouble", i);
+    CrashVerbosely("%ld is causing trouble", i);
 
-    /* if we reach here, crash() isn't working */
+    /* if we reach here, CrashVerbosely() isn't working */
     printf("test failed\n");
-    return 0;	/* program success indicates crash()'s failure */
+    return 0;	/* program success indicates CrashVerbosely()'s failure */
 }

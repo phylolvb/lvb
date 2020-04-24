@@ -64,14 +64,14 @@ int main(void)
     Dataptr matrix;	/* data matrix as input */
     long i;		/* loop counter */
 
-    lvb_initialize();
+    LVBPreChecks();
     Params rcstruct;		/* configurable parameters */
     strcpy(rcstruct.file_name_in, "infile");
     rcstruct.n_file_format = FORMAT_PHYLIP;
 
-    lvb_initialize();
+    LVBPreChecks();
     matrix = malloc(sizeof(DataStructure));
-    phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix);
+    CheckDNAMatrixInput(rcstruct.file_name_in, rcstruct.n_file_format, matrix);
     lvb_assert(matrix->m == 42);
     lvb_assert(matrix->n == 5);
 
@@ -83,7 +83,7 @@ int main(void)
 	lvb_assert(strcmp(matrix->rowtitle[i], name_expected[i]) == 0);
     }
 
-    rowfree(matrix);
+    FreeRowStrings(matrix);
     printf("test passed\n");
     return 0;
 }

@@ -2,16 +2,13 @@
 
 (c) Copyright 2003-2012 by Daniel Barker
 (c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl
-(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
-(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
-and Chris Wood.
-(c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
-Fernando Guntoro, Maximilian Strobl and Chris Wood.
-(c) Copyright 2019 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
-Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
-
+(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro and Maximilian Strobl
+(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl
+and Chris Wood
+(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Chang Sik Kim,
+Maximilian Strobl and Martyn Winn
 All rights reserved.
-
+ 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
@@ -41,7 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lvb.h"
 
-/* test for supper() */
+/* test for ConvertToUpperCase() */
 
 int main(void)
 {
@@ -53,20 +50,20 @@ int main(void)
     char *copy;		/* copy of string */
     char *value;	/* copy of pointer value */
 
-    lvb_initialize();
+    LVBPreChecks();
 
-    copy = (char *) alloc(strlen(s), "copy of the string");
+    copy = (char *) Alloc(strlen(s), "copy of the string");
     strcpy(copy, s);
-    value = supper(s);
+    value = ConvertToUpperCase(s);
     lvb_assert(value == s);
     lvb_assert(strcmp(copy, s) == 0);
     free(copy);
     
-    value = supper(t);
+    value = ConvertToUpperCase(t);
     lvb_assert(value == t);
     lvb_assert(strcmp(s, t) == 0);
 
-    value = supper(u);
+    value = ConvertToUpperCase(u);
     lvb_assert(value == u);
     lvb_assert(strcmp(u, "") == 0);
 

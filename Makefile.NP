@@ -7,11 +7,8 @@
 # and Chris Wood.
 # (c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
 # Fernando Guntoro, Maximilian Strobl and Chris Wood.
-# (c) Copyright 2019 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
-# Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
-#  
 # All rights reserved.
-#
+#  
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 # 
@@ -85,15 +82,15 @@ CFLAGS += -msse4.2
 #CFLAGS += -openmp-link static
 
 # General options
-CFLAGS += -DLVB	-DNP_Implementation 	# Must be present
-CXXFLAGS += -DNP_Implementation
+#CFLAGS += -DLVB	-DNP_Implementation 	# Must be present
+#CXXFLAGS += -DNP_Implementation
 #CFLAGS += -g -Wall	#  Assumes GNU C compiler
 #CFLAGS += -O2 -Wall	# Assumes GNU C compiler
 #CFLAGS += -fprofile-arcs -ftest-coverage -ansi
 #CFLAGS += -g -std=c99
 #CFLAGS += -O3 -std=c99 -fopenmp -ftree-loop-distribution -fvariable-expansion-in-unroller -ftree-vectorizer-verbose=6 -msse4.2
 #CFLAGS += -std=c99 -fopenmp
-CFLAGS += -O3 -g -std=c99 -fopenmp
+CFLAGS += -Wall -g -O3 -std=c99 -fopenmp
 
 # System-dependent macros - OK for Linux and UNIX-like systems, for others will
 # require change
@@ -114,28 +111,29 @@ LVB_PROG = lvb$(EXE)
 
 # Object files that will go into the LVB library
 
-LVB_LIB_OBJS = allocate_memory.$(OBJ) \
+LVB_LIB_OBJS = admin.$(OBJ) \
+               cleanup.$(OBJ) \
 			   clock.$(OBJ) \
-			   error_handling.$(OBJ) \
-			   file_administration.$(OBJ) \
-			   log_file.$(OBJ) \
-			   mathematical_wrapper.$(OBJ) \
-			   msa_handling.$(OBJ) \
-			   optimise_tree.$(OBJ) \
-               phylip_wrapper.$(OBJ) \
-			   random_number_generator.$(OBJ) \
-			   search_parameters.$(OBJ) \
-			   secure_exit.$(OBJ) \
-			   solve.$(OBJ) \
-			   starting_temperature.$(OBJ) \
-			   system_check.$(OBJ) \
-			   testing.$(OBJ) \
-			   topology_evaluation.$(OBJ) \
-			   treestack_handling.$(OBJ)
+               datops.$(OBJ) \
+               err.$(OBJ) \
+               fops.$(OBJ) \
+               getparam.$(OBJ) \
+               getstartt.$(OBJ) \
+			   info.$(OBJ) \
+			   log.$(OBJ) \
+               mops.$(OBJ) \
+               mymaths.$(OBJ) \
+               myuni.$(OBJ) \
+               parsim.$(OBJ) \
+               randpint.$(OBJ) \
+               solve.$(OBJ) \
+               sops.$(OBJ) \
+			   treestack.$(OBJ) \
+               trops.$(OBJ) \
+               wrapper.$(OBJ)
 
-LVB_READ_FILE_OBJS = 	$(LVB_READ_FILE_DIR)msa_input.$(OBJ) \
-			$(LVB_READ_FILE_DIR)input_options.$(OBJ) \
-			$(LVB_READ_FILE_DIR)info.$(OBJ)
+LVB_READ_FILE_OBJS = 	$(LVB_READ_FILE_DIR)CReadFiles.$(OBJ) \
+			$(LVB_READ_FILE_DIR)ReadFile.$(OBJ)
 
 LVB_LIB_OBJS_OUTPUT = $(LVB_LIB_OBJS)
 
@@ -145,27 +143,26 @@ LVB_PROG_OBJS = main.$(OBJ)
 
 # Documentation files
 
-LVB_MANUAL = lvb_manual.pdf
+#LVB_MANUAL = lvb_manual.pdf
 
 DOCS_PROGRAMMER = $(TEST_MANUAL) \
                   $(DOCS_PROG_DIR)/main.html \
-                  $(DOCS_PROG_DIR)/treestack_handling.html \
-		  $(DOCS_PROG_DIR)/secure_exit.html \
-		  $(DOCS_PROG_DIR)/clock.html \
-		  $(DOCS_PROG_DIR)/msa_handling.html \
-		  $(DOCS_PROG_DIR)/error_handling.html \
-		  $(DOCS_PROG_DIR)/file_administration.html \
-		  $(DOCS_PROG_DIR)/log_file.html \
-		  $(DOCS_PROG_DIR)/search_parameters.html \
-		  $(DOCS_PROG_DIR)/system_check.html \
-		  $(DOCS_PROG_DIR)/allocate_memory.html \
-		  $(DOCS_PROG_DIR)/mathematical_wrapper.html \
-		  $(DOCS_PROG_DIR)/random_number_generator.html \
-		  $(DOCS_PROG_DIR)/topology_evaluation.html \
+                  $(DOCS_PROG_DIR)/treestack.html \
+		  $(DOCS_PROG_DIR)/cleanup.html \
+		  $(DOCS_PROG_DIR)/datops.html \
+		  $(DOCS_PROG_DIR)/err.html \
+		  $(DOCS_PROG_DIR)/fops.html \
+		  $(DOCS_PROG_DIR)/getparam.html \
+		  $(DOCS_PROG_DIR)/admin.html \
+		  $(DOCS_PROG_DIR)/mops.html \
+		  $(DOCS_PROG_DIR)/mymaths.html \
+		  $(DOCS_PROG_DIR)/myuni.html \
+		  $(DOCS_PROG_DIR)/parsim.html \
+		  $(DOCS_PROG_DIR)/randpint.html \
 		  $(DOCS_PROG_DIR)/solve.html \
-		  $(DOCS_PROG_DIR)/testing.html \
-		  $(DOCS_PROG_DIR)/optimise_tree.html \
-		  $(DOCS_PROG_DIR)/phylip_wrapper.html
+		  $(DOCS_PROG_DIR)/sops.html \
+		  $(DOCS_PROG_DIR)/trops.html \
+		  $(DOCS_PROG_DIR)/wrapper.html
 
 TEST_MANUAL = $(DOCS_PROG_DIR)/go.html
 
@@ -186,8 +183,8 @@ all : lvb	# allow 'make all' as synonym for 'make lvb'
 
 lvb : LVB_PROG $(DOCS)
 
-$(LVB_MANUAL) : lvb_manual.odt
-	soffice --headless --convert-to pdf:writer_pdf_Export lvb_manual.odt
+#$(LVB_MANUAL) : lvb_manual.odt
+#	soffice --headless --convert-to pdf:writer_pdf_Export lvb_manual.odt
 
 LVB_PROG : $(LVB_LIB) $(LVB_PROG_OBJS)
 	$(G++) $(CFLAGS) $(LDFLAGS) -o $(LVB_PROG) $(LVB_PROG_OBJS) $(LVB_READ_FILE_OBJS) $(LIBS) $(LM)

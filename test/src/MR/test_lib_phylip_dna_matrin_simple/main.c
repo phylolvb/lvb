@@ -2,16 +2,13 @@
 
 (c) Copyright 2003-2012 by Daniel Barker
 (c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl
-(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
-(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
-and Chris Wood.
-(c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
-Fernando Guntoro, Maximilian Strobl and Chris Wood.
-(c) Copyright 2019 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
-Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
-
+(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro and Maximilian Strobl
+(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl
+and Chris Wood
+(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Chang Sik Kim,
+Maximilian Strobl and Martyn Winn
 All rights reserved.
-
+ 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
@@ -93,28 +90,28 @@ int main(void)
     strcpy(rcstruct.file_name_in, "infile");
     rcstruct.n_file_format = FORMAT_PHYLIP;
 
-    lvb_initialize();
+    LVBPreChecks();
 
     matrix1 = (Dataptr) malloc(sizeof(DataStructure));
     matrix2 = (Dataptr) malloc(sizeof(DataStructure));
 
-    matrix_seq_data_1 = (DataSeqPtr) alloc(sizeof(DataSeqStructure), "alloc data structure");
+    matrix_seq_data_1 = (DataSeqPtr) Alloc(sizeof(DataSeqStructure), "alloc data structure");
     matrix_seq_data_1->row = NULL;
     matrix_seq_data_1->rowtitle = NULL;
-    phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix1, matrix_seq_data_1);
+    CheckDNAMatrixInput(rcstruct.file_name_in, rcstruct.n_file_format, matrix1, matrix_seq_data_1);
     check(matrix1, matrix_seq_data_1);
 
-    matrix_seq_data_2 = (DataSeqPtr) alloc(sizeof(DataSeqStructure), "alloc data structure");
+    matrix_seq_data_2 = (DataSeqPtr) Alloc(sizeof(DataSeqStructure), "alloc data structure");
     matrix_seq_data_2->row = NULL;
     matrix_seq_data_2->rowtitle = NULL;
-    phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix2, matrix_seq_data_2);
+    CheckDNAMatrixInput(rcstruct.file_name_in, rcstruct.n_file_format, matrix2, matrix_seq_data_2);
     check(matrix2, matrix_seq_data_2);
 
-    rowfree(matrix_seq_data_1, matrix1->n);
+    FreeRowStrings(matrix_seq_data_1, matrix1->n);
     free(matrix_seq_data_1);
     free(matrix1);
 
-    rowfree(matrix_seq_data_2, matrix2->n);
+    FreeRowStrings(matrix_seq_data_2, matrix2->n);
     free(matrix_seq_data_2);
     free(matrix2);
 

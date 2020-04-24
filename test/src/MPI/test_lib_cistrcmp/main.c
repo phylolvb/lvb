@@ -2,16 +2,13 @@
 
 (c) Copyright 2003-2012 by Daniel Barker
 (c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl
-(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
-(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
-and Chris Wood.
-(c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
-Fernando Guntoro, Maximilian Strobl and Chris Wood.
-(c) Copyright 2019 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
-Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
-
+(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro and Maximilian Strobl
+(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl
+and Chris Wood
+(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Chang Sik Kim,
+Maximilian Strobl and Martyn Winn
 All rights reserved.
-
+ 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
@@ -41,7 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <lvb.h>
 
-/* positive test for cistrcmp() */
+/* positive test for CompareStrings() */
 
 int main(void)
 {
@@ -55,12 +52,12 @@ int main(void)
     static char s3[] = "`1234567890-=!\"$%^&*("
      ")_+QWERTYUIOPASDFGHJKLZXCVBNN[]{};'#:@~,./<>? \t\n\r";
 
-    lvb_initialize();
+    LVBPreChecks();
 
-    lvb_assert(cistrcmp(s1, s1) == 0);
-    lvb_assert(cistrcmp(s3 + 5, s3) != 0);
-    lvb_assert(cistrcmp(s1, s2) == 0);
-    lvb_assert(cistrcmp(s2, s3) != 0);
+    lvb_assert(CompareStrings(s1, s1) == 0);
+    lvb_assert(CompareStrings(s3 + 5, s3) != 0);
+    lvb_assert(CompareStrings(s1, s2) == 0);
+    lvb_assert(CompareStrings(s2, s3) != 0);
 
     printf("test passed\n");
     return 0;

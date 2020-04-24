@@ -87,18 +87,18 @@ int main(void)
     strcpy(rcstruct.file_name_in, "infile");
     rcstruct.n_file_format = FORMAT_PHYLIP;
 
-    lvb_initialize();
+    LVBPreChecks();
 
     matrix1 = malloc(sizeof(DataStructure));
-    phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix1);
+    CheckDNAMatrixInput(rcstruct.file_name_in, rcstruct.n_file_format, matrix1);
     check(matrix1);
 
     matrix2 = malloc(sizeof(DataStructure));
-    phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix2);
+    CheckDNAMatrixInput(rcstruct.file_name_in, rcstruct.n_file_format, matrix2);
     check(matrix2);
 
-    rowfree(matrix1);
-    rowfree(matrix2);
+    FreeRowStrings(matrix1);
+    FreeRowStrings(matrix2);
     printf("test passed\n");
     return 0;
 }

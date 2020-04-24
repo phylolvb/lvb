@@ -38,7 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lvb.h"
 
-/* test of alloc() */
+/* test of Alloc() */
 
 #define S1_LENGTH 120
 
@@ -54,15 +54,15 @@ int main(void)
     long i;	/* loop counter */
     long j;	/* loop counter */
 
-    lvb_initialize();
+    LVBPreChecks();
 
     for (i = 0; i < 50000; i++)	/* repeat to check heap seems OK */
     {
-	s1 = alloc(S1_LENGTH + 1, "test string s1");
+	s1 = Alloc(S1_LENGTH + 1, "test string s1");
 	for (j = 0; j < S1_LENGTH; j++) s1[j] = '@';
 	s1[S1_LENGTH] = 0;
 	lvb_assert(strcmp(s1, s2) == 0);
-	s3 = alloc(strlen(s1)+1, "test string s3");
+	s3 = Alloc(strlen(s1)+1, "test string s3");
 	strcpy(s3, s1);
 	free(s1);
 	lvb_assert(strcmp(s3, s2) == 0);

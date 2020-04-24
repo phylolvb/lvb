@@ -38,13 +38,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <lvb.h>
 
-/* test for scream() */
+/* test for PrintError() */
 
 int main(void)
 {
-    lvb_initialize();
+    LVBPreChecks();
 
-    scream("%d %d %d %d %d %d %d %s!", 1, 2, 3, 4, 5, 6, 7,
+    PrintError("%d %d %d %d %d %d %d %s!", 1, 2, 3, 4, 5, 6, 7,
     "TEST%STRING%GOES%d%d%dHERE");
     printf("returned!\n");
     return 0;
