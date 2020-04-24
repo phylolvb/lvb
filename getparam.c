@@ -71,6 +71,10 @@ void GetDefaultParameters(Params *const prms)
 /* set seed in *prms to unacceptable value, and other parameters to their
  * GetDefaultParameters from lvb.h */
 {
+  #ifdef LVB_PARALLEL_SEARCH
+    prms->n_seeds_need_to_try = 1;
+    prms->n_checkpoint_interval = CHECKPOINT_INTERVAL;
+  #endif
     /* meaningful value that is not user-configurable */
     prms->verbose = LVB_FALSE;
 
@@ -93,7 +97,17 @@ void PassSearchParameters(Params *prms, int argc, char **argv)
  * run-time configuration parameters */
 {
 	GetDefaultParameters(prms);
+
+  #ifdef LVB_PARALLEL_SEARCH
+    int n_default_seed = prms->seed;
+  #endif
  /*   user_adjust(prms);*/
 	ReadParameters(prms, argc, argv);
+
+  #ifdef LVB_PARALLEL_SEARCH
+    /* change initial seed to user-defined seed*/
+    if (prms->seed != n_default_seed)
+      srand(prms->seed);
+  #endif
 
 } /* end PassSearchParameters() */

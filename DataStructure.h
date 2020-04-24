@@ -84,4 +84,64 @@ typedef struct
     long verbose;						/* verboseness level */
     char file_name_in[LVB_FNAMSIZE];	/* input file name */
     char file_name_out[LVB_FNAMSIZE];	/* output file name */
+#ifdef LVB_PARALLEL_SEARCH
+int n_seeds_need_to_try;	/* number of seeds that go to try, minimum is the number of mpi process */
+int n_flag_save_read_states;		/* flag to save/read the states, if 1 when starts try to read the last states, if not find */
+									/* start from the begin and is going to save the states each pre-defined time schedule */
+											/* it can go to 0 when file is zero or corrupted */
+int n_flag_is_finished_process;		/* is set to one when the process is finished  */
+											/* 	set to zero is necessary to start from a specific state */
+int n_flag_is_possible_read_state_files;	/* if is possible to read the states or not. */
+int n_checkpoint_interval;			/* value in seconds when a checkpoint file is going to be saved, default(CHECKPOINT_INTERVAL)*/
+#endif
 } Params;
+
+#ifdef LVB_PARALLEL_SEARCH
+
+/* these flags is to read and save states in specfic time points */
+#define DONT_SAVE_READ_STATES				0		/* dont read and save states, default parameter */
+#define DO_SAVE_READ_STATES					1		/* try to read and save states */
+
+#define CHECK_POINT_PROCESS_FINISHED		1		/* process is finished, don't need to run again */
+#define CHECK_POINT_PROCESS_NOT_FINISHED	0		/* process not finished yet, need to load states and run */
+
+#define CHECK_POINT_READ_STATE_FILES		1		/* the state files exist and are OK */
+#define CHECK_POINT_NOT_READ_STATE_FILES	0		/* the state files don't exist and are corrupted */
+/* END save read states flags */
+
+/* structure to use sending temperature and number of iterations to master process */
+typedef struct
+{
+        int n_iterations;		/* number of iterations */
+        int n_seed;				/* seed for this temperature and iteration */
+        long l_length;			/* length of the tree */
+        double temperature;		/* temperature */
+} SendInfoToMaster;
+
+/* structure to use sending if is to continue and new seed if it is */
+typedef struct
+{
+        int n_seed;				/* new seed to start the process again */
+        int n_is_to_continue;	/* if it is to start the process */
+        int n_process_tried;	/* id of the seed tried */
+} RecvInfoFromMaster;
+
+/* structures for calculation of averages temperatures and std */
+typedef struct IndividualTemperature
+{
+        double d_temperature;	/* temperature */
+        int n_try_process;		/* number of process tried, is sequential...*/
+        int n_seed;				/* seed for this temperature and iteration */
+								/* the seed is here because it's easier to perform the algorithm */
+        long l_length;			/* length of the tree */
+        struct IndividualTemperature *p_next_temperature; /* next memory structure */
+}IndividualTemperature;
+
+typedef struct IterationTemperature
+{
+        int n_iteration;
+        IndividualTemperature *p_temperature;
+        struct IterationTemperature *p_next_iteration;
+}IterationTemperature;
+
+#endif 

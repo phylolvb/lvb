@@ -164,6 +164,7 @@ printf(" Usage: lvb -i <alignment> [options]\n");
 
   printf(" Parallelisation Preferences: \n");
   printf("    Fine-grain multithreading         -p [VALUE]          Number of threads requested; default: one thread \n");
+  printf("    Starting seeds                    -N [VAULE]          Number of seeds requested; default: same of number of processes \n");
 
   printf("\n");
 
@@ -262,6 +263,15 @@ void ReadParameters(Params *prms, int argc, char **argv){
 				prms->n_processors_available = atoi(optarg);
 				if (prms->n_processors_available < 1) prms->n_processors_available = 1;
 				break;
+			#ifdef LVB_PARALLEL_SEARCH
+			case 'N': /* number of seeds */
+				if (optarg == NULL){
+					fprintf (stderr, "Option -%c requires an argument -s <int>\n", optopt);
+					usage(argv[0]);
+				}
+				prms->n_seeds_need_to_try = atoi(optarg);
+				break;
+			#endif
 			case '?':
 			case 'h':
 			default:

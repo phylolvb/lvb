@@ -55,5 +55,9 @@ void LVBPreChecks(void)
 
     if (DBL_EPSILON >= LVB_EPS)
         CrashVerbosely("program requires greater floating point precision");
+    #ifdef LVB_PARALLEL_SEARCH
+    if (!((DBL_EPSILON + INITIAL_INCREMENT) != INITIAL_INCREMENT))
+        CrashVerbosely("program requires greater floating point precision");
+    #endif
 
 } /* end LVBPreChecks() */

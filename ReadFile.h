@@ -50,7 +50,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 using namespace std;
 
 #include "lvb.h"
- 
+
+#ifdef LVB_PARALLEL_SEARCH
+	#include "DataStructure.h"
+#endif
+
 #ifdef __cplusplus
 	extern "C" int ReadFile(char *file_name, int n_file_type, Dataptr p_lvbmat);
 	extern "C" void ReadDNAMatrixExternal(char *file_name, int n_file_type, long *species_ptr, long *sites_ptr, int *max_length_name);

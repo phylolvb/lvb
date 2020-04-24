@@ -160,7 +160,11 @@ typedef struct
 
 /* simulated annealing parameters */
 #define MAXACCEPT_MIN 5L		/* minimum value for maxaccept */
+#ifdef LVB_PARALLEL_SEARCH
+#define MAXACCEPT_MAX 500L		/* maximum value for maxaccept */
+#else
 #define MAXACCEPT_MAX 5L		/* maximum value for maxaccept */
+#endif
 #define MAXACCEPT_SLOW 5L	/* maxaccept for "slow" searches */
 #define MAXPROPOSE_SLOW 2000L	/* maxpropose for "slow" searches */
 #define MAXFAIL_SLOW 40L	/* maxfail for "slow" searches */
@@ -263,15 +267,7 @@ void PrintBanner();
 void GetSystemTime();
 bool LogFileExists(const char *filename);
 
-#ifndef LVB_MAPREDUCE
-long Anneal(Dataptr restrict, Treestack *, Treestack *, const Branch *const, Params rcstruct, long, const double,
- const long, const long, const long, FILE *const, long *, Lvb_bool);
-
-void GetDefaultParameters(Params *const prms);
-long HillClimbingOptimization(Dataptr, Treestack *, const Branch *const, Params rcstruct,
-	long, FILE * const, long *, Lvb_bool);
-
-#else
+#ifdef LVB_MAPREDUCE
 long Anneal(Dataptr restrict, Treestack *, Treestack *, const Branch *const, Params rcstruct, long, const double,
 	const long, const long, const long, FILE *const, long *, Lvb_bool, MISC *misc, MapReduce *mrStackTree, MapReduce *mrBuffer);
 
@@ -285,6 +281,19 @@ void ReduceFilter(char *key, int keybytes, char *multivalue, int nvalues, int *v
 void PrintSets(Dataptr matrix, Treestack *sp, MISC *misc);
 long PushTreeOntoTreestackOnly(Dataptr, Treestack *, const Branch *const, const long, Lvb_bool b_with_sset);
 
+#elif LVB_PARALLEL_SEARCH
+long Anneal(Dataptr restrict, Treestack *, const Branch *const, Params *p_rcstruct, long, const double,
+	const long, const long, const long, FILE *const, long *, int, int *p_n_state_progress, int *p_n_number_tried_seed, Lvb_bool);
+long HillClimbingOptimization(Dataptr, Treestack *, const Branch *const, Params rcstruct,
+	long, FILE * const, long *, int myMPIid, Lvb_bool);
+
+#else
+long Anneal(Dataptr restrict, Treestack *, Treestack *, const Branch *const, Params rcstruct, long, const double,
+ const long, const long, const long, FILE *const, long *, Lvb_bool);
+
+void GetDefaultParameters(Params *const prms);
+long HillClimbingOptimization(Dataptr, Treestack *, const Branch *const, Params rcstruct,
+	long, FILE * const, long *, Lvb_bool);
 
 #endif
 
