@@ -200,8 +200,14 @@ double pow_wrapper(double x, double y)
     {
         if ((ceil(y) != y) || (floor(y) != y))
         {
+            #ifdef LVB_PARALLEL_SEARCH
+            CrashVerbosely("internal error detected in function pow_wrapper():\n"
+             "domain error. x is %g, y is %g, ceil(y) is %g, floor(y) is %g",
+             x, y, ceil(y), floor(y));
+            #else
             CrashVerbosely("internal error detected in function pow_wrapper():\n"
              "domain error. x is %g, y is %g", x, y);
+            #endif
         }
     }
     else if (x == 0.0) 

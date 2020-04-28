@@ -88,9 +88,14 @@ void CrashVerbosely(const char *const fmt, ...)
 	va_end(args);
 	printf("\n");
 
+	#ifdef LVB_PARALLEL_SEARCH
+	int n_error_code = 1;
+	MPI_Abort(MPI_COMM_WORLD, n_error_code);
+	exit(1);
+	#else
 	CleanExit();
 	exit(EXIT_FAILURE);
-
+	#endif
 }	/* end CrashVerbosely() */
 
 void LVBAssertFail(const char *test, const char *file, int line)

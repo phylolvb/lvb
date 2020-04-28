@@ -74,6 +74,11 @@ void GetDefaultParameters(Params *const prms)
   #ifdef LVB_PARALLEL_SEARCH
     prms->n_seeds_need_to_try = 1;
     prms->n_checkpoint_interval = CHECKPOINT_INTERVAL;
+  
+    /* by default dont read and save states */
+    prms->n_flag_save_read_states = DONT_SAVE_READ_STATES;
+    prms->n_flag_is_finished_process = CHECK_POINT_PROCESS_NOT_FINISHED;
+    prms->n_flag_is_possible_read_state_files = CHECK_POINT_NOT_READ_STATE_FILES;
   #endif
     /* meaningful value that is not user-configurable */
     prms->verbose = LVB_FALSE;

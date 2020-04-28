@@ -213,6 +213,29 @@ void ReadParameters(Params *prms, int argc, char **argv){
 				}
 				prms->seed = atoi(optarg);
 				break;
+			#ifdef LVB_PARALLEL_SEARCH
+
+			case 'S':	/* number of seeds to try */
+				prms->n_flag_save_read_states = DO_SAVE_READ_STATES;
+				break;
+			case 'N':	/* number of seeds to try */
+				if (optarg == NULL){
+					fprintf (stderr, "Option -%c requires an argument -N <int>\n", optopt);
+					usage(argv[0]);
+					return 1;
+				}
+				prms->n_seeds_need_to_try = atoi(optarg);
+				break;
+			case 'C':	/* checkpoint in seconds */
+				if (optarg == NULL){
+					fprintf (stderr, "Option -%c requires an argument -C <int>\n", optopt);
+					usage(argv[0]);
+					return 1;
+				}
+				prms->n_checkpoint_interval = atoi(optarg);
+				break;
+
+			#endif
 			case 'i':	/* file name in */
 				if (optarg == NULL){
 					fprintf (stderr, "Option -%c requires an argument -i <file name>\n", optopt);
@@ -263,15 +286,6 @@ void ReadParameters(Params *prms, int argc, char **argv){
 				prms->n_processors_available = atoi(optarg);
 				if (prms->n_processors_available < 1) prms->n_processors_available = 1;
 				break;
-			#ifdef LVB_PARALLEL_SEARCH
-			case 'N': /* number of seeds */
-				if (optarg == NULL){
-					fprintf (stderr, "Option -%c requires an argument -s <int>\n", optopt);
-					usage(argv[0]);
-				}
-				prms->n_seeds_need_to_try = atoi(optarg);
-				break;
-			#endif
 			case '?':
 			case 'h':
 			default:

@@ -43,6 +43,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lvb.h"
 
 #ifdef LVB_PARALLEL_SEARCH
+
+#include "store_states.h"
+
 static void lenlog(FILE *lengthfp, Treestack *bstackp, int myMPIid, long iteration, long length, double temperature)
 /* write a message to file pointer lengthfp; iteration gives current iteration;
  * crash verbosely on write error */
@@ -195,7 +198,16 @@ long HillClimbingOptimization(Dataptr matrix, Treestack *bstackp, const Branch *
 					#ifdef LVB_MAPREDUCE
 					if(misc->rank == 0)
 					#endif
+
+					#ifdef LVB_PARALLEL_SEARCH
+
+					lenlog(lenfp, bstackp, myMPIid, *current_iter, len, 0);
+
+					#else
+
 					lenlog(lenfp, bstackp, *current_iter, len, 0);
+
+					#endif
 				}
 				*current_iter += 1;
 			}
@@ -387,7 +399,7 @@ long Anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 	#ifdef LVB_PARALLEL_SEARCH
 		/* occasionally re-root, to prevent influence from root position */
 			if ((*current_iter % REROOT_INTERVAL) == 0){
-				root = arbreroot(matrix, p_current_tree, root);
+				root = RandomTreeRoot(matrix, p_current_tree, root);
 				if ((log_progress == LVB_TRUE) && ((*current_iter % STAT_LOG_INTERVAL) == 0)) {
 					lenlog(lenfp, bstackp, myMPIid, *current_iter, len, t);
 

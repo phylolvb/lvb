@@ -43,6 +43,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "admin.h"
 #include "lvb.h"
 
+#ifdef LVB_PARALLEL_SEARCH
+
+#include <inttypes.h>
+#include "store_states.h"
+
+#endif
+
 static Treestack bstack_overall;	/* overall best tree stack */
 static Treestack stack_treevo;
 
@@ -63,7 +70,15 @@ static void smessg(long start, long cycle)
 
 } /* end smessg() */
 
+#ifdef LVB_PARALLEL_SEARCH
+
+static void writeinf(Params prms, Dataptr matrix, int argc, char **argv, int myMPIid, int n_process)
+
+#else
+
 static void writeinf(Params prms, Dataptr matrix, int argc, char **argv, int n_process)
+
+#endif
 
 /* write initial details to standard output */
 {
@@ -110,6 +125,13 @@ static void writeinf(Params prms, Dataptr matrix, int argc, char **argv, int n_p
 	#ifdef LVB_PARALLEL_SEARCH
 	printf("Seeds                  %d\n", prms.n_seeds_need_to_try);
 	printf("Checkpoint interval    %d\n", prms.n_checkpoint_interval);
+	if (prms.n_flag_save_read_states == DONT_SAVE_READ_STATES) {
+		printf("Checkpointing disabled");
+	}
+	else {
+	printf("Checkpointing enabled")
+	}
+	printf("Process ID             %d\n", myMPIid);
 	#endif
 	printf("\n================================================================================\n");	
 	printf("\nInitialising search: \n");
@@ -139,7 +161,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, long *iter_p, Lvb_
 				MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer)
 #elif LVB_PARALLEL_SEARCH
 static long getsoln(Dataptr restrict matrix, DataSeqPtr restrict matrix_seq_data, Params rcstruct,
-			Treestack* bstack_overall, Lvb_bit_lentgh **enc_mat, int myMPIid, Lvb_bool log_progress)
+			Treestack* bstack_overall, Lvb_bit_length **enc_mat, int myMPIid, Lvb_bool log_progress)
 #else
 static long getsoln(Dataptr restrict matrix, Params rcstruct, long *iter_p, Lvb_bool log_progress)
 
@@ -259,7 +281,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, long *iter_p, Lvb_
 					sprintf(file_name_output, "%s_%d", rcstruct.file_name_out, n_number_tried_seed); /* name of output file for this process */
 					outtreefp = clnopen(file_name_output, "w");
 					trees_output = treestack_print(matrix, matrix_seq_data, bstack_overall, outtreefp, LVB_FALSE);
-					clnclose(outtreefp, file_name_output);
+					CheckFileClosure(outtreefp, file_name_output);
 					printf("\nProcess:%d   Rearrangements tried: %ld\n", myMPIid, l_iterations);
 					if (trees_output == 1L) { printf("1 most parsimonious tree of length %ld written to file '%s'\n", treelength, file_name_output); }
 					else { printf("%ld equally parsimonious trees of length %ld written to file '%s'\n", trees_output, treelength, file_name_output); }
@@ -282,7 +304,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, long *iter_p, Lvb_
 
 			check_stdout();
 			if (rcstruct.verbose == LVB_TRUE) printf("Ending start %ld cycle %ld\n", start, cyc);
-			if (rcstruct.verbose == LVB_TRUE) clnclose(sumfp, SUMFNAM);
+			if (rcstruct.verbose == LVB_TRUE) CheckFileClosure(sumfp, SUMFNAM);
 	    } while (1);
 
 	    /* "local" dynamic heap memory */
@@ -513,6 +535,9 @@ void calc_distribution_processors(Dataptr matrix, Params rcstruct){
 		}
 	}
 	else{
+		#ifdef LVB_PARALLEL_SEARCH
+		matrix->n_slice_size_getplen = 0;
+		#endif
 		matrix->n_threads_getplen = 1; /* need to pass for 1 thread because the number of words is to low */
 	}
 	// only to protect
@@ -520,6 +545,11 @@ void calc_distribution_processors(Dataptr matrix, Params rcstruct){
 }
 
 #ifdef LVB_PARALLEL_SEARCH
+
+int get_other_seed_to_run_a_process(){
+	return (int) (rand() % (unsigned long) MAX_SEED)
+}
+
 void print_data(Dataptr p_lvbmat, int n_thread){
 		printf("###############################\n thread: %d\n", n_thread);
 		printf("n_threads_getplen: %d\n", p_lvbmat->n_threads_getplen);
@@ -541,7 +571,7 @@ void print_data(Dataptr p_lvbmat, int n_thread){
 		}
 	}
 
-	void print_binary_data(Lvb_bit_lentgh **p_enc_data, int n_size, int nwords, int n_thread){
+	void print_binary_data(Lvb_bit_length **p_enc_data, int n_size, int nwords, int n_thread){
 
 		printf("########### SEQ ####################\n thread: %d\n", n_thread);
 		int i, x;
@@ -782,11 +812,11 @@ int main(int argc, char **argv)
 	    Params rcstruct;		/* configurable parameters */
 	    long i, n_buffer_size_matrix, n_buffer_size_binary;			/* loop counter */
 	    int position, n_error_code = EXIT_SUCCESS; /* return value */
-	    Lvb_bit_lentgh **enc_mat = NULL;/* encoded data mat. */
+	    Lvb_bit_length **enc_mat = NULL;/* encoded data mat. */
 	    Lvb_bool log_progress;	/* whether or not to log anneal search */
 	    Treestack *p_bstack_overall = NULL;	/* overall best tree stack */
 	    char *pack_data = NULL;
-	    Lvb_bit_lentgh *p_pack_data_binary = NULL;
+	    Lvb_bit_length *p_pack_data_binary = NULL;
 	    /* global files */
 
 	    /* define mpi */
@@ -875,7 +905,7 @@ int main(int argc, char **argv)
 
 					/* Allocation of the initial encoded matrix is non-contiguous because
 					 * this matrix isn't used much, so any performance penalty won't matter. */
-					enc_mat = (Lvb_bit_lentgh **) alloc((matrix->n) * sizeof(Lvb_bit_lentgh *), "state sets");
+					enc_mat = (Lvb_bit_length **) alloc((matrix->n) * sizeof(Lvb_bit_length *), "state sets");
 					for (i = 0; i < matrix->n; i++) enc_mat[i] = alloc(matrix->bytes, "state sets");
 					dna_makebin(matrix, matrix_seq_data, enc_mat);
 
@@ -898,7 +928,7 @@ int main(int argc, char **argv)
 
 					/* pack binary for seq data */
 					n_buffer_size_binary = matrix->bytes * matrix->n;
-					p_pack_data_binary = (Lvb_bit_lentgh *) alloc(n_buffer_size_binary, "binary packing");
+					p_pack_data_binary = (Lvb_bit_length *) alloc(n_buffer_size_binary, "binary packing");
 					position = 0;
 					for (i = 0; i < matrix->n; i++){
 						MPI_Pack(enc_mat[i], matrix->bytes, MPI_CHAR, p_pack_data_binary, n_buffer_size_binary, &position, MPI_COMM_WORLD);
@@ -983,13 +1013,13 @@ int main(int argc, char **argv)
 
 				/* send binary data */
 				n_buffer_size_binary = matrix->bytes * matrix->n;
-				p_pack_data_binary = (Lvb_bit_lentgh *) alloc(n_buffer_size_binary, "binary packing");
+				p_pack_data_binary = (Lvb_bit_length *) alloc(n_buffer_size_binary, "binary packing");
 				MPI_Recv(p_pack_data_binary, n_buffer_size_binary, MPI_CHAR, MPI_MAIN_PROCESS, MPI_TAG_BINARY_DATA, MPI_COMM_WORLD, &status);
 
-				enc_mat = (Lvb_bit_lentgh **) alloc((matrix->n) * sizeof(Lvb_bit_lentgh *), "state sets");
+				enc_mat = (Lvb_bit_length **) alloc((matrix->n) * sizeof(Lvb_bit_length *), "state sets");
 				for (i = 0; i < matrix->n; i++){
-					enc_mat[i] = (Lvb_bit_lentgh *) alloc(sizeof(char) * matrix->bytes, "binary packing");
-					memcpy((Lvb_bit_lentgh *) (enc_mat[i]), p_pack_data_binary + i * matrix->nwords, matrix->bytes);
+					enc_mat[i] = (Lvb_bit_length *) alloc(sizeof(char) * matrix->bytes, "binary packing");
+					memcpy((Lvb_bit_length *) (enc_mat[i]), p_pack_data_binary + i * matrix->nwords, matrix->bytes);
 				}
 		//		print_binary_data(enc_mat, matrix->n, matrix->nwords, myMPIid);
 				/* END send binary data */
@@ -1042,7 +1072,7 @@ int main(int argc, char **argv)
 					treestack_free(p_bstack_overall);
 
 					/* only print the time end the process finish */
-					cleanup();
+					CleanExit();
 				}
 				else{	/* send message to root node to say that this one is finished */
 					/* only print the time end the process finish */
@@ -1050,7 +1080,7 @@ int main(int argc, char **argv)
 					MPI_Request request_handle_send = 0;
 					MPI_Isend(&n_finish_message, 1, MPI_INT, MPI_MAIN_PROCESS, MPI_TAG_SEND_FINISHED, MPI_COMM_WORLD, &request_handle_send);
 					MPI_Wait(&request_handle_send, MPI_STATUS_IGNORE); /* need to do this because the receiver is asynchronous */
-					cleanup();
+					CleanExit();
 				}
 
 				/* clean memory */

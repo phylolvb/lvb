@@ -66,8 +66,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "clock.h"
 #include "log.h"
 
-#ifdef LVB_MAPREDUCE
+#if defined (LVB_MAPREDUCE) || defined (LVB_PARALLEL_SEARCH)
 #include <mpi.h>
+#endif
+
+#ifdef LVB_MAPREDUCE
 #include "mapreduce.h"
 #include <omp.h>
 #include <iostream>
@@ -83,6 +86,12 @@ using namespace std;
 #define PROGNAM "lvb"			/* program file name */
 #define LVB_VERSION "3.5"		/* version of program */
 #define LVB_SUBVERSION "(February 2019)"	/* version details e.g. date */
+
+#ifdef LVB_PARALLEL_SEARCH
+#define	MPI_SEND_ONLY_MATRIX_NAMES	/* if defined only send the names of the matrix */
+									/* sometimes the data matrix are huge and it's only necessary to pass */
+    								/* the names of the other process */
+#endif
 
 /* DNA bases: bits to set in statesets */
 #define A_BIT 0b0001		/* (1U << 0) */
@@ -111,6 +120,11 @@ typedef uint64_t Lvb_bit_length;								/* define 64 bits */
 /* values some people may feel the dangerous urge to change */
 #define LVB_INPUTSTRING_SIZE 2000	/* max. bytes for interactive input */
 #define STAT_LOG_INTERVAL 100000		/* min. interval for progress log */
+#ifdef LVB_PARALLEL_SEARCH
+#define UNSET (-1)			/* value of integral vars when unset */
+#define CHECKPOINT_INTERVAL 1800	/* checkpoint ~every ... seconds */
+#define CHECKPOINT_FNAM_BASE "lvb_checkpoint"
+#endif
 #define REROOT_INTERVAL 1000		/* change root every ... updates */
 
 
@@ -132,6 +146,50 @@ typedef	struct	/* object set derived from a cladogram */
 	long *set;	/* arrays of object sets */
 	long cnt;	/* sizes of object sets */
 }	Objset;
+
+#ifdef LVB_PARALLEL_SEARCH
+/* MPI definitions... */
+#define MPI_MAIN_PROCESS	0		/* main process */
+
+#define	MPI_TAG_MATRIX					1
+#define	MPI_TAG_NAME_AND_SEQ_DATA		2
+#define	MPI_TAG_BINARY_DATA				3
+#define MPI_TAG_PARAMS					4
+#define MPI_TAG_SEND_TEMP_MASTER		5
+#define MPI_TAG_SEND_FINISHED			6
+#define MPI_TAG_SEND_RESTART			7
+#define MPI_TAG_MANAGEMENT_MASTER		8
+
+
+#define MPI_FINISHED							0x00
+#define MPI_IS_TO_RESTART_ANNEAL				0x01
+#define MPI_IS_TO_CONTINUE_ANNEAL				0x02
+#define MPI_IS_NOT_TO_RESTART					0x03
+#define MPI_IS_TO_CONTINUE						0x04
+
+/* END MPI definitions... */
+
+/* anneal state */
+#define MESSAGE_ANNEAL_IS_RUNNING_OR_WAIT_TO_RUN			0x00
+#define MESSAGE_ANNEAL_FINISHED_AND_NOT_REPEAT				0x01
+#define MESSAGE_ANNEAL_FINISHED_AND_REPEAT					0x02
+#define MESSAGE_ANNEAL_KILLED								0x03
+#define MESSAGE_ANNEAL_KILLED_AND_REPEAT					0x04
+#define MESSAGE_ANNEAL_KILLED_AND_NOT_REPEAT				0x05
+#define MESSAGE_ANNEAL_STOP_PROCESS_WAIT_FINAL_MESSAGE		0x06
+#define MESSAGE_ANNEAL_STOP_PROCESS							0x07
+#define MESSAGE_BEGIN_CONTROL								0x08
+/* anneal state */
+
+
+/* Define calc iterations algorithm */
+#define CALC_ITERATION_ONLY_RELEASE_AFTER_NUMBER_CHUNCHS		5	/* the number of chunk of iterations that need to be */
+																	/* to start release */
+																	/* Ex: if 3 the algorithm doesn't kill the process in the first three chunk of temperatures */
+#define CALC_ITERATION_NUMBER_STD_TO_RESTART_PROCESS			1	/* if for a specific process the length exceeds this many SD from the mean */
+																	/* then the process need to restart with other seed */
+/* END  Define calc iterations algorithm */
+#endif
 
 /* branch of tree */
 typedef struct
@@ -286,6 +344,14 @@ long Anneal(Dataptr restrict, Treestack *, const Branch *const, Params *p_rcstru
 	const long, const long, const long, FILE *const, long *, int, int *p_n_state_progress, int *p_n_number_tried_seed, Lvb_bool);
 long HillClimbingOptimization(Dataptr, Treestack *, const Branch *const, Params rcstruct,
 	long, FILE * const, long *, int myMPIid, Lvb_bool);
+unsigned long checkpoint_uni(FILE *);
+unsigned long restore_uni(FILE *);
+void checkpoint_treestack(FILE *, Treestack *, Dataptr, Lvb_bool b_with_sset);
+void restore_treestack(FILE *, Treestack *, Dataptr, Lvb_bool b_with_sset);
+IterationTemperature *get_alloc_main_calc_iterations(void);
+void add_temperature_cal_iterations(IterationTemperature *p_data, SendInfoToMaster *p_info_temp, int n_process);
+Lvb_bool is_possible_to_continue(IterationTemperature *p_data, double d_temperature, int n_iteration, int l_tree_length, int n_max_number_process, int n_count_call);
+void release_main_calc_iterations(IterationTemperature *p_data);
 
 #else
 long Anneal(Dataptr restrict, Treestack *, Treestack *, const Branch *const, Params rcstruct, long, const double,
