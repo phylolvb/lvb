@@ -1,3 +1,5 @@
+#ifdef LVB_NP
+
 /* LVB
 
 (c) Copyright 2003-2012 by Daniel Barker
@@ -48,7 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define CLADESEP ","	/* clade separator for trees */
 
-#ifdef LVB_MAPREDUCE
+#ifdef LVB_MAPREDUCE  // check
 
 void map_pushSets(int itask, KeyValue *kv, void *ptr);
 
@@ -60,19 +62,26 @@ static Objset sset_1[MAX_N - 3] = { { NULL, 0 } };
 /* object sets for tree 2 in comparison */
 static Objset sset_2[MAX_N - 3] = { { NULL, 0 } };  
 
-static void CrashTree(const Branch *const barray, const long branch);
-static void CrashFileStream(FILE *const stream, const char *const msg);
-static long ReturnSister(const Branch *const barray, const long branch);
-static int CompareObjectSets(const void *oset1, const void *oset2);
-static void ConvertTreeToCanonical(Dataptr restrict, Branch *const barray, long *objnos);
-static void FillSets(Dataptr, Objset *const sstruct, const Branch *const tree, const long root);
-static void FillObjectArray(Dataptr, const Branch *const barray, const long root, long *const objarr, long *const cnt);
-static long *AssignLeaves(Dataptr, Branch *const barray, const Lvb_bool *const leafmask, const long objs);
-static void RealFillObjectArray(Dataptr, const Branch *const barray, const long root, long *const objarr, long *const cnt);
-static Lvb_bool *GenerateRandomTopology(Dataptr, Branch *const barray, const long nobjs);
-static void UnrootedTreePrint(Dataptr restrict, FILE *const stream, const Branch *const barray, const long root);
-static long CompareObjectStates(Dataptr restrict, Objset *const oset_1, Objset *const oset_2, Lvb_bool b_First);
-static void SortSets(Dataptr matrix, Objset *const oset_2, const long nels);
-static void StateSetArrayAlloc(Dataptr restrict matrix, Objset *nobjset_2);
+static void cr_bpnc(const Branch *const barray, const long branch);
+static void cr_chaf(const Branch *const barray, const long destination, const long newchild);
+static void cr_uxe(FILE *const stream, const char *const msg);
+static long getsister(const Branch *const barray, const long branch);
+static int osetcmp(const void *oset1, const void *oset2);
+static void tree_make_canonical(Dataptr restrict, Branch *const barray, long *objnos);
+static void fillsets(Dataptr, Objset *const sstruct, const Branch *const tree, const long root);
+static void getobjs(Dataptr, const Branch *const barray, const long root, long *const objarr, long *const cnt);
+static long *randleaf(Dataptr, Branch *const barray, const Lvb_bool *const leafmask, const long objs);
+static void realgetobjs(Dataptr, const Branch *const barray, const long root, long *const objarr, long *const cnt);
+static Lvb_bool *randtopology(Dataptr, Branch *const barray, const long nobjs);
+static void ur_print(Dataptr restrict, FILE *const stream, const Branch *const barray, const long root);
+static long setstcmp(Dataptr restrict, Objset *const oset_1, Objset *const oset_2, Lvb_bool b_First);
+static void sort(Dataptr matrix, Objset *const oset_2, const long nels);
+static void ssarralloc(Dataptr restrict matrix, Objset *nobjset_2);
 
 #endif  /* TROPS_H_ */
+
+#elif LVB_PARALLEL_SEARCH
+
+
+
+#endif

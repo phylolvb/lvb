@@ -2,15 +2,11 @@
 
 (c) Copyright 2003-2012 by Daniel Barker
 (c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl
-(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
-(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
-and Chris Wood.
-(c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
-Fernando Guntoro, Maxi
-milian Strobl and Chris Wood.
-(c) Copyright 2019 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
-Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
-
+(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro and Maximilian Strobl
+(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl
+and Chris Wood
+(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Chang Sik Kim,
+Maximilian Strobl and Martyn Winn
 All rights reserved.
  
 Redistribution and use in source and binary forms, with or without
@@ -70,18 +66,18 @@ int main(void)
     DataSeqPtr matrix_seq_data;	/* data matrix as input */
 
     long i;		/* loop counter */
-    LVBPreChecks();
+    lvb_initialize();
     Params rcstruct;		/* configurable parameters */
     strcpy(rcstruct.file_name_in, "infile");
     rcstruct.n_file_format = FORMAT_PHYLIP;
 
-    LVBPreChecks();
+    lvb_initialize();
     matrix = (Dataptr) malloc(sizeof(DataStructure));
 
-    matrix_seq_data = (DataSeqPtr) Alloc(sizeof(DataSeqStructure), "alloc data structure");
+    matrix_seq_data = (DataSeqPtr) alloc(sizeof(DataSeqStructure), "alloc data structure");
     matrix_seq_data->row = NULL;
     matrix_seq_data->rowtitle = NULL;
-    CheckDNAMatrixInput(rcstruct.file_name_in, rcstruct.n_file_format, matrix, matrix_seq_data);
+    phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix, matrix_seq_data);
 
     lvb_assert(matrix->m == 42);
     lvb_assert(matrix->n == 5);
@@ -94,7 +90,7 @@ int main(void)
 	lvb_assert(strcmp(matrix_seq_data->rowtitle[i], name_expected[i]) == 0);
     }
 
-    FreeRowStrings(matrix_seq_data, matrix->n);
+    rowfree(matrix_seq_data, matrix->n);
     free(matrix_seq_data);
     free(matrix);
 

@@ -7,8 +7,6 @@
 and Chris Wood.
 (c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
 Fernando Guntoro, Maximilian Strobl and Chris Wood.
-(c) Copyright 2019 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
-Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
 All rights reserved.
  
 Redistribution and use in source and binary forms, with or without
@@ -40,7 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <lvb.h>
 
-/* positive test for CompareStrings() */
+/* positive test for cistrcmp() */
 
 int main(void)
 {
@@ -54,12 +52,12 @@ int main(void)
     static char s3[] = "`1234567890-=!\"$%^&*("
      ")_+QWERTYUIOPASDFGHJKLZXCVBNN[]{};'#:@~,./<>? \t\n\r";
 
-    LVBPreChecks();
+    lvb_initialize();
 
-    lvb_assert(CompareStrings(s1, s1) == 0);
-    lvb_assert(CompareStrings(s3 + 5, s3) != 0);
-    lvb_assert(CompareStrings(s1, s2) == 0);
-    lvb_assert(CompareStrings(s2, s3) != 0);
+    lvb_assert(cistrcmp(s1, s1) == 0);
+    lvb_assert(cistrcmp(s3 + 5, s3) != 0);
+    lvb_assert(cistrcmp(s1, s2) == 0);
+    lvb_assert(cistrcmp(s2, s3) != 0);
 
     printf("test passed\n");
     return 0;

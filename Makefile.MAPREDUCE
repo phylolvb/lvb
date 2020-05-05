@@ -21,7 +21,7 @@
 # 
 # 3. Neither the name of the copyright holder nor the names of its contributors
 # may be used to endorse or promote products derived from this software without
-# specific prior written permission.
+# specific prior written permission. 
 # 
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 # AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -94,8 +94,8 @@
 # It is possible to make two different versions of LVB
 # One uses parallel search (MAKE_LVB_MPI) and the other uses Map Reduce
 # (MAKE_LVB_MPI_MR). Comment out precisely one of the below:
-  WHICH_MAKE=MAKE_LVB_MPI
-# WHICH_MAKE=MAKE_LVB_MPI_MR
+#  WHICH_MAKE=MAKE_LVB_MPI
+   WHICH_MAKE=MAKE_LVB_MPI_MR
 
 # For compiling on x86_64 (AMD or Intel), uncomment these two lines:
 #CFLAGS += -msse4.2
@@ -104,26 +104,26 @@
 # Directories
 TEST_DIR = ./test/src
 DOCS_PROG_DIR = ./docs_programmer
-LVB_READ_FILE_DIR = ./LVB_READ_FILES/src
+#LVB_READ_FILE_DIR = ./LVB_READ_FILES/src
 
 ### define compilers and compiler options
 MPIC++ = mpic++
-CFLAGS += -Wall -O3 -fopenmp -ftree-loop-distribution -fvariable-expansion-in-unroller -I.
+CFLAGS += -Wall -g -O3 -fopenmp -ftree-loop-distribution -fvariable-expansion-in-unroller -I.
 #CFLAGS += -Wall -g -fopenmp
-CXXFLAGS += -Wall -O3 -fopenmp -ftree-loop-distribution -fvariable-expansion-in-unroller -I.
+CXXFLAGS += -Wall -g -O3 -fopenmp -ftree-loop-distribution -fvariable-expansion-in-unroller -I.
 #CXXFLAGS += -Wall -g -fopenmp
 
 ifeq ($(WHICH_MAKE),MAKE_LVB_MPI)
 	G++ = g++
 	CC=mpicc
-	CFLAGS += -DMPI_Implementation -std=c99  
-	CXXFLAGS += -DMPI_Implementation -std=c99 
+	CFLAGS += -std=c99 
+	CXXFLAGS += -std=c99 
 else
 	G++=mpic++
 	CXX=mpic++
 	CC=mpic++
-	CFLAGS += -DMPI_Implementation -DMAP_REDUCE_SINGLE
-	CXXFLAGS += -DMPI_Implementation -DMAP_REDUCE_SINGLE
+	CFLAGS += -DLVB_MAPREDUCE -DLVB_NP
+	CXXFLAGS += -DLVB_MAPREDUCE -DLVB_NP
 	## LM = -lm /gpfs/stfc/local/HCP006/mdw02/cxk42-mdw02/LIBs/mrmpi-22Nov13/src/libmrmpi_mpicc.a
 	## LM = -lm /home/s1880345/bin/libmrmpi_mpicc.a
 	LM = -lm /home/joe/Packages/mrmpi-7Apr14/src/libmrmpi_mpicc.a
@@ -140,23 +140,23 @@ LIB_EXT = a		# UNIX
 	@echo 'Building file: $<'
 	$(CC) $(CFLAGS) -c $<
 
-DOCS_PROGRAMMER = 	$(DOCS_PROG_DIR)/treestack.html \
-					$(DOCS_PROG_DIR)/main.html \
+DOCS_PROGRAMMER = 	$(DOCS_PROG_DIR)/main.html \
 		  			$(DOCS_PROG_DIR)/cleanup.html \
 		  			$(DOCS_PROG_DIR)/datops.html \
 		  			$(DOCS_PROG_DIR)/err.html \
 		  			$(DOCS_PROG_DIR)/fops.html \
 		  			$(DOCS_PROG_DIR)/getparam.html \
-					  $(DOCS_PROG_DIR)/admin.html \
-					  $(DOCS_PROG_DIR)/mops.html \
-					  $(DOCS_PROG_DIR)/mymaths.html \
-					  $(DOCS_PROG_DIR)/myuni.html \
-					  $(DOCS_PROG_DIR)/parsim.html \
-					  $(DOCS_PROG_DIR)/randpint.html \
-					  $(DOCS_PROG_DIR)/solve.html \
-					  $(DOCS_PROG_DIR)/sops.html \
-					  $(DOCS_PROG_DIR)/trops.html \
-					  $(DOCS_PROG_DIR)/wrapper.html
+					$(DOCS_PROG_DIR)/admin.html \
+					$(DOCS_PROG_DIR)/mops.html \
+					$(DOCS_PROG_DIR)/mymaths.html \
+					$(DOCS_PROG_DIR)/myuni.html \
+					$(DOCS_PROG_DIR)/parsim.html \
+					$(DOCS_PROG_DIR)/randpint.html \
+					$(DOCS_PROG_DIR)/solve.html \
+					$(DOCS_PROG_DIR)/sops.html \
+					$(DOCS_PROG_DIR)/treestack.html \
+					$(DOCS_PROG_DIR)/trops.html \
+					$(DOCS_PROG_DIR)/wrapper.html
 
 TEST_MANUAL = $(DOCS_PROG_DIR)/go.html
 
@@ -166,21 +166,23 @@ DOCS = $(DOCS_PROGRAMMER) \
        $(TEST_MANUAL)
 
 LVB_LIB_OBJS = admin.$(OBJ) \
-	treestack.$(OBJ) \
 	cleanup.$(OBJ) \
+	clock.$(OBJ) \
 	datops.$(OBJ) \
 	err.$(OBJ) \
 	fops.$(OBJ) \
 	getparam.$(OBJ) \
 	getstartt.$(OBJ) \
+	info.$(OBJ) \
+	log_file.$(OBJ) \
 	mops.$(OBJ) \
 	mymaths.$(OBJ) \
 	myuni.$(OBJ) \
 	parsim.$(OBJ) \
 	randpint.$(OBJ) \
 	solve.$(OBJ) \
-	store_states.$(OBJ) \
 	sops.$(OBJ) \
+	treestack.$(OBJ) \
 	trops.$(OBJ) \
     wrapper.$(OBJ)
 
@@ -198,14 +200,14 @@ else
 	# LVB library
 	LVB_LIB = libmrlvb.$(LIB_EXT)
 	LIBS += $(LVB_LIB)
-	LVB_PROG = lvb_mrmpi$(EXE)
+	LVB_PROG = lvb_mapreduce$(EXE)
 
 	# Object files that will go into the LVB library
-	LVB_LIB_OBJS += mrSubroutine.$(OBJ)
+	LVB_LIB_OBJS += mapreduce.$(OBJ)
 endif
 
-LVB_READ_FILE_OBJS = 	$(LVB_READ_FILE_DIR)/CReadFiles.$(OBJ) \
-						$(LVB_READ_FILE_DIR)/ReadFile.$(OBJ)
+LVB_READ_FILE_OBJS = 	$(LVB_READ_FILE_DIR)CReadFiles.$(OBJ) \
+						$(LVB_READ_FILE_DIR)ReadFile.$(OBJ)
 
 LVB_PROG_OBJS = main.$(OBJ)
 LVB_LIB_OBJS_OUTPUT = $(LVB_LIB_OBJS)
@@ -219,7 +221,7 @@ all : lvb_mpi			# allow 'make all' as synonym for 'make lvb'
 
 lvb_mpi : LVB_PROG $(DOCS)
 
-$(TEST_MANUAL) : $(TEST_DIR)/MPI/go
+$(TEST_MANUAL) : $(TEST_DIR)/MR/go
 		pod2html $< >$@
 
 LVB_PROG : $(LVB_LIB) $(LVB_PROG_OBJS)
@@ -231,13 +233,13 @@ $(LVB_LIB) : $(LVB_LIB_OBJS) $(LVB_READ_FILE_OBJS)
 
 # If the main test script has changed, we should run the tests
 test : FORCE
-		cd test/src/MPI ; env LVB_EXECUTABLE="`pwd`/../../../$(LVB_PROG)" LVB_LIBRARY="`pwd`/../../../$(LVB_LIB)" LVB_OTHERLIBS="$(LM)" LVB_HEADER_PATH=".." GPLUSPLUS="$(G++)" MPIC++="$(MPIC++)" CC="$(CC)" CFLAGS="$(CFLAGS)" ./go; cd ..;
+		cd test/src/MR ; env LVB_EXECUTABLE="`pwd`/../../../$(LVB_PROG)" LVB_LIBRARY="`pwd`/../../../$(LVB_LIB)" LVB_OTHERLIBS="$(LM)" LVB_HEADER_PATH=".." GPLUSPLUS="$(G++)" MPIC++="$(MPIC++)" CC="$(CC)" CFLAGS="$(CFLAGS)" ./go; cd ..;
 
 tests : test	# allow 'make tests' as synonym for 'make test'
 
 # make clean to remove files generated by a previous make, leaving
 # source files
-clean : FORCE
+clean : FORCE 
 	rm -f $(LVB_PROG) \
 	rm -f test/test*/*.o \
 	rm -f test/test*/testprog.exe \
@@ -250,5 +252,5 @@ clean : FORCE
 	$(LVB_PROG_OBJS) \
 	$(DOCS)
 FORCE:
- 
+
 

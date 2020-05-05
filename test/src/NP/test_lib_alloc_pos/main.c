@@ -7,8 +7,6 @@
 and Chris Wood.
 (c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
 Fernando Guntoro, Maximilian Strobl and Chris Wood.
-(c) Copyright 2019 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
-Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
 All rights reserved.
  
 Redistribution and use in source and binary forms, with or without
@@ -56,15 +54,15 @@ int main(void)
 {
     long i;	/* loop counter */
 
-    LVBPreChecks();
+    lvb_initialize();
 
     /* Check that a zero byte allocation returns a NULL pointer. */
-    lp = Alloc(0, "zero-byte array");
+    lp = alloc(0, "zero-byte array");
     lvb_assert(lp == NULL);
 
     /* Check that a fairly large allocation succeeds and that the
      * memory allocated may be written to. */
-    lp = Alloc(TEST_ALLOC_LONGS * sizeof(long), "test array 1");
+    lp = alloc(TEST_ALLOC_LONGS * sizeof(long), "test array 1");
     lvb_assert(lp != NULL);
     for (i = 0; i < TEST_ALLOC_LONGS; i++)
 	lp[i] = 1;
@@ -73,7 +71,7 @@ int main(void)
 
     /* Basic check that heap is OK after free: allocate something else
      * and check we may write to it */
-    cp = Alloc(TEST_ALLOC_CHARS, "test array 2");
+    cp = alloc(TEST_ALLOC_CHARS, "test array 2");
     for (i = 0; i < TEST_ALLOC_CHARS; i++)
     	cp[i] = 'X';
 

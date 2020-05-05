@@ -2,15 +2,11 @@
 
 (c) Copyright 2003-2012 by Daniel Barker
 (c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl
-(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
-(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
-and Chris Wood.
-(c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
-Fernando Guntoro, Maxi
-milian Strobl and Chris Wood.
-(c) Copyright 2019 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
-Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
-
+(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro and Maximilian Strobl
+(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl
+and Chris Wood
+(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Chang Sik Kim,
+Maximilian Strobl and Martyn Winn
 All rights reserved.
  
 Redistribution and use in source and binary forms, with or without
@@ -73,20 +69,20 @@ int main(int argc, char **argv)
     	/*		4: Params struture				*/
     	/*		5: tree stack struture			*/
 
-    	PassSearchParameters(&rcstruct, argc, argv);
-    	matrix = (Dataptr) Alloc(sizeof(DataStructure), "alloc data structure");
-    	matrix_seq_data = (DataSeqPtr) Alloc(sizeof(DataSeqStructure), "alloc data structure");
-    	CheckDNAMatrixInput("infile", FORMAT_PHYLIP, matrix, matrix_seq_data);
-    	CutMatrixColumns(matrix, matrix_seq_data, rcstruct);
-    	tree_checkpoint = NewTreestack();
+    	getparam(&rcstruct, argc, argv);
+    	matrix = (Dataptr) alloc(sizeof(DataStructure), "alloc data structure");
+    	matrix_seq_data = (DataSeqPtr) alloc(sizeof(DataSeqStructure), "alloc data structure");
+    	phylip_dna_matrin("infile", FORMAT_PHYLIP, matrix, matrix_seq_data);
+    	matchange(matrix, matrix_seq_data, rcstruct);
+    	tree_checkpoint = treestack_new();
 
 		/* fill a treestack without checkpointing */
-    	tree1 = AllocBlankTreeArray(matrix, LVB_TRUE);
+    	tree1 = treealloc(matrix, LVB_TRUE);
 		rinit(SEED);
 		for (i = 0; i < RAND_TREES; i++){
-			GenerateRandomTree(matrix, tree1);
-			root1 = RandomTreeRoot(matrix, tree1, 0);
-			PushTreeOntoTreestack(matrix, tree_checkpoint, tree1, root1, LVB_FALSE);
+			randtree(matrix, tree1);
+			root1 = arbreroot(matrix, tree1, 0);
+			treestack_push(matrix, tree_checkpoint, tree1, root1, LVB_FALSE);
 		}
 
     	is_process_finished = CHECK_POINT_PROCESS_FINISHED;
@@ -101,7 +97,7 @@ int main(int argc, char **argv)
     	checkpoint_uni(fp);
     	checkpoint_params(fp, &rcstruct);
     	checkpoint_treestack(fp, tree_checkpoint, matrix, LVB_FALSE);
-		FreeTreestack(tree_checkpoint);
+		treestack_free(tree_checkpoint);
     	lvb_assert(fclose(fp) == 0);
     	lvb_assert(test_consistency_state_file(filename, 1) == LVB_TRUE);
     	lvb_assert(is_process_ended(filename) == LVB_TRUE);

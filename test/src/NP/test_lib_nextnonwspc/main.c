@@ -7,8 +7,6 @@
 and Chris Wood.
 (c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
 Fernando Guntoro, Maximilian Strobl and Chris Wood.
-(c) Copyright 2019 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
-Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
 All rights reserved.
  
 Redistribution and use in source and binary forms, with or without
@@ -40,7 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lvb.h"
 
-/* test for TestNextNonWhiteSpaceCharacter() */
+/* test for nextnonwspc() */
 
 int main(void)
 {
@@ -48,11 +46,11 @@ int main(void)
     const char *p2 = "\b\a!\"$%^&*()_+NO_SPACE+IN$HERE!@#~'";
     const char *p3 = "\v\t\r\n \f\aHello Goodbye \n";
 
-    LVBPreChecks();
+    lvb_initialize();
 
-    lvb_assert(TestNextNonWhiteSpaceCharacter(p1) == NULL);
-    lvb_assert(TestNextNonWhiteSpaceCharacter(p2) == p2);
-    lvb_assert(TestNextNonWhiteSpaceCharacter(p3) == p3 + 6);
+    lvb_assert(nextnonwspc(p1) == NULL);
+    lvb_assert(nextnonwspc(p2) == p2);
+    lvb_assert(nextnonwspc(p3) == p3 + 6);
 
     printf("test passed\n");
     return 0;

@@ -1,3 +1,5 @@
+#ifdef LVB_NP
+
 /* LVB
 
 (c) Copyright 2003-2012 by Daniel Barker
@@ -44,6 +46,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef ADMIN_H_
 #define ADMIN_H_
 
-void LVBPreChecks(void);
+void functionality_check(void);
+void lvb_initialize(void);
 
 #endif  /* ADMIN_H_ */
+
+#endif

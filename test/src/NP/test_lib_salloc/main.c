@@ -7,8 +7,6 @@
 and Chris Wood.
 (c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
 Fernando Guntoro, Maximilian Strobl and Chris Wood.
-(c) Copyright 2019 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
-Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
 All rights reserved.
  
 Redistribution and use in source and binary forms, with or without
@@ -40,7 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lvb.h"
 
-/* test of Alloc() */
+/* test of alloc() */
 
 #define S1_LENGTH 120
 
@@ -56,15 +54,15 @@ int main(void)
     long i;	/* loop counter */
     long j;	/* loop counter */
 
-    LVBPreChecks();
+    lvb_initialize();
 
     for (i = 0; i < 50000; i++)	/* repeat to check heap seems OK */
     {
-	s1 = Alloc(S1_LENGTH + 1, "test string s1");
+	s1 = alloc(S1_LENGTH + 1, "test string s1");
 	for (j = 0; j < S1_LENGTH; j++) s1[j] = '@';
 	s1[S1_LENGTH] = 0;
 	lvb_assert(strcmp(s1, s2) == 0);
-	s3 = Alloc(strlen(s1)+1, "test string s3");
+	s3 = alloc(strlen(s1)+1, "test string s3");
 	strcpy(s3, s1);
 	free(s1);
 	lvb_assert(strcmp(s3, s2) == 0);

@@ -7,8 +7,6 @@
 and Chris Wood.
 (c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
 Fernando Guntoro, Maximilian Strobl and Chris Wood.
-(c) Copyright 2019 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
-Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
 All rights reserved.
  
 Redistribution and use in source and binary forms, with or without
@@ -40,7 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lvb.h"
 
-/* basic test of ReadDNAMatrix() */
+/* basic test of phylip_mat_dims_in() */
 
 /* these constants are given in the infile */
 #define EXPECTED_N 10
@@ -54,17 +52,17 @@ int main(void)
     Lvb_bool success = LVB_FALSE;	/* test passed */
     Params rcstruct;		/* configurable parameters */
 
-    LVBPreChecks();
+    lvb_initialize();
 
 //    rcstruct.file_name_in = "infile";
     strcpy(rcstruct.file_name_in, "infile");
     rcstruct.n_file_format = FORMAT_PHYLIP;
 
-    ReadDNAMatrix(rcstruct.file_name_in, rcstruct.n_file_format, &n, &m, &max_length_name);
+    phylip_mat_dims_in(rcstruct.file_name_in, rcstruct.n_file_format, &n, &m, &max_length_name);
     if ((n == EXPECTED_N) && (m == EXPECTED_M))
     {
     	/* try it again and check it still works */
-	ReadDNAMatrix(rcstruct.file_name_in, rcstruct.n_file_format, &n, &m, &max_length_name);
+	phylip_mat_dims_in(rcstruct.file_name_in, rcstruct.n_file_format, &n, &m, &max_length_name);
 	if ((n == EXPECTED_N) && (m == EXPECTED_M))
 	    success = LVB_TRUE;
     }

@@ -7,8 +7,6 @@
 and Chris Wood.
 (c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
 Fernando Guntoro, Maximilian Strobl and Chris Wood.
-(c) Copyright 2019 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
-Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
 All rights reserved.
  
 Redistribution and use in source and binary forms, with or without
@@ -40,13 +38,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <lvb.h>
 
-/* test for PrintError() */
+/* test for scream() */
 
 int main(void)
 {
-    LVBPreChecks();
+    lvb_initialize();
 
-    PrintError("%d %d %d %d %d %d %d %s!", 1, 2, 3, 4, 5, 6, 7,
+    scream("%d %d %d %d %d %d %d %s!", 1, 2, 3, 4, 5, 6, 7,
     "TEST%STRING%GOES%d%d%dHERE");
     printf("returned!\n");
     return 0;

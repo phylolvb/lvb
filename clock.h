@@ -1,3 +1,5 @@
+#ifdef LVB_NP
+
 /* LVB
 
 (c) Copyright 2003-2012 by Daniel Barker
@@ -43,6 +45,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lvb.h"
 
-void GetSystemTime();
+void log_Time();
+void StartTime();
+void logstim(void);
 
 #endif  // CLOCK_H_
+
+#elif LVB_PARALLEL_SEARCH
+
+
+
+#endif

@@ -7,8 +7,6 @@
 and Chris Wood.
 (c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
 Fernando Guntoro, Maximilian Strobl and Chris Wood.
-(c) Copyright 2019 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
-Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
 All rights reserved.
  
 Redistribution and use in source and binary forms, with or without
@@ -89,18 +87,18 @@ int main(void)
     strcpy(rcstruct.file_name_in, "infile");
     rcstruct.n_file_format = FORMAT_PHYLIP;
 
-    LVBPreChecks();
+    lvb_initialize();
 
     matrix1 = malloc(sizeof(DataStructure));
-    CheckDNAMatrixInput(rcstruct.file_name_in, rcstruct.n_file_format, matrix1);
+    phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix1);
     check(matrix1);
 
     matrix2 = malloc(sizeof(DataStructure));
-    CheckDNAMatrixInput(rcstruct.file_name_in, rcstruct.n_file_format, matrix2);
+    phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix2);
     check(matrix2);
 
-    FreeRowStrings(matrix1);
-    FreeRowStrings(matrix2);
+    rowfree(matrix1);
+    rowfree(matrix2);
     printf("test passed\n");
     return 0;
 }

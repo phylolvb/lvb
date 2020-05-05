@@ -1,3 +1,5 @@
+#ifdef LVB_NP
+
 /* LVB
 
 (c) Copyright 2003-2012 by Daniel Barker
@@ -41,7 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "clock.h"
 
-void GetSystemTime() {
+void StartTime() {
   time_t timer;
   char buffer[26];
   struct tm* tm_info;
@@ -49,6 +51,32 @@ void GetSystemTime() {
   time(&timer);
   tm_info = localtime(&timer);
 
-  strftime(buffer, 26, "%H:%M (%d/%m/%Y)", tm_info);
+  printf("Start date: ");
+  strftime(buffer, 26, "%d/%m/%Y\n", tm_info);
   puts(buffer);
 }
+
+void log_Time() {
+  time_t timer;
+  char buffer[26];
+  struct tm* tm_info;
+
+  time(&timer);
+  tm_info = localtime(&timer);
+
+  strftime(buffer, 26, "%H:%M", tm_info);
+  puts(buffer);
+}
+
+void logstim(void) {
+  time_t tim;
+
+  tim = time(NULL);
+  printf("Starting at: %s\n", ctime(&tim));
+}
+
+#elif LVB_PARALLEL_SEARCH
+
+
+
+#endif

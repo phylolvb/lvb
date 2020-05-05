@@ -1,14 +1,19 @@
+#ifdef LVB_NP
+
 /* LVB
 
 (c) Copyright 2003-2012 by Daniel Barker
 (c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl
-(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro and Maximilian Strobl
-(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl
-and Chris Wood
-(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Chang Sik Kim,
-Maximilian Strobl and Martyn Winn
+(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
+(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
+and Chris Wood.
+(c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
+Fernando Guntoro, Maximilian Strobl and Chris Wood.
+(c) Copyright 2019 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
+Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
+
 All rights reserved.
- 
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
@@ -36,46 +41,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include "lvb.h"
+/* ========== log_file.c - logfile parameters ========== */
 
-/* An array of TEST_ALLOC_LONGS long ints is allocated and the
- * test expects this allocation to succeed. */
-#define TEST_ALLOC_LONGS 1000000
+#include "log_file.h"
 
-/* Subsequently, that array is freed and an array of TEST_ALLOC_CHARS
- * characters is allocated, and the test expects this to succeed as
- * well. */
-#define TEST_ALLOC_CHARS 70000
-
-long *lp = NULL;	/* pointer to start of an allocated array */
-char *cp = NULL;	/* pointer to start of an allocated array */
-
-int main(int argc, char **argv)
-{
-    long i;	/* loop counter */
-    lvb_initialize();
-
-    /* Check that a zero byte allocation returns a NULL pointer. */
-    lp = (long *) alloc(0, "zero-byte array");
-    lvb_assert(lp == NULL);
-
-    /* Check that a fairly large allocation succeeds and that the
-     * memory allocated may be written to. */
-    lp = (long *) alloc(TEST_ALLOC_LONGS * sizeof(long), "test array 1");
-    lvb_assert(lp != NULL);
-    for (i = 0; i < TEST_ALLOC_LONGS; i++)
-	lp[i] = 1;
-
-    free(lp);
-
-    /* Basic check that heap is OK after free: allocate something else
-     * and check we may write to it */
-    cp = (char *) alloc(TEST_ALLOC_CHARS, "test array 2");
-    for (i = 0; i < TEST_ALLOC_CHARS; i++)
-    	cp[i] = 'X';
-
-    free(cp);
-    
-    printf("test passed\n");
-    return EXIT_SUCCESS;
+bool logfile_exists(const char *filename) {
+  struct stat buffer;
+  
+  return (stat (filename, &buffer) == 0);
 }
+
+#elif LVB_PARALLEL_SEARCH
+
+
+
+#endif

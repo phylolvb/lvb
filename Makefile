@@ -7,34 +7,33 @@
 # and Chris Wood.
 # (c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
 # Fernando Guntoro, Maximilian Strobl and Chris Wood.
-# (c) Copyright 2019 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
-# Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
 # All rights reserved.
- 
+#  
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
-
-# 1. Redistributions of source code must retain the above copyright notice, this
-# list of conditions and the following disclaimer.
-
+# 
+# 1. Redistributions of source code must retain the above copyright notice,
+# this list of conditions and the following disclaimer.
+# 
 # 2. Redistributions in binary form must reproduce the above copyright notice,
 # this list of conditions and the following disclaimer in the documentation
 # and/or other materials provided with the distribution.
-
+# 
 # 3. Neither the name of the copyright holder nor the names of its contributors
 # may be used to endorse or promote products derived from this software without
 # specific prior written permission.
-
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
 
 # Makefile - makefile for LVB
 
@@ -83,15 +82,8 @@ CFLAGS += -msse4.2
 #CFLAGS += -openmp-link static
 
 # General options
-#CFLAGS += -DLVB	-DNP_Implementation 	# Must be present
-#CXXFLAGS += -DNP_Implementation
-#CFLAGS += -g -Wall	#  Assumes GNU C compiler
-#CFLAGS += -O2 -Wall	# Assumes GNU C compiler
-#CFLAGS += -fprofile-arcs -ftest-coverage -ansi
-#CFLAGS += -g -std=c99
-#CFLAGS += -O3 -std=c99 -fopenmp -ftree-loop-distribution -fvariable-expansion-in-unroller -ftree-vectorizer-verbose=6 -msse4.2
-#CFLAGS += -std=c99 -fopenmp
-CFLAGS += -Wall -g -O3 -std=c99 -fopenmp
+CFLAGS += -Wall -g -O3 -std=c99 -fopenmp  -DLVB_NP
+CXXFLAGS += -Wall -g -O3 -fopenmp -DLVB_NP
 
 # System-dependent macros - OK for Linux and UNIX-like systems, for others will
 # require change
@@ -121,7 +113,7 @@ LVB_LIB_OBJS = admin.$(OBJ) \
                getparam.$(OBJ) \
                getstartt.$(OBJ) \
 			   info.$(OBJ) \
-			   log.$(OBJ) \
+			   log_file.$(OBJ) \
                mops.$(OBJ) \
                mymaths.$(OBJ) \
                myuni.$(OBJ) \
@@ -144,7 +136,7 @@ LVB_PROG_OBJS = main.$(OBJ)
 
 # Documentation files
 
-#LVB_MANUAL = lvb_manual.pdf
+LVB_MANUAL = lvb_manual.pdf
 
 DOCS_PROGRAMMER = $(TEST_MANUAL) \
                   $(DOCS_PROG_DIR)/main.html \
@@ -184,8 +176,8 @@ all : lvb	# allow 'make all' as synonym for 'make lvb'
 
 lvb : LVB_PROG $(DOCS)
 
-#$(LVB_MANUAL) : lvb_manual.odt
-#	soffice --headless --convert-to pdf:writer_pdf_Export lvb_manual.odt
+$(LVB_MANUAL) : lvb_manual.odt
+	soffice --headless --convert-to pdf:writer_pdf_Export lvb_manual.odt
 
 LVB_PROG : $(LVB_LIB) $(LVB_PROG_OBJS)
 	$(G++) $(CFLAGS) $(LDFLAGS) -o $(LVB_PROG) $(LVB_PROG_OBJS) $(LVB_READ_FILE_OBJS) $(LIBS) $(LM)

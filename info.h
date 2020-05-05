@@ -1,3 +1,5 @@
+#ifdef LVB_NP
+
 /* LVB
 
 (c) Copyright 2003-2012 by Daniel Barker
@@ -52,12 +54,18 @@ using namespace std;
 #define LVB_RELEASE_DATE "February 2019"
 #define LVB_WIKI "github.com/phylolvb/lvb"
 
-#ifndef LVB_MAPREDUCE
-  extern "C" void PrintCopyright();
-  extern "C" void PrintBanner();
+#ifndef LVB_MAPREDUCE 
+  extern "C" void print_LVB_COPYRIGHT();
+  extern "C" void print_LVB_INFO();
 #endif
 
-void PrintCopyright();
-void PrintBanner();
+void print_LVB_COPYRIGHT();
+void print_LVB_INFO();
 
 #endif  // INFO_H_
+
+#elif LVB_PARALLEL_SEARCH
+
+
+
+#endif

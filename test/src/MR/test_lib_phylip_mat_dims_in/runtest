@@ -35,7 +35,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-# Positive test for ReadDNAMatrix().
+# Positive test for phylip_mat_dims_in().
 
 # run testprog.exe
 $output = `./testprog.exe`;

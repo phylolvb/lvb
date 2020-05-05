@@ -1,3 +1,5 @@
+#ifdef LVB_NP
+
 /* LVB
 
 (c) Copyright 2003-2012 by Daniel Barker
@@ -38,18 +40,24 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
-#ifndef log_H_
-#define log_H_
+#ifndef LOG_FILE_H_
+#define LOG_FILE_H_
 
 #include <stdbool.h>
 #include "lvb.h"
 
-#ifdef LVB_MAPREDUCE
+#ifdef LVB_MAPREDUCE  // check
   #define LVB_IMPLEMENTATION "MR"
 #else
   #define LVB_IMPLEMENTATION "NP"
 #endif
 
-bool LogFileExists(const char *filename);
+bool logfile_exists(const char *filename);
 
-#endif  // log_H_
+#endif  // LOG_FILE_H_
+
+#elif LVB_PARALLEL_SEARCH
+
+
+
+#endif

@@ -7,8 +7,6 @@
 and Chris Wood.
 (c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
 Fernando Guntoro, Maximilian Strobl and Chris Wood.
-(c) Copyright 2019 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
-Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
 All rights reserved.
  
 Redistribution and use in source and binary forms, with or without
@@ -40,17 +38,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <lvb.h>
 
-/* test for CrashVerbosely() */
+/* test for crash() */
 
 int main(void)
 {
     long i = 32447881;
 
-    LVBPreChecks();
+    lvb_initialize();
 
-    CrashVerbosely("%ld is causing trouble", i);
+    crash("%ld is causing trouble", i);
 
-    /* if we reach here, CrashVerbosely() isn't working */
+    /* if we reach here, crash() isn't working */
     printf("test failed\n");
-    return 0;	/* program success indicates CrashVerbosely()'s failure */
+    return 0;	/* program success indicates crash()'s failure */
 }

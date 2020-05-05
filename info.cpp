@@ -1,3 +1,5 @@
+#ifdef LVB_NP
+
 /* LVB
 
 (c) Copyright 2003-2012 by Daniel Barker
@@ -41,11 +43,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "info.h"
 
-void PrintBanner() {
+void print_LVB_INFO() {
   cout << "==============================================="
           "=================================\n\n";
   cout << "LVB v." << LVB_VERSION << " ";
-  #ifdef LVB_MAPREDUCE
+  #ifdef LVB_MAPREDUCE  // check
     cout << LVB_MAPREDUCE_VERSION;
   #endif
   cout << "built for Linux 64-bit \n";
@@ -59,7 +61,7 @@ void PrintBanner() {
           "=================================\n\n";
 }
 
-void PrintCopyright() {
+void print_LVB_COPYRIGHT() {
   cout << "(c) Copyright 2003-2012 by Daniel Barker\n"
   "(c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl\n"
   "(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro\n"
@@ -103,3 +105,8 @@ void PrintCopyright() {
   "ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n\n";
 }
 
+#elif LVB_PARALLEL_SEARCH
+
+
+
+#endif

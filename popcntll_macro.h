@@ -1,17 +1,16 @@
+#ifdef LVB_PARALLEL_SEARCH
+
 /* LVB
 
 (c) Copyright 2003-2012 by Daniel Barker
 (c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl
-(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
-(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
-and Chris Wood.
-(c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
-Fernando Guntoro, Maximilian Strobl and Chris Wood.
-(c) Copyright 2019 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
-Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
-
+(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro and Maximilian Strobl
+(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl
+and Chris Wood
+(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Chang Sik Kim,
+Maximilian Strobl and Martyn Winn
 All rights reserved.
-
+ 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
@@ -39,12 +38,27 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== log.c - logfile parameters ========== */
+/* ********** popcnt_ll_macro.h - rapid inline popcnt macro ********** */
 
-#include "log.h"
+#ifndef LVB_POPCNTLL_MACRO_H
+#define LVB_POPCNTLL_MACRO_H
 
-bool LogFileExists(const char *filename) {
-  struct stat buffer;
-  
-  return (stat (filename, &buffer) == 0);
-}
+/* based on popcount_2 at http://en.wikipedia.org/wiki/Hamming_weight
+ * 1 June 2015 */
+
+#define LVB_POPCNTLL_m1 0x5555555555555555ULL
+#define LVB_POPCNTLL_m2 0x3333333333333333ULL
+#define LVB_POPCNTLL_m4 0x0f0f0f0f0f0f0f0fULL
+
+#define LVB_POPCNT_LL(X) \
+    X -= (X >> 1) & LVB_POPCNTLL_m1; \
+    X = (X & LVB_POPCNTLL_m2) + ((X >> 2) & LVB_POPCNTLL_m2); \
+    X = (X + (X >> 4)) & LVB_POPCNTLL_m4; \
+    X += X >>  8; \
+    X += X >> 16; \
+    X += X >> 32; \
+    X = X & 0x7f;
+
+#endif /* LVB_POPCNTLL_MACRO_H */
+
+#endif

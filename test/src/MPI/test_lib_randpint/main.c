@@ -2,15 +2,11 @@
 
 (c) Copyright 2003-2012 by Daniel Barker
 (c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl
-(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
-(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
-and Chris Wood.
-(c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
-Fernando Guntoro, Maxi
-milian Strobl and Chris Wood.
-(c) Copyright 2019 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
-Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
-
+(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro and Maximilian Strobl
+(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl
+and Chris Wood
+(c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Chang Sik Kim,
+Maximilian Strobl and Martyn Winn
 All rights reserved.
  
 Redistribution and use in source and binary forms, with or without
@@ -42,7 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <lvb.h>
 
-/* Test for RandomNumberGenerator(). Simply checks it works and doesn't always give
+/* Test for randpint(). Simply checks it works and doesn't always give
  * the same answer. (There's perhaps a miniscule chance it would give
  * the same answer, but if so, it really is miniscule.) The random
  * number generator is seeded from the clock so it's usually going to
@@ -60,7 +56,7 @@ int main(void)
     unsigned long ul_seed;		/* seed, from system time */
     Lvb_bool all_same = LVB_TRUE;	/* all 'random' values same */
 
-    LVBPreChecks();
+    lvb_initialize();
 
     /* seed random number generator from system clock */
     tim = time(NULL);
@@ -70,10 +66,10 @@ int main(void)
     lvb_assert(ul_seed <= MAX_SEED);
     rinit((int) ul_seed);
  
-    first_rand_val = RandomNumberGenerator(UPPER_LIM);
+    first_rand_val = randpint(UPPER_LIM);
     for (i = 0; i < LOOP_CNT; i++)
     {
-        rand_val = RandomNumberGenerator(UPPER_LIM);
+        rand_val = randpint(UPPER_LIM);
 	lvb_assert(rand_val <= UPPER_LIM);
 	lvb_assert(rand_val >= 0);
 	if (rand_val != first_rand_val)

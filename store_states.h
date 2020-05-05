@@ -1,3 +1,5 @@
+#ifdef LVB_PARALLEL_SEARCH
+
 /* LVB
 
 (c) Copyright 2003-2012 by Daniel Barker
@@ -83,3 +85,5 @@ unsigned long restore_anneal(FILE *fp, Dataptr matrix, long *accepted, Lvb_bool 
 	Branch *p_proposed_tree, Lvb_bool b_with_sset_proposed_tree);
 
 #endif /* LVB_STORE_STATES_H */
+
+#endif
