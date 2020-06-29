@@ -849,9 +849,9 @@ static void lenlog(FILE *lengthfp, Treestack *bstackp, int myMPIid, long iterati
 
 		/* REND variables that could calculate immediately */
 		SendInfoToMaster * p_data_info_to_master;
-		p_data_info_to_master = malloc(sizeof(SendInfoToMaster));
+		p_data_info_to_master = (SendInfoToMaster *) malloc(sizeof(SendInfoToMaster));
 		RecvInfoFromMaster * p_data_info_from_master;
-		p_data_info_from_master = malloc(sizeof(RecvInfoFromMaster));
+		p_data_info_from_master = (RecvInfoFromMaster *) malloc(sizeof(RecvInfoFromMaster));
 
 	    /* variables that could calculate immediately */
 	    double log_wrapper_LVB_EPS;

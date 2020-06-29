@@ -936,14 +936,14 @@ static void logstim(void)
 		SendInfoToMaster **p_info_temperature;
 		p_info_temperature = (SendInfoToMaster **) malloc(sizeof(SendInfoToMaster *) * (num_procs - 1));
 		for (i = 0; i < num_procs - 1; i++){
-			*(p_info_temperature + i) = malloc(sizeof(SendInfoToMaster));
+			*(p_info_temperature + i) = (SendInfoToMaster *) malloc(sizeof(SendInfoToMaster));
 		}
 
 		/* structure with management data */
 		RecvInfoFromMaster **p_info_manage;
 		p_info_manage = (RecvInfoFromMaster **) malloc(sizeof(RecvInfoFromMaster *) * (num_procs - 1));
 		for (i = 0; i < num_procs - 1; i++){
-			*(p_info_manage + i) = malloc(sizeof(RecvInfoFromMaster));
+			*(p_info_manage + i) = (RecvInfoFromMaster *) malloc(sizeof(RecvInfoFromMaster));
 		}
 
 		/* first get handles for all receivers */
@@ -1106,8 +1106,8 @@ static void logstim(void)
 			exit(1);
 		}
 
-		matrix = alloc(sizeof(DataStructure), "alloc data structure");
-		matrix_seq_data = alloc(sizeof(DataSeqStructure), "alloc data structure");
+		matrix = (data *) alloc(sizeof(DataStructure), "alloc data structure");
+		matrix_seq_data = (seq_data *) alloc(sizeof(DataSeqStructure), "alloc data structure");
 		matrix_seq_data->row = NULL;
 		matrix_seq_data->rowtitle = NULL;
 
@@ -1204,7 +1204,7 @@ static void logstim(void)
 					/* Allocation of the initial encoded matrix is non-contiguous because
 					 * this matrix isn't used much, so any performance penalty won't matter. */
 					enc_mat = (Lvb_bit_lentgh **) alloc((matrix->n) * sizeof(Lvb_bit_lentgh *), "state sets");
-					for (i = 0; i < matrix->n; i++) enc_mat[i] = alloc(matrix->bytes, "state sets");
+					for (i = 0; i < matrix->n; i++) enc_mat[i] = (Lvb_bit_lentgh *) alloc(matrix->bytes, "state sets");
 					dna_makebin(matrix, matrix_seq_data, enc_mat);
 
 					/* pack data for seq matrix */

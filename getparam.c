@@ -154,11 +154,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <unistd.h>
 
 /* it is in ReadFile.cpp library */
-#ifdef MAP_REDUCE_SINGLE
-	#include "LVB_READ_FILES/src/ReadFile.h"
-#else
-	int read_parameters(Params *prms, int argc, char **argv);
-#endif
+#include "ReadFile.h"
 
 long get_random_maxaccept(void)
 /* return a random integer value, for use as the maxaccept parameter in
