@@ -115,13 +115,13 @@ CXXFLAGS += -Wall -g -O3 -fopenmp -ftree-loop-distribution -fvariable-expansion-
 
 ifeq ($(WHICH_MAKE),MAKE_LVB_MPI)
 	G++ = g++
-	CC=mpicc
+	CC=g++
 	CFLAGS += -std=c99 
 	CXXFLAGS += -std=c99 
 else
-	G++=mpic++
-	CXX=mpic++
-	CC=mpic++
+	G++=g++
+	CXX=g++
+	CC=g++
 	CFLAGS += -DLVB_MAPREDUCE -DLVB_NP
 	CXXFLAGS += -DLVB_MAPREDUCE -DLVB_NP
 	## LM = -lm /gpfs/stfc/local/HCP006/mdw02/cxk42-mdw02/LIBs/mrmpi-22Nov13/src/libmrmpi_mpicc.a
