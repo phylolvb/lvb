@@ -222,36 +222,17 @@ Returns 1 if the tree was pushed, or 0 if not.
 
 long treestack_push(Dataptr matrix, Treestack *sp, const Branch *const barray, const long root, Lvb_bool b_with_sset)
 {
-    #ifdef LVB_MAPREDUCE  // check
-long i, new_root = root;			/* loop counter */
-	long stackroot;		/* root of current tree */
-	static Branch *copy_2 = NULL;	/* possibly re-rooted tree 2 */
-	Lvb_bool b_First = LVB_TRUE;
-
-	/* allocate "local" static heap memory - static - do not free! */
-	if (copy_2 == NULL) copy_2 = treealloc(matrix, b_with_sset);
-	treecopy(matrix, copy_2, barray, b_with_sset);
-
-	/* return before push if not a new topology */
-	/* check backwards as similar trees may be discovered together */
-	for (i = sp->next - 1; i >= 0; i--) {
-		stackroot = sp->stack[i].root;
-		if(stackroot != new_root){
-			lvb_reroot(matrix, copy_2, new_root, stackroot, b_with_sset);
-			new_root = stackroot;
-			b_First = LVB_TRUE;
-		}
-		if (treecmp(matrix, sp->stack[i].p_sset, copy_2, b_First) == 0) return 0;
-		b_First = LVB_FALSE;
-	}
-
-    #else
-#define MIN_THREAD_SEARCH_SSET		5
-
-    long i, slice = 0, slice_tail, new_root = 0;
+    long i = 0, new_root = 0;
     static Branch *copy_2 = NULL;			/* possibly re-rooted tree 2 */
     Lvb_bool b_First = LVB_TRUE;
+
+    #ifndef LVB_MAPREDUCE
+    
+    #define MIN_THREAD_SEARCH_SSET		5
+    long slice = 0, slice_tail = 0;
     Lvb_bool b_find_sset = LVB_FALSE;
+
+    #endif
 
 	/* allocate "local" static heap memory - static - do not free! */
 	if (copy_2 == NULL) copy_2 = treealloc(matrix, b_with_sset);
@@ -265,7 +246,9 @@ long i, new_root = root;			/* loop counter */
     if (sp->next == 0){
     	makesets(matrix, copy_2, new_root /* always root zero */);
     }
-    else{
+    #ifndef LVB_MAPREDUCE
+    // Multithreading
+    else{ 
     	if (sp->next > MIN_THREAD_SEARCH_SSET) slice = sp->next / matrix->n_threads_getplen;
     	if (sp->next > MIN_THREAD_SEARCH_SSET && slice > 0){
     		makesets(matrix, copy_2, 0 /* always root zero */);
@@ -291,15 +274,15 @@ long i, new_root = root;			/* loop counter */
     		}
     		if (b_find_sset == LVB_TRUE) return 0;
     	}
+    #endif
     	else{
     		for (i = sp->next - 1; i >= 0; i--) {
     			if (treecmp(matrix, sp->stack[i].p_sset, copy_2, b_First) == 0) return 0;
     			b_First = LVB_FALSE;
     		}
     	}
+    #ifndef LVB_MAPREDUCE
     }
-    
-
     #endif
 
     /* topology is new so must be pushed */
