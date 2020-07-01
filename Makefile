@@ -70,6 +70,7 @@ DOCS_PROG_DIR = ./docs_programmer
 
 ### define a c++ compiler to your platform 
 G++ = g++
+CC = g++
 
 # UNCOMMENT THIS FOR 32-BIT LINUX (E.G. OLD INTEL CPUS OR RASPBERRY PI)
 #CFLAGS += -DCOMPILE_32_BITS
@@ -82,7 +83,8 @@ CFLAGS += -msse4.2
 #CFLAGS += -openmp-link static
 
 # General options
-CFLAGS += -Wall -g -O3 -std=c99 -fopenmp  -DLVB_NP
+# CFLAGS += -Wall -g -O3 -std=c99 -fopenmp  -DLVB_NP
+CFLAGS += -Wall -g -O3 -fopenmp  -DLVB_NP
 CXXFLAGS += -Wall -g -O3 -fopenmp -DLVB_NP
 
 # System-dependent macros - OK for Linux and UNIX-like systems, for others will

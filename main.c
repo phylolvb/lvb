@@ -427,7 +427,7 @@ int main(int argc, char **argv)
 	matrix->row = NULL;
 	matrix->rowtitle = NULL;
 	#else
-	matrix = alloc(sizeof(DataStructure), "alloc data structure");
+	matrix = (data *) alloc(sizeof(DataStructure), "alloc data structure");
 	#endif
     phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix);
 

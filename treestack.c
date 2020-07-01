@@ -229,9 +229,7 @@ long i, new_root = root;			/* loop counter */
 	Lvb_bool b_First = LVB_TRUE;
 
 	/* allocate "local" static heap memory - static - do not free! */
-	if (copy_2 == NULL) {
-		copy_2 = treealloc(matrix, b_with_sset);
-	}
+	if (copy_2 == NULL) copy_2 = treealloc(matrix, b_with_sset);
 	treecopy(matrix, copy_2, barray, b_with_sset);
 
 	/* return before push if not a new topology */
@@ -281,8 +279,8 @@ long i, new_root = root;			/* loop counter */
     			if (matrix->n_threads_getplen == (omp_get_thread_num() + 1)) n_end += slice_tail;
     			for (i = n_begin; i < n_end; i++) {
     				if (setstcmp_with_sset2(matrix, sp->stack[i].p_sset) == 0){
-						#pragma omp atomic
-    					b_find_sset |= LVB_TRUE;
+						// #pragma omp atomic
+    					b_find_sset = LVB_TRUE;
     					break;
     				}
     				if (n_count > 0 && (n_count % 20) == 0 && b_find_sset == LVB_TRUE){

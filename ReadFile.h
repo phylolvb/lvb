@@ -49,14 +49,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <getopt.h>
 using namespace std;
 
-#ifdef LVB_MAPREDUCE  // check
+//#ifdef LVB_MAPREDUCE  // check
 #include "lvb.h"
 
-#else
-#include "DataStructure.h"
+//#else
+//#include "DataStructure.h"
 
 
-#endif
+//#endif
  
 	#ifdef __cplusplus
 		extern "C" int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat);
