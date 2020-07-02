@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 # LVB
-# 
+#
 # (c) Copyright 2003-2012 by Daniel Barker
 # (c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl
 # (c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
@@ -157,7 +157,7 @@ $ENV{LVB_HEADER_PATH}
 -d $ENV{LVB_HEADER_PATH}
  or die "error: no such directory '$ENV{LVB_HEADER_PATH}'";
 
-$ENV{CC} or die "error: CC environment variable is not set";
+$ENV{GPLUSPLUS} or die "error: GPLUSPLUS environment variable is not set";
 
 # discover the names and total number of test directories
 if ($ARGV[0] and $ARGV[0] =~ /^--test$/)
@@ -190,14 +190,10 @@ foreach $test_dir (@test_dirs)
     # build test executable if required
     if ($test_dir =~ /^test_lib/)
     {
-		@obj_files = grep { /\.o$/ } @orig_file_list;
-		$com = "$ENV{CC} $ENV{CFLAGS} -c main.c -I ../../../$ENV{LVB_HEADER_PATH} -o main.o;"
-			. " $ENV{GPLUSPLUS} $ENV{CFLAGS} -I ../../../$ENV{LVB_HEADER_PATH} -o testprog.exe main.o @obj_files $ENV{LVB_LIBRARY} "
+		$com = "$ENV{GPLUSPLUS} $ENV{CFLAGS} -c main.c -I ../../../$ENV{LVB_HEADER_PATH} -o main.o;"
+			. " $ENV{LINKERCPLUSPLUS} $ENV{CFLAGS} -I ../../../$ENV{LVB_HEADER_PATH} -o testprog.exe main.o $ENV{LVB_LIBRARY} "
 			. "$ENV{LVB_OTHERLIBS} ../../../../CReadFiles.o ../../../../ReadFile.o";
-		$com =~ s/My Documents/'My Documents'/g;
-		# Change DOS directory separator to Unix-style directory separator
-		$com =~ s/\\/\//g;
-		# And then build the executable
+		# Build the executable
 		! `$com` or die "Cannot compile testprog.exe";
     }
 
@@ -205,10 +201,12 @@ foreach $test_dir (@test_dirs)
     $result = `perl -w runtest` or die "error: can't execute 'runtest' in $test_dir";
 
     # summarize results
-    if ($result =~ /test passed/i){
+    if ($result =~ /test passed/i)
+    {
     	print " test passed\n";
     }
-    else{
+    else
+    {
 		$failed_cnt++;
 		print " test failed\n";
 		push @failed_tests, $test_dir;
@@ -228,17 +226,20 @@ foreach $test_dir (@test_dirs)
 # summarize results
 print "\n";
 print "SUMMARY OF TEST RESULTS:\n";
-if ($test_cnt == 1){
+if ($test_cnt == 1)
+{
     print "partial run: '@test_dirs' only\n";
 }
-else {
+else
+{
     print "$test_cnt tests in test suite\n";
 }
 print $test_cnt - $failed_cnt, " tests passed\n";
 print "$failed_cnt tests failed\n";
 print "\n";
 
-if (scalar (@failed_tests) > 0){
+if (scalar (@failed_tests) > 0)
+{
 	print "Tests failed :\n";
 	$count = 1;
 	foreach $test_name (@failed_tests){

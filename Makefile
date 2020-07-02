@@ -193,7 +193,7 @@ $(TEST_MANUAL) : $(TEST_DIR)/NP/go
 	pod2html $< >$@
 
 test : FORCE
-	cd test/src/NP ; env LVB_EXECUTABLE="`pwd`/../../../$(LVB_PROG)" LVB_LIBRARY="`pwd`/../../../$(LVB_LIB)" LVB_OTHERLIBS="$(LM)" LVB_HEADER_PATH=".." GPLUSPLUS="$(G++)" CC="$(CC)" CFLAGS="$(CFLAGS)" ./go; cd ..;
+	cd test/src/NP ; env LVB_EXECUTABLE="`pwd`/../../../$(LVB_PROG)" LVB_LIBRARY="`pwd`/../../../$(LVB_LIB)" LVB_OTHERLIBS="$(LM)" LVB_HEADER_PATH=".." GPLUSPLUS="$(G++)" LINKERCPLUSPLUS="$(G++)" CFLAGS="$(CFLAGS)" ./go; cd ..;
 
 tests : test	# allow 'make tests' as synonym for 'make test'
 
