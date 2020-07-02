@@ -44,7 +44,7 @@ $status = $?;
 if ($status == 0)
 {
     if (($output =~ /Topologies recovered: +3\n/)
-        and ($output =~ /Tree score: +9\n/))
+        and ($output =~ /Tree score: +18\n/))
     {
 	print "test passed\n";
     }
