@@ -38,7 +38,7 @@
 # test for crash().
 
 # run testprog.exe
-$output = `./testprog.exe`;
+$output = `./testprog.exe 2>/dev/null`;
 $status = $?;
 
 # check output
