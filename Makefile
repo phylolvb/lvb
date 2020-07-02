@@ -189,11 +189,11 @@ $(LVB_LIB) : $(LVB_LIB_OBJS) $(LVB_READ_FILE_OBJS)
 	$(RANLIB) $(LVB_LIB)
 
 # If the main test script has changed, we should run the tests
-$(TEST_MANUAL) : $(TEST_DIR)/NP/go
+$(TEST_MANUAL) : $(TEST_DIR)/COMMON/go
 	pod2html $< >$@
 
 test : FORCE
-	cd test/src/NP ; env LVB_EXECUTABLE="`pwd`/../../../$(LVB_PROG)" LVB_LIBRARY="`pwd`/../../../$(LVB_LIB)" LVB_OTHERLIBS="$(LM)" LVB_HEADER_PATH=".." GPLUSPLUS="$(G++)" LINKERCPLUSPLUS="$(G++)" CFLAGS="$(CFLAGS)" ./go; cd ..;
+	cd test/src/COMMON ; env LVB_EXECUTABLE="`pwd`/../../../$(LVB_PROG)" LVB_LIBRARY="`pwd`/../../../$(LVB_LIB)" LVB_OTHERLIBS="$(LM)" LVB_HEADER_PATH=".." GPLUSPLUS="$(G++)" LINKERCPLUSPLUS="$(G++)" CFLAGS="$(CFLAGS)" ./go; cd ..;
 
 tests : test	# allow 'make tests' as synonym for 'make test'
 
