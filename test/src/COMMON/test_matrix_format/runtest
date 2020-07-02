@@ -37,7 +37,7 @@
 
 # run LVB
 $lvb = $ENV{LVB_EXECUTABLE};
-$output = `mpiexec -np 2 "$lvb" 2>/dev/null`;
+$output = `$lvb 2>/dev/null`;
 $status = $?;
 
 # check output
