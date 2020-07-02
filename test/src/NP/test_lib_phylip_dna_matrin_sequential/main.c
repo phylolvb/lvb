@@ -69,7 +69,7 @@ int main(void)
     rcstruct.n_file_format = FORMAT_PHYLIP;
     lvb_initialize();
 
-    matrix = malloc(sizeof(DataStructure));
+    matrix = (data *) malloc(sizeof(DataStructure));
     phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix);
     lvb_assert(matrix->m == 42);
     lvb_assert(matrix->n == 5);

@@ -89,11 +89,11 @@ int main(void)
 
     lvb_initialize();
 
-    matrix1 = malloc(sizeof(DataStructure));
+    matrix1 = (data *) malloc(sizeof(DataStructure));
     phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix1);
     check(matrix1);
 
-    matrix2 = malloc(sizeof(DataStructure));
+    matrix2 = (data *) malloc(sizeof(DataStructure));
     phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix2);
     check(matrix2);
 
