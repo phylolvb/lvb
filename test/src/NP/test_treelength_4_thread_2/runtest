@@ -43,8 +43,7 @@ $status = $?;
 # check output
 if ($status == 0)
 {
-    if ($output =~
-	/ parsimonious trees of length 9 written to file \'outtree\'/)
+    if ($output =~ /Tree score: +9\n/)
     {
 	print "test passed\n";
     }
