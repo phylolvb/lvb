@@ -38,7 +38,7 @@
 # Negative test for log_wrapper().
 
 # run testprog.exe
-$output = `./testprog.exe`;
+$output = `./testprog.exe 2>/dev/null`;
 $status = $?;
 
 # check output
