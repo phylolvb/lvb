@@ -43,8 +43,9 @@ $status = $?;
 # check output
 if ($status == 0)
 {
-    if ($output =~
-	/1 most parsimonious tree of length 4 written to file \'outtree\'/)
+    if (($output =~ /Topologies recovered: +1\n/)
+        and ($output =~ /Tree score: +4\n/)
+        and ($output =~ /PThreads: +2\n/))
     {
 	print "test passed\n";
     }
