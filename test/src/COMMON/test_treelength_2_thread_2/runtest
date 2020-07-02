@@ -37,7 +37,7 @@
 
 # run LVB
 $lvb = $ENV{LVB_EXECUTABLE};
-$output = `"$lvb" -p 2`;
+$output = `"$lvb" -p 2 2>/dev/null`;
 $status = $?;
 
 # check output

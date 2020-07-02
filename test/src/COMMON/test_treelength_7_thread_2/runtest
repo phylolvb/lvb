@@ -37,14 +37,14 @@
 
 # run LVB
 $lvb = $ENV{LVB_EXECUTABLE};
-$output = `mpirun -np 2 "$lvb" -p 2 2>/dev/null`;
+$output = `"$lvb" -p 2 2>/dev/null`;
 $status = $?;
 
 # check output
 if ($status == 0)
 {
-    if ($output =~
-	/1 most parsimonious tree of length 1006 written to file /)
+    if (($output =~ /Topologies recovered: +1\n/)
+        and ($output =~ /Tree score: +1006\n/))
     {
 	print "test passed\n";
     }
@@ -57,5 +57,3 @@ else
 {
     print "test failed\n";
 }
-
-unlink "outtree_1";
