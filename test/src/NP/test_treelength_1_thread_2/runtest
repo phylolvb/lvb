@@ -40,9 +40,8 @@ $lvb = $ENV{LVB_EXECUTABLE};
 $output = `"$lvb" -p 2 2>/dev/null`;
 $status = $?;
 
-if (($status != 0) and ($output =~ /FATAL ERROR: cannot read data matrix/)
-    and ($output =~ /Threads Requested += 2/)
-    and ($output =~ /Threads Available += 1/))
+if (($status == 0) and ($output =~ /Tree score: +1/)
+    and ($output =~ /PThreads: +2/))
 {
     print "test passed\n";
 }

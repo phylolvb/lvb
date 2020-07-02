@@ -40,7 +40,7 @@ $lvb = $ENV{LVB_EXECUTABLE};
 $output = `"$lvb" 2>/dev/null`;
 $status = $?;
 
-if (($status != 0) and ($output =~ /FATAL ERROR: cannot read data matrix/))
+if (($status == 0) and ($output =~ /Tree score: +1/))
 {
     print "test passed\n";
 }
