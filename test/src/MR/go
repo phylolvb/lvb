@@ -1,14 +1,14 @@
 #!/usr/bin/perl -w
 
 # LVB
-# 
+#
 # (c) Copyright 2003-2012 by Daniel Barker
 # (c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl
-# (c) Copyright 2014 by Daniel Barker, Miguel Pinheiro and Maximilian Strobl
-# (c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl
-# and Chris Wood
-# (c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Chang Sik Kim,
-# Maximilian Strobl and Martyn Winn
+# (c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
+# (c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
+# and Chris Wood.
+# (c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
+# Fernando Guntoro, Maximilian Strobl and Chris Wood.
 # All rights reserved.
 #  
 # Redistribution and use in source and binary forms, with or without
@@ -149,7 +149,7 @@ $ENV{LVB_EXECUTABLE}
 -x $ENV{LVB_EXECUTABLE}
  or die "error: no such executable '$ENV{LVB_EXECUTABLE}'";
 
-#$ENV{LVB_LIBRARY} or die "error: LVB_LIBRARY environment variable is not set";
+$ENV{LVB_LIBRARY} or die "error: LVB_LIBRARY environment variable is not set";
 # -B $ENV{LVB_LIBRARY} or die "error: no such binary file '$ENV{LVB_LIBRARY}'";
 
 $ENV{LVB_HEADER_PATH}
@@ -157,7 +157,7 @@ $ENV{LVB_HEADER_PATH}
 -d $ENV{LVB_HEADER_PATH}
  or die "error: no such directory '$ENV{LVB_HEADER_PATH}'";
 
-##$ENV{CC} or die "error: CC environment variable is not set";
+$ENV{GPLUSPLUS} or die "error: GPLUSPLUS environment variable is not set";
 
 # discover the names and total number of test directories
 if ($ARGV[0] and $ARGV[0] =~ /^--test$/)
@@ -188,13 +188,11 @@ foreach $test_dir (@test_dirs)
     closedir THIS_DIR;
 
     # build test executable if required
-    if ($test_dir =~ /^test_lib/){
-		$lvb_otherlibs = $ENV{LVB_OTHERLIBS};
-		#$lvb_otherlibs =~ s/ /\.\.\/\.\.\//g;
-		#$lvb_otherlibs =~ s/\.o/\.o /g;
-		$com = "$ENV{CC} $ENV{CFLAGS} -c main.c -I ../../../$ENV{LVB_HEADER_PATH} -o main.o;"
-			. " $ENV{'MPIC++'} $ENV{CFLAGS} -I ../../../$ENV{LVB_HEADER_PATH} -o testprog.exe main.o $ENV{LVB_LIBRARY} "
-			. "$lvb_otherlibs ../../../../CReadFiles.o ../../../../ReadFile.o";
+    if ($test_dir =~ /^test_lib/)
+    {
+		$com = "$ENV{GPLUSPLUS} $ENV{CFLAGS} -c main.c -I ../../../$ENV{LVB_HEADER_PATH} -o main.o;"
+			. " $ENV{LINKERCPLUSPLUS} $ENV{CFLAGS} -I ../../../$ENV{LVB_HEADER_PATH} -o testprog.exe main.o $ENV{LVB_LIBRARY} "
+			. "$ENV{LVB_OTHERLIBS} ../../../../CReadFiles.o ../../../../ReadFile.o";
 		# Build the executable
 		! `$com` or die "Cannot compile testprog.exe";
     }
@@ -203,10 +201,12 @@ foreach $test_dir (@test_dirs)
     $result = `perl -w runtest` or die "error: can't execute 'runtest' in $test_dir";
 
     # summarize results
-    if ($result =~ /test passed/i){
+    if ($result =~ /test passed/i)
+    {
     	print " test passed\n";
     }
-    else{
+    else
+    {
 		$failed_cnt++;
 		print " test failed\n";
 		push @failed_tests, $test_dir;
@@ -238,7 +238,8 @@ print $test_cnt - $failed_cnt, " tests passed\n";
 print "$failed_cnt tests failed\n";
 print "\n";
 
-if (scalar (@failed_tests) > 0){
+if (scalar (@failed_tests) > 0)
+{
 	print "Tests failed :\n";
 	$count = 1;
 	foreach $test_name (@failed_tests){
@@ -249,9 +250,11 @@ if (scalar (@failed_tests) > 0){
 print "\n";
 
 # exit 0 on no failures, 1 otherwise
-if ($failed_cnt == 0){
+if ($failed_cnt == 0)
+{
     exit 0;
 }
-else{
+else
+{
     exit 1;
 }
