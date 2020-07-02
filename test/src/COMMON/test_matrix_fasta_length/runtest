@@ -37,7 +37,7 @@
 
 # run LVB
 $lvb = $ENV{LVB_EXECUTABLE};
-$output = `"$lvb" -f fasta`;
+$output = `$lvb -f fasta`;
 $status = $?;
 
 # check output

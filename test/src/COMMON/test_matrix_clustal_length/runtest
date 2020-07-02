@@ -37,7 +37,7 @@
 
 # run LVB
 $lvb = $ENV{LVB_EXECUTABLE};
-$output = `"$lvb" -f clustal`;
+$output = `$lvb -f clustal`;
 $status = $?;
 
 # check output

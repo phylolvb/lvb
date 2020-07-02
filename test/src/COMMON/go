@@ -146,8 +146,6 @@ specified by C<CC>. May be empty or unset.
 
 $ENV{LVB_EXECUTABLE}
  or die "error: LVB_EXECUTABLE environment variable is not set";
--x $ENV{LVB_EXECUTABLE}
- or die "error: no such executable '$ENV{LVB_EXECUTABLE}'";
 
 $ENV{LVB_LIBRARY} or die "error: LVB_LIBRARY environment variable is not set";
 # -B $ENV{LVB_LIBRARY} or die "error: no such binary file '$ENV{LVB_LIBRARY}'";
