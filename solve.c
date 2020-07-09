@@ -125,6 +125,17 @@ long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *c
     return len;
 }
 
+
+
+
+
+
+
+
+
+// REALLY UNDERSTAND WHAT IS GOING ON HERE
+
+
 long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch *const inittree, Params rcstruct,
 		long root, const double t0, const long maxaccept, const long maxpropose,
 		const long maxfail, FILE *const lenfp, const long *weights, long *current_iter,
@@ -198,6 +209,135 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 	long trops_id;
 	
 
+
+
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // static -> name only valid within file
+	////// USE DOUBLE INSTEAD OF FLOAT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    static double prob[3] = {0, 0, 0};
+	static int scoring[3];
+	static int neighbourhood_selection;
+	int i;
+
+	// Copying hyperparameter array to scoring array
+	for(i=0; i<3; i++)
+    {
+        rcstruct.hyperparameters[i] = scoring[i];
+    }
+
+
+    void bayesian_updating(int x, int y, int z)
+    {
+        // Probability of selected and succesful algorithm [x]
+        int success = scoring[x] + rcstruct.weight[x];
+        printf("succesful scoring array value -> %d\n", success);
+        float sumofscores = scoring[x]+scoring[y]+scoring[z];
+        printf("Sum of scores -> %f\n", sumofscores);
+		// TBR tree not accepted
+		// calculating NNI
+        prob[x] = (success * (success/sumofscores))/((success * (success/sumofscores))+(scoring[y]* (scoring[y]/sumofscores))+(scoring[z] * (scoring[z]/sumofscores)));
+        printf("Probability array value -> %f\n\n", prob[x]);
+
+        // Probability of other algorithm [y]
+        printf("Sum of scores -> %f\n", sumofscores);
+        prob[y] = (scoring[y] * (scoring[y]/sumofscores))/((scoring[y] * (scoring[y]/sumofscores))+(success * (success/sumofscores))+(scoring[z] * (scoring[z]/sumofscores)));
+        printf("Probability array value -> %f\n\n", prob[y]);   
+
+
+        // Probability of other algorithm [z]
+        printf("Sum of scores -> %f\n", sumofscores);
+        prob[z] = (scoring[z] * (scoring[z]/sumofscores))/((scoring[z] * (scoring[z]/sumofscores))+(success * (success/sumofscores))+(scoring[y] * (scoring[y]/sumofscores)));
+        printf("Probability array value -> %f\n\n\n\n", prob[z]); 
+        scoring[x] += rcstruct.weight[x]; 
+    }
+
+    void bayesian_updating_failure(int x, int y, int z, int failed_algorithm)
+    {
+		if (failed_algorithm == NNI){
+			// x = SPR, y = TBR, z = NNI
+			double sprreward = rcstruct.weight[x]/25;
+			double tbrreward = rcstruct.weight[y]/10;
+
+			int spr_success = scoring[x] + sprreward;
+			int tbr_success = scoring[y] + tbrreward;
+
+			float sumofscores = scoring[x]+scoring[y]+scoring[z];
+			prob[x] = (spr_success * (spr_success/sumofscores))/((spr_success * (spr_success/sumofscores))+(tbr_success * (tbr_success/sumofscores))+(scoring[z] * (scoring[z]/sumofscores)));
+			printf("Probability array value -> %f\n\n", prob[x]);
+
+			// Probability of other algorithm [y]
+			printf("Sum of scores -> %f\n", sumofscores);
+			prob[y] = (tbr_success * (tbr_success/sumofscores))/((tbr_success * (tbr_success/sumofscores))+(spr_success * (spr_success/sumofscores))+(scoring[z] * (scoring[z]/sumofscores)));
+			printf("Probability array value -> %f\n\n", prob[y]);   
+
+			// Probability of other algorithm [z]
+			printf("Sum of scores -> %f\n", sumofscores);
+			prob[z] = (scoring[z] * (scoring[z]/sumofscores))/((scoring[z] * (scoring[z]/sumofscores))+(spr_success * (spr_success/sumofscores))+(tbr_success * (tbr_success/sumofscores)));
+			printf("Probability array value -> %f\n\n\n\n", prob[z]);
+
+			scoring[x] += sprreward;
+			scoring[y] += tbrreward;
+		}
+		else if (failed_algorithm == SPR){
+			// x = NNI, y = TBR, z = SPR
+			double nnireward = rcstruct.weight[x]/50;
+			double tbrreward = rcstruct.weight[y]/10;
+
+			int nni_success = scoring[x] + nnireward;
+			int tbr_success = scoring[y] + tbrreward;
+
+			float sumofscores = scoring[x]+scoring[y]+scoring[z];
+			prob[x] = (nni_success * (nni_success/sumofscores))/((nni_success * (nni_success/sumofscores))+(tbr_success * (tbr_success/sumofscores))+(scoring[z] * (scoring[z]/sumofscores)));
+			printf("Probability array value -> %f\n\n", prob[x]);
+
+			// Probability of other algorithm [y]
+			printf("Sum of scores -> %f\n", sumofscores);
+			prob[y] = (tbr_success * (tbr_success/sumofscores))/((tbr_success * (tbr_success/sumofscores))+(nni_success * (nni_success/sumofscores))+(scoring[z] * (scoring[z]/sumofscores)));
+			printf("Probability array value -> %f\n\n", prob[y]);   
+
+			// Probability of other algorithm [z]
+			printf("Sum of scores -> %f\n", sumofscores);
+			prob[z] = (scoring[z] * (scoring[z]/sumofscores))/((scoring[z] * (scoring[z]/sumofscores))+(nni_success * (nni_success/sumofscores))+(tbr_success * (tbr_success/sumofscores)));
+			printf("Probability array value -> %f\n\n\n\n", prob[z]);
+
+			scoring[x] += nnireward;
+			scoring[y] += tbrreward;
+		}
+		else {
+			// x = NNI, y = SPR, z = TBR
+			double nnireward = rcstruct.weight[x]/50;
+			double sprreward = rcstruct.weight[y]/25;			
+
+			int nni_success = scoring[x] + nnireward;
+			int spr_success = scoring[y] + sprreward;
+
+			float sumofscores = scoring[x]+scoring[y]+scoring[z];
+			prob[x] = (nni_success * (nni_success/sumofscores))/((nni_success * (nni_success/sumofscores))+(spr_success * (spr_success/sumofscores))+(scoring[z] * (scoring[z]/sumofscores)));
+			printf("Probability array value -> %f\n\n", prob[x]);
+
+			// Probability of other algorithm [y]
+			printf("Sum of scores -> %f\n", sumofscores);
+			prob[y] = (spr_success * (spr_success/sumofscores))/((spr_success * (spr_success/sumofscores))+(nni_success * (nni_success/sumofscores))+(scoring[z] * (scoring[z]/sumofscores)));
+			printf("Probability array value -> %f\n\n", prob[y]);   
+
+			// Probability of other algorithm [z]
+			printf("Sum of scores -> %f\n", sumofscores);
+			prob[z] = (scoring[z] * (scoring[z]/sumofscores))/((scoring[z] * (scoring[z]/sumofscores))+(nni_success * (nni_success/sumofscores))+(spr_success * (spr_success/sumofscores)));
+			printf("Probability array value -> %f\n\n\n\n", prob[z]);
+
+			scoring[x] += nnireward;
+			scoring[y] += sprreward;
+		}
+    }	
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
     if ((log_progress == LVB_TRUE) && (*current_iter == 0)) 
 	if (rcstruct.verbose == LVB_TRUE && rcstruct.bootstraps == LVB_FALSE)
         fprintf(lenfp, "Temperature:   Rearrangement: TreeStack size: Length:\n");
@@ -236,6 +376,53 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 
 		/* mutation: alternate between the two mutation functions */
 		rootdash = root;
+
+
+
+
+
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// random uni() to choose which bayesian updating comes first for failed tree
+
+
+        // rcstruct.algorithm_selection == 3     -->    Bayesian reinforcement learning
+        if (rcstruct.algorithm_selection == 3)
+        {
+        // random value for selection of algorithm
+        double random_val = uni();
+        // probabilities for first iteration
+        if (*current_iter == 0)
+        {
+            prob[NNI] = scoring[NNI]/(scoring[NNI] + scoring[SPR] + scoring[TBR]);
+            prob[SPR] = scoring[SPR]/(scoring[NNI] + scoring[SPR] + scoring[TBR]);
+            prob[TBR] = scoring[TBR]/(scoring[NNI] + scoring[SPR] + scoring[TBR]);
+        }
+        // Selection of algorithm to be ran
+ 		if (random_val < prob[NNI]) 
+        {
+        	mutate_nni(matrix, p_proposed_tree, p_current_tree, root);	/* local change */
+			strcpy(change,"NNI");
+			neighbourhood_selection = NNI;
+        }
+        else if (random_val < prob[NNI] + prob[SPR]) {
+        	mutate_spr(matrix, p_proposed_tree, p_current_tree, root);	/* global change */
+            strcpy(change,"SPR");
+			neighbourhood_selection = SPR;
+        }
+    	else {
+    	   	mutate_tbr(matrix, p_proposed_tree, p_current_tree, root);	/* global change */
+            strcpy(change,"TBR");
+			neighbourhood_selection = TBR;
+        }
+		}
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        
+
+
+        // rcstruct.algorithm_selection == 2     -->    Penalty Based Search
 		if (rcstruct.algorithm_selection ==2)
 		{
 			trops_total = trops_counter[0]+trops_counter[1]+trops_counter[2];
@@ -244,12 +431,16 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 		trops_probs[2]=trops_counter[2]/trops_total; 
 		}
 
-		  if (rcstruct.algorithm_selection >= 1)
-		  {
+        // rcstruct.algorithm_selection == 1 or 2     -->     No-Seq and Penalty Based Search
+        ////////////////////////////////////////////////////////////////////////////////////
+		if (rcstruct.algorithm_selection == 1 || rcstruct.algorithm_selection == 2)
+        ////////////////////////////////////////////////////////////////////////////////////
+		{
 		double random_val = uni();
  		if (random_val < trops_probs[0]) {
-        		mutate_nni(matrix, p_proposed_tree, p_current_tree, root);	/* local change */
+        	mutate_nni(matrix, p_proposed_tree, p_current_tree, root);	/* local change */
 			strcpy(change,"NNI");
+            // rcstruct.algorithm_selection == 1 or 2     -->     No-Seq and Penalty Based Search
 			if (rcstruct.algorithm_selection == 2)
 			trops_id = 0;
 		}
@@ -265,7 +456,8 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 			if (rcstruct.algorithm_selection == 2)
 			trops_id = 2;
         }
-		  }
+		}
+        // rcstruct.algorithm_selection == 0     -->    Original NNi + SPR algorithm
 		else
 		{
 		if (iter & 0x01) { mutate_spr(matrix, p_proposed_tree, p_current_tree, root);	/* global change */
@@ -430,6 +622,62 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 	    }
 	}
 	}
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// CREATE ARRAY OF SUCCESS AND FAILS FOR EACH ALGORITHM
+	// Bayesian updating failure -> should be adding a fraction of the weight. this needs to be implemented
+	// Main.c -> cpu time, saving tree length...
+	if (rcstruct.algorithm_selection == 3)
+	{
+    /* If tree was accepted */
+	if (changeAcc == 1) {
+        if (neighbourhood_selection == NNI)
+        {
+	    bayesian_updating(NNI, SPR, TBR);
+        }
+        else if (neighbourhood_selection == SPR)
+        {
+        bayesian_updating(SPR, NNI, TBR);
+        }
+        else 
+        {
+        bayesian_updating(TBR, NNI, SPR); 
+        }
+	}
+   /* If tree was not accepted */
+	else {
+		// NNI Tree not accepted
+		if (neighbourhood_selection == NNI)
+		{
+			// x = SPR, y = TBR, z = NNI
+			bayesian_updating_failure(SPR, TBR, NNI, neighbourhood_selection);	
+		}
+		// SPR Tree not accepted
+		if (neighbourhood_selection == SPR)
+		{
+			// x = NNI, y = TBR, z = SPR
+			bayesian_updating_failure(NNI, TBR, SPR, neighbourhood_selection);
+		}
+		// TBR Tree not accepted
+		if (neighbourhood_selection == TBR)
+		{
+			// x = NNI, y = SPR, z = TBR
+			bayesian_updating_failure(NNI, SPR, TBR, neighbourhood_selection);	
+		}
+	}
+	}  
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
 	if (rcstruct.verbose == LVB_TRUE)
 	fprintf (pFile, "%ld\t%s\t%d\t%ld\t%lf\n", iter, change, changeAcc, len, t*10000, (float) r_lenmin/len);
     }
@@ -443,4 +691,3 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
     return lenbest;
 
 } /* end anneal() */
-

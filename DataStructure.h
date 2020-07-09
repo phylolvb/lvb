@@ -77,12 +77,17 @@ typedef struct
 {
     int seed;							/* seed for random number generator */
     int cooling_schedule;   			/* cooling schedule: 0 is geometric, 1 is linear */
-    int algorithm_selection;             /* algorithm selection: 0 is original, 1 is no SEQ-TNS, and 2 is PBS */
+    int algorithm_selection;            /* algorithm selection: 0 is original, 1 is no SEQ-TNS, 2 is PBS, 3 is BU */
     int n_file_format;					/* number of file format, must be FORMAT_PHYLIP, FORMAT_FASTA, FORMAT_NEXUS, FORMAT_CLUSTAL*/
     int n_processors_available;			/* number of processors available */
+    int hyperparameters[3];             /* array of hyperparameters */
+    int weight[3];                      /* array of rewards for update function */
     long verbose;						/* verboseness level */
     long bootstraps;					/* number of bootstrap replicates */
     int n_number_max_trees;				/* number of bootstrap replicates */
     char file_name_in[LVB_FNAMSIZE];	/* input file name */
     char file_name_out[LVB_FNAMSIZE];	/* output file name */
 } Params;
+
+
+// keep track of iteration number, if fail then add to second element, else add to first element (number)

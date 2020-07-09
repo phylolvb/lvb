@@ -138,13 +138,21 @@ void usage(char *p_file_name){
 	printf("\n       Default (0).");
 	printf("\n    -a algorithm zero (0) NNI + SPR,\n"
 	        "       algorithm one (1) NNI + SPR + TBR.\n"
-			"		algorithm two (2) Point based calculations.\n");
+			"		algorithm two (2) Point based calculations.\n"
+			//////////////////////////////////////////////////////////////////////////
+			"		algorithm three (3) Bayesian Updating.\n");
+			//////////////////////////////////////////////////////////////////////////
 	printf("\n    -c [g|l] (g) cooling schedule. The schedule chosen will\n"
 			"       affect the quality and speed of the simulated annealing search.\n"
 			"       The GEOMETRIC (g) schedule will take significantly less time,\n"
 			"       but may produce lower quality results. The LINEAR (l) schedule may\n"
 			"       produce higher quality results, at the cost of increased runtime.\n"
 			"       Default (g), the GEOMETRIC schedule.\n");
+	//////////////////////////////////////////////////////////////////////////
+	/////// UPDATE FUNCTION WEIGHTING -W
+	printf("    -k input hyperparameters.\n"
+			"       Default: '10, 100, 1000'.\n");
+	//////////////////////////////////////////////////////////////////////////
 	printf("    -i input file name.\n"
 			"       Default: 'infile'.\n");
 	printf("    -o output file name.\n"
@@ -169,7 +177,12 @@ void read_parameters(Params *prms, int argc, char **argv){
 	int c;
 	opterr = 0;
 
-	while ((c = getopt (argc, argv, "t:c:b:vs:i:o:f:p:a:")) != -1){
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	// v does not take any arguments, thus it is b:vs:i:
+	while ((c = getopt (argc, argv, "t:c:b:vs:i:o:f:p:a:k:w:")) != -1){
 		switch (c)
 		{
 			case 'c':	/* cooling schedule */
@@ -194,8 +207,11 @@ void read_parameters(Params *prms, int argc, char **argv){
 				if (strcmp(optarg, "0") == 0 || strcmp(optarg, "0") == 0) prms->algorithm_selection = 0;
 				else if (strcmp(optarg, "1") == 0 || strcmp(optarg, "1") == 0) prms->algorithm_selection = 1;
 				else if (strcmp(optarg, "2") == 0 || strcmp(optarg, "2") == 0) prms->algorithm_selection = 2;
+				/////////////////////////////////////////////////////////////////////////////////////////////////////////
+				else if (strcmp(optarg, "3") == 0 || strcmp(optarg, "3") == 0) prms->algorithm_selection = 3;
 				else{
-					fprintf (stderr, "Unknown algorithm option\nPlease, choose between SN (0) or SEQ-TNS (1).");
+					fprintf (stderr, "Unknown algorithm option\nPlease, choose between SN (0) or SEQ-TNS (1) or PBS (2) or BU (3).");
+				/////////////////////////////////////////////////////////////////////////////////////////////////////////
 					exit(1);
 				}
 				break;
@@ -216,6 +232,27 @@ void read_parameters(Params *prms, int argc, char **argv){
 				}
 				prms->seed = atoi(optarg);
 				break;
+			/////////////////////////////////////////////////////////////////////////////////////////
+			case 'k':	/* hyperparameters (prior knowledge)*/
+			{
+				if (optarg == NULL){
+					fprintf (stderr, "Option -%c requires an argument -k <int>/<int>/<int>\n", optopt);
+					usage(argv[0]);
+				}
+				int i=0;
+				char *p = strtok(optarg,"/");
+				static int hyper[3];
+				while (p != NULL)
+				{
+					hyper[i++] = atoi(p);
+					p = strtok (NULL, "/");
+				}
+				// NOT WORKING AT ALL, HELP
+				//prms->hyperparameters = hyper;
+				memcpy(prms->hyperparameters, hyper, sizeof(hyper));
+			}
+				break;
+			/////////////////////////////////////////////////////////////////////////////////////////
 			case 'i':	/* file name in */
 				if (optarg == NULL){
 					fprintf (stderr, "Option -%c requires an argument -i <file name>\n", optopt);
@@ -279,6 +316,35 @@ void read_parameters(Params *prms, int argc, char **argv){
 				prms->n_number_max_trees = atoi(optarg);
 				if (prms->n_number_max_trees < 1) prms->n_number_max_trees = 0;
 				break;
+
+			///////////////////////////////////////////////////////////////////////////////////////// This is updated, use this to alter hyperparameter
+			case 'w':	/* update function weighting scores */
+			{
+				if (optarg == NULL){
+					fprintf (stderr, "Option -%c requires an argument -w <int>/<int>/<int>\n", optopt);
+					usage(argv[0]);
+				}
+				int i=0;
+				char *p = strtok(optarg,"/");
+				static int weightarray[3];
+				while (p != NULL)
+				{
+					weightarray[i++] = atoi(p);
+					p = strtok (NULL, "/");
+					// check to see if optarg is being changed
+					// check to see if optarg is being changed
+					// check to see if optarg is being changed
+					// check to see if optarg is being changed
+					printf(optarg);
+				}
+				// NOT WORKING AT ALL, HELP
+				//prms->weight = weightarray;
+				memcpy(prms->weight, weightarray, sizeof(weightarray));
+			}
+				break;
+			/////////////////////////////////////////////////////////////////////////////////////////
+
+
 			case '?':
 			case 'h':
 			default:

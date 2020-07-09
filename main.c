@@ -77,7 +77,10 @@ static void writeinf(Params prms, Dataptr matrix)
     if(prms.algorithm_selection == 0) printf("Algorithm 0 (SN)\n");
     else if(prms.algorithm_selection == 1) printf("Algorithm 1 (SEQ-TNS)\n");
     else if(prms.algorithm_selection == 2) printf("Algorithm 2 (PBS)\n");
-    
+    ////////////////////////////////////////////////////////////////////////////////
+    else if(prms.algorithm_selection == 3) printf("Algorithm 3 (BU)\n");
+    ////////////////////////////////////////////////////////////////////////////////
+
     printf("Bootstrap Replicates = %ld\n", prms.bootstraps);
 
     printf("Cooling Schedule     = ");
@@ -175,8 +178,8 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, const long *weight
     randtree(matrix, tree);	/* initialise required variables */
     ss_init(matrix, tree, enc_mat);
     initroot = 0;
-    /* t0 = get_initial_t(matrix, tree, rcstruct, initroot, weight_arr, log_progress); */
-    t0 = 0.01;
+    t0 = get_initial_t(matrix, tree, rcstruct, initroot, weight_arr, log_progress); 
+    // t0 = 0.01;
 
     randtree(matrix, tree);	/* begin from scratch */
     ss_init(matrix, tree, enc_mat);

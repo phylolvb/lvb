@@ -131,6 +131,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* limits that could be changed but are likely to be OK */
 #define FROZEN_T 0.0001		/* consider system frozen if temp < FROZEN_T */
 
+////////////////////////////////////////////////////////////////////////////////
+/* values for bayesian updating function */
+#define NNI 0			/* NNI has an index of 0 in array */
+#define SPR 1			/* SPR has an index of 1 in array */
+#define TBR 2			/* TBR has an index of 2 in array */
+////////////////////////////////////////////////////////////////////////////////
+
 
 typedef	struct	/* object set derived from a cladogram */
 {
