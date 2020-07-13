@@ -226,7 +226,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 	// Copying hyperparameter array to scoring array
 	for(i=0; i<3; i++)
     {
-        rcstruct.hyperparameters[i] = scoring[i];
+        scoring[i] = rcstruct.hyperparameters[i];
     }
 
 
@@ -234,25 +234,24 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
     {
         // Probability of selected and succesful algorithm [x]
         int success = scoring[x] + rcstruct.weight[x];
-        printf("succesful scoring array value -> %d\n", success);
         float sumofscores = scoring[x]+scoring[y]+scoring[z];
-        printf("Sum of scores -> %f\n", sumofscores);
+        printf("SUCCESS\nSum of scores -> %f\n", sumofscores);
 		// TBR tree not accepted
 		// calculating NNI
         prob[x] = (success * (success/sumofscores))/((success * (success/sumofscores))+(scoring[y]* (scoring[y]/sumofscores))+(scoring[z] * (scoring[z]/sumofscores)));
-        printf("Probability array value -> %f\n\n", prob[x]);
+        printf("Probability array value of %i -> %f\n", x, prob[x]);
 
         // Probability of other algorithm [y]
-        printf("Sum of scores -> %f\n", sumofscores);
         prob[y] = (scoring[y] * (scoring[y]/sumofscores))/((scoring[y] * (scoring[y]/sumofscores))+(success * (success/sumofscores))+(scoring[z] * (scoring[z]/sumofscores)));
-        printf("Probability array value -> %f\n\n", prob[y]);   
-
+        printf("Probability array value of %i -> %f\n", y, prob[y]);   
 
         // Probability of other algorithm [z]
-        printf("Sum of scores -> %f\n", sumofscores);
         prob[z] = (scoring[z] * (scoring[z]/sumofscores))/((scoring[z] * (scoring[z]/sumofscores))+(success * (success/sumofscores))+(scoring[y] * (scoring[y]/sumofscores)));
-        printf("Probability array value -> %f\n\n\n\n", prob[z]); 
-        scoring[x] += rcstruct.weight[x]; 
+        printf("Probability array value of %i -> %f\n", z, prob[z]); 
+        scoring[x] += rcstruct.weight[x];
+		printf("Scoring array of %i -> %i\n", x, scoring[x]);
+		printf("Scoring array of %i -> %i\n", y, scoring[y]);
+		printf("Scoring array of %i -> %i\n\n\n\n\n", z, scoring[z]);
     }
 
     void bayesian_updating_failure(int x, int y, int z, int failed_algorithm)
@@ -267,20 +266,22 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 
 			float sumofscores = scoring[x]+scoring[y]+scoring[z];
 			prob[x] = (spr_success * (spr_success/sumofscores))/((spr_success * (spr_success/sumofscores))+(tbr_success * (tbr_success/sumofscores))+(scoring[z] * (scoring[z]/sumofscores)));
-			printf("Probability array value -> %f\n\n", prob[x]);
+			printf("FAILED\nSum of scores -> %f\n", sumofscores);
+			printf("Probability array value of %i -> %f\n", x, prob[x]);
 
 			// Probability of other algorithm [y]
-			printf("Sum of scores -> %f\n", sumofscores);
 			prob[y] = (tbr_success * (tbr_success/sumofscores))/((tbr_success * (tbr_success/sumofscores))+(spr_success * (spr_success/sumofscores))+(scoring[z] * (scoring[z]/sumofscores)));
-			printf("Probability array value -> %f\n\n", prob[y]);   
+			printf("Probability array value of %i -> %f\n", y, prob[y]);   
 
 			// Probability of other algorithm [z]
-			printf("Sum of scores -> %f\n", sumofscores);
 			prob[z] = (scoring[z] * (scoring[z]/sumofscores))/((scoring[z] * (scoring[z]/sumofscores))+(spr_success * (spr_success/sumofscores))+(tbr_success * (tbr_success/sumofscores)));
-			printf("Probability array value -> %f\n\n\n\n", prob[z]);
+			printf("Probability array value  of %i -> %f\n", z, prob[z]);
 
 			scoring[x] += sprreward;
 			scoring[y] += tbrreward;
+			printf("Scoring array of %i -> %i\n", x, scoring[x]);
+			printf("Scoring array of %i -> %i\n", y, scoring[y]);
+			printf("Scoring array of %i -> %i\n\n\n\n\n", z, scoring[z]);
 		}
 		else if (failed_algorithm == SPR){
 			// x = NNI, y = TBR, z = SPR
@@ -292,20 +293,22 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 
 			float sumofscores = scoring[x]+scoring[y]+scoring[z];
 			prob[x] = (nni_success * (nni_success/sumofscores))/((nni_success * (nni_success/sumofscores))+(tbr_success * (tbr_success/sumofscores))+(scoring[z] * (scoring[z]/sumofscores)));
-			printf("Probability array value -> %f\n\n", prob[x]);
+			printf("FAILED\nSum of scores -> %f\n", sumofscores);
+			printf("Probability array value  of %i -> %f\n", x, prob[x]);
 
 			// Probability of other algorithm [y]
-			printf("Sum of scores -> %f\n", sumofscores);
 			prob[y] = (tbr_success * (tbr_success/sumofscores))/((tbr_success * (tbr_success/sumofscores))+(nni_success * (nni_success/sumofscores))+(scoring[z] * (scoring[z]/sumofscores)));
-			printf("Probability array value -> %f\n\n", prob[y]);   
+			printf("Probability array value of %i -> %f\n", y, prob[y]);   
 
 			// Probability of other algorithm [z]
-			printf("Sum of scores -> %f\n", sumofscores);
 			prob[z] = (scoring[z] * (scoring[z]/sumofscores))/((scoring[z] * (scoring[z]/sumofscores))+(nni_success * (nni_success/sumofscores))+(tbr_success * (tbr_success/sumofscores)));
-			printf("Probability array value -> %f\n\n\n\n", prob[z]);
-
+			printf("Probability array value of %i -> %f\n", z, prob[z]);
+			
 			scoring[x] += nnireward;
 			scoring[y] += tbrreward;
+			printf("Scoring array of %i -> %i\n", x, scoring[x]);
+			printf("Scoring array of %i -> %i\n", y, scoring[y]);
+			printf("Scoring array of %i -> %i\n\n\n\n\n", z, scoring[z]);
 		}
 		else {
 			// x = NNI, y = SPR, z = TBR
@@ -317,20 +320,22 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 
 			float sumofscores = scoring[x]+scoring[y]+scoring[z];
 			prob[x] = (nni_success * (nni_success/sumofscores))/((nni_success * (nni_success/sumofscores))+(spr_success * (spr_success/sumofscores))+(scoring[z] * (scoring[z]/sumofscores)));
-			printf("Probability array value -> %f\n\n", prob[x]);
+			printf("FAILED\nSum of scores -> %f\n", sumofscores);			
+			printf("Probability array value of %i -> %f\n", x, prob[x]);
 
 			// Probability of other algorithm [y]
-			printf("Sum of scores -> %f\n", sumofscores);
 			prob[y] = (spr_success * (spr_success/sumofscores))/((spr_success * (spr_success/sumofscores))+(nni_success * (nni_success/sumofscores))+(scoring[z] * (scoring[z]/sumofscores)));
-			printf("Probability array value -> %f\n\n", prob[y]);   
+			printf("Probability array value of %i -> %f\n", y, prob[y]);   
 
 			// Probability of other algorithm [z]
-			printf("Sum of scores -> %f\n", sumofscores);
 			prob[z] = (scoring[z] * (scoring[z]/sumofscores))/((scoring[z] * (scoring[z]/sumofscores))+(nni_success * (nni_success/sumofscores))+(spr_success * (spr_success/sumofscores)));
-			printf("Probability array value -> %f\n\n\n\n", prob[z]);
+			printf("Probability array value of %i -> %f\n", z, prob[z]);
 
 			scoring[x] += nnireward;
 			scoring[y] += sprreward;
+			printf("Scoring array of %i -> %i\n", x, scoring[x]);
+			printf("Scoring array of %i -> %i\n", y, scoring[y]);
+			printf("Scoring array of %i -> %i\n\n\n\n\n", z, scoring[z]);
 		}
     }	
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -494,7 +499,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 
 			/* very best so far */
 			if (lendash < lenbest) lenbest = lendash;
-			if (rcstruct.algorithm_selection == 1)
+			if (rcstruct.algorithm_selection == 1 || rcstruct.algorithm_selection == 3)
 			changeAcc = 1;
 
 		}
@@ -539,7 +544,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 				if (rcstruct.algorithm_selection == 2)
 				w_changes_acc++; 
 					len = lendash;
-					if (rcstruct.algorithm_selection == 1)
+					if (rcstruct.algorithm_selection == 1 || rcstruct.algorithm_selection == 3)
 					changeAcc = 1; 
 				}
 			}
@@ -691,3 +696,8 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
     return lenbest;
 
 } /* end anneal() */
+
+
+
+
+//log lvb eps
