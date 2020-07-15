@@ -265,8 +265,8 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
     {
 		if (failed_algorithm == NNI){
 			// x = SPR, y = TBR, z = NNI
-			double sprreward = weight[x]/25;
-			double tbrreward = weight[y]/10;
+			double sprreward = weight[x]/10;
+			double tbrreward = weight[y]/3;
 
 			double spr_success = scoring[x] + sprreward;
 			double tbr_success = scoring[y] + tbrreward;
@@ -292,8 +292,8 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 		}
 		else if (failed_algorithm == SPR){
 			// x = NNI, y = TBR, z = SPR
-			double nnireward = weight[x]/50;
-			double tbrreward = weight[y]/10;
+			double nnireward = weight[x]/20;
+			double tbrreward = weight[y]/3;
 
 			double nni_success = scoring[x] + nnireward;
 			double tbr_success = scoring[y] + tbrreward;
@@ -319,8 +319,8 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 		}
 		else {
 			// x = NNI, y = SPR, z = TBR
-			double nnireward = weight[x]/50;
-			double sprreward = weight[y]/25;			
+			double nnireward = weight[x]/20;
+			double sprreward = weight[y]/10;			
 
 			double nni_success = scoring[x] + nnireward;
 			double spr_success = scoring[y] + sprreward;
@@ -470,7 +470,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
         }
 		}
         // rcstruct.algorithm_selection == 0     -->    Original NNi + SPR algorithm
-		else
+		if (rcstruct.algorithm_selection == 0)
 		{
 		if (iter & 0x01) { mutate_spr(matrix, p_proposed_tree, p_current_tree, root);	/* global change */
 		strcpy(change,"SPR"); }
@@ -690,9 +690,19 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 
 
 
-	if (rcstruct.verbose == LVB_TRUE)
+	if (rcstruct.algorithm_selection == 3){
+	if (rcstruct.verbose == LVB_TRUE) {
+	fprintf (pFile, "%ld\t%s\t%d\t%ld\t%lf\t%f\t%f\t%f\n", iter, change, changeAcc, len, t*10000, (float) r_lenmin/len);
+    }
+	}
+
+
+	else {
+	if (rcstruct.verbose == LVB_TRUE) {
 	fprintf (pFile, "%ld\t%s\t%d\t%ld\t%lf\n", iter, change, changeAcc, len, t*10000, (float) r_lenmin/len);
     }
+	}
+	}
 
     /* free "local" dynamic heap memory */
 	if (rcstruct.verbose == LVB_TRUE)
