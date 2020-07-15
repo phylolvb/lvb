@@ -219,7 +219,8 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
     // static -> name only valid within file
 	////// USE DOUBLE INSTEAD OF FLOAT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     static double prob[3] = {0, 0, 0};
-	static int scoring[3];
+	static double scoring[3];
+	double weight[3];
 	static int neighbourhood_selection;
 	int i;
 
@@ -229,11 +230,17 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
         scoring[i] = rcstruct.hyperparameters[i];
     }
 
+	// Copying weight array to new weight array
+	for(i=0; i<3; i++)
+    {
+        weight[i] = rcstruct.weight[i];
+    }
+
 
     void bayesian_updating(int x, int y, int z)
     {
         // Probability of selected and succesful algorithm [x]
-        int success = scoring[x] + rcstruct.weight[x];
+        int success = scoring[x] + weight[x];
         float sumofscores = scoring[x]+scoring[y]+scoring[z];
         printf("SUCCESS\nSum of scores -> %f\n", sumofscores);
 		// TBR tree not accepted
@@ -248,21 +255,21 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
         // Probability of other algorithm [z]
         prob[z] = (scoring[z] * (scoring[z]/sumofscores))/((scoring[z] * (scoring[z]/sumofscores))+(success * (success/sumofscores))+(scoring[y] * (scoring[y]/sumofscores)));
         printf("Probability array value of %i -> %f\n", z, prob[z]); 
-        scoring[x] += rcstruct.weight[x];
-		printf("Scoring array of %i -> %i\n", x, scoring[x]);
-		printf("Scoring array of %i -> %i\n", y, scoring[y]);
-		printf("Scoring array of %i -> %i\n\n\n\n\n", z, scoring[z]);
+        scoring[x] += weight[x];
+		printf("Scoring array of %i -> %f\n", x, scoring[x]);
+		printf("Scoring array of %i -> %f\n", y, scoring[y]);
+		printf("Scoring array of %i -> %f\n\n\n\n\n", z, scoring[z]);
     }
 
     void bayesian_updating_failure(int x, int y, int z, int failed_algorithm)
     {
 		if (failed_algorithm == NNI){
 			// x = SPR, y = TBR, z = NNI
-			double sprreward = rcstruct.weight[x]/25;
-			double tbrreward = rcstruct.weight[y]/10;
+			double sprreward = weight[x]/25;
+			double tbrreward = weight[y]/10;
 
-			int spr_success = scoring[x] + sprreward;
-			int tbr_success = scoring[y] + tbrreward;
+			double spr_success = scoring[x] + sprreward;
+			double tbr_success = scoring[y] + tbrreward;
 
 			float sumofscores = scoring[x]+scoring[y]+scoring[z];
 			prob[x] = (spr_success * (spr_success/sumofscores))/((spr_success * (spr_success/sumofscores))+(tbr_success * (tbr_success/sumofscores))+(scoring[z] * (scoring[z]/sumofscores)));
@@ -279,17 +286,17 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 
 			scoring[x] += sprreward;
 			scoring[y] += tbrreward;
-			printf("Scoring array of %i -> %i\n", x, scoring[x]);
-			printf("Scoring array of %i -> %i\n", y, scoring[y]);
-			printf("Scoring array of %i -> %i\n\n\n\n\n", z, scoring[z]);
+			printf("Scoring array of %i -> %f\n", x, scoring[x]);
+			printf("Scoring array of %i -> %f\n", y, scoring[y]);
+			printf("Scoring array of %i -> %f\n\n\n\n\n", z, scoring[z]);
 		}
 		else if (failed_algorithm == SPR){
 			// x = NNI, y = TBR, z = SPR
-			double nnireward = rcstruct.weight[x]/50;
-			double tbrreward = rcstruct.weight[y]/10;
+			double nnireward = weight[x]/50;
+			double tbrreward = weight[y]/10;
 
-			int nni_success = scoring[x] + nnireward;
-			int tbr_success = scoring[y] + tbrreward;
+			double nni_success = scoring[x] + nnireward;
+			double tbr_success = scoring[y] + tbrreward;
 
 			float sumofscores = scoring[x]+scoring[y]+scoring[z];
 			prob[x] = (nni_success * (nni_success/sumofscores))/((nni_success * (nni_success/sumofscores))+(tbr_success * (tbr_success/sumofscores))+(scoring[z] * (scoring[z]/sumofscores)));
@@ -306,17 +313,17 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 			
 			scoring[x] += nnireward;
 			scoring[y] += tbrreward;
-			printf("Scoring array of %i -> %i\n", x, scoring[x]);
-			printf("Scoring array of %i -> %i\n", y, scoring[y]);
-			printf("Scoring array of %i -> %i\n\n\n\n\n", z, scoring[z]);
+			printf("Scoring array of %i -> %f\n", x, scoring[x]);
+			printf("Scoring array of %i -> %f\n", y, scoring[y]);
+			printf("Scoring array of %i -> %f\n\n\n\n\n", z, scoring[z]);
 		}
 		else {
 			// x = NNI, y = SPR, z = TBR
-			double nnireward = rcstruct.weight[x]/50;
-			double sprreward = rcstruct.weight[y]/25;			
+			double nnireward = weight[x]/50;
+			double sprreward = weight[y]/25;			
 
-			int nni_success = scoring[x] + nnireward;
-			int spr_success = scoring[y] + sprreward;
+			double nni_success = scoring[x] + nnireward;
+			double spr_success = scoring[y] + sprreward;
 
 			float sumofscores = scoring[x]+scoring[y]+scoring[z];
 			prob[x] = (nni_success * (nni_success/sumofscores))/((nni_success * (nni_success/sumofscores))+(spr_success * (spr_success/sumofscores))+(scoring[z] * (scoring[z]/sumofscores)));
@@ -333,9 +340,9 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 
 			scoring[x] += nnireward;
 			scoring[y] += sprreward;
-			printf("Scoring array of %i -> %i\n", x, scoring[x]);
-			printf("Scoring array of %i -> %i\n", y, scoring[y]);
-			printf("Scoring array of %i -> %i\n\n\n\n\n", z, scoring[z]);
+			printf("Scoring array of %i -> %f\n", x, scoring[x]);
+			printf("Scoring array of %i -> %f\n", y, scoring[y]);
+			printf("Scoring array of %i -> %f\n\n\n\n\n", z, scoring[z]);
 		}
     }	
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
