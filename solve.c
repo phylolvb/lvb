@@ -220,6 +220,15 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 	////// USE DOUBLE INSTEAD OF FLOAT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     static double prob[3] = {0, 0, 0};
 	static double scoring[3];
+
+
+	static int last_algo;
+	static double fail_count_nni = 1;
+	static double fail_count_spr = 1;
+	static double fail_count_tbr = 1;
+	
+
+
 	double weight[3];
 	static int neighbourhood_selection;
 	int i;
@@ -259,14 +268,15 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 		printf("Scoring array of %i -> %f\n", x, scoring[x]);
 		printf("Scoring array of %i -> %f\n", y, scoring[y]);
 		printf("Scoring array of %i -> %f\n\n\n\n\n", z, scoring[z]);
+		//last_algo = x;
     }
 
     void bayesian_updating_failure(int x, int y, int z, int failed_algorithm)
     {
 		if (failed_algorithm == NNI){
 			// x = SPR, y = TBR, z = NNI
-			double sprreward = weight[x]/10;
-			double tbrreward = weight[y]/3;
+			double sprreward = (weight[x]/10) * fail_count_nni;
+			double tbrreward = (weight[y]/3) * fail_count_nni;
 
 			double spr_success = scoring[x] + sprreward;
 			double tbr_success = scoring[y] + tbrreward;
@@ -289,11 +299,12 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 			printf("Scoring array of %i -> %f\n", x, scoring[x]);
 			printf("Scoring array of %i -> %f\n", y, scoring[y]);
 			printf("Scoring array of %i -> %f\n\n\n\n\n", z, scoring[z]);
+			//last_algo = z;
 		}
 		else if (failed_algorithm == SPR){
 			// x = NNI, y = TBR, z = SPR
-			double nnireward = weight[x]/20;
-			double tbrreward = weight[y]/3;
+			double nnireward = (weight[x]/20) * fail_count_spr;
+			double tbrreward = (weight[y]/3) * fail_count_spr;
 
 			double nni_success = scoring[x] + nnireward;
 			double tbr_success = scoring[y] + tbrreward;
@@ -316,11 +327,12 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 			printf("Scoring array of %i -> %f\n", x, scoring[x]);
 			printf("Scoring array of %i -> %f\n", y, scoring[y]);
 			printf("Scoring array of %i -> %f\n\n\n\n\n", z, scoring[z]);
+			//last_algo = z;
 		}
 		else {
 			// x = NNI, y = SPR, z = TBR
-			double nnireward = weight[x]/20;
-			double sprreward = weight[y]/10;			
+			double nnireward = (weight[x]/20) * fail_count_tbr;
+			double sprreward = (weight[y]/10) * fail_count_tbr;			
 
 			double nni_success = scoring[x] + nnireward;
 			double spr_success = scoring[y] + sprreward;
@@ -343,6 +355,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 			printf("Scoring array of %i -> %f\n", x, scoring[x]);
 			printf("Scoring array of %i -> %f\n", y, scoring[y]);
 			printf("Scoring array of %i -> %f\n\n\n\n\n", z, scoring[z]);
+			//last_algo = z;
 		}
     }	
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -648,14 +661,17 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 	if (changeAcc == 1) {
         if (neighbourhood_selection == NNI)
         {
+		fail_count_nni = 1;
 	    bayesian_updating(NNI, SPR, TBR);
         }
         else if (neighbourhood_selection == SPR)
         {
+		fail_count_spr = 1;
         bayesian_updating(SPR, NNI, TBR);
         }
         else 
         {
+		fail_count_tbr = 1;
         bayesian_updating(TBR, NNI, SPR); 
         }
 	}
@@ -664,18 +680,39 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 		// NNI Tree not accepted
 		if (neighbourhood_selection == NNI)
 		{
+		// if (last_algo == neighbourhood_selection){
+		// 	fail_count = fail_count + 0.1;
+		// }
+		// else {
+		// 	fail_count = 1;
+		// }
+			fail_count_nni = fail_count_nni + 0.1;
 			// x = SPR, y = TBR, z = NNI
 			bayesian_updating_failure(SPR, TBR, NNI, neighbourhood_selection);	
 		}
 		// SPR Tree not accepted
 		if (neighbourhood_selection == SPR)
 		{
+		// if (last_algo == neighbourhood_selection){
+		// 	fail_count = fail_count + 0.1;
+		// }
+		// else {
+		// 	fail_count = 1;
+		// }
+			fail_count_spr = fail_count_spr + 0.1;
 			// x = NNI, y = TBR, z = SPR
 			bayesian_updating_failure(NNI, TBR, SPR, neighbourhood_selection);
 		}
 		// TBR Tree not accepted
 		if (neighbourhood_selection == TBR)
 		{
+		// if (last_algo == neighbourhood_selection){
+		// 	fail_count = fail_count + 0.1;
+		// }
+		// else {
+		// 	fail_count = 1;
+		// }
+			fail_count_tbr = fail_count_tbr + 0.1;
 			// x = NNI, y = SPR, z = TBR
 			bayesian_updating_failure(NNI, SPR, TBR, neighbourhood_selection);	
 		}
