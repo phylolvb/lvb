@@ -69,8 +69,8 @@ DOCS_PROG_DIR = ./docs_programmer
 #LVB_READ_FILE_DIR = ./LVB_READ_FILES/src
 
 ### define a c++ compiler to your platform 
-G++ = g++
-CC = g++
+G++ = mpic++
+CC = mpic++
 
 # UNCOMMENT THIS FOR 32-BIT LINUX (E.G. OLD INTEL CPUS OR RASPBERRY PI)
 #CFLAGS += -DCOMPILE_32_BITS

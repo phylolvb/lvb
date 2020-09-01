@@ -114,8 +114,8 @@ CXXFLAGS += -Wall -O3 -fopenmp -ftree-loop-distribution -fvariable-expansion-in-
 #CXXFLAGS += -Wall -g -fopenmp
 
 ifeq ($(WHICH_MAKE),MAKE_LVB_MPI)
-	G++ = g++
-	CC= g++
+	G++ = mpic++
+	CC= mpic++
 	CFLAGS += -DMPI_Implementation -DLVB_PARALLEL_SEARCH
 	CXXFLAGS += -DMPI_Implementation -DLVB_PARALLEL_SEARCH 
 else
