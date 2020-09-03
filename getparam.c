@@ -47,13 +47,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* it is in ReadFile.cpp library */
 void read_parameters(Params *prms, int argc, char **argv);
 
-long get_random_maxaccept(void)
-/* return a random integer value, for use as the maxaccept parameter in
- * the simulated annealing search */
-{
-    return randpint(MAXACCEPT_MAX - MAXACCEPT_MIN) + MAXACCEPT_MIN;
-}
-
 static int get_default_seed(void)
 /* return a default integer in the interval [0..MAX_SEED], obtained from the
  * system clock, or exit with an error message if the system time is

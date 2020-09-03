@@ -191,10 +191,6 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, long *iter_p, Lvb_
      * of LVB. The code bellow is purely to keep the output consistent
      * with that of previous versions. */
 
-	#ifdef LVB_MAPREDUCE  // okay
-	if (misc->rank == 0) {
-	#endif
-
     if (rcstruct.verbose == LVB_TRUE) {
 		sumfp = clnopen(SUMFNAM, "w");
 		fprintf(sumfp, "StartNo\tCycleNo\tCycInit\tCycBest\tCycTrees\n");
@@ -202,9 +198,6 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, long *iter_p, Lvb_
     else{
         sumfp = NULL;
     }
-	#ifdef LVB_MAPREDUCE  // okay
-	}
-	#endif
 	
     /* determine starting temperature */
     randtree(matrix, tree);	/* initialise required variables */
@@ -224,9 +217,6 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, long *iter_p, Lvb_
      * NOTE: There are no cycles anymore in the current version
      * of LVB. The code bellow is purely to keep the output consistent
      * with that of previous versions.  */
-	#ifdef LVB_MAPREDUCE  // okay
-	if (misc->rank == 0) {
-	#endif
     if(rcstruct.verbose == LVB_TRUE) {
         alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
 		fprintf(sumfp, "%ld\t%ld\t%ld\t", start, cyc, getplen(matrix, tree, rcstruct, initroot, p_todo_arr, p_todo_arr_sum_changes, p_runs));
@@ -234,7 +224,6 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, long *iter_p, Lvb_
 		logtree1(matrix, tree, start, cyc, initroot);
     }
 	#ifdef LVB_MAPREDUCE  // check
-	}
 		MPI_Barrier(MPI_COMM_WORLD);
 		/* find solution(s) */
 		treelength = anneal(matrix, &bstack_overall, &stack_treevo, tree, rcstruct, initroot, t0, maxaccept,
@@ -274,7 +263,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, long *iter_p, Lvb_
 			MPI_Barrier(MPI_COMM_WORLD);
 			MPI_Bcast(&check_cmp, 1, MPI_INT, 0,    MPI_COMM_WORLD);
 			if (check_cmp == 1) {
-		//	  treestack_push_only(matrix, &bstack_overall, tree, initroot);
+			  treestack_push(matrix, &bstack_overall, tree, initroot, LVB_FALSE);
 			  misc->ID = bstack_overall.next;
 				  misc->SB = 1;
 				  tree_setpush(matrix, tree, initroot, mrBuffer, misc);
@@ -303,9 +292,6 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, long *iter_p, Lvb_
      * of LVB. The code bellow is purely to keep the output consistent
      * with that of previous versions. */
 
-	#ifdef LVB_MAPREDUCE  // okay
-	if (misc->rank == 0 ) {
-	#endif
     if (rcstruct.verbose == LVB_TRUE){
 		fnamlen = sprintf(fnam, "%s_start%ld_cycle%ld", RESFNAM, start, cyc);
 		lvb_assert(fnamlen < LVB_FNAMSIZE);	/* really too late */
@@ -326,9 +312,6 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, long *iter_p, Lvb_
     check_stdout();
 
     if (rcstruct.verbose == LVB_TRUE) clnclose(sumfp, SUMFNAM);
-	#ifdef LVB_MAPREDUCE  // okay
-	}
-	#endif
     /* "local" dynamic heap memory */
     free(tree);
 	for (i = 0; i < matrix->n; i++) free(enc_mat[i]);
@@ -430,17 +413,11 @@ int main(int argc, char **argv)
     calc_distribution_processors(matrix, rcstruct);
 
     if (rcstruct.verbose == LVB_TRUE) {
-		#ifdef LVB_MAPREDUCE  // okay
-    	if(misc.rank == 0)
-		#endif
 		printf("getminlen: %ld\n\n", matrix->min_len_tree);
     }
     rinit(rcstruct.seed);
 	log_progress = LVB_TRUE;
 
-	#ifdef LVB_MAPREDUCE  // okay
-	if (misc.rank == 0)
-	#endif
     outtreefp = clnopen(rcstruct.file_name_out, "w");
     FILE * treEvo;
 	treEvo = (FILE *) alloc(sizeof(FILE), "alloc FILE");
@@ -474,15 +451,11 @@ int main(int argc, char **argv)
    if(rcstruct.algorithm_selection ==2)
     fclose(treEvo);
 	
-	#ifdef LVB_MAPREDUCE  // okay
-	if (misc.rank == 0) {
-	#endif
+	
 	clnclose(outtreefp, rcstruct.file_name_out);
 
     End = clock();
-	#ifdef LVB_MAPREDUCE  // okay
-	}
-	#endif
+
 	Overall_Time_taken = ((double) (End - Start)) /CLOCKS_PER_SEC;
 
 	if (LogFileExists ("logfile.tsv"))

@@ -289,8 +289,6 @@ long anneal(Dataptr restrict, Treestack *, Treestack *, const Branch *const, Par
 void defaults_params(Params *const);
 long deterministic_hillclimb(Dataptr, Treestack *, const Branch *const, Params rcstruct,
 	long, FILE * const, long *, Lvb_bool, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer);
-long get_random_maxaccept(void);
-void treedump_b(Dataptr, FILE *const, const Branch *const, Lvb_bool);
 uint64_t tree_setpush(Dataptr matrix, const Branch *const tree, const long root, MapReduce *mrObj, MISC *misc);
 void map_clean(uint64_t itask, char *key, int keybytes, char *value, int valuebytes, KeyValue *kv, void *ptr);
 void reduce_count(char *key, int keybytes, char *multivalue, int nvalues, int *valuebytes, KeyValue *kv, void *ptr);

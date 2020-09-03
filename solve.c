@@ -179,9 +179,6 @@ long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *c
 					#endif
 				}
 				if ((log_progress == LVB_TRUE) && ((*current_iter % STAT_LOG_INTERVAL) == 0)) {
-					#ifdef LVB_MAPREDUCE  // okay
-					if(misc->rank == 0)
-					#endif
 					lenlog(lenfp, bstackp, *current_iter, len, 0);
 				}
 				*current_iter += 1;
@@ -284,15 +281,10 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 	
 
     if ((log_progress == LVB_TRUE) && (*current_iter == 0)) {
-		#ifdef LVB_MAPREDUCE
-		if(misc->rank == 0) {
-		#endif
+
 	printf("\n--------------------------------------------------------");
 	fprintf(lenfp, "\n  Temperature:   Rearrangement: TreeStack size: Length:\n");
 	printf("--------------------------------------------------------\n");
-		#ifdef LVB_MAPREDUCE
-		}
-		#endif
 	}
 		#ifdef LVB_MAPREDUCE  // check
 		MPI_Bcast(&lenbest,  1, MPI_LONG, 0, MPI_COMM_WORLD);
@@ -320,9 +312,6 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 		if ((*current_iter % REROOT_INTERVAL) == 0){
 			root = arbreroot(matrix, p_current_tree, root);
 			if ((log_progress == LVB_TRUE) && ((*current_iter % STAT_LOG_INTERVAL) == 0)) {
-				#ifdef LVB_MAPREDUCE  // check
-				if(misc->rank == 0)
-				#endif
         		lenlog(lenfp, bstackp, *current_iter, len, t);
         	}
 		}

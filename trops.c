@@ -970,14 +970,6 @@ void treeswap(Branch **const tree1, long *const root1,
 
 } /* end treeswap() */
 
-void treedump_b(Dataptr matrix, FILE *const stream, const Branch *const tree, Lvb_bool b_with_sset)
-/* dump tree as binary data to file pointed to by stream */
-{
-    lvb_assert(b_with_sset == LVB_FALSE);	/* not implemented for ssets */
-    fwrite(tree, matrix->tree_bytes_without_sset, 1, stream);
-    lvb_assert(ferror(stream) == 0);
-}
-
 void treedump(Dataptr matrix, FILE *const stream, const Branch *const tree, Lvb_bool b_with_sset)
 /* send tree as table of integers to file pointed to by stream */
 {
