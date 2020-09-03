@@ -43,11 +43,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "info.h"
 
-void print_LVB_INFO() {
+void PrintLVBInfo() {
   cout << "==============================================="
           "=================================\n\n";
   cout << "LVB v." << LVB_VERSION << " ";
-  #ifdef LVB_MAPREDUCE  // check
+  #ifdef LVB_MAPREDUCE  
     cout << LVB_MAPREDUCE_VERSION;
   #endif
   cout << "built for Linux 64-bit \n";
@@ -61,7 +61,7 @@ void print_LVB_INFO() {
           "=================================\n\n";
 }
 
-void print_LVB_COPYRIGHT() {
+void PrintLVBCopyright() {
   cout << "(c) Copyright 2003-2012 by Daniel Barker\n"
   "(c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl\n"
   "(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro\n"

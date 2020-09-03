@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "log_file.h"
 
-bool logfile_exists(const char *filename) {
+bool LogFileExists(const char *filename) {
   struct stat buffer;
   
   return (stat (filename, &buffer) == 0);

@@ -1260,7 +1260,7 @@ static void ssarralloc(Dataptr matrix, Objset *nobjset_2)
 
 } /* end ssarralloc() */
 
-#ifdef LVB_MAPREDUCE  // check
+#ifdef LVB_MAPREDUCE  // okay
 
 	void print_sets(Dataptr matrix, Treestack *sp, MISC *misc)
 	{

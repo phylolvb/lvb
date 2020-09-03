@@ -63,7 +63,7 @@ static void smessg(long start, long cycle)
 
 } /* end smessg() */
 
-#ifdef LVB_MAPREDUCE  // check
+#ifdef LVB_MAPREDUCE  // okay
 static void writeinf(Params prms, Dataptr matrix, int argc, char **argv, int n_process)
 
 #else
@@ -85,7 +85,7 @@ static void writeinf(Params prms, Dataptr matrix, int argc, char **argv)
 	for (int i = 0; i < argc; ++i)
 	printf("%s ", argv[i]);
 	printf("' at: ");
-	log_Time();
+	LogTime();
 	printf("\n");
 
 	printf("Analysis Properties: \n");
@@ -137,7 +137,7 @@ static void logtree1(Dataptr matrix, const Branch *const barray, const long star
 
 } /* end logtree1() */
 
-#ifdef LVB_MAPREDUCE  // check
+#ifdef LVB_MAPREDUCE  // okay
 static long getsoln(Dataptr restrict matrix, Params rcstruct, long *iter_p, Lvb_bool log_progress,
 				MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer)
 #else
@@ -164,7 +164,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, long *iter_p, Lvb_
     long *p_todo_arr; /* [MAX_BRANCHES + 1];	 list of "dirty" branch nos */
     long *p_todo_arr_sum_changes; /*used in openMP, to sum the partial changes */
     int *p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */
-	#ifdef LVB_MAPREDUCE  // check
+	#ifdef LVB_MAPREDUCE  // okay
 	int *total_count;
 	#endif
 
@@ -191,7 +191,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, long *iter_p, Lvb_
      * of LVB. The code bellow is purely to keep the output consistent
      * with that of previous versions. */
 
-	#ifdef LVB_MAPREDUCE  // check
+	#ifdef LVB_MAPREDUCE  // okay
 	if (misc->rank == 0) {
 	#endif
 
@@ -202,7 +202,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, long *iter_p, Lvb_
     else{
         sumfp = NULL;
     }
-	#ifdef LVB_MAPREDUCE  // check
+	#ifdef LVB_MAPREDUCE  // okay
 	}
 	#endif
 	
@@ -211,7 +211,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, long *iter_p, Lvb_
     ss_init(matrix, tree, enc_mat);
     initroot = 0;
 
-	t0 = get_initial_t(matrix, tree, rcstruct, initroot, log_progress);
+	t0 = StartingTemperature(matrix, tree, rcstruct, initroot, log_progress);
 	
     randtree(matrix, tree);	/* begin from scratch */
     ss_init(matrix, tree, enc_mat);
@@ -224,7 +224,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, long *iter_p, Lvb_
      * NOTE: There are no cycles anymore in the current version
      * of LVB. The code bellow is purely to keep the output consistent
      * with that of previous versions.  */
-	#ifdef LVB_MAPREDUCE  // check
+	#ifdef LVB_MAPREDUCE  // okay
 	if (misc->rank == 0) {
 	#endif
     if(rcstruct.verbose == LVB_TRUE) {
@@ -235,11 +235,8 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, long *iter_p, Lvb_
     }
 	#ifdef LVB_MAPREDUCE  // check
 	}
-
 		MPI_Barrier(MPI_COMM_WORLD);
 		/* find solution(s) */
-		maxaccept = get_random_maxaccept();
-		// printf("\nmaxaccept:%ld\n", maxaccept);
 		treelength = anneal(matrix, &bstack_overall, &stack_treevo, tree, rcstruct, initroot, t0, maxaccept,
 				maxpropose, maxfail, stdout, iter_p, log_progress, misc, mrTreeStack, mrBuffer );
 
@@ -286,12 +283,6 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, long *iter_p, Lvb_
 
 			free(misc->count);
 			free(total_count);
-		//} else {
-		//	treestack_push_only(matrix, &bstack_overall, tree, initroot);
-		//	misc->ID = bstack_overall.next;
-		//	misc->SB = 1;
-		//        tree_setpush(matrix, tree, initroot, mrBuffer, misc);
-		//        mrTreeStack->add(mrBuffer);
 		}
 
 		treelength = deterministic_hillclimb(matrix, &bstack_overall, tree, rcstruct, initroot, stdout,
@@ -312,7 +303,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, long *iter_p, Lvb_
      * of LVB. The code bellow is purely to keep the output consistent
      * with that of previous versions. */
 
-	#ifdef LVB_MAPREDUCE  // check
+	#ifdef LVB_MAPREDUCE  // okay
 	if (misc->rank == 0 ) {
 	#endif
     if (rcstruct.verbose == LVB_TRUE){
@@ -335,7 +326,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, long *iter_p, Lvb_
     check_stdout();
 
     if (rcstruct.verbose == LVB_TRUE) clnclose(sumfp, SUMFNAM);
-	#ifdef LVB_MAPREDUCE  // check
+	#ifdef LVB_MAPREDUCE  // okay
 	}
 	#endif
     /* "local" dynamic heap memory */
@@ -385,7 +376,7 @@ int main(int argc, char **argv)
 	outtreefp = (FILE *) alloc (sizeof(FILE), "alloc FILE");
 	Lvb_bool log_progress;	/* whether or not to log anneal search */
 
-	#ifdef LVB_MAPREDUCE  // check
+	#ifdef LVB_MAPREDUCE  // okay
 
 		/* MapReduce version */
 		MPI_Init(&argc,&argv);
@@ -405,11 +396,11 @@ int main(int argc, char **argv)
 		mrBuffer->verbosity = 0;
 		mrBuffer->timer = 0;
 
-		#endif
+	#endif
 
     /* entitle standard output */
-    print_LVB_COPYRIGHT();
-	print_LVB_INFO();
+    PrintLVBCopyright();
+	PrintLVBInfo();
 
     /* start timer */ 
     clock_t Start, End;
@@ -422,13 +413,7 @@ int main(int argc, char **argv)
     StartTime();
 
     /* read and alloc space to the data structure */
-	#ifdef LVB_MAPREDUCE  // check
 	matrix = (data *) alloc(sizeof(DataStructure), "alloc data structure");
-	matrix->row = NULL;
-	matrix->rowtitle = NULL;
-	#else
-	matrix = (data *) alloc(sizeof(DataStructure), "alloc data structure");
-	#endif
     phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix);
 
     /* "file-local" dynamic heap memory: set up best tree stacks, need to be by thread */
@@ -437,7 +422,7 @@ int main(int argc, char **argv)
     stack_treevo = treestack_new();
         
     matchange(matrix, rcstruct);	/* cut columns */
-	#ifdef LVB_MAPREDUCE  // check
+	#ifdef LVB_MAPREDUCE  // okay
     writeinf(rcstruct, matrix, argc, argv, misc.nprocs);
 	#else
 	writeinf(rcstruct, matrix, argc, argv);
@@ -445,7 +430,7 @@ int main(int argc, char **argv)
     calc_distribution_processors(matrix, rcstruct);
 
     if (rcstruct.verbose == LVB_TRUE) {
-		#ifdef LVB_MAPREDUCE  // check
+		#ifdef LVB_MAPREDUCE  // okay
     	if(misc.rank == 0)
 		#endif
 		printf("getminlen: %ld\n\n", matrix->min_len_tree);
@@ -453,7 +438,7 @@ int main(int argc, char **argv)
     rinit(rcstruct.seed);
 	log_progress = LVB_TRUE;
 
-	#ifdef LVB_MAPREDUCE  // check
+	#ifdef LVB_MAPREDUCE  // okay
 	if (misc.rank == 0)
 	#endif
     outtreefp = clnopen(rcstruct.file_name_out, "w");
@@ -462,7 +447,7 @@ int main(int argc, char **argv)
     if(rcstruct.algorithm_selection ==2)
     treEvo = fopen ("treEvo.tre","w");
 		iter = 0;     
-		#ifdef LVB_MAPREDUCE  // check
+		#ifdef LVB_MAPREDUCE  // okay
 		final_length = getsoln(matrix, rcstruct, &iter, log_progress, &misc, mrTreeStack, mrBuffer);
 	    if (misc.rank == 0) {
 	       trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_FALSE);
@@ -479,7 +464,7 @@ int main(int argc, char **argv)
 		treestack_print(matrix, &stack_treevo, treEvo, LVB_FALSE);
         treestack_clear(&bstack_overall);
 		printf("--------------------------------------------------------\n");
-		#ifdef LVB_MAPREDUCE  // check
+		#ifdef LVB_MAPREDUCE  // okay
 		/* clean the TreeStack and buffer */
 	    mrTreeStack->map( mrTreeStack, map_clean, NULL );
 	    mrBuffer->map( mrBuffer, map_clean, NULL );
@@ -489,18 +474,18 @@ int main(int argc, char **argv)
    if(rcstruct.algorithm_selection ==2)
     fclose(treEvo);
 	
-	#ifdef LVB_MAPREDUCE  // check
+	#ifdef LVB_MAPREDUCE  // okay
 	if (misc.rank == 0) {
 	#endif
 	clnclose(outtreefp, rcstruct.file_name_out);
 
     End = clock();
-	#ifdef LVB_MAPREDUCE  // check
+	#ifdef LVB_MAPREDUCE  // okay
 	}
 	#endif
 	Overall_Time_taken = ((double) (End - Start)) /CLOCKS_PER_SEC;
 
-	if (logfile_exists ("logfile.tsv"))
+	if (LogFileExists ("logfile.tsv"))
 	{
 		FILE * logfile;
     	logfile = fopen ("logfile.tsv","a+");
@@ -537,7 +522,7 @@ int main(int argc, char **argv)
     if (cleanup() == LVB_TRUE) val = EXIT_FAILURE;
     else val = EXIT_SUCCESS;
 
-	#ifdef LVB_MAPREDUCE  // check
+	#ifdef LVB_MAPREDUCE  // okay
 	treestack_free(matrix, &bstack_overall);
 	    MPI_Barrier(MPI_COMM_WORLD);
 
@@ -725,7 +710,7 @@ static void logtree1(Dataptr matrix, DataSeqPtr restrict matrix_seq_data, const 
 			if (rcstruct.n_flag_is_possible_read_state_files != CHECK_POINT_READ_STATE_FILES){
 				/* determine starting temperature because it will be start from begin*/
 				initroot = 0;
-				t0 = get_initial_t(matrix, tree, rcstruct, initroot, myMPIid, log_progress);
+				t0 = StartingTemperature(matrix, tree, rcstruct, initroot, myMPIid, log_progress);
 			//    t0 = 0.18540001000004463;
 
 				randtree(matrix, tree);	/* begin from scratch */

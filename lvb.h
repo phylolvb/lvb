@@ -64,7 +64,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "clock.h"
 #include "log_file.h"
 
-#ifdef LVB_MAPREDUCE  // check
+#ifdef LVB_MAPREDUCE
 #include <mpi.h>
 #include "mapreduce.h"
 #include "cmapreduce.h"
@@ -182,7 +182,7 @@ typedef struct
 /* PHYLIP global data */
 //extern long chars;	/* defined in dnapars.c */
 
-#ifdef LVB_MAPREDUCE  // check
+#ifdef LVB_MAPREDUCE
 	struct MISC {
 		int rank,nprocs;
 
@@ -275,12 +275,12 @@ void dna_makebin(Dataptr restrict, Lvb_bit_length **);
 void makesets(Dataptr restrict, const Branch *const tree_2, const long root);
 long setstcmp_with_sset2(Dataptr matrix, Objset *const oset_1);
 long treecmp(Dataptr restrict, Objset *, const Branch *const, Lvb_bool b_first);
-void print_LVB_COPYRIGHT();
-void print_LVB_INFO();
-void log_Time();
+void PrintLVBCopyright();
+void PrintLVBInfo();
+void LogTime();
 void StartTime();
-bool logfile_exists(const char *filename);
-double get_initial_t(Dataptr, const Branch *const, Params rcstruct, long, Lvb_bool);
+bool LogFileExists(const char *filename);
+double StartingTemperature(Dataptr, const Branch *const, Params rcstruct, long, Lvb_bool);
 
 #ifdef LVB_MAPREDUCE  // check
 long anneal(Dataptr restrict, Treestack *, Treestack *, const Branch *const, Params rcstruct, long, const double,
@@ -581,7 +581,7 @@ char *f2str(FILE *const);
 Lvb_bool file_exists(const char *const);
 void get_bootstrap_weights(long *, long, long);
 
-double get_initial_t(Dataptr, const Branch *const, Params rcstruct, long, int myMPIid, Lvb_bool);
+double StartingTemperature(Dataptr, const Branch *const, Params rcstruct, long, int myMPIid, Lvb_bool);
 int getparam(Params *, int argc, char **argv);
 long getplen(Dataptr restrict, Branch *, Params rcstruct, const long, long *restrict p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs);
 

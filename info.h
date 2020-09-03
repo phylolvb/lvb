@@ -54,13 +54,8 @@ using namespace std;
 #define LVB_RELEASE_DATE "February 2019"
 #define LVB_WIKI "github.com/phylolvb/lvb"
 
-/* #ifndef LVB_MAPREDUCE 
-  extern "C" void print_LVB_COPYRIGHT();
-  extern "C" void print_LVB_INFO();
-#endif */
-
-void print_LVB_COPYRIGHT();
-void print_LVB_INFO();
+void PrintLVBCopyright();
+void PrintLVBInfo();
 
 #endif  // INFO_H_
 

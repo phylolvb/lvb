@@ -56,7 +56,7 @@ void StartTime() {
   puts(buffer);
 }
 
-void log_Time() {
+void LogTime() {
   time_t timer;
   char buffer[26];
   struct tm* tm_info;

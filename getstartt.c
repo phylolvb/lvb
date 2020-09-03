@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "lvb.h"
 
-double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstruct, long root,
+double StartingTemperature(Dataptr matrix, const Branch *const inittree, Params rcstruct, long root,
 		Lvb_bool log_progress)
 		
 /* Determine the starting temperature for the annealing search 
@@ -73,7 +73,7 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstru
     Branch *x;			/* current configuration */
     Branch *xdash;		/* proposed new configuration */
 
-    /* Variables specific to the get_initial_temperature() procedure*/
+    /* Variables specific to the StartingTemperatureemperature() procedure*/
     int acc_pos_trans = 0;        /* Number of accepted positve transitions */
     double increment_size = 0.00001; /* Step size by which the temperature is increased */
     int prop_pos_trans = 0;       /* Number of proposed positve transitions */
@@ -184,7 +184,7 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstru
     /* Return the temperature last used */
     return (t - increment_size);
 
-} /* end get_initial_t() */
+} /* end StartingTemperature() */
 
 #elif LVB_PARALLEL_SEARCH
 
@@ -232,7 +232,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef MPI_Implementation
 
-double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstruct, long root, int myMPIid, Lvb_bool log_progress)
+double StartingTemperature(Dataptr matrix, const Branch *const inittree, Params rcstruct, long root, int myMPIid, Lvb_bool log_progress)
 
 /* Determine the starting temperature for the annealing search 
  * by finding the temperature T at which 65% of proposed 
@@ -261,7 +261,7 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstru
     Branch *x;			/* current configuration */
     Branch *xdash;		/* proposed new configuration */
 
-    /* Variables specific to the get_initial_temperature() procedure*/
+    /* Variables specific to the StartingTemperatureemperature() procedure*/
     int acc_pos_trans = 0;        /* Number of accepted positve transitions */
     double increment_size = INITIAL_INCREMENT; /* Step size by which the temperature is increased */
     int prop_pos_trans = 0;       /* Number of proposed positve transitions */
@@ -374,7 +374,7 @@ double get_initial_t(Dataptr matrix, const Branch *const inittree, Params rcstru
     /* Return the temperature last used */
     return (t - increment_size);
 
-} /* end get_initial_t() */
+} /* end StartingTemperature() */
 
 #endif
 

@@ -41,9 +41,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* ========== getparam.c - get and set configurable parameters ========== */
 
 #include "lvb.h"
-//#ifdef LVB_MAPREDUCE
-  #include "ReadFile.h"
-//#endif
+#include "ReadFile.h"
 #include <unistd.h>
 
 /* it is in ReadFile.cpp library */

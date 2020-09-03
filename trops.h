@@ -50,16 +50,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define CLADESEP ","	/* clade separator for trees */
 
-#ifdef LVB_MAPREDUCE  // check
+#ifdef LVB_MAPREDUCE  // okay
 
 void map_pushSets(int itask, KeyValue *kv, void *ptr);
 
-/* object sets for tree 1 in comparison */
-static Objset sset_1[MAX_N - 3] = { { NULL, 0 } };
-
 #endif
 
-/* object sets for tree 2 in comparison */
+/* object sets for tree comparison */
+static Objset sset_1[MAX_N - 3] = { { NULL, 0 } };
 static Objset sset_2[MAX_N - 3] = { { NULL, 0 } };  
 
 static void cr_bpnc(const Branch *const barray, const long branch);

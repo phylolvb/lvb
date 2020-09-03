@@ -53,11 +53,11 @@ static void lenlog(FILE *lengthfp, Treestack *bstackp, long iteration, long leng
 
 } /* end lenlog() */
 
-#ifdef LVB_MAPREDUCE  // check
+#ifdef LVB_MAPREDUCE  // okay
 long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *const inittree,
 	Params rcstruct, long root, FILE * const lenfp, long *current_iter, Lvb_bool log_progress, 
 	MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer)
-#else
+#else //okay
 long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *const inittree,
 		Params rcstruct, long root, FILE * const lenfp, long *current_iter, Lvb_bool log_progress)
 #endif
@@ -83,7 +83,7 @@ long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *c
     long *p_todo_arr_sum_changes; /*used in openMP, to sum the partial changes */
     int *p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */
 
-	#ifdef LVB_MAPREDUCE  // check
+	#ifdef LVB_MAPREDUCE  // okay
 		int *total_count;
 	    int check_cmp;
 	#endif
@@ -153,17 +153,18 @@ long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *c
 								misc->SB = 1;
 								tree_setpush(matrix, p_proposed_tree, rootdash, mrBuffer, misc);
 								mrTreeStack->add(mrBuffer);
-								treestack_push(matrix, bstackp, p_proposed_tree, rootdash, LVB_FALSE);
+							if (treestack_push(matrix, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1) {
 								misc->ID = bstackp->next;
 
 								newtree = LVB_TRUE;
 								treeswap(&p_current_tree, &root, &p_proposed_tree, &rootdash);
+							}
 						  }
 						  free(misc->count);
 						  free(total_count);
 						}
 
-					#else
+					#else //okay
 					if (deltalen <= 0) {
 					if (deltalen < 0)  /* very best so far */
 					{
@@ -178,7 +179,7 @@ long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *c
 					#endif
 				}
 				if ((log_progress == LVB_TRUE) && ((*current_iter % STAT_LOG_INTERVAL) == 0)) {
-					#ifdef LVB_MAPREDUCE  // check
+					#ifdef LVB_MAPREDUCE  // okay
 					if(misc->rank == 0)
 					#endif
 					lenlog(lenfp, bstackp, *current_iter, len, 0);
@@ -197,13 +198,13 @@ long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *c
     return len;
 } /* end deterministic_hillclimb */
 
-#ifdef LVB_MAPREDUCE  // check
+#ifdef LVB_MAPREDUCE  // okay
 long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch *const inittree, Params rcstruct,
 	long root, const double t0, const long maxaccept, const long maxpropose,
 	const long maxfail, FILE *const lenfp, long *current_iter,
 	Lvb_bool log_progress, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer)
 
-#else
+#else //okay
 long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch *const inittree, Params rcstruct,
 	long root, const double t0, const long maxaccept, const long maxpropose,
 	const long maxfail, FILE *const lenfp, long *current_iter,
@@ -389,7 +390,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 						treestack_clear(bstackp);
 						mrTreeStack->map( mrTreeStack, map_clean, NULL );
 
-						treestack_push_only(matrix, bstackp, p_proposed_tree, rootdash, LVB_FALSE);
+						if (treestack_push(matrix, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1){
 						misc->ID = bstackp->next;
 
 					    misc->SB = 1;
@@ -397,10 +398,10 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 
 						accepted = 1;
 						MPI_Bcast(&accepted,  1, MPI_LONG, 0, MPI_COMM_WORLD);
+						}
 
 						MPI_Barrier(MPI_COMM_WORLD);
 					} else {
-			/* if(misc->rank == 0) cerr << "checking treecmp! " << endl; */ 
 
 	                    misc->SB = 0;
 						tree_setpush(matrix, p_proposed_tree, rootdash, mrBuffer, misc);
@@ -428,17 +429,13 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 									break;
 								}
 							}
-	//	cerr << "Sanity Check = " << endl;
-	//	cerr << "Sanity Check = " << endl;
-	//	for(int i=0; i<=misc->ID; i++) cerr << "Sanity Check = " << i << " " << check_cmp << " " << total_count[i] << " " << total_count[0] << endl;
-
 						}
 
 						MPI_Barrier(MPI_COMM_WORLD);
 						MPI_Bcast(&check_cmp, 1, MPI_INT, 0,    MPI_COMM_WORLD);
 						if (check_cmp == 1) {
 
-							treestack_push_only(matrix, bstackp, p_proposed_tree, rootdash, LVB_FALSE);
+							if (treestack_push(matrix, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1){
 	                                                misc->ID = bstackp->next;
 
 							misc->SB = 1;
@@ -446,6 +443,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 							mrTreeStack->add(mrBuffer);
 							accepted++;
 							MPI_Bcast(&accepted,  1, MPI_LONG, 0, MPI_COMM_WORLD);
+							}
 						}
 
 						free(misc->count);
@@ -621,12 +619,12 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 	}
 	if (rcstruct.verbose == LVB_TRUE)
 	fprintf (pFile, "%ld\t%s\t%d\t%ld\t%lf\t%f\n", iter, change, changeAcc, len, t*10000, (float) r_lenmin/len);
-			#ifdef LVB_MAPREDUCE  // check
+		#ifdef LVB_MAPREDUCE  // check
 			MPI_Barrier(MPI_COMM_WORLD);
 
 	    }
 	    print_sets(matrix, bstackp, misc);
-		#else
+		#else // okay
     }
 		#endif
     /* free "local" dynamic heap memory */
