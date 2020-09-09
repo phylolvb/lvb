@@ -194,7 +194,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, long *iter_p, Lvb_
     if (rcstruct.verbose == LVB_TRUE) {
 		sumfp = clnopen(SUMFNAM, "w");
 		fprintf(sumfp, "StartNo\tCycleNo\tCycInit\tCycBest\tCycTrees\n");
-    } 
+    }
     else{
         sumfp = NULL;
     }
@@ -217,15 +217,12 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, long *iter_p, Lvb_
      * NOTE: There are no cycles anymore in the current version
      * of LVB. The code bellow is purely to keep the output consistent
      * with that of previous versions.  */
-
-     /* if(rcstruct.verbose == LVB_TRUE) {
+    if(rcstruct.verbose == LVB_TRUE) {
         alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
 		fprintf(sumfp, "%ld\t%ld\t%ld\t", start, cyc, getplen(matrix, tree, rcstruct, initroot, p_todo_arr, p_todo_arr_sum_changes, p_runs));
 		free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
 		logtree1(matrix, tree, start, cyc, initroot);
-    } rcstruct.verbose = LVB_FALSE; */
-
-	
+    }
 	#ifdef LVB_MAPREDUCE  // check
 		MPI_Barrier(MPI_COMM_WORLD);
 		/* find solution(s) */
