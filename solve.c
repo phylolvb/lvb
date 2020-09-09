@@ -385,7 +385,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 					    misc->SB = 1;
 						tree_setpush(matrix, p_proposed_tree, rootdash, mrTreeStack, misc);
 
-						accepted = 1;
+						accepted++;
 						MPI_Bcast(&accepted,  1, MPI_LONG, 0, MPI_COMM_WORLD);
 						}
 
