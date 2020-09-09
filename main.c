@@ -224,12 +224,8 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, long *iter_p, Lvb_
 		free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
 		logtree1(matrix, tree, start, cyc, initroot);
     } rcstruct.verbose = LVB_FALSE; */
-
 	
 	#ifdef LVB_MAPREDUCE  // check
-		MPI_Barrier(MPI_COMM_WORLD);
-		/* find solution(s) */
-		treelength = anneal(matrix, &bstack_overall, &stack_treevo, tree, rcstruct, initroot, t0, maxaccept,
 				maxpropose, maxfail, stdout, iter_p, log_progress, misc, mrTreeStack, mrBuffer );
 
 		long val = treestack_pop(matrix, tree, &initroot, &bstack_overall, LVB_FALSE);
