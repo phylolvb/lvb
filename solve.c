@@ -300,7 +300,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 		if (rcstruct.verbose == LVB_TRUE)
 		{
 	   pFile = fopen ("changeAccepted.tsv","w");
-	   fprintf (pFile, "Iteration\tAlgorithm\tAccepted\tLength\tTemperature\n");
+	   fprintf (pFile, "Iteration\tAlgorithm\tAccepted\tLength\tTemperature\tTreestack Size\n");
 	}
 	}
 	r_lenmin = (double) matrix->min_len_tree;
@@ -607,7 +607,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 	}
 	}
 	if (rcstruct.verbose == LVB_TRUE)
-	fprintf (pFile, "%ld\t%s\t%d\t%ld\t%lf\t%f\n", iter, change, changeAcc, len, t*10000, (float) r_lenmin/len);
+	fprintf (pFile, "%ld\t%s\t%d\t%ld\t%lf\t%ld\n", iter, change, changeAcc, len, t*10000, bstackp->next);
 		#ifdef LVB_MAPREDUCE  // check
 			MPI_Barrier(MPI_COMM_WORLD);
 

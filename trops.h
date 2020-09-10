@@ -53,11 +53,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef LVB_MAPREDUCE  // okay
 
 void map_pushSets(int itask, KeyValue *kv, void *ptr);
+static Objset sset_1[MAX_N - 3] = { { NULL, 0 } };
 
 #endif
 
 /* object sets for tree comparison */
-static Objset sset_1[MAX_N - 3] = { { NULL, 0 } };
 static Objset sset_2[MAX_N - 3] = { { NULL, 0 } };  
 
 static void cr_bpnc(const Branch *const barray, const long branch);
