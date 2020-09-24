@@ -3,12 +3,16 @@
 /* LVB
 
 (c) Copyright 2003-2012 by Daniel Barker
-(c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl
+(c) Copyright 2013, 2014 by Daniel Barker and 
+Maximilian Strobl
 (c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
 (c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
 and Chris Wood.
 (c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
 Fernando Guntoro, Maximilian Strobl and Chris Wood.
+(c) Copyright 2020 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
+Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
+
 All rights reserved.
  
 Redistribution and use in source and binary forms, with or without
@@ -630,12 +634,16 @@ long treestack_transfer(Dataptr matrix, Treestack *destp, Treestack *sourcep, Lv
 /* LVB
 
 (c) Copyright 2003-2012 by Daniel Barker
-(c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl
+(c) Copyright 2013, 2014 by Daniel Barker and 
+Maximilian Strobl
 (c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
 (c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
 and Chris Wood.
 (c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
 Fernando Guntoro, Maximilian Strobl and Chris Wood.
+(c) Copyright 2020 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
+Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
+
 All rights reserved.
  
 Redistribution and use in source and binary forms, with or without

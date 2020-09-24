@@ -190,7 +190,7 @@ foreach $test_dir (@test_dirs)
     {
 		$com = "$ENV{GPLUSPLUS} $ENV{CFLAGS} -c main.c -I ../../../$ENV{LVB_HEADER_PATH} -o main.o;"
 			. " $ENV{LINKERCPLUSPLUS} $ENV{CFLAGS} -I ../../../$ENV{LVB_HEADER_PATH} -o testprog.exe main.o $ENV{LVB_LIBRARY} "
-			. "$ENV{LVB_OTHERLIBS} ../../../../CReadFiles.o ../../../../ReadFile.o";
+			. "$ENV{LVB_OTHERLIBS} ../../../../MSAInput.o ../../../../CommandLineParser.o";
 		# Build the executable
 		! `$com` or die "Cannot compile testprog.exe";
     }

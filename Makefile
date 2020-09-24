@@ -113,7 +113,7 @@ LVB_LIB_OBJS = admin.$(OBJ) \
                err.$(OBJ) \
                fops.$(OBJ) \
                getparam.$(OBJ) \
-               getstartt.$(OBJ) \
+               AnnealingStartingTemperature.$(OBJ) \
 			   info.$(OBJ) \
 			   log_file.$(OBJ) \
                mops.$(OBJ) \
@@ -123,12 +123,12 @@ LVB_LIB_OBJS = admin.$(OBJ) \
                randpint.$(OBJ) \
                solve.$(OBJ) \
                sops.$(OBJ) \
-			   treestack.$(OBJ) \
-               trops.$(OBJ) \
+			   Treestack.$(OBJ) \
+               TreeOperations.$(OBJ) \
                wrapper.$(OBJ)
 
-LVB_READ_FILE_OBJS = 	$(LVB_READ_FILE_DIR)CReadFiles.$(OBJ) \
-			$(LVB_READ_FILE_DIR)ReadFile.$(OBJ)
+LVB_READ_FILE_OBJS = 	$(LVB_READ_FILE_DIR)MSAInput.$(OBJ) \
+			$(LVB_READ_FILE_DIR)CommandLineParser.$(OBJ)
 
 LVB_LIB_OBJS_OUTPUT = $(LVB_LIB_OBJS)
 
@@ -142,7 +142,7 @@ LVB_MANUAL = lvb_manual.pdf
 
 DOCS_PROGRAMMER = $(TEST_MANUAL) \
                   $(DOCS_PROG_DIR)/main.html \
-                  $(DOCS_PROG_DIR)/treestack.html \
+                  $(DOCS_PROG_DIR)/Treestack.html \
 		  $(DOCS_PROG_DIR)/cleanup.html \
 		  $(DOCS_PROG_DIR)/datops.html \
 		  $(DOCS_PROG_DIR)/err.html \
@@ -156,7 +156,7 @@ DOCS_PROGRAMMER = $(TEST_MANUAL) \
 		  $(DOCS_PROG_DIR)/randpint.html \
 		  $(DOCS_PROG_DIR)/solve.html \
 		  $(DOCS_PROG_DIR)/sops.html \
-		  $(DOCS_PROG_DIR)/trops.html \
+		  $(DOCS_PROG_DIR)/TreeOperations.html \
 		  $(DOCS_PROG_DIR)/wrapper.html
 
 TEST_MANUAL = $(DOCS_PROG_DIR)/go.html

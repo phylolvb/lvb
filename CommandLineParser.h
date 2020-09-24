@@ -3,12 +3,16 @@
 /* LVB
 
 (c) Copyright 2003-2012 by Daniel Barker
-(c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl
+(c) Copyright 2013, 2014 by Daniel Barker and 
+Maximilian Strobl
 (c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
 (c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
 and Chris Wood.
 (c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
 Fernando Guntoro, Maximilian Strobl and Chris Wood.
+(c) Copyright 2020 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
+Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
+
 All rights reserved.
  
 Redistribution and use in source and binary forms, with or without
@@ -38,12 +42,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== ReadFile.h - interface for ReadFile.cpp ========== */
+/* ========== CommandLineParser.h - interface for CommandLineParser.cpp ========== */
 
 #ifndef READFILE_H_
 #define READFILE_H_
 
-#include "CReadFiles.h"
+#include "MSAInput.h"
 #include <stdio.h>
 #include <string.h>
 #include <getopt.h>
@@ -71,12 +75,16 @@ long brcnt(long n); /* return number of branches in unrooted binary tree structu
 /* LVB
 
 (c) Copyright 2003-2012 by Daniel Barker
-(c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl
+(c) Copyright 2013, 2014 by Daniel Barker and 
+Maximilian Strobl
 (c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
 (c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
 and Chris Wood.
 (c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
 Fernando Guntoro, Maximilian Strobl and Chris Wood.
+(c) Copyright 2020 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
+Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
+
 All rights reserved.
  
 Redistribution and use in source and binary forms, with or without
@@ -106,12 +114,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== ReadFile.h - interface for ReadFile.cpp ========== */
+/* ========== CommandLineParser.h - interface for CommandLineParser.cpp ========== */
 
 #ifndef READFILE_H_
 #define READFILE_H_
 
-#include "CReadFiles.h"
+#include "MSAInput.h"
 #include "DataStructure.h"
 #include <stdio.h>
 #include <string.h>

@@ -3,12 +3,16 @@
 /* LVB
 
 (c) Copyright 2003-2012 by Daniel Barker
-(c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl
+(c) Copyright 2013, 2014 by Daniel Barker and 
+Maximilian Strobl
 (c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
 (c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
 and Chris Wood.
 (c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
 Fernando Guntoro, Maximilian Strobl and Chris Wood.
+(c) Copyright 2020 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
+Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
+
 All rights reserved.
  
 Redistribution and use in source and binary forms, with or without
@@ -512,12 +516,16 @@ int main(int argc, char **argv)
 /* LVB
 
 (c) Copyright 2003-2012 by Daniel Barker
-(c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl
+(c) Copyright 2013, 2014 by Daniel Barker and 
+Maximilian Strobl
 (c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
 (c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
 and Chris Wood.
 (c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
 Fernando Guntoro, Maximilian Strobl and Chris Wood.
+(c) Copyright 2020 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
+Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
+
 All rights reserved.
  
 Redistribution and use in source and binary forms, with or without
@@ -729,7 +737,7 @@ static void logtree1(Dataptr matrix, DataSeqPtr restrict matrix_seq_data, const 
 				/* work on the trees */
 				int l_pop = treestack_pop(matrix, tree, &initroot, bstack_overall, LVB_FALSE);
 				if (l_pop == 0){
-					printf("\nProcess:%d    Error: can't pop any tree from treestack.   Rearrangements tried: %ld\n", myMPIid, l_iterations);
+					printf("\nProcess:%d    Error: can't pop any tree from Treestack.   Rearrangements tried: %ld\n", myMPIid, l_iterations);
 				}
 				else{
 					treestack_push(matrix, bstack_overall, tree, initroot, LVB_FALSE);

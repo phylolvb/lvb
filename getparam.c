@@ -3,12 +3,16 @@
 /* LVB
 
 (c) Copyright 2003-2012 by Daniel Barker
-(c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl
+(c) Copyright 2013, 2014 by Daniel Barker and 
+Maximilian Strobl
 (c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
 (c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
 and Chris Wood.
 (c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
 Fernando Guntoro, Maximilian Strobl and Chris Wood.
+(c) Copyright 2020 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
+Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
+
 All rights reserved.
  
 Redistribution and use in source and binary forms, with or without
@@ -41,10 +45,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* ========== getparam.c - get and set configurable parameters ========== */
 
 #include "lvb.h"
-#include "ReadFile.h"
+#include "CommandLineParser.h"
 #include <unistd.h>
 
-/* it is in ReadFile.cpp library */
+/* it is in CommandLineParser.cpp library */
 void read_parameters(Params *prms, int argc, char **argv);
 
 static int get_default_seed(void)
@@ -101,12 +105,16 @@ void getparam(Params *prms, int argc, char **argv)
 /* LVB
 
 (c) Copyright 2003-2012 by Daniel Barker
-(c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl
+(c) Copyright 2013, 2014 by Daniel Barker and 
+Maximilian Strobl
 (c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
 (c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
 and Chris Wood.
 (c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
 Fernando Guntoro, Maximilian Strobl and Chris Wood.
+(c) Copyright 2020 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
+Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
+
 All rights reserved.
  
 Redistribution and use in source and binary forms, with or without
@@ -144,8 +152,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <unistd.h>
 
-/* it is in ReadFile.cpp library */
-#include "ReadFile.h"
+/* it is in CommandLineParser.cpp library */
+#include "CommandLineParser.h"
 
 long get_random_maxaccept(void)
 /* return a random integer value, for use as the maxaccept parameter in

@@ -39,7 +39,7 @@
 
 # run LVB
 $lvb = $ENV{LVB_EXECUTABLE};
-$output = `"$lvb"`;
+$output = `$lvb`;
 $status = $?;
 
 # check output

@@ -37,7 +37,7 @@
 
 # run LVB
 $lvb = $ENV{LVB_EXECUTABLE};
-$output = `"$lvb" -f nexus`;
+$output = `$lvb -f nexus`;
 $status = $?;
 
 # check output

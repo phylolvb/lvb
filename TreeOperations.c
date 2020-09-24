@@ -3,12 +3,16 @@
 /* LVB
 
 (c) Copyright 2003-2012 by Daniel Barker
-(c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl
+(c) Copyright 2013, 2014 by Daniel Barker and 
+Maximilian Strobl
 (c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
 (c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
 and Chris Wood.
 (c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
 Fernando Guntoro, Maximilian Strobl and Chris Wood.
+(c) Copyright 2020 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
+Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
+
 All rights reserved.
  
 Redistribution and use in source and binary forms, with or without
@@ -38,9 +42,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== trops.c - tree operations ========== */
+/* ========== TreeOperations.c - tree operations ========== */
 
-#include "trops.h"
+#include "TreeOperations.h"
 
 void nodeclear(Branch *const barray, const long brnch)
 /* Initialize all scalars in branch brnch to UNSET or zero as appropriate,
@@ -1451,12 +1455,16 @@ void ss_init(Dataptr matrix, Branch *tree, Lvb_bit_length **enc_mat)
 /* LVB
 
 (c) Copyright 2003-2012 by Daniel Barker
-(c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl
+(c) Copyright 2013, 2014 by Daniel Barker and 
+Maximilian Strobl
 (c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
 (c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
 and Chris Wood.
 (c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
 Fernando Guntoro, Maximilian Strobl and Chris Wood.
+(c) Copyright 2020 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
+Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
+
 All rights reserved.
  
 Redistribution and use in source and binary forms, with or without
@@ -1486,7 +1494,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== trops.c - tree operations ========== */
+/* ========== TreeOperations.c - tree operations ========== */
 
 #include "lvb.h"
 

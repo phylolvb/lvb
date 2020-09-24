@@ -140,7 +140,7 @@ LIB_EXT = a		# UNIX
 	@echo 'Building file: $<'
 	$(CC) $(CFLAGS) -c $<
 
-DOCS_PROGRAMMER = 	$(DOCS_PROG_DIR)/treestack.html \
+DOCS_PROGRAMMER = 	$(DOCS_PROG_DIR)/Treestack.html \
 					$(DOCS_PROG_DIR)/main.html \
 		  			$(DOCS_PROG_DIR)/cleanup.html \
 		  			$(DOCS_PROG_DIR)/datops.html \
@@ -155,7 +155,7 @@ DOCS_PROGRAMMER = 	$(DOCS_PROG_DIR)/treestack.html \
 					  $(DOCS_PROG_DIR)/randpint.html \
 					  $(DOCS_PROG_DIR)/solve.html \
 					  $(DOCS_PROG_DIR)/sops.html \
-					  $(DOCS_PROG_DIR)/trops.html \
+					  $(DOCS_PROG_DIR)/TreeOperations.html \
 					  $(DOCS_PROG_DIR)/wrapper.html
 
 TEST_MANUAL = $(DOCS_PROG_DIR)/go.html
@@ -166,13 +166,13 @@ DOCS = $(DOCS_PROGRAMMER) \
        $(TEST_MANUAL)
 
 LVB_LIB_OBJS = admin.$(OBJ) \
-	treestack.$(OBJ) \
+	Treestack.$(OBJ) \
 	cleanup.$(OBJ) \
 	datops.$(OBJ) \
 	err.$(OBJ) \
 	fops.$(OBJ) \
 	getparam.$(OBJ) \
-	getstartt.$(OBJ) \
+	AnnealingStartingTemperature.$(OBJ) \
 	mops.$(OBJ) \
 	mymaths.$(OBJ) \
 	myuni.$(OBJ) \
@@ -181,7 +181,7 @@ LVB_LIB_OBJS = admin.$(OBJ) \
 	solve.$(OBJ) \
 	store_states.$(OBJ) \
 	sops.$(OBJ) \
-	trops.$(OBJ) \
+	TreeOperations.$(OBJ) \
     wrapper.$(OBJ)
 
 ifeq ($(WHICH_MAKE),MAKE_LVB_MPI)
@@ -204,8 +204,8 @@ else
 	LVB_LIB_OBJS += mrSubroutine.$(OBJ)
 endif
 
-LVB_READ_FILE_OBJS = 	$(LVB_READ_FILE_DIR)CReadFiles.$(OBJ) \
-						$(LVB_READ_FILE_DIR)ReadFile.$(OBJ)
+LVB_READ_FILE_OBJS = 	$(LVB_READ_FILE_DIR)MSAInput.$(OBJ) \
+						$(LVB_READ_FILE_DIR)CommandLineParser.$(OBJ)
 
 LVB_PROG_OBJS = main.$(OBJ)
 LVB_LIB_OBJS_OUTPUT = $(LVB_LIB_OBJS)
