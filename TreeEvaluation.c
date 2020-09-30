@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "LVB.h"
 
-long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const long root, 
+long getplen(Dataptr restrict matrix, Branch *CurrentTreeArray, Params rcstruct, const long root, 
 		long *restrict p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs)
 {
     long branch;			/* current branch number */
@@ -66,11 +66,11 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 		/* get the branches to touch */
 		memset(p_runs, 0, matrix->n_threads_getplen * (matrix->nbranches - matrix->n) * sizeof(int));
 		for (i = matrix->n; i < matrix->nbranches; i++) {
-			if (barray[i].sset[0] == 0U){
+			if (CurrentTreeArray[i].sset[0] == 0U){
 				*(p_todo_arr + todo_cnt++) = i;
 			}
 			else{
-				changes += barray[i].changes;
+				changes += CurrentTreeArray[i].changes;
 				for (k = 0; k < matrix->n_threads_getplen; k++){
 					*(p_runs + ((i - matrix->n) * matrix->n_threads_getplen) + k) = 1;
 				}
@@ -95,14 +95,14 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 					branch = *(p_todo_arr + i);
 					if (*(p_runs + ((branch - matrix->n) * matrix->n_threads_getplen) + omp_get_thread_num()) == 0) /* "dirty" */
 					{
-						left = barray[branch].left;
-						right = barray[branch].right;
+						left = CurrentTreeArray[branch].left;
+						right = CurrentTreeArray[branch].right;
 						if ((left < matrix->n || *(p_runs + ((left - matrix->n) * matrix->n_threads_getplen) + omp_get_thread_num()) == 1) &&
 								(right < matrix->n || *(p_runs + ((right - matrix->n) * matrix->n_threads_getplen) + omp_get_thread_num()) == 1))
 						{
 							n_changes_temp = 0;
-							Lvb_bit_length *restrict l_ssets = barray[left].sset;
-							Lvb_bit_length *restrict r_ssets = barray[right].sset;
+							Lvb_bit_length *restrict l_ssets = CurrentTreeArray[left].sset;
+							Lvb_bit_length *restrict r_ssets = CurrentTreeArray[right].sset;
 							for (j = matrix->n_slice_size_getplen * omp_get_thread_num(); j < l_end; j++){
 								x = l_ssets[j];
 								y = r_ssets[j];
@@ -111,7 +111,7 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 								ch = LENGTH_WORD - ch;
 								u >>= 3;
 								n_changes_temp += ch;
-								barray[branch].sset[j] = (x & y) | ((x | y) & ((u + MASK_SEVEN) ^ MASK_EIGHT));;
+								CurrentTreeArray[branch].sset[j] = (x & y) | ((x | y) & ((u + MASK_SEVEN) ^ MASK_EIGHT));;
 							}
 							*(p_todo_arr_sum_changes + (i * matrix->n_threads_getplen) + omp_get_thread_num()) = n_changes_temp;
 							done++;
@@ -123,11 +123,11 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 
 			/* count the changes to the root one */
 			n_changes_temp = 0;
-			left = barray[root].left;
-			right = barray[root].right;
+			left = CurrentTreeArray[root].left;
+			right = CurrentTreeArray[root].right;
 			for (j = matrix->n_slice_size_getplen * omp_get_thread_num(); j < l_end; j++){
-				x = barray[left].sset[j];
-				y = barray[right].sset[j];
+				x = CurrentTreeArray[left].sset[j];
+				y = CurrentTreeArray[right].sset[j];
 				u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
 				__asm__ ("popcnt %1, %0" : "=r" (ch) : "0" (u));
 
@@ -136,7 +136,7 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 				n_changes_temp += ch;
 
 				x = (x & y) | ((x | y) & ((u + MASK_SEVEN) ^ MASK_EIGHT));
-				y = barray[root].sset[j];
+				y = CurrentTreeArray[root].sset[j];
 				u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
 				__asm__ ("popcnt %1, %0" : "=r" (ch) : "0" (u));
 				ch = LENGTH_WORD - ch;
@@ -148,11 +148,11 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 
 		/* sum the changes */
 		for (i = 0; i < todo_cnt; i++) {
-			barray[*(p_todo_arr + i)].changes = *(p_todo_arr_sum_changes + (i * matrix->n_threads_getplen));
+			CurrentTreeArray[*(p_todo_arr + i)].changes = *(p_todo_arr_sum_changes + (i * matrix->n_threads_getplen));
 			for(k = 1; k < matrix->n_threads_getplen; k++){
-				barray[*(p_todo_arr + i)].changes += *(p_todo_arr_sum_changes + (i * matrix->n_threads_getplen) + k);
+				CurrentTreeArray[*(p_todo_arr + i)].changes += *(p_todo_arr_sum_changes + (i * matrix->n_threads_getplen) + k);
 			}
-			changes += barray[*(p_todo_arr + i)].changes;
+			changes += CurrentTreeArray[*(p_todo_arr + i)].changes;
 		}
 		/* sum the changes to the root */
 		for(k = 0; k < matrix->n_threads_getplen; k++){
@@ -169,26 +169,26 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 		Lvb_bit_length y;					/* batch of 8 right state sets */
 
 		for (i = matrix->n; i < matrix->nbranches; i++) {
-			if (barray[i].sset[0] == 0U){
+			if (CurrentTreeArray[i].sset[0] == 0U){
 				*(p_todo_arr + todo_cnt++) = i;
-				barray[i].changes = 0;
+				CurrentTreeArray[i].changes = 0;
 			}
 			else{
-				changes += barray[i].changes;
+				changes += CurrentTreeArray[i].changes;
 			}
 		}
 
 		while (done < todo_cnt) {
 			for (i = 0; i < todo_cnt; i++) {
 				branch = *(p_todo_arr + i);
-				if (barray[branch].sset[0] == 0U)	/* "dirty" */
+				if (CurrentTreeArray[branch].sset[0] == 0U)	/* "dirty" */
 				{
-					left = barray[branch].left;
-					right = barray[branch].right;
-					if (barray[left].sset[0] && barray[right].sset[0])
+					left = CurrentTreeArray[branch].left;
+					right = CurrentTreeArray[branch].right;
+					if (CurrentTreeArray[left].sset[0] && CurrentTreeArray[right].sset[0])
 					{
-						Lvb_bit_length *restrict l_ssets = barray[left].sset;
-						Lvb_bit_length *restrict r_ssets = barray[right].sset;
+						Lvb_bit_length *restrict l_ssets = CurrentTreeArray[left].sset;
+						Lvb_bit_length *restrict r_ssets = CurrentTreeArray[right].sset;
 						for (j = 0; j < matrix->nwords; j++){
 							x = l_ssets[j];
 							y = r_ssets[j];
@@ -197,8 +197,8 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 							ch = LENGTH_WORD - ch;
 
 							u >>= 3;
-							barray[branch].sset[j] = (x & y) | ((x | y) & ((u + MASK_SEVEN) ^ MASK_EIGHT));
-							barray[branch].changes += ch;
+							CurrentTreeArray[branch].sset[j] = (x & y) | ((x | y) & ((u + MASK_SEVEN) ^ MASK_EIGHT));
+							CurrentTreeArray[branch].changes += ch;
 							changes += ch;
 						}
 						done++;
@@ -211,11 +211,11 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 			* lies outside the LVB tree data structure; all without altering the
 			* "root" struct statesets (since these represent actual data for the
 			* leaf) */
-		left = barray[root].left;
-		right = barray[root].right;
+		left = CurrentTreeArray[root].left;
+		right = CurrentTreeArray[root].right;
 		for (j = 0; j < matrix->nwords; j++){
-			x = barray[left].sset[j];
-			y = barray[right].sset[j];
+			x = CurrentTreeArray[left].sset[j];
+			y = CurrentTreeArray[right].sset[j];
 			u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
 			__asm__ ("popcnt %1, %0" : "=r" (ch) : "0" (u));
 			ch = LENGTH_WORD - ch;
@@ -223,7 +223,7 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 			changes += ch;
 
 			x = (x & y) | ((x | y) & ((u + MASK_SEVEN) ^ MASK_EIGHT));
-			y = barray[root].sset[j];
+			y = CurrentTreeArray[root].sset[j];
 			u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
 			__asm__ ("popcnt %1, %0" : "=r" (ch) : "0" (u));
 			ch = LENGTH_WORD - ch;
@@ -290,7 +290,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <PopCNT.h>
 #endif
 
-long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const long root,
+long getplen(Dataptr restrict matrix, Branch *CurrentTreeArray, Params rcstruct, const long root,
 	     long *restrict p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs)
 {
     long branch;			/* current branch number */
@@ -316,14 +316,14 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 		/* get the branches to touch */
 		memset(p_runs, 0, matrix->n_threads_getplen * (matrix->nbranches - matrix->n) * sizeof(int));
 		for (i = matrix->n; i < matrix->nbranches; i++) {
-			if (barray[i].sset[0] == 0U){
+			if (CurrentTreeArray[i].sset[0] == 0U){
 #ifdef	PRINT_PRINTF
-			printf("touch: %d   left:%d  right:%d\n", i, barray[i].left, barray[i].right);
+			printf("touch: %d   left:%d  right:%d\n", i, CurrentTreeArray[i].left, CurrentTreeArray[i].right);
 #endif
 				*(p_todo_arr + todo_cnt++) = i;
 			}
 			else{
-				changes += barray[i].changes;
+				changes += CurrentTreeArray[i].changes;
 				for (k = 0; k < matrix->n_threads_getplen; k++){
 					*(p_runs + ((i - matrix->n) * matrix->n_threads_getplen) + k) = 1;
 				}
@@ -355,8 +355,8 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 #endif
 					if (*(p_runs + ((branch - matrix->n) * matrix->n_threads_getplen) + omp_get_thread_num()) == 0) /* "dirty" */
 					{
-						left = barray[branch].left;
-						right = barray[branch].right;
+						left = CurrentTreeArray[branch].left;
+						right = CurrentTreeArray[branch].right;
 #ifdef	PRINT_PRINTF
 	printf("1 : Thread# %d: left = %d  is_possible_to_run: %d\n", omp_get_thread_num(), left, *(p_runs + ((left - matrix->n) * matrix->n_threads_getplen) + omp_get_thread_num()));
 	printf("1 : Thread# %d: right = %d  is_possible_to_run: %d\n", omp_get_thread_num(), right, *(p_runs + ((right - matrix->n) * matrix->n_threads_getplen) + omp_get_thread_num()));
@@ -368,8 +368,8 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 				printf("1 : Thread# %d: make branch: %d\n", omp_get_thread_num(), branch);
 #endif
 							n_changes_temp = 0;
-							Lvb_bit_lentgh *restrict l_ssets = barray[left].sset;
-							Lvb_bit_lentgh *restrict r_ssets = barray[right].sset;
+							Lvb_bit_lentgh *restrict l_ssets = CurrentTreeArray[left].sset;
+							Lvb_bit_lentgh *restrict r_ssets = CurrentTreeArray[right].sset;
 							for (j = matrix->n_slice_size_getplen * omp_get_thread_num(); j < l_end; j++){
 								x = l_ssets[j];
 								y = r_ssets[j];
@@ -394,7 +394,7 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 								ch = LENGTH_WORD - ch;
 								u >>= 3;
 								n_changes_temp += ch;
-								barray[branch].sset[j] = (x & y) | ((x | y) & ((u + MASK_SEVEN) ^ MASK_EIGHT));;
+								CurrentTreeArray[branch].sset[j] = (x & y) | ((x | y) & ((u + MASK_SEVEN) ^ MASK_EIGHT));;
 							}
 							*(p_todo_arr_sum_changes + (i * matrix->n_threads_getplen) + omp_get_thread_num()) = n_changes_temp;
 							done++;
@@ -406,11 +406,11 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 
 			/* count the changes to the root one */
 			n_changes_temp = 0;
-			left = barray[root].left;
-			right = barray[root].right;
+			left = CurrentTreeArray[root].left;
+			right = CurrentTreeArray[root].right;
 			for (j = matrix->n_slice_size_getplen * omp_get_thread_num(); j < l_end; j++){
-				x = barray[left].sset[j];
-				y = barray[right].sset[j];
+				x = CurrentTreeArray[left].sset[j];
+				y = CurrentTreeArray[right].sset[j];
 
 				u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
 
@@ -434,7 +434,7 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 				n_changes_temp += ch;
 
 				x = (x & y) | ((x | y) & ((u + MASK_SEVEN) ^ MASK_EIGHT));
-				y = barray[root].sset[j];
+				y = CurrentTreeArray[root].sset[j];
 
 				u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
 
@@ -461,11 +461,11 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 
 		/* sum the changes */
 		for (i = 0; i < todo_cnt; i++) {
-			barray[*(p_todo_arr + i)].changes = *(p_todo_arr_sum_changes + (i * matrix->n_threads_getplen));
+			CurrentTreeArray[*(p_todo_arr + i)].changes = *(p_todo_arr_sum_changes + (i * matrix->n_threads_getplen));
 			for(k = 1; k < matrix->n_threads_getplen; k++){
-				barray[*(p_todo_arr + i)].changes += *(p_todo_arr_sum_changes + (i * matrix->n_threads_getplen) + k);
+				CurrentTreeArray[*(p_todo_arr + i)].changes += *(p_todo_arr_sum_changes + (i * matrix->n_threads_getplen) + k);
 			}
-			changes += barray[*(p_todo_arr + i)].changes;
+			changes += CurrentTreeArray[*(p_todo_arr + i)].changes;
 		}
 		/* sum the changes to the root */
 		for(k = 0; k < matrix->n_threads_getplen; k++){
@@ -483,29 +483,29 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 		Lvb_bit_lentgh y;				/* batch of 8 right state sets */
 
 		for (i = matrix->n; i < matrix->nbranches; i++) {
-			if (barray[i].sset[0] == 0U){
+			if (CurrentTreeArray[i].sset[0] == 0U){
 #ifdef	PRINT_PRINTF
-			printf("touch: %d   left:%d  right:%d\n", i, barray[i].left, barray[i].right);
+			printf("touch: %d   left:%d  right:%d\n", i, CurrentTreeArray[i].left, CurrentTreeArray[i].right);
 #endif
 				*(p_todo_arr + todo_cnt++) = i;
-				barray[i].changes = 0;
+				CurrentTreeArray[i].changes = 0;
 			}
 			else{
-				changes += barray[i].changes;
+				changes += CurrentTreeArray[i].changes;
 			}
 		}
 
 		while (done < todo_cnt) {
 			for (i = 0; i < todo_cnt; i++) {
 				branch = *(p_todo_arr + i);
-				if (barray[branch].sset[0] == 0U)	/* "dirty" */
+				if (CurrentTreeArray[branch].sset[0] == 0U)	/* "dirty" */
 				{
-					left = barray[branch].left;
-					right = barray[branch].right;
-					if (barray[left].sset[0] && barray[right].sset[0])
+					left = CurrentTreeArray[branch].left;
+					right = CurrentTreeArray[branch].right;
+					if (CurrentTreeArray[left].sset[0] && CurrentTreeArray[right].sset[0])
 					{
-						Lvb_bit_lentgh *restrict l_ssets = barray[left].sset;
-						Lvb_bit_lentgh *restrict r_ssets = barray[right].sset;
+						Lvb_bit_lentgh *restrict l_ssets = CurrentTreeArray[left].sset;
+						Lvb_bit_lentgh *restrict r_ssets = CurrentTreeArray[right].sset;
 						for (j = 0; j < matrix->nwords; j++){
 							x = l_ssets[j];
 							y = r_ssets[j];
@@ -540,15 +540,15 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 
 							u >>= 3;
 
-							barray[branch].sset[j] = (x & y) | ((x | y) & ((u + MASK_SEVEN) ^ MASK_EIGHT));
+							CurrentTreeArray[branch].sset[j] = (x & y) | ((x | y) & ((u + MASK_SEVEN) ^ MASK_EIGHT));
 #ifdef	PRINT_PRINTF
 	#ifdef COMPILE_64_BITS
-		printf("      branch:%d   0x%016llX\n", branch, barray[branch].sset[j]);
+		printf("      branch:%d   0x%016llX\n", branch, CurrentTreeArray[branch].sset[j]);
 	#else
-		printf("      branch:%d   0x%X\n", branch, barray[branch].sset[j]);
+		printf("      branch:%d   0x%X\n", branch, CurrentTreeArray[branch].sset[j]);
 	#endif
 #endif
-							barray[branch].changes += ch;
+							CurrentTreeArray[branch].changes += ch;
 							changes += ch;
 						}
 						done++;
@@ -561,11 +561,11 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 			* lies outside the LVB tree data structure; all without altering the
 			* "root" struct statesets (since these represent actual data for the
 			* leaf) */
-		left = barray[root].left;
-		right = barray[root].right;
+		left = CurrentTreeArray[root].left;
+		right = CurrentTreeArray[root].right;
 		for (j = 0; j < matrix->nwords; j++){
-			x = barray[left].sset[j];
-			y = barray[right].sset[j];
+			x = CurrentTreeArray[left].sset[j];
+			y = CurrentTreeArray[right].sset[j];
 
 			u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
 
@@ -588,7 +588,7 @@ long getplen(Dataptr restrict matrix, Branch *barray, Params rcstruct, const lon
 			changes += ch;
 
 			x = (x & y) | ((x | y) & ((u + MASK_SEVEN) ^ MASK_EIGHT));
-			y = barray[root].sset[j];
+			y = CurrentTreeArray[root].sset[j];
 
 			u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
 

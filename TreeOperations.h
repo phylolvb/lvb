@@ -60,18 +60,18 @@ static Objset sset_1[MAX_N - 3] = { { NULL, 0 } };
 /* object sets for tree comparison */
 static Objset sset_2[MAX_N - 3] = { { NULL, 0 } };  
 
-static void cr_bpnc(const Branch *const barray, const long branch);
-static void cr_chaf(const Branch *const barray, const long destination, const long newchild);
+static void cr_bpnc(const Branch *const CurrentTreeArray, const long branch);
+static void cr_chaf(const Branch *const CurrentTreeArray, const long destination, const long newchild);
 static void cr_uxe(FILE *const stream, const char *const msg);
-static long getsister(const Branch *const barray, const long branch);
+static long getsister(const Branch *const CurrentTreeArray, const long branch);
 static int osetcmp(const void *oset1, const void *oset2);
-static void tree_make_canonical(Dataptr restrict, Branch *const barray, long *objnos);
+static void tree_make_canonical(Dataptr restrict, Branch *const CurrentTreeArray, long *objnos);
 static void fillsets(Dataptr, Objset *const sstruct, const Branch *const tree, const long root);
-static void getobjs(Dataptr, const Branch *const barray, const long root, long *const objarr, long *const cnt);
-static long *randleaf(Dataptr, Branch *const barray, const Lvb_bool *const leafmask, const long objs);
-static void realgetobjs(Dataptr, const Branch *const barray, const long root, long *const objarr, long *const cnt);
-static Lvb_bool *randtopology(Dataptr, Branch *const barray, const long nobjs);
-static void ur_print(Dataptr restrict, FILE *const stream, const Branch *const barray, const long root);
+static void getobjs(Dataptr, const Branch *const CurrentTreeArray, const long root, long *const objarr, long *const cnt);
+static long *randleaf(Dataptr, Branch *const CurrentTreeArray, const Lvb_bool *const leafmask, const long objs);
+static void realgetobjs(Dataptr, const Branch *const CurrentTreeArray, const long root, long *const objarr, long *const cnt);
+static Lvb_bool *randtopology(Dataptr, Branch *const CurrentTreeArray, const long nobjs);
+static void ur_print(Dataptr restrict, FILE *const stream, const Branch *const CurrentTreeArray, const long root);
 static long setstcmp(Dataptr restrict, Objset *const oset_1, Objset *const oset_2, Lvb_bool b_First);
 static void sort(Dataptr matrix, Objset *const oset_2, const long nels);
 static void ssarralloc(Dataptr restrict matrix, Objset *nobjset_2);

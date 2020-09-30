@@ -79,15 +79,15 @@ int main(int argc, char **argv)
 		matchange(matrix, matrix_seq_data, rcstruct);
 		tree1 = treealloc(matrix, LVB_TRUE);
 		tree2 = treealloc(matrix, LVB_TRUE);
-		s_with_checkpoint = treestack_new();
-		s_no_checkpoint = treestack_new();
+		s_with_checkpoint = CreateNewTreestack();
+		s_no_checkpoint = CreateNewTreestack();
 
 		/* fill a treestack without checkpointing */
 		rinit(SEED);
 		for (i = 0; i < RAND_TREES; i++){
 			randtree(matrix, tree1);
 			root1 = arbreroot(matrix, tree1, 0);
-			treestack_push(matrix, s_no_checkpoint, tree1, root1, LVB_FALSE);
+			CompareTreeToTreestack(matrix, s_no_checkpoint, tree1, root1, LVB_FALSE);
 		}
 
 		/* fill a treestack with frequent checkpointing */
@@ -96,12 +96,12 @@ int main(int argc, char **argv)
 		{
 			randtree(matrix, tree2);
 			root2 = arbreroot(matrix, tree2, 0);
-			treestack_push(matrix, s_with_checkpoint, tree2, root2, LVB_FALSE);
+			CompareTreeToTreestack(matrix, s_with_checkpoint, tree2, root2, LVB_FALSE);
 			if ((i % CHECKPOINT_INTERVAL) == 0) {
 				fp = fopen("treestack_checkpoint", "wb");
 				checkpoint_treestack(fp, s_with_checkpoint, matrix, LVB_FALSE);
 				lvb_assert(fclose(fp) == 0);
-				treestack_free(s_with_checkpoint);
+				FreeTreestackMemory(s_with_checkpoint);
 				fp = fopen("treestack_checkpoint", "rb");
 				restore_treestack(fp, s_with_checkpoint, matrix, LVB_FALSE);
 				lvb_assert(fclose(fp) == 0);
@@ -112,8 +112,8 @@ int main(int argc, char **argv)
 		/* compare the two treestacks */
 		for (i = 0; i < RAND_TREES; i++)
 		{
-			treestack_pop(matrix, tree1, &root1, s_no_checkpoint, LVB_FALSE);
-			treestack_pop(matrix, tree2, &root2, s_with_checkpoint, LVB_FALSE);
+			PullTreefromTreestack(matrix, tree1, &root1, s_no_checkpoint, LVB_FALSE);
+			PullTreefromTreestack(matrix, tree2, &root2, s_with_checkpoint, LVB_FALSE);
 			if (treecmp(matrix, tree1, tree2, root1, LVB_TRUE) == 0) success_cnt++;
 		}
 

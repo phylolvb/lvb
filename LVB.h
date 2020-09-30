@@ -227,7 +227,7 @@ long getroot(const Branch *const);
 void lvb_assertion_fail(const char *, const char *, int);
 void lvb_initialize(void);
 Dataptr lvb_matrin(const char *);
-long lvb_reroot(Dataptr restrict, Branch *const barray, const long oldroot, const long newroot, Lvb_bool b_with_sset);
+long lvb_reroot(Dataptr restrict, Branch *const CurrentTreeArray, const long oldroot, const long newroot, Lvb_bool b_with_sset);
 void lvb_treeprint (Dataptr, FILE *const, const Branch *const, const long);
 
 void matchange(Dataptr, const Params);
@@ -255,15 +255,13 @@ void treeclear(Dataptr, Branch *const);
 void treecopy(Dataptr restrict, Branch *const, const Branch *const, Lvb_bool b_with_sset);
 void treedump(Dataptr, FILE *const, const Branch *const, Lvb_bool b_with_sset);
 void treedump_screen(Dataptr matrix, const Branch *const tree);
-void treestack_clear(Treestack *);
-long treestack_cnt(Treestack);
-long treestack_dump(Dataptr, Treestack *, FILE *const);
-void treestack_free(Dataptr restrict matrix, Treestack *);
-Treestack treestack_new(void);
-long treestack_transfer(Dataptr, Treestack *, Treestack *, Lvb_bool b_with_sset);
-long treestack_pop(Dataptr, Branch *, long *, Treestack *, Lvb_bool b_with_sset);
-long treestack_push(Dataptr, Treestack *, const Branch *const, const long, Lvb_bool b_with_sset);
-int treestack_print(Dataptr, Treestack *, FILE *const, Lvb_bool onerandom);
+void ClearTreestack(Treestack *);
+long CountTreestack(Treestack);
+void FreeTreestackMemory(Dataptr restrict matrix, Treestack *);
+Treestack CreateNewTreestack(void);
+long PullTreefromTreestack(Dataptr, Branch *, long *, Treestack *, Lvb_bool b_with_sset);
+long CompareTreeToTreestack(Dataptr, Treestack *, const Branch *const, const long, Lvb_bool b_with_sset);
+int PrintTreestack(Dataptr, Treestack *, FILE *const, Lvb_bool onerandom);
 void treeswap(Branch **const, long *const, Branch **const, long *const);
 void uint32_dump(FILE *, Lvb_bit_length);
 long words_per_row(const long);
@@ -295,7 +293,7 @@ void reduce_count(char *key, int keybytes, char *multivalue, int nvalues, int *v
 void reduce_sets(char *key, int keybytes, char *multivalue, int nvalues, int *valuebytes, KeyValue *kv, void *ptr);
 void reduce_filter(char *key, int keybytes, char *multivalue, int nvalues, int *valuebytes, KeyValue *kv, void *ptr);
 void print_sets(Dataptr matrix, Treestack *sp, MISC *misc);
-long treestack_push_only(Dataptr, Treestack *, const Branch *const, const long, Lvb_bool b_with_sset);
+long PushCurrentTreeToStack(Dataptr, Treestack *, const Branch *const, const long, Lvb_bool b_with_sset);
 
 #else
 long anneal(Dataptr restrict, Treestack *, Treestack *, const Branch *const, Params rcstruct, long, const double,
@@ -592,7 +590,7 @@ long getroot(const Branch *const);
 void lvb_assertion_fail(const char *, const char *, int);
 void lvb_initialize(void);
 Dataptr lvb_matrin(const char *);
-long lvb_reroot(Dataptr restrict, Branch *const barray, const long oldroot, const long newroot, Lvb_bool b_with_sset);
+long lvb_reroot(Dataptr restrict, Branch *const CurrentTreeArray, const long oldroot, const long newroot, Lvb_bool b_with_sset);
 
 void lvb_treeprint (Dataptr, DataSeqPtr restrict matrix_seq_data, FILE *const, const Branch *const, const long);
 void matchange(Dataptr, DataSeqPtr, const Params);
@@ -624,22 +622,19 @@ long treecmp(Dataptr matrix, const Branch *const tree_1, const Branch *const tre
 void treedump(Dataptr, FILE *const, const Branch *const, Lvb_bool b_with_sset);
 void treedump_b(Dataptr, FILE *const, const Branch *const, Lvb_bool);
 void treedump_screen(Dataptr matrix, const Branch *const tree);
-void treestack_clear(Treestack *);
-long treestack_cnt(Treestack);
-long treestack_dump(Dataptr, Treestack *, FILE *const);
-void treestack_free(Treestack *);
-long treestack_transfer(Dataptr, Treestack *, Treestack *, Lvb_bool b_with_sset);
-long treestack_pop(Dataptr, Branch *, long *, Treestack *, Lvb_bool b_with_sset);
-Treestack *treestack_new(void);
-long treestack_print(Dataptr, DataSeqPtr restrict matrix_seq_data, Treestack *, FILE *const, Lvb_bool);
+void ClearTreestack(Treestack *);
+long CountTreestack(Treestack);
+void FreeTreestackMemory(Treestack *);
+long PullTreefromTreestack(Dataptr, Branch *, long *, Treestack *, Lvb_bool b_with_sset);
+Treestack *CreateNewTreestack(void);
+long PrintTreestack(Dataptr, DataSeqPtr restrict matrix_seq_data, Treestack *, FILE *const, Lvb_bool);
 
 IterationTemperature *get_alloc_main_calc_iterations(void);
 void add_temperature_cal_iterations(IterationTemperature *p_data, SendInfoToMaster *p_info_temp, int n_process);
 Lvb_bool is_possible_to_continue(IterationTemperature *p_data, double d_temperature, int n_iteration, int l_tree_length, int n_max_number_process, int n_count_call);
 void release_main_calc_iterations(IterationTemperature *p_data);
 
-long treestack_push_only(Dataptr matrix, Treestack *sp, const Branch *const barray, const long root, Lvb_bool b_with_sset);
-long treestack_push(Dataptr, Treestack *, const Branch *const, long, Lvb_bool b_with_sset);
+long CompareTreeToTreestack(Dataptr, Treestack *, const Branch *const, long, Lvb_bool b_with_sset);
 void treeswap(Branch **const, long *const, Branch **const, long *const);
 void uint32_dump(FILE *, Lvb_bit_lentgh);
 long words_per_row(const long);

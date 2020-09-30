@@ -124,8 +124,8 @@ static void writeinf(Params prms, Dataptr matrix, int argc, char **argv)
 }
 
 
-static void logtree1(Dataptr matrix, const Branch *const barray, const long start, const long cycle, long root)
-/* log initial tree for cycle cycle of start start (in barray) to outfp */
+static void logtree1(Dataptr matrix, const Branch *const CurrentTreeArray, const long start, const long cycle, long root)
+/* log initial tree for cycle cycle of start start (in CurrentTreeArray) to outfp */
 {
     static char outfnam[LVB_FNAMSIZE]; 	/* current file name */
     int fnamlen;			/* length of current file name */
@@ -136,7 +136,7 @@ static void logtree1(Dataptr matrix, const Branch *const barray, const long star
 
     /* create tree file */
     outfp = clnopen(outfnam, "w");
-    lvb_treeprint(matrix, outfp, barray, root);
+    lvb_treeprint(matrix, outfp, CurrentTreeArray, root);
     clnclose(outfp, outfnam);
 
 } /* end logtree1() */
@@ -235,8 +235,8 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, long *iter_p, Lvb_
 		treelength = anneal(matrix, &bstack_overall, &stack_treevo, tree, rcstruct, initroot, t0, maxaccept,
 				maxpropose, maxfail, stdout, iter_p, log_progress, misc, mrTreeStack, mrBuffer );
 
-		long val = treestack_pop(matrix, tree, &initroot, &bstack_overall, LVB_FALSE);
-		treestack_push(matrix, &bstack_overall, tree, initroot, LVB_FALSE);
+		long val = PullTreefromTreestack(matrix, tree, &initroot, &bstack_overall, LVB_FALSE);
+		CompareTreeToTreestack(matrix, &bstack_overall, tree, initroot, LVB_FALSE);
 
 		if(val ==  1) {
 			misc->SB = 0;
@@ -269,7 +269,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, long *iter_p, Lvb_
 			MPI_Barrier(MPI_COMM_WORLD);
 			MPI_Bcast(&check_cmp, 1, MPI_INT, 0,    MPI_COMM_WORLD);
 			if (check_cmp == 1) {
-			  treestack_push(matrix, &bstack_overall, tree, initroot, LVB_FALSE);
+			  CompareTreeToTreestack(matrix, &bstack_overall, tree, initroot, LVB_FALSE);
 			  misc->ID = bstack_overall.next;
 				  misc->SB = 1;
 				  tree_setpush(matrix, tree, initroot, mrBuffer, misc);
@@ -284,8 +284,8 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, long *iter_p, Lvb_
 	    /* find solution(s) */
     treelength = anneal(matrix, &bstack_overall, &stack_treevo, tree, rcstruct, initroot, t0, maxaccept, 
     maxpropose, maxfail, stdout, iter_p, log_progress);
-    treestack_pop(matrix, tree, &initroot, &bstack_overall, LVB_FALSE);
-    treestack_push(matrix, &bstack_overall, tree, initroot, LVB_FALSE);
+    PullTreefromTreestack(matrix, tree, &initroot, &bstack_overall, LVB_FALSE);
+    CompareTreeToTreestack(matrix, &bstack_overall, tree, initroot, LVB_FALSE);
 
 	#endif
 
@@ -298,7 +298,7 @@ static long getsoln(Dataptr restrict matrix, Params rcstruct, long *iter_p, Lvb_
 		fnamlen = sprintf(fnam, "%s_start%ld_cycle%ld", RESFNAM, start, cyc);
 		lvb_assert(fnamlen < LVB_FNAMSIZE);	/* really too late */
 		resfp = clnopen(fnam, "w");
-		treec = treestack_print(matrix, &bstack_overall, resfp, LVB_FALSE);
+		treec = PrintTreestack(matrix, &bstack_overall, resfp, LVB_FALSE);
 		clnclose(resfp, fnam);
 		fprintf(sumfp, "%ld\t%ld\n", treelength, treec);
 
@@ -402,9 +402,9 @@ int main(int argc, char **argv)
     phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix);
 
     /* "file-local" dynamic heap memory: set up best tree stacks, need to be by thread */
-	bstack_overall = treestack_new();
+	bstack_overall = CreateNewTreestack();
 	if(rcstruct.algorithm_selection ==2) 
-    stack_treevo = treestack_new();
+    stack_treevo = CreateNewTreestack();
         
     matchange(matrix, rcstruct);	/* cut columns */
 	#ifdef LVB_MAPREDUCE  // okay
@@ -429,19 +429,19 @@ int main(int argc, char **argv)
 		#ifdef LVB_MAPREDUCE  // okay
 		final_length = getsoln(matrix, rcstruct, &iter, log_progress, &misc, mrTreeStack, mrBuffer);
 	    if (misc.rank == 0) {
-	       trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_FALSE);
+	       trees_output = PrintTreestack(matrix, &bstack_overall, outtreefp, LVB_FALSE);
 	    }
 
 		#else
 		final_length = getsoln(matrix, rcstruct, &iter, log_progress);
-		trees_output = treestack_print(matrix, &bstack_overall, outtreefp, LVB_FALSE);
+		trees_output = PrintTreestack(matrix, &bstack_overall, outtreefp, LVB_FALSE);
 		
 		#endif
 		
 		trees_output_total += trees_output;
         if(rcstruct.algorithm_selection ==2)
-		treestack_print(matrix, &stack_treevo, treEvo, LVB_FALSE);
-        treestack_clear(&bstack_overall);
+		PrintTreestack(matrix, &stack_treevo, treEvo, LVB_FALSE);
+        ClearTreestack(&bstack_overall);
 		printf("--------------------------------------------------------\n");
 		#ifdef LVB_MAPREDUCE  // okay
 		/* clean the TreeStack and buffer */
@@ -489,8 +489,8 @@ int main(int argc, char **argv)
 
 	/* "file-local" dynamic heap memory */
     if (rcstruct.algorithm_selection ==2)
-    treestack_free(matrix, &stack_treevo);
-	treestack_free(matrix, &bstack_overall);
+    FreeTreestackMemory(matrix, &stack_treevo);
+	FreeTreestackMemory(matrix, &bstack_overall);
     rowfree(matrix);
     free(matrix);
 
@@ -498,7 +498,7 @@ int main(int argc, char **argv)
     else val = EXIT_SUCCESS;
 
 	#ifdef LVB_MAPREDUCE  // okay
-	treestack_free(matrix, &bstack_overall);
+	FreeTreestackMemory(matrix, &bstack_overall);
 	    MPI_Barrier(MPI_COMM_WORLD);
 
 	    delete mrTreeStack;
@@ -614,8 +614,8 @@ static void writeinf(Params prms, Dataptr matrix, int myMPIid, int n_process)
 } /* end writeinf() */
 
 
-static void logtree1(Dataptr matrix, DataSeqPtr restrict matrix_seq_data, const Branch *const barray, const long start, const long cycle, long root)
-/* log initial tree for cycle cycle of start start (in barray) to outfp */
+static void logtree1(Dataptr matrix, DataSeqPtr restrict matrix_seq_data, const Branch *const CurrentTreeArray, const long start, const long cycle, long root)
+/* log initial tree for cycle cycle of start start (in CurrentTreeArray) to outfp */
 {
     static char outfnam[LVB_FNAMSIZE]; 	/* current file name */
     int fnamlen;			/* length of current file name */
@@ -626,7 +626,7 @@ static void logtree1(Dataptr matrix, DataSeqPtr restrict matrix_seq_data, const 
 
     /* create tree file */
     outfp = clnopen(outfnam, "w");
-    lvb_treeprint(matrix, matrix_seq_data, outfp, barray, root);
+    lvb_treeprint(matrix, matrix_seq_data, outfp, CurrentTreeArray, root);
     clnclose(outfp, outfnam);
 
 } /* end logtree1() */
@@ -735,17 +735,17 @@ static void logtree1(Dataptr matrix, DataSeqPtr restrict matrix_seq_data, const 
 			if (n_state_progress == MESSAGE_ANNEAL_FINISHED_AND_NOT_REPEAT || n_state_progress == MESSAGE_ANNEAL_FINISHED_AND_REPEAT){
 
 				/* work on the trees */
-				int l_pop = treestack_pop(matrix, tree, &initroot, bstack_overall, LVB_FALSE);
+				int l_pop = PullTreefromTreestack(matrix, tree, &initroot, bstack_overall, LVB_FALSE);
 				if (l_pop == 0){
 					printf("\nProcess:%d    Error: can't pop any tree from Treestack.   Rearrangements tried: %ld\n", myMPIid, l_iterations);
 				}
 				else{
-					treestack_push(matrix, bstack_overall, tree, initroot, LVB_FALSE);
+					CompareTreeToTreestack(matrix, bstack_overall, tree, initroot, LVB_FALSE);
 					treelength = deterministic_hillclimb(matrix, bstack_overall, tree, rcstruct, initroot, stdout, &l_iterations, myMPIid, log_progress);
 					/* save it */
 					sprintf(file_name_output, "%s_%d", rcstruct.file_name_out, n_number_tried_seed); /* name of output file for this process */
 					outtreefp = clnopen(file_name_output, "w");
-					trees_output = treestack_print(matrix, matrix_seq_data, bstack_overall, outtreefp, LVB_FALSE);
+					trees_output = PrintTreestack(matrix, matrix_seq_data, bstack_overall, outtreefp, LVB_FALSE);
 					clnclose(outtreefp, file_name_output);
 					printf("\nProcess:%d   Rearrangements tried: %ld\n", myMPIid, l_iterations);
 					if (trees_output == 1L) { printf("1 most parsimonious tree of length %ld written to file '%s'\n", treelength, file_name_output); }
@@ -755,7 +755,7 @@ static void logtree1(Dataptr matrix, DataSeqPtr restrict matrix_seq_data, const 
 			if (n_state_progress == MESSAGE_ANNEAL_FINISHED_AND_REPEAT || n_state_progress == MESSAGE_ANNEAL_KILLED_AND_REPEAT){
 				l_iterations = 0;		/* start iterations from zero */
 				free(tree);
-				treestack_free(bstack_overall);
+				FreeTreestackMemory(bstack_overall);
 				printf("Process:%d   try seed number process:%d   new seed:%d", myMPIid, n_number_tried_seed_next, rcstruct.seed);
 				rinit(rcstruct.seed); /* at this point the structure has a need see passed by master process */
 			}
@@ -1326,12 +1326,12 @@ static void logstim(void)
 				if (rcstruct.n_flag_is_finished_process == CHECK_POINT_PROCESS_NOT_FINISHED){
 
 					rinit(rcstruct.seed);
-					p_bstack_overall = treestack_new();
+					p_bstack_overall = CreateNewTreestack();
 					log_progress = LVB_TRUE;
 					/* get the length and the tree */
 					getsoln(matrix, matrix_seq_data, rcstruct, p_bstack_overall, enc_mat, myMPIid, log_progress);
 					/* "file-local" dynamic heap memory */
-					treestack_free(p_bstack_overall);
+					FreeTreestackMemory(p_bstack_overall);
 
 					/* only print the time end the process finish */
 					cleanup();

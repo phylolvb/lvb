@@ -74,7 +74,7 @@ int main(int argc, char **argv)
     	matrix_seq_data = (DataSeqPtr) alloc(sizeof(DataSeqStructure), "alloc data structure");
     	phylip_dna_matrin("infile", FORMAT_PHYLIP, matrix, matrix_seq_data);
     	matchange(matrix, matrix_seq_data, rcstruct);
-    	tree_checkpoint = treestack_new();
+    	tree_checkpoint = CreateNewTreestack();
 
 		/* fill a treestack without checkpointing */
     	tree1 = treealloc(matrix, LVB_TRUE);
@@ -82,7 +82,7 @@ int main(int argc, char **argv)
 		for (i = 0; i < RAND_TREES; i++){
 			randtree(matrix, tree1);
 			root1 = arbreroot(matrix, tree1, 0);
-			treestack_push(matrix, tree_checkpoint, tree1, root1, LVB_FALSE);
+			CompareTreeToTreestack(matrix, tree_checkpoint, tree1, root1, LVB_FALSE);
 		}
 
     	is_process_finished = CHECK_POINT_PROCESS_FINISHED;
@@ -97,7 +97,7 @@ int main(int argc, char **argv)
     	checkpoint_uni(fp);
     	checkpoint_params(fp, &rcstruct);
     	checkpoint_treestack(fp, tree_checkpoint, matrix, LVB_FALSE);
-		treestack_free(tree_checkpoint);
+		FreeTreestackMemory(tree_checkpoint);
     	lvb_assert(fclose(fp) == 0);
     	lvb_assert(test_consistency_state_file(filename, 1) == LVB_TRUE);
     	lvb_assert(is_process_ended(filename) == LVB_TRUE);
