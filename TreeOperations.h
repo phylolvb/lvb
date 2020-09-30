@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TROPS_H_
 #define TROPS_H_
 
-#include "lvb.h"
+#include "LVB.h"
 
 #define CLADESEP ","	/* clade separator for trees */
 

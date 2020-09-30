@@ -451,7 +451,7 @@ void usage(char *p_file_name){
 	printf("    -o output file name.\n"
 			"       default: 'outfile'\n");
 	printf("    -s specify a random number seed, or use default.\n"
-			"       default: it is taken from the system clock.\n");
+			"       default: it is taken from the system Clock.\n");
 	printf("    -N specify the number of seeds to try, need to be greater than number of mpi process.\n"
 			"       default: it is the number of mpi process.\n");
 	printf("    -C value in seconds when a checkpoint file is going to be saved.\n"

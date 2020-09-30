@@ -117,7 +117,7 @@ systems, C<LVB_OTHERLIBS> should usually be set to C<-lm>.
 
 =item LVB_HEADER_PATH
 
-Must give the full path to the directory containing the C<lvb.h> header
+Must give the full path to the directory containing the C<LVB.h> header
 describing the interface to the LVB library specified by
 C<LVB_LIBRARY>.
 
@@ -188,8 +188,8 @@ foreach $test_dir (@test_dirs)
     # build test executable if required
     if ($test_dir =~ /^test_lib/)
     {
-		$com = "$ENV{GPLUSPLUS} $ENV{CFLAGS} -c main.c -I ../../../$ENV{LVB_HEADER_PATH} -o main.o;"
-			. " $ENV{LINKERCPLUSPLUS} $ENV{CFLAGS} -I ../../../$ENV{LVB_HEADER_PATH} -o testprog.exe main.o $ENV{LVB_LIBRARY} "
+		$com = "$ENV{GPLUSPLUS} $ENV{CFLAGS} -c Main.c -I ../../../$ENV{LVB_HEADER_PATH} -o Main.o;"
+			. " $ENV{LINKERCPLUSPLUS} $ENV{CFLAGS} -I ../../../$ENV{LVB_HEADER_PATH} -o testprog.exe Main.o $ENV{LVB_LIBRARY} "
 			. "$ENV{LVB_OTHERLIBS} ../../../../MSAInput.o ../../../../CommandLineParser.o";
 		# Build the executable
 		! `$com` or die "Cannot compile testprog.exe";

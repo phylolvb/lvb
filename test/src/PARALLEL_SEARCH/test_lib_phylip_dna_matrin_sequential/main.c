@@ -36,7 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include "lvb.h"
+#include "LVB.h"
 
 /* Positive test that a sequential matrix may be read. Example is taken
  * from the PHYLIP 3.6a documentation. */

@@ -1496,7 +1496,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== TreeOperations.c - tree operations ========== */
 
-#include "lvb.h"
+#include "LVB.h"
 
 #ifdef MPI_Implementation
 

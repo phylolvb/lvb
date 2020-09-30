@@ -53,7 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <getopt.h>
 using namespace std;
 
-#include "lvb.h"
+#include "LVB.h"
 
 	#ifdef __cplusplus
 		extern "C" int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat);

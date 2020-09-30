@@ -36,7 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include "lvb.h"
+#include "LVB.h"
 
 /* Positive test that a simple (one line per sequence) matrix may be
  * read, both as a sequential and as an interleaved matrix. Example is

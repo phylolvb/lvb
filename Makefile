@@ -99,33 +99,33 @@ LIB_EXT = a		# UNIX
 	$(CC) $(CFLAGS) $<
 
 # LVB library
-LVB_LIB = liblvb.$(LIB_EXT)
+LVB_LIB = libLVB.$(LIB_EXT)
 LIBS += $(LVB_LIB)
 
 LVB_PROG = lvb$(EXE)
 
 # Object files that will go into the LVB library
 
-LVB_LIB_OBJS = admin.$(OBJ) \
-               cleanup.$(OBJ) \
-			   clock.$(OBJ) \
-               datops.$(OBJ) \
-               err.$(OBJ) \
-               fops.$(OBJ) \
-               getparam.$(OBJ) \
-               AnnealingStartingTemperature.$(OBJ) \
-			   info.$(OBJ) \
-			   log_file.$(OBJ) \
-               mops.$(OBJ) \
-               mymaths.$(OBJ) \
-               myuni.$(OBJ) \
-               parsim.$(OBJ) \
-               randpint.$(OBJ) \
-               solve.$(OBJ) \
-               sops.$(OBJ) \
+LVB_LIB_OBJS = Admin.$(OBJ) \
+               Cleanup.$(OBJ) \
+			   Clock.$(OBJ) \
+               DataOperations.$(OBJ) \
+               Error.$(OBJ) \
+               FileOperations.$(OBJ) \
+               SearchParameters.$(OBJ) \
+               StartingTemperature.$(OBJ) \
+			   Info.$(OBJ) \
+			   LogFile.$(OBJ) \
+               MemoryOperations.$(OBJ) \
+               MyMaths.$(OBJ) \
+               RandomNumberGenerator.$(OBJ) \
+               TreeEvaluation.$(OBJ) \
+               RandPint.$(OBJ) \
+               Solve.$(OBJ) \
+               Sops.$(OBJ) \
 			   Treestack.$(OBJ) \
                TreeOperations.$(OBJ) \
-               wrapper.$(OBJ)
+               Wrapper.$(OBJ)
 
 LVB_READ_FILE_OBJS = 	$(LVB_READ_FILE_DIR)MSAInput.$(OBJ) \
 			$(LVB_READ_FILE_DIR)CommandLineParser.$(OBJ)
@@ -134,30 +134,30 @@ LVB_LIB_OBJS_OUTPUT = $(LVB_LIB_OBJS)
 
 # Object files that are used directly and will not go into the library
 
-LVB_PROG_OBJS = main.$(OBJ)
+LVB_PROG_OBJS = Main.$(OBJ)
 
 # Documentation files
 
 LVB_MANUAL = lvb_manual.pdf
 
 DOCS_PROGRAMMER = $(TEST_MANUAL) \
-                  $(DOCS_PROG_DIR)/main.html \
+                  $(DOCS_PROG_DIR)/Main.html \
                   $(DOCS_PROG_DIR)/Treestack.html \
-		  $(DOCS_PROG_DIR)/cleanup.html \
-		  $(DOCS_PROG_DIR)/datops.html \
-		  $(DOCS_PROG_DIR)/err.html \
-		  $(DOCS_PROG_DIR)/fops.html \
-		  $(DOCS_PROG_DIR)/getparam.html \
-		  $(DOCS_PROG_DIR)/admin.html \
-		  $(DOCS_PROG_DIR)/mops.html \
-		  $(DOCS_PROG_DIR)/mymaths.html \
-		  $(DOCS_PROG_DIR)/myuni.html \
-		  $(DOCS_PROG_DIR)/parsim.html \
-		  $(DOCS_PROG_DIR)/randpint.html \
-		  $(DOCS_PROG_DIR)/solve.html \
-		  $(DOCS_PROG_DIR)/sops.html \
+		  $(DOCS_PROG_DIR)/Cleanup.html \
+		  $(DOCS_PROG_DIR)/DataOperations.html \
+		  $(DOCS_PROG_DIR)/Error.html \
+		  $(DOCS_PROG_DIR)/FileOperations.html \
+		  $(DOCS_PROG_DIR)/SearchParameters.html \
+		  $(DOCS_PROG_DIR)/Admin.html \
+		  $(DOCS_PROG_DIR)/MemoryOperations.html \
+		  $(DOCS_PROG_DIR)/MyMaths.html \
+		  $(DOCS_PROG_DIR)/RandomNumberGenerator.html \
+		  $(DOCS_PROG_DIR)/TreeEvaluation.html \
+		  $(DOCS_PROG_DIR)/RandPint.html \
+		  $(DOCS_PROG_DIR)/Solve.html \
+		  $(DOCS_PROG_DIR)/Sops.html \
 		  $(DOCS_PROG_DIR)/TreeOperations.html \
-		  $(DOCS_PROG_DIR)/wrapper.html
+		  $(DOCS_PROG_DIR)/Wrapper.html
 
 TEST_MANUAL = $(DOCS_PROG_DIR)/go.html
 

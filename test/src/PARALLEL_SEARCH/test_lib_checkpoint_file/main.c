@@ -37,7 +37,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-#include "lvb.h"
+#include "LVB.h"
 
 
 #define RAND_TREES 705		/* compare treestacks of this many trees */

@@ -42,9 +42,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== sops.c - string manipulation functions ========== */
+/* ========== Sops.c - string manipulation functions ========== */
 
-#include "lvb.h"
+#include "LVB.h"
 
 static void upsize(Dataptr restrict matrix, Treestack *sp)
 /* increase allocation for tree stack *sp */
@@ -673,13 +673,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== sops.c - string manipulation functions ========== */
+/* ========== Sops.c - string manipulation functions ========== */
 
-#include "lvb.h"
+#include "LVB.h"
 
 #ifdef MPI_Implementation
 
-#include "store_states.h"
+#include "StoreStates.h"
 
 static void upsize(Dataptr matrix, Treestack *sp)
 /* increase allocation for tree stack *sp */

@@ -35,7 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-#include "lvb.h"
+#include "LVB.h"
 
 
 /* test of checkpoint_uni() and restore_uni() */
