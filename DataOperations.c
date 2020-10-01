@@ -100,11 +100,11 @@ long getminlen(const Dataptr MSA)
 
 /**********
 
-=head1 dna_makebin - CONVERT DNA TEXT MATRIX TO BINARY STATESET MATRIX
+=head1 DNAToBinary - CONVERT DNA TEXT MATRIX TO BINARY STATESET MATRIX
 
 =head2 SYNOPSIS
 
-    void dna_makebin(const Dataptr mat, Lvb_bool fifthstate,
+    void DNAToBinary(const Dataptr mat, Lvb_bool fifthstate,
      unsigned char **enc_mat);
 
 =head2 DESCRIPTION
@@ -155,7 +155,7 @@ C<mat>C<->E<gt>C<row>[I<i>][I<j>], where I<i> is in the interval
 
 **********/
 
-void dna_makebin(Dataptr restrict mat, Lvb_bit_length **enc_mat)
+void DNAToBinary(Dataptr restrict mat, Lvb_bit_length **enc_mat)
 /* convert MSA from string form to binary-encoded form, in which each
  * biological character occupies half a byte; the MSA is padded with
  * ambiguous data as required to ensure all bytes are initialised, but padding
@@ -240,7 +240,7 @@ void dna_makebin(Dataptr restrict mat, Lvb_bit_length **enc_mat)
 			enc_mat[i][j] = enc_ssets;
 		}
     }
-} /* end dna_makebin() */
+} /* end DNAToBinary() */
 
 
 void rowfree(Dataptr MSA)
@@ -567,11 +567,11 @@ static char *getstatev(const Dataptr MSA, DataSeqPtr matrix_seq, const long k)
 
 /**********
 
-=head1 dna_makebin - CONVERT DNA TEXT MATRIX TO BINARY STATESET MATRIX
+=head1 DNAToBinary - CONVERT DNA TEXT MATRIX TO BINARY STATESET MATRIX
 
 =head2 SYNOPSIS
 
-    void dna_makebin(const Dataptr mat, Lvb_bool fifthstate,
+    void DNAToBinary(const Dataptr mat, Lvb_bool fifthstate,
      unsigned char **enc_mat);
 
 =head2 DESCRIPTION
@@ -622,7 +622,7 @@ C<mat>C<->E<gt>C<row>[I<i>][I<j>], where I<i> is in the interval
 
 **********/
 
-void dna_makebin(Dataptr restrict mat, DataSeqPtr matrix_seq, Lvb_bit_lentgh **enc_mat)
+void DNAToBinary(Dataptr restrict mat, DataSeqPtr matrix_seq, Lvb_bit_lentgh **enc_mat)
 
 /* convert MSA from string form to binary-encoded form, in which each
  * biological character occupies half a byte; the MSA is padded with
@@ -708,7 +708,7 @@ void dna_makebin(Dataptr restrict mat, DataSeqPtr matrix_seq, Lvb_bit_lentgh **e
 			enc_mat[i][j] = enc_ssets;
 		}
     }
-} /* end dna_makebin() */
+} /* end DNAToBinary() */
 
 
 	void rowfree(DataSeqPtr MSA, int n_lines)

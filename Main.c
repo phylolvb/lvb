@@ -188,7 +188,7 @@ static long getsoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb
     enc_mat = (Lvb_bit_length **) malloc((MSA->n) * sizeof(Lvb_bit_length *));
     for (i = 0; i < MSA->n; i++) 
 		enc_mat[i] = (Lvb_bit_length *) alloc(MSA->bytes, "state sets");
-    dna_makebin(MSA, enc_mat);
+    DNAToBinary(MSA, enc_mat);
 
     /* open and entitle statistics file shared by all cycles
      * NOTE: There are no cycles anymore in the current version
@@ -1169,7 +1169,7 @@ static void logstim(void)
 					 * this MSA isn't used much, so any performance penalty won't matter. */
 					enc_mat = (Lvb_bit_lentgh **) alloc((MSA->n) * sizeof(Lvb_bit_lentgh *), "state sets");
 					for (i = 0; i < MSA->n; i++) enc_mat[i] = (Lvb_bit_lentgh *) alloc(MSA->bytes, "state sets");
-					dna_makebin(MSA, matrix_seq_data, enc_mat);
+					DNAToBinary(MSA, matrix_seq_data, enc_mat);
 
 					/* pack data for seq MSA */
 			#ifdef MPI_SEND_ONLY_MATRIX_NAMES

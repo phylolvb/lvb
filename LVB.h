@@ -43,44 +43,37 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef LVB_LVB_H
 #define LVB_LVB_H
 
-#include "DataStructure.h"
-
 #include <ctype.h>
 #include <errno.h>
 #include <limits.h>
 #include <math.h>
 #include <omp.h>
-#include "sys/stat.h"
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
-#include "RandomNumberGenerator.h"
-#include "MyMaths.h"
 #include <sys/utsname.h>
+#include <time.h>
+
 #include "Clock.h"
+#include "DataStructure.h"
 #include "LogFile.h"
+#include "MyMaths.h"
+#include "RandomNumberGenerator.h"
+#include "sys/stat.h"
 
 #ifdef LVB_MAPREDUCE
-#include <mpi.h>
-#include "MapReduce.h"
-#include <omp.h>
-#include <iostream>
+	#include <iostream>
+	#include <mpi.h>
+	#include <omp.h>
+	#include "MapReduce.h"
 
-using namespace MAPREDUCE_NS;
-using namespace std;
-#define __STDC_LIMIT_MACROS
-
+	using namespace MAPREDUCE_NS;
+	using namespace std;
+	#define __STDC_LIMIT_MACROS
 #endif
-
-
-/* the program */
-#define PROGNAM "lvb"			/* program file name */
-#define LVB_VERSION "3.5"		/* version of program */
-#define LVB_SUBVERSION "(February 2019)"	/* version details e.g. date */
 
 /* DNA bases: bits to set in statesets */
 #define A_BIT 0b0001		/* (1U << 0) */
@@ -268,7 +261,7 @@ int count(TREESTACK_TREE_BRANCH *const, int);
 int addtoarray(TREESTACK_TREE_BRANCH *const, int, int *, int);
 void dump_objset_to_screen(Dataptr MSA, Objset *oset_1);
 void copy_sset(Dataptr restrict MSA, Objset *p_sset_1);
-void dna_makebin(Dataptr restrict, Lvb_bit_length **);
+void DNAToBinary(Dataptr restrict, Lvb_bit_length **);
 void makesets(Dataptr restrict, const TREESTACK_TREE_BRANCH *const tree_2, const long root);
 long setstcmp_with_sset2(Dataptr MSA, Objset *const oset_1);
 long TopologyComparison(Dataptr restrict, Objset *, const TREESTACK_TREE_BRANCH *const, Lvb_bool b_first);
@@ -567,7 +560,7 @@ unsigned long checkpoint_uni(FILE *);
 unsigned long restore_uni(FILE *);
 void checkpoint_treestack(FILE *, TREESTACK *, Dataptr, Lvb_bool b_with_sset);
 void restore_treestack(FILE *, TREESTACK *, Dataptr, Lvb_bool b_with_sset);
-void dna_makebin(Dataptr restrict, DataSeqPtr matrix_seq, Lvb_bit_lentgh **);
+void DNAToBinary(Dataptr restrict, DataSeqPtr matrix_seq, Lvb_bit_lentgh **);
 long deterministic_hillclimb(Dataptr, TREESTACK *, const TREESTACK_TREE_BRANCH *const, Parameters rcstruct,
 	long, FILE * const, long *, int myMPIid, Lvb_bool);
 
