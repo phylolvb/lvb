@@ -114,7 +114,7 @@ int main(int argc, char **argv)
 		{
 			PullTreefromTreestack(MSA, tree1, &root1, s_no_checkpoint, LVB_FALSE);
 			PullTreefromTreestack(MSA, tree2, &root2, s_with_checkpoint, LVB_FALSE);
-			if (treecmp(MSA, tree1, tree2, root1, LVB_TRUE) == 0) success_cnt++;
+			if (TopologyComparison(MSA, tree1, tree2, root1, LVB_TRUE) == 0) success_cnt++;
 		}
 
 		if (success_cnt == RAND_TREES) {

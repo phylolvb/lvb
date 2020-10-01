@@ -120,7 +120,6 @@ LVB_LIB_OBJS = Admin.$(OBJ) \
                MyMaths.$(OBJ) \
                RandomNumberGenerator.$(OBJ) \
                TreeEvaluation.$(OBJ) \
-               RandPint.$(OBJ) \
                Solve.$(OBJ) \
                Sops.$(OBJ) \
 			   Treestack.$(OBJ) \
@@ -138,7 +137,7 @@ LVB_PROG_OBJS = Main.$(OBJ)
 
 # Documentation files
 
-LVB_MANUAL = lvb_manual.pdf
+LVB_MANUAL = LVBManual.pdf
 
 DOCS_PROGRAMMER = $(TEST_MANUAL) \
                   $(DOCS_PROG_DIR)/Main.html \
@@ -153,7 +152,6 @@ DOCS_PROGRAMMER = $(TEST_MANUAL) \
 		  $(DOCS_PROG_DIR)/MyMaths.html \
 		  $(DOCS_PROG_DIR)/RandomNumberGenerator.html \
 		  $(DOCS_PROG_DIR)/TreeEvaluation.html \
-		  $(DOCS_PROG_DIR)/RandPint.html \
 		  $(DOCS_PROG_DIR)/Solve.html \
 		  $(DOCS_PROG_DIR)/Sops.html \
 		  $(DOCS_PROG_DIR)/TreeOperations.html \
@@ -178,8 +176,8 @@ all : lvb	# allow 'make all' as synonym for 'make lvb'
 
 lvb : LVB_PROG $(DOCS)
 
-$(LVB_MANUAL) : lvb_manual.odt
-	soffice --headless --convert-to pdf:writer_pdf_Export lvb_manual.odt
+$(LVB_MANUAL) : LVBManual.odt
+	soffice --headless --convert-to pdf:writer_pdf_Export LVBManual.odt
 
 LVB_PROG : $(LVB_LIB) $(LVB_PROG_OBJS)
 	$(G++) $(CFLAGS) $(LDFLAGS) -o $(LVB_PROG) $(LVB_PROG_OBJS) $(LVB_READ_FILE_OBJS) $(LIBS) $(LM)

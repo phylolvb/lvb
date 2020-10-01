@@ -152,7 +152,6 @@ DOCS_PROGRAMMER = 	$(DOCS_PROG_DIR)/Treestack.html \
 					  $(DOCS_PROG_DIR)/MyMaths.html \
 					  $(DOCS_PROG_DIR)/RandomNumberGenerator.html \
 					  $(DOCS_PROG_DIR)/TreeEvaluation.html \
-					  $(DOCS_PROG_DIR)/RandPint.html \
 					  $(DOCS_PROG_DIR)/Solve.html \
 					  $(DOCS_PROG_DIR)/Sops.html \
 					  $(DOCS_PROG_DIR)/TreeOperations.html \
@@ -177,7 +176,6 @@ LVB_LIB_OBJS = Admin.$(OBJ) \
 	MyMaths.$(OBJ) \
 	RandomNumberGenerator.$(OBJ) \
 	TreeEvaluation.$(OBJ) \
-	RandPint.$(OBJ) \
 	Solve.$(OBJ) \
 	StoreStates.$(OBJ) \
 	Sops.$(OBJ) \

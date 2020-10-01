@@ -281,7 +281,7 @@ long CompareTreeToTreestack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRA
     #endif
     	else{
     		for (i = sp->next - 1; i >= 0; i--) {
-    			if (treecmp(MSA, sp->stack[i].p_sset, copy_2, b_First) == 0) return 0;
+    			if (TopologyComparison(MSA, sp->stack[i].p_sset, copy_2, b_First) == 0) return 0;
     			b_First = LVB_FALSE;
     		}
     	}
@@ -828,7 +828,7 @@ long CompareTreeToTreestack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRA
 			new_root = stackroot;
 			b_First = LVB_TRUE;
 		}
-		if (treecmp(MSA, sp->stack[i].tree, copy_2, stackroot, b_First) == 0) return 0;
+		if (TopologyComparison(MSA, sp->stack[i].tree, copy_2, stackroot, b_First) == 0) return 0;
 		b_First = LVB_FALSE;
 	}
 

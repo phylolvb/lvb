@@ -1102,7 +1102,7 @@ static void cr_uxe(FILE *const stream, const char *const msg)
 
 	} /* end ur_print() */
 
-long treecmp(Dataptr MSA, Objset *sset_1, const TREESTACK_TREE_BRANCH *const tree_2, Lvb_bool b_First)
+long TopologyComparison(Dataptr MSA, Objset *sset_1, const TREESTACK_TREE_BRANCH *const tree_2, Lvb_bool b_First)
 /* return 0 if the topology of tree_1 (of root root_1) is the same as
  * that of tree_2 (of root root_2), or non-zero if different */
 {
@@ -1110,7 +1110,7 @@ long treecmp(Dataptr MSA, Objset *sset_1, const TREESTACK_TREE_BRANCH *const tre
     if (b_First == LVB_TRUE) makesets(MSA, tree_2, 0 /* always root zero */);
     return setstcmp(MSA, sset_1, sset_2, b_First /* this one is the static */);
 
-} /* end treecmp() */
+} /* end TopologyComparison() */
 
 static long setstcmp(Dataptr MSA, Objset *const oset_1, Objset *const oset_2, Lvb_bool b_First) /* this one is the static */
 /* return 0 if the same sets of objects are in oset_1 and oset_2,
@@ -2390,7 +2390,7 @@ static void cr_uxe(FILE *const stream, const char *const msg)
 	} /* end ur_print() */
 
 
-long treecmp(Dataptr MSA, const TREESTACK_TREE_BRANCH *const tree_1, const TREESTACK_TREE_BRANCH *const tree_2, long root, Lvb_bool b_First)
+long TopologyComparison(Dataptr MSA, const TREESTACK_TREE_BRANCH *const tree_1, const TREESTACK_TREE_BRANCH *const tree_2, long root, Lvb_bool b_First)
 /* return 0 if the topology of tree_1 (of root root_1) is the same as
  * that of tree_2 (of root root_2), or non-zero if different */
 {
@@ -2398,7 +2398,7 @@ long treecmp(Dataptr MSA, const TREESTACK_TREE_BRANCH *const tree_1, const TREES
 	makesets(MSA, tree_1, tree_2, root, b_First);
 	return setstcmp(MSA, sset_1, sset_2, b_First);
 
-} /* end treecmp() */
+} /* end TopologyComparison() */
 
 static long setstcmp(Dataptr MSA, Objset *const oset_1, Objset *const oset_2, Lvb_bool b_First)
 /* return 0 if the same sets of objects are in oset_1 and oset_2,

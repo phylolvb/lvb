@@ -66,7 +66,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef LVB_MAPREDUCE
 #include <mpi.h>
-#include "MapReduce.h"
 #include "CMapReduce.h"
 #include <omp.h>
 #include <iostream>
@@ -272,7 +271,7 @@ void copy_sset(Dataptr restrict MSA, Objset *p_sset_1);
 void dna_makebin(Dataptr restrict, Lvb_bit_length **);
 void makesets(Dataptr restrict, const TREESTACK_TREE_BRANCH *const tree_2, const long root);
 long setstcmp_with_sset2(Dataptr MSA, Objset *const oset_1);
-long treecmp(Dataptr restrict, Objset *, const TREESTACK_TREE_BRANCH *const, Lvb_bool b_first);
+long TopologyComparison(Dataptr restrict, Objset *, const TREESTACK_TREE_BRANCH *const, Lvb_bool b_first);
 void PrintLVBCopyright();
 void PrintLVBInfo();
 void LogTime();
@@ -618,7 +617,7 @@ long tree_bytes(Dataptr restrict MSA);
 long tree_bytes_whitout_sset(Dataptr restrict MSA);
 void treeclear(Dataptr, TREESTACK_TREE_BRANCH *const);
 void treecopy(Dataptr restrict, TREESTACK_TREE_BRANCH *const, const TREESTACK_TREE_BRANCH *const, Lvb_bool b_with_sset);
-long treecmp(Dataptr MSA, const TREESTACK_TREE_BRANCH *const tree_1, const TREESTACK_TREE_BRANCH *const tree_2, long root, Lvb_bool b_First);
+long TopologyComparison(Dataptr MSA, const TREESTACK_TREE_BRANCH *const tree_1, const TREESTACK_TREE_BRANCH *const tree_2, long root, Lvb_bool b_First);
 void treedump(Dataptr, FILE *const, const TREESTACK_TREE_BRANCH *const, Lvb_bool b_with_sset);
 void treedump_b(Dataptr, FILE *const, const TREESTACK_TREE_BRANCH *const, Lvb_bool);
 void treedump_screen(Dataptr MSA, const TREESTACK_TREE_BRANCH *const tree);
