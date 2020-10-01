@@ -54,13 +54,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 typedef enum { LVB_FALSE, LVB_TRUE } Lvb_bool;	/* boolean type */
 #define LVB_FNAMSIZE 2000		/* maximum bytes for file names */
 
-/* matrix and associated information */
+/* MSA and associated information */
 typedef struct data
 {
     int n_threads_getplen;  /* number of possible threads in getplen function */
     int n_slice_size_getplen;  /* slice size in getplen function, usually m/n_threads_getplen  */
     long m;				/* number of columns */
-    long original_m;	/* number of columns read from matrix*/
+    long original_m;	/* number of columns read from MSA*/
     long n;				/* number of rows */
     long max_length_seq_name; 	/* length of the sequence names */
     long nbranches; 	/* number of possible branches */
@@ -68,7 +68,7 @@ typedef struct data
     long tree_bytes;	/* length the tree in bytes */
     long tree_bytes_without_sset;	/* length the tree in bytes without sset */
     long nwords;
-    long min_len_tree;	     /*  minimum length of any tree based on matrix */
+    long min_len_tree;	     /*  minimum length of any tree based on MSA */
     long nsets;			/* sets per tree */
     long mssz;			/* maximum objects per set */
     char **row;			/* array of row strings */
@@ -88,7 +88,7 @@ typedef struct
     long verbose;						/* verboseness level */
     char file_name_in[LVB_FNAMSIZE];	/* input file name */
     char file_name_out[LVB_FNAMSIZE];	/* output file name */
-} Params;
+} Parameters;
 
 #elif LVB_PARALLEL_SEARCH
 
@@ -175,7 +175,7 @@ typedef enum { LVB_FALSE, LVB_TRUE } Lvb_bool;	/* boolean type */
 typedef struct data
 {
      long m;				/* number of columns */
-     long original_m;	/* number of columns read from matrix*/
+     long original_m;	/* number of columns read from MSA*/
      long n;				/* number of rows */
      long max_length_seq_name; 	/* length of the sequence names */
      long nbranches; 	/* number of possible braches */
@@ -183,7 +183,7 @@ typedef struct data
      long tree_bytes;	/* length the tree in bytes */
      long tree_bytes_whitout_sset;	/* length the tree in bytes whitout sset */
      long nwords;
-     long min_len_tree;	     /*  minimum length of any tree based on matrix */
+     long min_len_tree;	     /*  minimum length of any tree based on MSA */
      long nsets;	/* sets per tree */
      long mssz;	/* maximum objects per set */
      int n_threads_getplen;  	/* number of possible threads in getplen function */
@@ -215,7 +215,7 @@ typedef struct
       int n_make_test;					/* it is only used for tests */
       char file_name_in[LVB_FNAMSIZE];	/* input file name */
       char file_name_out[LVB_FNAMSIZE];	/* output file name */
-} Params;
+} Parameters;
 
 /* structure to use sending temperature and number of iterations to master process */
 typedef struct

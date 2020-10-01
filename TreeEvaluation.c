@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "LVB.h"
 
-long getplen(Dataptr restrict matrix, Branch *CurrentTreeArray, Params rcstruct, const long root, 
+long getplen(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *CurrentTreeArray, Parameters rcstruct, const long root, 
 		long *restrict p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs)
 {
     long branch;			/* current branch number */
@@ -61,24 +61,24 @@ long getplen(Dataptr restrict matrix, Branch *CurrentTreeArray, Params rcstruct,
     long l_end = 0;
 
     /* calculate state sets and changes where not already known */
-    if (matrix->n_threads_getplen > 1){	/* only if is greather than 1 that use the thread version */
+    if (MSA->n_threads_getplen > 1){	/* only if is greather than 1 that use the thread version */
 
 		/* get the branches to touch */
-		memset(p_runs, 0, matrix->n_threads_getplen * (matrix->nbranches - matrix->n) * sizeof(int));
-		for (i = matrix->n; i < matrix->nbranches; i++) {
+		memset(p_runs, 0, MSA->n_threads_getplen * (MSA->nbranches - MSA->n) * sizeof(int));
+		for (i = MSA->n; i < MSA->nbranches; i++) {
 			if (CurrentTreeArray[i].sset[0] == 0U){
 				*(p_todo_arr + todo_cnt++) = i;
 			}
 			else{
 				changes += CurrentTreeArray[i].changes;
-				for (k = 0; k < matrix->n_threads_getplen; k++){
-					*(p_runs + ((i - matrix->n) * matrix->n_threads_getplen) + k) = 1;
+				for (k = 0; k < MSA->n_threads_getplen; k++){
+					*(p_runs + ((i - MSA->n) * MSA->n_threads_getplen) + k) = 1;
 				}
 			}
 		}
 
 		omp_set_dynamic(0);	  /* disable dinamic threathing */
-		#pragma omp parallel num_threads(matrix->n_threads_getplen) private(done, l_end, k, i, left, right, branch, n_changes_temp)
+		#pragma omp parallel num_threads(MSA->n_threads_getplen) private(done, l_end, k, i, left, right, branch, n_changes_temp)
 		{
 			long j;						/* loop counter */
 			long ch;					/* partial changes */
@@ -87,23 +87,23 @@ long getplen(Dataptr restrict matrix, Branch *CurrentTreeArray, Params rcstruct,
 			Lvb_bit_length y;					/* batch of 8 right state sets */
 
 			done = 0;
-			l_end = matrix->n_slice_size_getplen * (omp_get_thread_num() + 1);
-			if (matrix->n_threads_getplen == (omp_get_thread_num() + 1)) l_end += matrix->nwords - (matrix->n_slice_size_getplen * matrix->n_threads_getplen);
+			l_end = MSA->n_slice_size_getplen * (omp_get_thread_num() + 1);
+			if (MSA->n_threads_getplen == (omp_get_thread_num() + 1)) l_end += MSA->nwords - (MSA->n_slice_size_getplen * MSA->n_threads_getplen);
 
 			while (done < todo_cnt) {
 				for (i = 0; i < todo_cnt; i++) {
 					branch = *(p_todo_arr + i);
-					if (*(p_runs + ((branch - matrix->n) * matrix->n_threads_getplen) + omp_get_thread_num()) == 0) /* "dirty" */
+					if (*(p_runs + ((branch - MSA->n) * MSA->n_threads_getplen) + omp_get_thread_num()) == 0) /* "dirty" */
 					{
 						left = CurrentTreeArray[branch].left;
 						right = CurrentTreeArray[branch].right;
-						if ((left < matrix->n || *(p_runs + ((left - matrix->n) * matrix->n_threads_getplen) + omp_get_thread_num()) == 1) &&
-								(right < matrix->n || *(p_runs + ((right - matrix->n) * matrix->n_threads_getplen) + omp_get_thread_num()) == 1))
+						if ((left < MSA->n || *(p_runs + ((left - MSA->n) * MSA->n_threads_getplen) + omp_get_thread_num()) == 1) &&
+								(right < MSA->n || *(p_runs + ((right - MSA->n) * MSA->n_threads_getplen) + omp_get_thread_num()) == 1))
 						{
 							n_changes_temp = 0;
 							Lvb_bit_length *restrict l_ssets = CurrentTreeArray[left].sset;
 							Lvb_bit_length *restrict r_ssets = CurrentTreeArray[right].sset;
-							for (j = matrix->n_slice_size_getplen * omp_get_thread_num(); j < l_end; j++){
+							for (j = MSA->n_slice_size_getplen * omp_get_thread_num(); j < l_end; j++){
 								x = l_ssets[j];
 								y = r_ssets[j];
 								u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
@@ -113,9 +113,9 @@ long getplen(Dataptr restrict matrix, Branch *CurrentTreeArray, Params rcstruct,
 								n_changes_temp += ch;
 								CurrentTreeArray[branch].sset[j] = (x & y) | ((x | y) & ((u + MASK_SEVEN) ^ MASK_EIGHT));;
 							}
-							*(p_todo_arr_sum_changes + (i * matrix->n_threads_getplen) + omp_get_thread_num()) = n_changes_temp;
+							*(p_todo_arr_sum_changes + (i * MSA->n_threads_getplen) + omp_get_thread_num()) = n_changes_temp;
 							done++;
-							*(p_runs + ((branch - matrix->n) * matrix->n_threads_getplen) + omp_get_thread_num()) = 1;
+							*(p_runs + ((branch - MSA->n) * MSA->n_threads_getplen) + omp_get_thread_num()) = 1;
 						}
 					}
 				}
@@ -125,7 +125,7 @@ long getplen(Dataptr restrict matrix, Branch *CurrentTreeArray, Params rcstruct,
 			n_changes_temp = 0;
 			left = CurrentTreeArray[root].left;
 			right = CurrentTreeArray[root].right;
-			for (j = matrix->n_slice_size_getplen * omp_get_thread_num(); j < l_end; j++){
+			for (j = MSA->n_slice_size_getplen * omp_get_thread_num(); j < l_end; j++){
 				x = CurrentTreeArray[left].sset[j];
 				y = CurrentTreeArray[right].sset[j];
 				u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
@@ -142,21 +142,21 @@ long getplen(Dataptr restrict matrix, Branch *CurrentTreeArray, Params rcstruct,
 				ch = LENGTH_WORD - ch;
 				n_changes_temp += ch;
 			}
-			*(p_todo_arr_sum_changes + (todo_cnt * matrix->n_threads_getplen) + omp_get_thread_num()) = n_changes_temp;
+			*(p_todo_arr_sum_changes + (todo_cnt * MSA->n_threads_getplen) + omp_get_thread_num()) = n_changes_temp;
 		}
 
 
 		/* sum the changes */
 		for (i = 0; i < todo_cnt; i++) {
-			CurrentTreeArray[*(p_todo_arr + i)].changes = *(p_todo_arr_sum_changes + (i * matrix->n_threads_getplen));
-			for(k = 1; k < matrix->n_threads_getplen; k++){
-				CurrentTreeArray[*(p_todo_arr + i)].changes += *(p_todo_arr_sum_changes + (i * matrix->n_threads_getplen) + k);
+			CurrentTreeArray[*(p_todo_arr + i)].changes = *(p_todo_arr_sum_changes + (i * MSA->n_threads_getplen));
+			for(k = 1; k < MSA->n_threads_getplen; k++){
+				CurrentTreeArray[*(p_todo_arr + i)].changes += *(p_todo_arr_sum_changes + (i * MSA->n_threads_getplen) + k);
 			}
 			changes += CurrentTreeArray[*(p_todo_arr + i)].changes;
 		}
 		/* sum the changes to the root */
-		for(k = 0; k < matrix->n_threads_getplen; k++){
-			changes += *(p_todo_arr_sum_changes + (todo_cnt * matrix->n_threads_getplen) + k);
+		for(k = 0; k < MSA->n_threads_getplen; k++){
+			changes += *(p_todo_arr_sum_changes + (todo_cnt * MSA->n_threads_getplen) + k);
 		}
 		/* END of threading code */
     }
@@ -168,7 +168,7 @@ long getplen(Dataptr restrict matrix, Branch *CurrentTreeArray, Params rcstruct,
 		Lvb_bit_length x;					/* batch of 8 left state sets */
 		Lvb_bit_length y;					/* batch of 8 right state sets */
 
-		for (i = matrix->n; i < matrix->nbranches; i++) {
+		for (i = MSA->n; i < MSA->nbranches; i++) {
 			if (CurrentTreeArray[i].sset[0] == 0U){
 				*(p_todo_arr + todo_cnt++) = i;
 				CurrentTreeArray[i].changes = 0;
@@ -189,7 +189,7 @@ long getplen(Dataptr restrict matrix, Branch *CurrentTreeArray, Params rcstruct,
 					{
 						Lvb_bit_length *restrict l_ssets = CurrentTreeArray[left].sset;
 						Lvb_bit_length *restrict r_ssets = CurrentTreeArray[right].sset;
-						for (j = 0; j < matrix->nwords; j++){
+						for (j = 0; j < MSA->nwords; j++){
 							x = l_ssets[j];
 							y = r_ssets[j];
 							u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
@@ -213,7 +213,7 @@ long getplen(Dataptr restrict matrix, Branch *CurrentTreeArray, Params rcstruct,
 			* leaf) */
 		left = CurrentTreeArray[root].left;
 		right = CurrentTreeArray[root].right;
-		for (j = 0; j < matrix->nwords; j++){
+		for (j = 0; j < MSA->nwords; j++){
 			x = CurrentTreeArray[left].sset[j];
 			y = CurrentTreeArray[right].sset[j];
 			u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
@@ -290,7 +290,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <PopCNT.h>
 #endif
 
-long getplen(Dataptr restrict matrix, Branch *CurrentTreeArray, Params rcstruct, const long root,
+long getplen(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *CurrentTreeArray, Parameters rcstruct, const long root,
 	     long *restrict p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs)
 {
     long branch;			/* current branch number */
@@ -307,15 +307,15 @@ long getplen(Dataptr restrict matrix, Branch *CurrentTreeArray, Params rcstruct,
 //#define	PRINT_PRINTF
 
     /* calculate state sets and changes where not already known */
-    if (matrix->n_threads_getplen > 1){	/* only if is greather than 1 that use the thread version */
+    if (MSA->n_threads_getplen > 1){	/* only if is greather than 1 that use the thread version */
 
 #ifdef	PRINT_PRINTF
 	printf("start openMP\n");
 #endif
 
 		/* get the branches to touch */
-		memset(p_runs, 0, matrix->n_threads_getplen * (matrix->nbranches - matrix->n) * sizeof(int));
-		for (i = matrix->n; i < matrix->nbranches; i++) {
+		memset(p_runs, 0, MSA->n_threads_getplen * (MSA->nbranches - MSA->n) * sizeof(int));
+		for (i = MSA->n; i < MSA->nbranches; i++) {
 			if (CurrentTreeArray[i].sset[0] == 0U){
 #ifdef	PRINT_PRINTF
 			printf("touch: %d   left:%d  right:%d\n", i, CurrentTreeArray[i].left, CurrentTreeArray[i].right);
@@ -324,14 +324,14 @@ long getplen(Dataptr restrict matrix, Branch *CurrentTreeArray, Params rcstruct,
 			}
 			else{
 				changes += CurrentTreeArray[i].changes;
-				for (k = 0; k < matrix->n_threads_getplen; k++){
-					*(p_runs + ((i - matrix->n) * matrix->n_threads_getplen) + k) = 1;
+				for (k = 0; k < MSA->n_threads_getplen; k++){
+					*(p_runs + ((i - MSA->n) * MSA->n_threads_getplen) + k) = 1;
 				}
 			}
 		}
 
 		omp_set_dynamic(0);	  /* disable dinamic threathing */
-		#pragma omp parallel num_threads(matrix->n_threads_getplen) private(done, l_end, k, i, left, right, branch, n_changes_temp)
+		#pragma omp parallel num_threads(MSA->n_threads_getplen) private(done, l_end, k, i, left, right, branch, n_changes_temp)
 		{
 			long j;						/* loop counter */
 			long ch;					/* partial changes */
@@ -341,28 +341,28 @@ long getplen(Dataptr restrict matrix, Branch *CurrentTreeArray, Params rcstruct,
 			Lvb_bit_lentgh y;					/* batch of 8 right state sets */
 
 			done = 0;
-			l_end = matrix->n_slice_size_getplen * (omp_get_thread_num() + 1);
-			if (matrix->n_threads_getplen == (omp_get_thread_num() + 1)) l_end += matrix->nwords - (matrix->n_slice_size_getplen * matrix->n_threads_getplen);
+			l_end = MSA->n_slice_size_getplen * (omp_get_thread_num() + 1);
+			if (MSA->n_threads_getplen == (omp_get_thread_num() + 1)) l_end += MSA->nwords - (MSA->n_slice_size_getplen * MSA->n_threads_getplen);
 #ifdef	PRINT_PRINTF
-	printf("1 : Thread# %d: begin = %d    l_end: %d\n", omp_get_thread_num(), matrix->n_slice_size_getplen * omp_get_thread_num(), l_end);
+	printf("1 : Thread# %d: begin = %d    l_end: %d\n", omp_get_thread_num(), MSA->n_slice_size_getplen * omp_get_thread_num(), l_end);
 #endif
 			while (done < todo_cnt) {
 				for (i = 0; i < todo_cnt; i++) {
 					branch = *(p_todo_arr + i);
 #ifdef	PRINT_PRINTF
 	printf("1 : Thread# %d: try to make branch: %d     is_possible_to_run: %d\n", omp_get_thread_num(), branch,
-			*(p_runs + ((branch - matrix->n) * matrix->n_threads_getplen) + omp_get_thread_num()));
+			*(p_runs + ((branch - MSA->n) * MSA->n_threads_getplen) + omp_get_thread_num()));
 #endif
-					if (*(p_runs + ((branch - matrix->n) * matrix->n_threads_getplen) + omp_get_thread_num()) == 0) /* "dirty" */
+					if (*(p_runs + ((branch - MSA->n) * MSA->n_threads_getplen) + omp_get_thread_num()) == 0) /* "dirty" */
 					{
 						left = CurrentTreeArray[branch].left;
 						right = CurrentTreeArray[branch].right;
 #ifdef	PRINT_PRINTF
-	printf("1 : Thread# %d: left = %d  is_possible_to_run: %d\n", omp_get_thread_num(), left, *(p_runs + ((left - matrix->n) * matrix->n_threads_getplen) + omp_get_thread_num()));
-	printf("1 : Thread# %d: right = %d  is_possible_to_run: %d\n", omp_get_thread_num(), right, *(p_runs + ((right - matrix->n) * matrix->n_threads_getplen) + omp_get_thread_num()));
+	printf("1 : Thread# %d: left = %d  is_possible_to_run: %d\n", omp_get_thread_num(), left, *(p_runs + ((left - MSA->n) * MSA->n_threads_getplen) + omp_get_thread_num()));
+	printf("1 : Thread# %d: right = %d  is_possible_to_run: %d\n", omp_get_thread_num(), right, *(p_runs + ((right - MSA->n) * MSA->n_threads_getplen) + omp_get_thread_num()));
 #endif
-						if ((left < matrix->n || *(p_runs + ((left - matrix->n) * matrix->n_threads_getplen) + omp_get_thread_num()) == 1) &&
-								(right < matrix->n || *(p_runs + ((right - matrix->n) * matrix->n_threads_getplen) + omp_get_thread_num()) == 1))
+						if ((left < MSA->n || *(p_runs + ((left - MSA->n) * MSA->n_threads_getplen) + omp_get_thread_num()) == 1) &&
+								(right < MSA->n || *(p_runs + ((right - MSA->n) * MSA->n_threads_getplen) + omp_get_thread_num()) == 1))
 						{
 #ifdef	PRINT_PRINTF
 				printf("1 : Thread# %d: make branch: %d\n", omp_get_thread_num(), branch);
@@ -370,7 +370,7 @@ long getplen(Dataptr restrict matrix, Branch *CurrentTreeArray, Params rcstruct,
 							n_changes_temp = 0;
 							Lvb_bit_lentgh *restrict l_ssets = CurrentTreeArray[left].sset;
 							Lvb_bit_lentgh *restrict r_ssets = CurrentTreeArray[right].sset;
-							for (j = matrix->n_slice_size_getplen * omp_get_thread_num(); j < l_end; j++){
+							for (j = MSA->n_slice_size_getplen * omp_get_thread_num(); j < l_end; j++){
 								x = l_ssets[j];
 								y = r_ssets[j];
 
@@ -396,9 +396,9 @@ long getplen(Dataptr restrict matrix, Branch *CurrentTreeArray, Params rcstruct,
 								n_changes_temp += ch;
 								CurrentTreeArray[branch].sset[j] = (x & y) | ((x | y) & ((u + MASK_SEVEN) ^ MASK_EIGHT));;
 							}
-							*(p_todo_arr_sum_changes + (i * matrix->n_threads_getplen) + omp_get_thread_num()) = n_changes_temp;
+							*(p_todo_arr_sum_changes + (i * MSA->n_threads_getplen) + omp_get_thread_num()) = n_changes_temp;
 							done++;
-							*(p_runs + ((branch - matrix->n) * matrix->n_threads_getplen) + omp_get_thread_num()) = 1;
+							*(p_runs + ((branch - MSA->n) * MSA->n_threads_getplen) + omp_get_thread_num()) = 1;
 						}
 					}
 				}
@@ -408,7 +408,7 @@ long getplen(Dataptr restrict matrix, Branch *CurrentTreeArray, Params rcstruct,
 			n_changes_temp = 0;
 			left = CurrentTreeArray[root].left;
 			right = CurrentTreeArray[root].right;
-			for (j = matrix->n_slice_size_getplen * omp_get_thread_num(); j < l_end; j++){
+			for (j = MSA->n_slice_size_getplen * omp_get_thread_num(); j < l_end; j++){
 				x = CurrentTreeArray[left].sset[j];
 				y = CurrentTreeArray[right].sset[j];
 
@@ -455,21 +455,21 @@ long getplen(Dataptr restrict matrix, Branch *CurrentTreeArray, Params rcstruct,
 				ch = LENGTH_WORD - ch;
 				n_changes_temp += ch;
 			}
-			*(p_todo_arr_sum_changes + (todo_cnt * matrix->n_threads_getplen) + omp_get_thread_num()) = n_changes_temp;
+			*(p_todo_arr_sum_changes + (todo_cnt * MSA->n_threads_getplen) + omp_get_thread_num()) = n_changes_temp;
 		}
 
 
 		/* sum the changes */
 		for (i = 0; i < todo_cnt; i++) {
-			CurrentTreeArray[*(p_todo_arr + i)].changes = *(p_todo_arr_sum_changes + (i * matrix->n_threads_getplen));
-			for(k = 1; k < matrix->n_threads_getplen; k++){
-				CurrentTreeArray[*(p_todo_arr + i)].changes += *(p_todo_arr_sum_changes + (i * matrix->n_threads_getplen) + k);
+			CurrentTreeArray[*(p_todo_arr + i)].changes = *(p_todo_arr_sum_changes + (i * MSA->n_threads_getplen));
+			for(k = 1; k < MSA->n_threads_getplen; k++){
+				CurrentTreeArray[*(p_todo_arr + i)].changes += *(p_todo_arr_sum_changes + (i * MSA->n_threads_getplen) + k);
 			}
 			changes += CurrentTreeArray[*(p_todo_arr + i)].changes;
 		}
 		/* sum the changes to the root */
-		for(k = 0; k < matrix->n_threads_getplen; k++){
-			changes += *(p_todo_arr_sum_changes + (todo_cnt * matrix->n_threads_getplen) + k);
+		for(k = 0; k < MSA->n_threads_getplen; k++){
+			changes += *(p_todo_arr_sum_changes + (todo_cnt * MSA->n_threads_getplen) + k);
 		}
 		/* END of threading code */
     }
@@ -482,7 +482,7 @@ long getplen(Dataptr restrict matrix, Branch *CurrentTreeArray, Params rcstruct,
 		Lvb_bit_lentgh x;				/* batch of 8 left state sets */
 		Lvb_bit_lentgh y;				/* batch of 8 right state sets */
 
-		for (i = matrix->n; i < matrix->nbranches; i++) {
+		for (i = MSA->n; i < MSA->nbranches; i++) {
 			if (CurrentTreeArray[i].sset[0] == 0U){
 #ifdef	PRINT_PRINTF
 			printf("touch: %d   left:%d  right:%d\n", i, CurrentTreeArray[i].left, CurrentTreeArray[i].right);
@@ -506,7 +506,7 @@ long getplen(Dataptr restrict matrix, Branch *CurrentTreeArray, Params rcstruct,
 					{
 						Lvb_bit_lentgh *restrict l_ssets = CurrentTreeArray[left].sset;
 						Lvb_bit_lentgh *restrict r_ssets = CurrentTreeArray[right].sset;
-						for (j = 0; j < matrix->nwords; j++){
+						for (j = 0; j < MSA->nwords; j++){
 							x = l_ssets[j];
 							y = r_ssets[j];
 #ifdef	PRINT_PRINTF
@@ -563,7 +563,7 @@ long getplen(Dataptr restrict matrix, Branch *CurrentTreeArray, Params rcstruct,
 			* leaf) */
 		left = CurrentTreeArray[root].left;
 		right = CurrentTreeArray[root].right;
-		for (j = 0; j < matrix->nwords; j++){
+		for (j = 0; j < MSA->nwords; j++){
 			x = CurrentTreeArray[left].sset[j];
 			y = CurrentTreeArray[right].sset[j];
 

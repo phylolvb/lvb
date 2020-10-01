@@ -42,39 +42,52 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "LVB.h"
 
-/* basic test of phylip_mat_dims_in() */
+/* Positive test that an interleaved MSA may be read. Example is taken
+ * from the PHYLIP 3.6a documentation. */
 
-/* these constants are given in the infile */
-#define EXPECTED_N 10
-#define EXPECTED_M 63
+static const char *name_expected[5] =
+{
+    "Turkey",
+    "Salmo gair",
+    "H. Sapiens",
+    "Chimp",
+    "Gorilla"
+};
+
+static const char *sequence_expected[5] =
+{
+    "AAGCTNGGGCATTTCAGGGTGAGCCCGGGCAATACAGGGTAT",
+    "AAGCCTTGGCAGTGCAGGGTGAGCCGTGGCCGGGCACGGTAT",
+    "ACCGGTTGGCCGTTCAGGGTACAGGTTGGCCGTTCAGGGTAA",
+    "AAACCCTTGCCGTTACGCTTAAACCGAGGCCGGGACACTCAT",
+    "AAACCCTTGCCGGTACGCTTAAACCATTGCCGGTACGCTTAA"
+};
 
 int main(void)
 {
-    long m;				/* sites */
-    long n;				/* sequences */
-    int max_length_name;		/* mas name length */
-    Lvb_bool success = LVB_FALSE;	/* test passed */
-    Params rcstruct;		/* configurable parameters */
+    Dataptr MSA;	/* data MSA as input */
+    long i;		/* loop counter */
 
     lvb_initialize();
-
-//    rcstruct.file_name_in = "infile";
+    Parameters rcstruct;		/* configurable parameters */
     strcpy(rcstruct.file_name_in, "infile");
     rcstruct.n_file_format = FORMAT_PHYLIP;
 
-    phylip_mat_dims_in(rcstruct.file_name_in, rcstruct.n_file_format, &n, &m, &max_length_name);
-    if ((n == EXPECTED_N) && (m == EXPECTED_M))
+    lvb_initialize();
+    MSA = (data *) malloc(sizeof(DataStructure));
+    phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, MSA);
+    lvb_assert(MSA->m == 42);
+    lvb_assert(MSA->n == 5);
+
+    for (i = 0; i < 5; i++)
     {
-    	/* try it again and check it still works */
-	phylip_mat_dims_in(rcstruct.file_name_in, rcstruct.n_file_format, &n, &m, &max_length_name);
-	if ((n == EXPECTED_N) && (m == EXPECTED_M))
-	    success = LVB_TRUE;
+        lvb_assert(strlen(MSA->row[i]) == 42);
+        lvb_assert(strlen(MSA->rowtitle[i]) == strlen(name_expected[i]));
+	lvb_assert(strcmp(MSA->row[i], sequence_expected[i]) == 0);
+	lvb_assert(strcmp(MSA->rowtitle[i], name_expected[i]) == 0);
     }
 
-    if (success == LVB_TRUE)
-        printf("test passed\n");
-    else
-    	printf("test failed\n");
-
+    rowfree(MSA);
+    printf("test passed\n");
     return 0;
 }

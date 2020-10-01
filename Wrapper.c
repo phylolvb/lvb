@@ -52,11 +52,11 @@ void phylip_dna_matrin(char *p_file_name, int n_file_format, Dataptr lvbmat)
 	read_file(p_file_name, n_file_format, lvbmat);
 
     /* check number of sequences is in range for LVB */
-    if (lvbmat->n < MIN_N) crash("The data matrix must have at least %ld sequences.", MIN_N);
-    else if (lvbmat->n > MAX_N) crash("The data matrix must have no more than %ld sequences.", MAX_N);
+    if (lvbmat->n < MIN_N) crash("The data MSA must have at least %ld sequences.", MIN_N);
+    else if (lvbmat->n > MAX_N) crash("The data MSA must have no more than %ld sequences.", MAX_N);
     /* check number of sites is in range for LVB */
-    else if (lvbmat->m < MIN_M) crash("The data matrix must have at least %ld sites.", MIN_M);
-    else if (lvbmat->m > MAX_M) crash("The data matrix must have no more than %ld sites.", MAX_M);
+    else if (lvbmat->m < MIN_M) crash("The data MSA must have at least %ld sites.", MIN_M);
+    else if (lvbmat->m > MAX_M) crash("The data MSA must have no more than %ld sites.", MAX_M);
 
     /* maximum number of object sets per tree */
     lvb_assert (lvbmat->nsets <= (MAX_N - 3));
@@ -130,7 +130,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =head2 DESCRIPTION
 
-Read a DNA data matrix in PHYLIP 3.6 format from file. The file name is
+Read a DNA data MSA in PHYLIP 3.6 format from file. The file name is
 given by the macro MATFNAM in F<LVB.h>.
 
 =head2 PARAMETERS
@@ -141,15 +141,15 @@ given by the macro MATFNAM in F<LVB.h>.
 
 =item ileaved
 
-C<LVB_TRUE> indicates that the matrix is in PHYLIP interleaved format.
+C<LVB_TRUE> indicates that the MSA is in PHYLIP interleaved format.
 Otherwise, it is assumed to be in PHYLIP sequential format.
 
 =back
 
 =head2 RETURN
 
-Returns a pointer to a new, dynamically allocated LVB data matrix
-structure containing the data matrix.
+Returns a pointer to a new, dynamically allocated LVB data MSA
+structure containing the data MSA.
 
 =cut
 
@@ -161,11 +161,11 @@ structure containing the data matrix.
 		if (n_error_code != EXIT_SUCCESS) return n_error_code;
 
 		/* check number of sequences is in range for LVB */
-	    if (lvbmat->n < MIN_N) crash("The data matrix must have at least %ld sequences.", MIN_N);
-	    else if (lvbmat->n > MAX_N) crash("The data matrix must have no more than %ld sequences.", MAX_N);
+	    if (lvbmat->n < MIN_N) crash("The data MSA must have at least %ld sequences.", MIN_N);
+	    else if (lvbmat->n > MAX_N) crash("The data MSA must have no more than %ld sequences.", MAX_N);
 	    /* check number of sites is in range for LVB */
-	    else if (lvbmat->m < MIN_M) crash("The data matrix must have at least %ld sites.", MIN_M);
-	    else if (lvbmat->m > MAX_M) crash("The data matrix must have no more than %ld sites.", MAX_M);
+	    else if (lvbmat->m < MIN_M) crash("The data MSA must have at least %ld sites.", MIN_M);
+	    else if (lvbmat->m > MAX_M) crash("The data MSA must have no more than %ld sites.", MAX_M);
 
 	    return EXIT_SUCCESS;
 	} /* end phylip_dna_matrin() */
@@ -182,7 +182,7 @@ void phylip_mat_dims_in(long *species_ptr, long *sites_ptr);
 =head2 DESCRIPTION
 
 Reads the number of sequences and number of sites per sequence in a
-PHYLIP-format matrix file.
+PHYLIP-format MSA file.
 
 =head2 PARAMETERS
 
@@ -203,7 +203,7 @@ sequence.
 
 =head2 BUGS
 
-C<phylip_mat_dims_in()> should not be called if the matrix file is
+C<phylip_mat_dims_in()> should not be called if the MSA file is
 open.
 
 =cut

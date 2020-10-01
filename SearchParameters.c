@@ -49,7 +49,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <unistd.h>
 
 /* it is in CommandLineParser.cpp library */
-void read_parameters(Params *prms, int argc, char **argv);
+void read_parameters(Parameters *prms, int argc, char **argv);
 
 static int get_default_seed(void)
 /* return a default integer in the interval [0..MAX_SEED], obtained from the
@@ -69,7 +69,7 @@ static int get_default_seed(void)
 } /* end get_default_seed() */
 
 
-void defaults_params(Params *const prms)
+void defaults_params(Parameters *const prms)
 /* set seed in *prms to unacceptable value, and other parameters to their
  * defaults_params from LVB.h */
 {
@@ -90,7 +90,7 @@ void defaults_params(Params *const prms)
 
 } /* end defaults_params() */
 
-void getparam(Params *prms, int argc, char **argv)
+void getparam(Parameters *prms, int argc, char **argv)
 /* Get configuration parameters. This function fills *prms with
  * run-time configuration parameters */
 {
@@ -179,7 +179,7 @@ int get_default_seed(void)
 
 } /* end get_default_seed() */
 
-void defaults_params(Params *const prms)
+void defaults_params(Parameters *const prms)
 /* set seed in *prms to unacceptable value, and other parameters to their
  * defaults_params from LVB.h */
 {
@@ -210,7 +210,7 @@ void defaults_params(Params *const prms)
     prms->n_make_test = 0;	/* by default is not making any test */
 } /* end defaults_params() */
 
-int getparam(Params *prms, int argc, char **argv)
+int getparam(Parameters *prms, int argc, char **argv)
 /* Get configuration parameters. This function fills *prms with
    run-time configuration parameters */
 {

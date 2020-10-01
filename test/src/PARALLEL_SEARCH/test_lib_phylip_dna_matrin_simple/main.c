@@ -38,8 +38,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "LVB.h"
 
-/* Positive test that a simple (one line per sequence) matrix may be
- * read, both as a sequential and as an interleaved matrix. Example is
+/* Positive test that a simple (one line per sequence) MSA may be
+ * read, both as a sequential and as an interleaved MSA. Example is
  * taken from the PHYLIP 3.6a documentation. */
 
 static const char *name_expected[6] =
@@ -62,12 +62,12 @@ static const char *sequence_expected[6] =
     "GGCAGCCAATCAC"
 };
 
-	static void check(Dataptr matrix, DataSeqPtr matrix_seq)
-	/* check matrix has been input correctly, or crash if not */
+	static void check(Dataptr MSA, DataSeqPtr matrix_seq)
+	/* check MSA has been input correctly, or crash if not */
 	{
 	    long i;		/* loop counter */
-	    lvb_assert(matrix->m == 13);
-	    lvb_assert(matrix->n == 6);
+	    lvb_assert(MSA->m == 13);
+	    lvb_assert(MSA->n == 6);
 
 	    for (i = 0; i < 6; i++)
 	    {
@@ -80,13 +80,13 @@ static const char *sequence_expected[6] =
 
 int main(void)
 {
-    Dataptr matrix1;	/* data matrix as input (interleaved) */
-    Dataptr matrix2;	/* data matrix as input (sequential) */
+    Dataptr matrix1;	/* data MSA as input (interleaved) */
+    Dataptr matrix2;	/* data MSA as input (sequential) */
 
-    DataSeqPtr matrix_seq_data_1;	/* data matrix as input */
-    DataSeqPtr matrix_seq_data_2;	/* data matrix as input */
+    DataSeqPtr matrix_seq_data_1;	/* data MSA as input */
+    DataSeqPtr matrix_seq_data_2;	/* data MSA as input */
 
-    Params rcstruct;		/* configurable parameters */
+    Parameters rcstruct;		/* configurable parameters */
     strcpy(rcstruct.file_name_in, "infile");
     rcstruct.n_file_format = FORMAT_PHYLIP;
 

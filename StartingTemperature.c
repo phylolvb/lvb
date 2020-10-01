@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "LVB.h"
 
-double StartingTemperature(Dataptr matrix, const Branch *const inittree, Params rcstruct, long root,
+double StartingTemperature(Dataptr MSA, const TREESTACK_TREE_BRANCH *const inittree, Parameters rcstruct, long root,
 		Lvb_bool log_progress)
 		
 /* Determine the starting temperature for the annealing search 
@@ -74,8 +74,8 @@ double StartingTemperature(Dataptr matrix, const Branch *const inittree, Params 
     double r_lenmin;		/* minimum length for any tree */
     long rootdash;		/* root of new configuration */
     double t = LVB_EPS;		/* current temperature */
-    Branch *x;			/* current configuration */
-    Branch *xdash;		/* proposed new configuration */
+    TREESTACK_TREE_BRANCH *x;			/* current configuration */
+    TREESTACK_TREE_BRANCH *xdash;		/* proposed new configuration */
 
     /* Variables specific to the StartingTemperatureemperature() procedure*/
     int acc_pos_trans = 0;        /* Number of accepted positve transitions */
@@ -90,14 +90,14 @@ double StartingTemperature(Dataptr matrix, const Branch *const inittree, Params 
 
     /* Create "local" dynamic heap memory and initialise tree 
      * structures like in anneal() */
-    x = treealloc(matrix, LVB_TRUE);
-    xdash = treealloc(matrix, LVB_TRUE);
+    x = treealloc(MSA, LVB_TRUE);
+    xdash = treealloc(MSA, LVB_TRUE);
 
-    treecopy(matrix, x, inittree, LVB_TRUE);	/* current configuration */
-    alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-    len = getplen(matrix, x, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+    treecopy(MSA, x, inittree, LVB_TRUE);	/* current configuration */
+    alloc_memory_to_getplen(MSA, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
+    len = getplen(MSA, x, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
     
-	lenmin = getminlen(matrix);
+	lenmin = getminlen(MSA);
     r_lenmin = (double) lenmin;
     
     /* Log progress to standard output if chosen*/
@@ -113,16 +113,16 @@ double StartingTemperature(Dataptr matrix, const Branch *const inittree, Params 
 			/* Create an alternative tree topology (adopted from anneal()) */
 
 			/* occasionally re-root, to prevent influence from root position */
-			if ((iter % REROOT_INTERVAL) == 0) root = arbreroot(matrix, x, root);
+			if ((iter % REROOT_INTERVAL) == 0) root = arbreroot(MSA, x, root);
 
 			lvb_assert(t > DBL_EPSILON);
 
 			/* mutation: alternate between the two mutation functions */
 			rootdash = root;
-			if (iter & 0x01) mutate_spr(matrix, xdash, x, root);	/* global change */
-			else mutate_nni(matrix, xdash, x, root);	/* local change */
+			if (iter & 0x01) mutate_spr(MSA, xdash, x, root);	/* global change */
+			else mutate_nni(MSA, xdash, x, root);	/* local change */
 
-			lendash = getplen(matrix, xdash, rcstruct, rootdash, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+			lendash = getplen(MSA, xdash, rcstruct, rootdash, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 			lvb_assert (lendash >= 1L);
 			deltalen = lendash - len;
 			deltah = (r_lenmin / (double) len) - (r_lenmin / (double) lendash);
@@ -240,7 +240,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef MPI_Implementation
 
-double StartingTemperature(Dataptr matrix, const Branch *const inittree, Params rcstruct, long root, int myMPIid, Lvb_bool log_progress)
+double StartingTemperature(Dataptr MSA, const TREESTACK_TREE_BRANCH *const inittree, Parameters rcstruct, long root, int myMPIid, Lvb_bool log_progress)
 
 /* Determine the starting temperature for the annealing search 
  * by finding the temperature T at which 65% of proposed 
@@ -266,8 +266,8 @@ double StartingTemperature(Dataptr matrix, const Branch *const inittree, Params 
     double r_lenmin;		/* minimum length for any tree */
     long rootdash;		/* root of new configuration */
     double t = LVB_EPS;		/* current temperature */
-    Branch *x;			/* current configuration */
-    Branch *xdash;		/* proposed new configuration */
+    TREESTACK_TREE_BRANCH *x;			/* current configuration */
+    TREESTACK_TREE_BRANCH *xdash;		/* proposed new configuration */
 
     /* Variables specific to the StartingTemperatureemperature() procedure*/
     int acc_pos_trans = 0;        /* Number of accepted positve transitions */
@@ -282,15 +282,15 @@ double StartingTemperature(Dataptr matrix, const Branch *const inittree, Params 
 
     /* Create "local" dynamic heap memory and initialise tree 
      * structures like in anneal() */
-    x = treealloc(matrix, LVB_TRUE);
-    xdash = treealloc(matrix, LVB_TRUE);
+    x = treealloc(MSA, LVB_TRUE);
+    xdash = treealloc(MSA, LVB_TRUE);
 
-    treecopy(matrix, x, inittree, LVB_TRUE);	/* current configuration */
-    alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
+    treecopy(MSA, x, inittree, LVB_TRUE);	/* current configuration */
+    alloc_memory_to_getplen(MSA, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
 
 
-    len = getplen(matrix, x, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
-    r_lenmin = (double) matrix->min_len_tree;
+    len = getplen(MSA, x, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+    r_lenmin = (double) MSA->min_len_tree;
 
     /* Log progress to standard output if chosen*/
     if (log_progress) printf("\nDetermining the Starting Temperature ...\n");
@@ -304,16 +304,16 @@ double StartingTemperature(Dataptr matrix, const Branch *const inittree, Params 
 			/* Create an alternative tree topology (adopted from anneal()) */
 
 			/* occasionally re-root, to prevent influence from root position */
-			if ((iter % REROOT_INTERVAL) == 0) root = arbreroot(matrix, x, root);
+			if ((iter % REROOT_INTERVAL) == 0) root = arbreroot(MSA, x, root);
 
 			lvb_assert(t > DBL_EPSILON);
 
 			/* mutation: alternate between the two mutation functions */
 			rootdash = root;
-			if (iter & 0x01) mutate_spr(matrix, xdash, x, root);	/* global change */
-			else mutate_nni(matrix, xdash, x, root);	/* local change */
+			if (iter & 0x01) mutate_spr(MSA, xdash, x, root);	/* global change */
+			else mutate_nni(MSA, xdash, x, root);	/* local change */
 
-			lendash = getplen(matrix, xdash, rcstruct, rootdash, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+			lendash = getplen(MSA, xdash, rcstruct, rootdash, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 
 			lvb_assert (lendash >= 1L);
 			deltalen = lendash - len;

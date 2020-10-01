@@ -46,12 +46,12 @@ int main(int argc, char **argv)
 {
     FILE *fp;			/* checkpoint file */
     int my_id;			/* MPI process ID */
-    Dataptr matrix;					/* data matrix */
+    Dataptr MSA;					/* data MSA */
     DataSeqPtr matrix_seq_data;
-    Params rcstruct;
+    Parameters rcstruct;
 
-    Branch *p_current_tree, *p_current_tree_2;	/* first tree to compare */
-    Branch *p_proposed_tree, *p_proposed_tree_2;	/* first tree to compare */
+    TREESTACK_TREE_BRANCH *p_current_tree, *p_current_tree_2;	/* first tree to compare */
+    TREESTACK_TREE_BRANCH *p_proposed_tree, *p_proposed_tree_2;	/* first tree to compare */
     long accepted = 54, accepted_2;		/* changes accepted */
 	Lvb_bool dect = LVB_FALSE, dect_2;		/* should decrease temperature */
 	double deltah = 0.23423, deltah_2;		/* change in energy (1 - C.I.) */
@@ -77,30 +77,30 @@ int main(int argc, char **argv)
     MPI_Comm_rank(MPI_COMM_WORLD, &my_id);
     if (my_id == 0) {
     	rinit(SEED);
-    	matrix = (Dataptr) alloc(sizeof(DataStructure), "alloc data structure");
+    	MSA = (Dataptr) alloc(sizeof(DataStructure), "alloc data structure");
     	matrix_seq_data = (DataSeqPtr) alloc(sizeof(DataSeqStructure), "alloc data structure");
     	getparam(&rcstruct, argc, argv);
-    	phylip_dna_matrin("infile", FORMAT_PHYLIP, matrix, matrix_seq_data);
-    	matchange(matrix, matrix_seq_data, rcstruct);
+    	phylip_dna_matrin("infile", FORMAT_PHYLIP, MSA, matrix_seq_data);
+    	matchange(MSA, matrix_seq_data, rcstruct);
 
     	fp = fopen("uni_anneal", "wb");
     	/* fill a treestack without checkpointing */
     	Lvb_bool b_with_sset_current_tree = LVB_TRUE;
     	Lvb_bool b_with_sset_proposed_tree = LVB_TRUE;
-    	p_current_tree = treealloc(matrix, b_with_sset_current_tree);
-    	p_proposed_tree = treealloc(matrix, b_with_sset_proposed_tree);
-    	p_current_tree_2 = treealloc(matrix, b_with_sset_current_tree);
-    	p_proposed_tree_2 = treealloc(matrix, b_with_sset_proposed_tree);
+    	p_current_tree = treealloc(MSA, b_with_sset_current_tree);
+    	p_proposed_tree = treealloc(MSA, b_with_sset_proposed_tree);
+    	p_current_tree_2 = treealloc(MSA, b_with_sset_current_tree);
+    	p_proposed_tree_2 = treealloc(MSA, b_with_sset_proposed_tree);
     	rinit(SEED);
-    	randtree(matrix, p_current_tree);// rootdash = arbreroot(matrix, p_current_tree, rootdash);
-    	randtree(matrix, p_proposed_tree);// rootdash = arbreroot(matrix, p_proposed_tree, rootdash);
-    	r_lenmin = (double) matrix->min_len_tree;
-    	checkpoint_anneal(fp, matrix, accepted, dect, deltah, deltalen, failedcnt, iter, current_iter, len, lenbest,
+    	randtree(MSA, p_current_tree);// rootdash = arbreroot(MSA, p_current_tree, rootdash);
+    	randtree(MSA, p_proposed_tree);// rootdash = arbreroot(MSA, p_proposed_tree, rootdash);
+    	r_lenmin = (double) MSA->min_len_tree;
+    	checkpoint_anneal(fp, MSA, accepted, dect, deltah, deltalen, failedcnt, iter, current_iter, len, lenbest,
     						lendash, ln_t, t_n, t0, pacc, proposed, r_lenmin, rootdash, t, grad_geom, grad_linear,
     						p_current_tree, b_with_sset_current_tree, p_proposed_tree, b_with_sset_proposed_tree);
     	lvb_assert(fclose(fp) == 0);
 		fp = fopen("uni_anneal", "rb");
-    	restore_anneal(fp, matrix, &accepted_2, &dect_2, &deltah_2, &deltalen_2, &failedcnt_2, &iter_2, &current_iter_2, &len_2, &lenbest_2,
+    	restore_anneal(fp, MSA, &accepted_2, &dect_2, &deltah_2, &deltalen_2, &failedcnt_2, &iter_2, &current_iter_2, &len_2, &lenbest_2,
     			    &lendash_2, &ln_t_2, &t_n_2, &t0_2, &pacc_2, &proposed_2, &r_lenmin_2, &rootdash_2, &t_2, &grad_geom_2,
     				&grad_linear_2, p_current_tree_2, b_with_sset_current_tree, p_proposed_tree_2, b_with_sset_proposed_tree);
     	lvb_assert(fclose(fp) == 0);
@@ -113,8 +113,8 @@ int main(int argc, char **argv)
 				rootdash == rootdash_2 && t == t_2 && grad_geom == grad_geom_2 &&
 				grad_linear == grad_linear_2) {
 
-    		treedump_screen(matrix, p_current_tree);
-    		treedump_screen(matrix, p_current_tree_2);
+    		treedump_screen(MSA, p_current_tree);
+    		treedump_screen(MSA, p_current_tree_2);
     		printf("test passed\n");
     	}
     	else {
@@ -124,7 +124,7 @@ int main(int argc, char **argv)
     	free(p_proposed_tree);
     	free(p_current_tree_2);
     	free(p_proposed_tree_2);
-    	free(matrix);
+    	free(MSA);
     	free(matrix_seq_data);
     }
     MPI_Finalize();

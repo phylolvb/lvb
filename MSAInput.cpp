@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== MSAInput.cpp - data matrix inputs ========== */
+/* ========== MSAInput.cpp - data MSA inputs ========== */
 
 #include "MSAInput.h"
 
@@ -765,7 +765,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== MSAInput.cpp - data matrix inputs ========== */
+/* ========== MSAInput.cpp - data MSA inputs ========== */
 
 #include "MSAInput.h"
 

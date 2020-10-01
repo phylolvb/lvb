@@ -191,7 +191,7 @@ printf(" Usage: lvb -i <alignment> [options]\n");
 }
 
 
-void read_parameters(Params *prms, int argc, char **argv){
+void read_parameters(Parameters *prms, int argc, char **argv){
 
 	int c;
 	opterr = 0;
@@ -437,7 +437,7 @@ void print_formats_available(){
 void usage(char *p_file_name){
 	printf("Usage: lvb [cvsSCNiofph]\n");
 
-	printf("lvb seeks parsimonious trees from an aligned nucleotide data matrix.\n"
+	printf("lvb seeks parsimonious trees from an aligned nucleotide data MSA.\n"
 			"It uses heuristic searches consisting of simulated annealing followed by hill-climbing.\n\n");
 
 	printf("\n    -c [g|l] (g) cooling schedule. The schedule chosen\n"
@@ -471,7 +471,7 @@ void usage(char *p_file_name){
 }
 
 
-int read_parameters(Params *prms, int argc, char **argv){
+int read_parameters(Parameters *prms, int argc, char **argv){
 
 	int c;
 	opterr = 0;

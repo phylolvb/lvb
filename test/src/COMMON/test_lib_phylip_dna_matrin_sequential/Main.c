@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "LVB.h"
 
-/* Positive test that a sequential matrix may be read. Example is taken
+/* Positive test that a sequential MSA may be read. Example is taken
  * from the PHYLIP 3.6a documentation. */
 
 static const char *name_expected[5] =
@@ -65,28 +65,28 @@ static const char *sequence_expected[5] =
 
 int main(void)
 {
-    Dataptr matrix;	/* data matrix as input */
+    Dataptr MSA;	/* data MSA as input */
     long i;		/* loop counter */
 
-    Params rcstruct;		/* configurable parameters */
+    Parameters rcstruct;		/* configurable parameters */
     strcpy(rcstruct.file_name_in, "infile");
     rcstruct.n_file_format = FORMAT_PHYLIP;
     lvb_initialize();
 
-    matrix = (data *) malloc(sizeof(DataStructure));
-    phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix);
-    lvb_assert(matrix->m == 42);
-    lvb_assert(matrix->n == 5);
+    MSA = (data *) malloc(sizeof(DataStructure));
+    phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, MSA);
+    lvb_assert(MSA->m == 42);
+    lvb_assert(MSA->n == 5);
 
     for (i = 0; i < 5; i++)
     {
-        lvb_assert(strlen(matrix->row[i]) == 42);
-        lvb_assert(strlen(matrix->rowtitle[i]) == strlen(name_expected[i]));
-	lvb_assert(strcmp(matrix->row[i], sequence_expected[i]) == 0);
-	lvb_assert(strcmp(matrix->rowtitle[i], name_expected[i]) == 0);
+        lvb_assert(strlen(MSA->row[i]) == 42);
+        lvb_assert(strlen(MSA->rowtitle[i]) == strlen(name_expected[i]));
+	lvb_assert(strcmp(MSA->row[i], sequence_expected[i]) == 0);
+	lvb_assert(strcmp(MSA->rowtitle[i], name_expected[i]) == 0);
     }
 
-    rowfree(matrix);
+    rowfree(MSA);
     printf("test passed\n");
     return 0;
 }

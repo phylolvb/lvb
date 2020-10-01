@@ -38,7 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "LVB.h"
 
-/* Positive test that an interleaved matrix may be read. Example is taken
+/* Positive test that an interleaved MSA may be read. Example is taken
  * from the PHYLIP 3.6a documentation. */
 
 static const char *name_expected[5] =
@@ -62,25 +62,25 @@ static const char *sequence_expected[5] =
 int main(void)
 {
 
-    Dataptr matrix;	/* data matrix as input */
-    DataSeqPtr matrix_seq_data;	/* data matrix as input */
+    Dataptr MSA;	/* data MSA as input */
+    DataSeqPtr matrix_seq_data;	/* data MSA as input */
 
     long i;		/* loop counter */
     lvb_initialize();
-    Params rcstruct;		/* configurable parameters */
+    Parameters rcstruct;		/* configurable parameters */
     strcpy(rcstruct.file_name_in, "infile");
     rcstruct.n_file_format = FORMAT_PHYLIP;
 
     lvb_initialize();
-    matrix = (Dataptr) malloc(sizeof(DataStructure));
+    MSA = (Dataptr) malloc(sizeof(DataStructure));
 
     matrix_seq_data = (DataSeqPtr) alloc(sizeof(DataSeqStructure), "alloc data structure");
     matrix_seq_data->row = NULL;
     matrix_seq_data->rowtitle = NULL;
-    phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix, matrix_seq_data);
+    phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, MSA, matrix_seq_data);
 
-    lvb_assert(matrix->m == 42);
-    lvb_assert(matrix->n == 5);
+    lvb_assert(MSA->m == 42);
+    lvb_assert(MSA->n == 5);
 
     for (i = 0; i < 5; i++)
     {
@@ -90,9 +90,9 @@ int main(void)
 	lvb_assert(strcmp(matrix_seq_data->rowtitle[i], name_expected[i]) == 0);
     }
 
-    rowfree(matrix_seq_data, matrix->n);
+    rowfree(matrix_seq_data, MSA->n);
     free(matrix_seq_data);
-    free(matrix);
+    free(MSA);
 
     printf("test passed\n");
     return 0;

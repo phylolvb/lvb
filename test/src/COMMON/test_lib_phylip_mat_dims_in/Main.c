@@ -42,52 +42,39 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "LVB.h"
 
-/* Positive test that an interleaved matrix may be read. Example is taken
- * from the PHYLIP 3.6a documentation. */
+/* basic test of phylip_mat_dims_in() */
 
-static const char *name_expected[5] =
-{
-    "Turkey",
-    "Salmo gair",
-    "H. Sapiens",
-    "Chimp",
-    "Gorilla"
-};
-
-static const char *sequence_expected[5] =
-{
-    "AAGCTNGGGCATTTCAGGGTGAGCCCGGGCAATACAGGGTAT",
-    "AAGCCTTGGCAGTGCAGGGTGAGCCGTGGCCGGGCACGGTAT",
-    "ACCGGTTGGCCGTTCAGGGTACAGGTTGGCCGTTCAGGGTAA",
-    "AAACCCTTGCCGTTACGCTTAAACCGAGGCCGGGACACTCAT",
-    "AAACCCTTGCCGGTACGCTTAAACCATTGCCGGTACGCTTAA"
-};
+/* these constants are given in the infile */
+#define EXPECTED_N 10
+#define EXPECTED_M 63
 
 int main(void)
 {
-    Dataptr matrix;	/* data matrix as input */
-    long i;		/* loop counter */
+    long m;				/* sites */
+    long n;				/* sequences */
+    int max_length_name;		/* mas name length */
+    Lvb_bool success = LVB_FALSE;	/* test passed */
+    Parameters rcstruct;		/* configurable parameters */
 
     lvb_initialize();
-    Params rcstruct;		/* configurable parameters */
+
+//    rcstruct.file_name_in = "infile";
     strcpy(rcstruct.file_name_in, "infile");
     rcstruct.n_file_format = FORMAT_PHYLIP;
 
-    lvb_initialize();
-    matrix = (data *) malloc(sizeof(DataStructure));
-    phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix);
-    lvb_assert(matrix->m == 42);
-    lvb_assert(matrix->n == 5);
-
-    for (i = 0; i < 5; i++)
+    phylip_mat_dims_in(rcstruct.file_name_in, rcstruct.n_file_format, &n, &m, &max_length_name);
+    if ((n == EXPECTED_N) && (m == EXPECTED_M))
     {
-        lvb_assert(strlen(matrix->row[i]) == 42);
-        lvb_assert(strlen(matrix->rowtitle[i]) == strlen(name_expected[i]));
-	lvb_assert(strcmp(matrix->row[i], sequence_expected[i]) == 0);
-	lvb_assert(strcmp(matrix->rowtitle[i], name_expected[i]) == 0);
+    	/* try it again and check it still works */
+	phylip_mat_dims_in(rcstruct.file_name_in, rcstruct.n_file_format, &n, &m, &max_length_name);
+	if ((n == EXPECTED_N) && (m == EXPECTED_M))
+	    success = LVB_TRUE;
     }
 
-    rowfree(matrix);
-    printf("test passed\n");
+    if (success == LVB_TRUE)
+        printf("test passed\n");
+    else
+    	printf("test failed\n");
+
     return 0;
 }

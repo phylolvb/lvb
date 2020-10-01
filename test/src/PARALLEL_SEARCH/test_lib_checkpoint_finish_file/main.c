@@ -50,12 +50,12 @@ int main(int argc, char **argv)
     long i;							/* loop counter */
     int my_id, is_process_finished, n_number_blocks;
     char filename[] = "test_file";
-    Params rcstruct, rcstruct_2;	/* configurable parameters */
-    Dataptr matrix;					/* data matrix */
+    Parameters rcstruct, rcstruct_2;	/* configurable parameters */
+    Dataptr MSA;					/* data MSA */
     DataSeqPtr matrix_seq_data;
     long root1;						/* root of tree 1 */
-    Branch *tree1;					/* first tree to compare */
-    Treestack *tree_checkpoint;		/* tree stack without checkpointing */
+    TREESTACK_TREE_BRANCH *tree1;					/* first tree to compare */
+    TREESTACK *tree_checkpoint;		/* tree stack without checkpointing */
 
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &my_id);
@@ -66,23 +66,23 @@ int main(int argc, char **argv)
     	/*		1: int is_process_finished;		*/
     	/*		2: int number of blocks;		*/
     	/*		3: uni struture					*/
-    	/*		4: Params struture				*/
+    	/*		4: Parameters struture				*/
     	/*		5: tree stack struture			*/
 
     	getparam(&rcstruct, argc, argv);
-    	matrix = (Dataptr) alloc(sizeof(DataStructure), "alloc data structure");
+    	MSA = (Dataptr) alloc(sizeof(DataStructure), "alloc data structure");
     	matrix_seq_data = (DataSeqPtr) alloc(sizeof(DataSeqStructure), "alloc data structure");
-    	phylip_dna_matrin("infile", FORMAT_PHYLIP, matrix, matrix_seq_data);
-    	matchange(matrix, matrix_seq_data, rcstruct);
+    	phylip_dna_matrin("infile", FORMAT_PHYLIP, MSA, matrix_seq_data);
+    	matchange(MSA, matrix_seq_data, rcstruct);
     	tree_checkpoint = CreateNewTreestack();
 
 		/* fill a treestack without checkpointing */
-    	tree1 = treealloc(matrix, LVB_TRUE);
+    	tree1 = treealloc(MSA, LVB_TRUE);
 		rinit(SEED);
 		for (i = 0; i < RAND_TREES; i++){
-			randtree(matrix, tree1);
-			root1 = arbreroot(matrix, tree1, 0);
-			CompareTreeToTreestack(matrix, tree_checkpoint, tree1, root1, LVB_FALSE);
+			randtree(MSA, tree1);
+			root1 = arbreroot(MSA, tree1, 0);
+			CompareTreeToTreestack(MSA, tree_checkpoint, tree1, root1, LVB_FALSE);
 		}
 
     	is_process_finished = CHECK_POINT_PROCESS_FINISHED;
@@ -96,7 +96,7 @@ int main(int argc, char **argv)
     	uni();		/* call one time */
     	checkpoint_uni(fp);
     	checkpoint_params(fp, &rcstruct);
-    	checkpoint_treestack(fp, tree_checkpoint, matrix, LVB_FALSE);
+    	checkpoint_treestack(fp, tree_checkpoint, MSA, LVB_FALSE);
 		FreeTreestackMemory(tree_checkpoint);
     	lvb_assert(fclose(fp) == 0);
     	lvb_assert(test_consistency_state_file(filename, 1) == LVB_TRUE);
@@ -123,7 +123,7 @@ int main(int argc, char **argv)
     	lvb_assert(fclose(fp) == 0);
 
     	free(tree1);
-    	free(matrix);
+    	free(MSA);
     	free(matrix_seq_data);
     	remove(filename);
     	printf("test passed\n");

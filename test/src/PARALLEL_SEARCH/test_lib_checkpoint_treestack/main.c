@@ -54,17 +54,17 @@ int main(int argc, char **argv)
 {
     FILE *fp;				/* checkpoint file */
     long i;				/* loop counter */
-    Dataptr matrix;			/* data matrix */
+    Dataptr MSA;			/* data MSA */
     DataSeqPtr matrix_seq_data;
-    Params rcstruct;			/* configurable parameters */
+    Parameters rcstruct;			/* configurable parameters */
     long root1;				/* root of tree 1 */
     long root2;				/* root of tree 2 */
     long success_cnt = 0;		/* successful tree comparisons */
-    Branch *tree1;			/* first tree to compare */
-    Branch *tree2;			/* second tree to compare */
+    TREESTACK_TREE_BRANCH *tree1;			/* first tree to compare */
+    TREESTACK_TREE_BRANCH *tree2;			/* second tree to compare */
     int my_id;				/* MPI process ID */
-    Treestack *s_no_checkpoint;		/* tree stack without checkpointing */
-    Treestack *s_with_checkpoint;	/* tree stack with checkpointing */
+    TREESTACK *s_no_checkpoint;		/* tree stack without checkpointing */
+    TREESTACK *s_with_checkpoint;	/* tree stack with checkpointing */
 
     MPI_Init(&argc, &argv);
 
@@ -73,37 +73,37 @@ int main(int argc, char **argv)
 
 		lvb_initialize();
 		getparam(&rcstruct, argc, argv);
-		matrix = (Dataptr) alloc(sizeof(DataStructure), "alloc data structure");
+		MSA = (Dataptr) alloc(sizeof(DataStructure), "alloc data structure");
 		matrix_seq_data = (DataSeqPtr) alloc(sizeof(DataSeqStructure), "alloc data structure");
-		phylip_dna_matrin("infile", FORMAT_PHYLIP, matrix, matrix_seq_data);
-		matchange(matrix, matrix_seq_data, rcstruct);
-		tree1 = treealloc(matrix, LVB_TRUE);
-		tree2 = treealloc(matrix, LVB_TRUE);
+		phylip_dna_matrin("infile", FORMAT_PHYLIP, MSA, matrix_seq_data);
+		matchange(MSA, matrix_seq_data, rcstruct);
+		tree1 = treealloc(MSA, LVB_TRUE);
+		tree2 = treealloc(MSA, LVB_TRUE);
 		s_with_checkpoint = CreateNewTreestack();
 		s_no_checkpoint = CreateNewTreestack();
 
 		/* fill a treestack without checkpointing */
 		rinit(SEED);
 		for (i = 0; i < RAND_TREES; i++){
-			randtree(matrix, tree1);
-			root1 = arbreroot(matrix, tree1, 0);
-			CompareTreeToTreestack(matrix, s_no_checkpoint, tree1, root1, LVB_FALSE);
+			randtree(MSA, tree1);
+			root1 = arbreroot(MSA, tree1, 0);
+			CompareTreeToTreestack(MSA, s_no_checkpoint, tree1, root1, LVB_FALSE);
 		}
 
 		/* fill a treestack with frequent checkpointing */
 		rinit(SEED);
 		for (i = 0; i < RAND_TREES; i++)
 		{
-			randtree(matrix, tree2);
-			root2 = arbreroot(matrix, tree2, 0);
-			CompareTreeToTreestack(matrix, s_with_checkpoint, tree2, root2, LVB_FALSE);
+			randtree(MSA, tree2);
+			root2 = arbreroot(MSA, tree2, 0);
+			CompareTreeToTreestack(MSA, s_with_checkpoint, tree2, root2, LVB_FALSE);
 			if ((i % CHECKPOINT_INTERVAL) == 0) {
 				fp = fopen("treestack_checkpoint", "wb");
-				checkpoint_treestack(fp, s_with_checkpoint, matrix, LVB_FALSE);
+				checkpoint_treestack(fp, s_with_checkpoint, MSA, LVB_FALSE);
 				lvb_assert(fclose(fp) == 0);
 				FreeTreestackMemory(s_with_checkpoint);
 				fp = fopen("treestack_checkpoint", "rb");
-				restore_treestack(fp, s_with_checkpoint, matrix, LVB_FALSE);
+				restore_treestack(fp, s_with_checkpoint, MSA, LVB_FALSE);
 				lvb_assert(fclose(fp) == 0);
 			}
 			remove("treestack_checkpoint");
@@ -112,9 +112,9 @@ int main(int argc, char **argv)
 		/* compare the two treestacks */
 		for (i = 0; i < RAND_TREES; i++)
 		{
-			PullTreefromTreestack(matrix, tree1, &root1, s_no_checkpoint, LVB_FALSE);
-			PullTreefromTreestack(matrix, tree2, &root2, s_with_checkpoint, LVB_FALSE);
-			if (treecmp(matrix, tree1, tree2, root1, LVB_TRUE) == 0) success_cnt++;
+			PullTreefromTreestack(MSA, tree1, &root1, s_no_checkpoint, LVB_FALSE);
+			PullTreefromTreestack(MSA, tree2, &root2, s_with_checkpoint, LVB_FALSE);
+			if (treecmp(MSA, tree1, tree2, root1, LVB_TRUE) == 0) success_cnt++;
 		}
 
 		if (success_cnt == RAND_TREES) {

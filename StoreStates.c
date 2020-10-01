@@ -105,7 +105,7 @@ Lvb_bool test_block_data(FILE *fp){
 /*		1: int is_process_finished;		*/
 /*		2: int number of blocks;		*/
 /*		3: uni struture					*/
-/*		4: Params struture				*/
+/*		4: Parameters struture				*/
 /*		5: tree stack struture			*/
 
 /* Each structure/block starts with:			*/
@@ -219,7 +219,7 @@ Lvb_bool is_process_ended_by_MPIid(int myMPIid){
 }
 /* each structure has the number of bytes to read in the first position in the file */
 /* the last one is a checksum unsigned long, it not summed in the structure */
-unsigned long checkpoint_params(FILE *fp, Params *p_rcstruct)
+unsigned long checkpoint_params(FILE *fp, Parameters *p_rcstruct)
 {
 	unsigned long n_bytes_to_write = sizeof(long) + 4 * sizeof(int) + LVB_FNAMSIZE + sizeof(unsigned short); /* only yhe name of the file */
 
@@ -249,7 +249,7 @@ unsigned long checkpoint_params(FILE *fp, Params *p_rcstruct)
     return checksum;
 }
 
-unsigned long restore_params(FILE *fp, Params *p_rcstruct)
+unsigned long restore_params(FILE *fp, Parameters *p_rcstruct)
 {
 	unsigned long n_bytes_to_write = sizeof(long) + 4 * sizeof(int) + LVB_FNAMSIZE + sizeof(unsigned short), n_bytes_to_read = 0;
 #ifndef MAP_REDUCE_SINGLE
@@ -281,20 +281,20 @@ unsigned long restore_params(FILE *fp, Params *p_rcstruct)
 }
 
 
-unsigned long checkpoint_anneal(FILE *fp, Dataptr matrix, long accepted, Lvb_bool dect, double deltah, long deltalen,
+unsigned long checkpoint_anneal(FILE *fp, Dataptr MSA, long accepted, Lvb_bool dect, double deltah, long deltalen,
     long failedcnt, long iter, long current_iter, long len, long lenbest, long lendash, double ln_t,
     long t_n, double t0, double pacc, long proposed, double r_lenmin, long rootdash, double t, double grad_geom,
-    double grad_linear, Branch *p_current_tree, Lvb_bool b_with_sset_current_tree,
-	Branch *p_proposed_tree, Lvb_bool b_with_sset_proposed_tree)
+    double grad_linear, TREESTACK_TREE_BRANCH *p_current_tree, Lvb_bool b_with_sset_current_tree,
+	TREESTACK_TREE_BRANCH *p_proposed_tree, Lvb_bool b_with_sset_proposed_tree)
 {
 	unsigned long n_bytes_to_write = 11 * sizeof(long) + 8 * sizeof(double) + sizeof(unsigned short) + sizeof(Lvb_bool);
 	unsigned long checksum = 0;
 	unsigned short type_block = STATE_BLOCK_ANNEAL;
 
-	if (b_with_sset_current_tree == LVB_TRUE) n_bytes_to_write += matrix->tree_bytes;
-	else n_bytes_to_write += matrix->tree_bytes_whitout_sset;
-	if (b_with_sset_proposed_tree == LVB_TRUE) n_bytes_to_write += matrix->tree_bytes;
-	else n_bytes_to_write += matrix->tree_bytes_whitout_sset;
+	if (b_with_sset_current_tree == LVB_TRUE) n_bytes_to_write += MSA->tree_bytes;
+	else n_bytes_to_write += MSA->tree_bytes_whitout_sset;
+	if (b_with_sset_proposed_tree == LVB_TRUE) n_bytes_to_write += MSA->tree_bytes;
+	else n_bytes_to_write += MSA->tree_bytes_whitout_sset;
 	fwrite(&n_bytes_to_write, sizeof(n_bytes_to_write), 1, fp); checksum = CalculateBlockCRC32(sizeof(n_bytes_to_write), (unsigned char *) &n_bytes_to_write, checksum);
 	fwrite(&type_block, sizeof(type_block), 1, fp); checksum = CalculateBlockCRC32(sizeof(type_block), (unsigned char *) &type_block, checksum);
     fwrite(&accepted, sizeof(accepted), 1, fp); checksum = CalculateBlockCRC32(sizeof(accepted), (unsigned char *) &accepted, checksum);
@@ -320,21 +320,21 @@ unsigned long checkpoint_anneal(FILE *fp, Dataptr matrix, long accepted, Lvb_boo
 
     /* copy all space in used in treealloc */
     if (b_with_sset_current_tree == LVB_TRUE){
-    	fwrite(p_current_tree, matrix->tree_bytes, 1, fp);
-    	checksum = CalculateBlockCRC32(matrix->tree_bytes, (unsigned char *) p_current_tree, checksum);
+    	fwrite(p_current_tree, MSA->tree_bytes, 1, fp);
+    	checksum = CalculateBlockCRC32(MSA->tree_bytes, (unsigned char *) p_current_tree, checksum);
     }
     else{
-    	fwrite(p_current_tree, matrix->tree_bytes_whitout_sset, 1, fp);
-    	checksum = CalculateBlockCRC32(matrix->tree_bytes_whitout_sset, (unsigned char *) p_current_tree, checksum);
+    	fwrite(p_current_tree, MSA->tree_bytes_whitout_sset, 1, fp);
+    	checksum = CalculateBlockCRC32(MSA->tree_bytes_whitout_sset, (unsigned char *) p_current_tree, checksum);
     }
 
     if (b_with_sset_proposed_tree == LVB_TRUE){
-    	fwrite(p_proposed_tree, matrix->tree_bytes, 1, fp);
-    	checksum = CalculateBlockCRC32(matrix->tree_bytes, (unsigned char *) p_proposed_tree, checksum);
+    	fwrite(p_proposed_tree, MSA->tree_bytes, 1, fp);
+    	checksum = CalculateBlockCRC32(MSA->tree_bytes, (unsigned char *) p_proposed_tree, checksum);
     }
     else{
-    	fwrite(p_proposed_tree, matrix->tree_bytes_whitout_sset, 1, fp);
-    	checksum = CalculateBlockCRC32(matrix->tree_bytes_whitout_sset, (unsigned char *) p_proposed_tree, checksum);
+    	fwrite(p_proposed_tree, MSA->tree_bytes_whitout_sset, 1, fp);
+    	checksum = CalculateBlockCRC32(MSA->tree_bytes_whitout_sset, (unsigned char *) p_proposed_tree, checksum);
     }
     fwrite(&checksum, sizeof(unsigned long), 1, fp);
     lvb_assert(ferror(fp) == 0);
@@ -343,11 +343,11 @@ unsigned long checkpoint_anneal(FILE *fp, Dataptr matrix, long accepted, Lvb_boo
     return checksum;
 }
 
-unsigned long restore_anneal(FILE *fp, Dataptr matrix, long *accepted, Lvb_bool *dect, double *deltah, long *deltalen,
+unsigned long restore_anneal(FILE *fp, Dataptr MSA, long *accepted, Lvb_bool *dect, double *deltah, long *deltalen,
     long *failedcnt, long *iter, long *current_iter, long *len, long *lenbest, long *lendash, double *ln_t,
     long *t_n, double *t0, double *pacc, long *proposed, double *r_lenmin, long *rootdash, double *t, double *grad_geom,
-    double *grad_linear, Branch *p_current_tree, Lvb_bool b_with_sset_current_tree,
-	Branch *p_proposed_tree, Lvb_bool b_with_sset_proposed_tree)
+    double *grad_linear, TREESTACK_TREE_BRANCH *p_current_tree, Lvb_bool b_with_sset_current_tree,
+	TREESTACK_TREE_BRANCH *p_proposed_tree, Lvb_bool b_with_sset_proposed_tree)
 {
 	unsigned long n_bytes_to_write = 11 * sizeof(long) + 8 * sizeof(double) + sizeof(unsigned short) + sizeof(Lvb_bool), n_bytes_to_read = 0;
 	unsigned long checksum = 0, checksum_read, n_read_values;
@@ -355,13 +355,13 @@ unsigned long restore_anneal(FILE *fp, Dataptr matrix, long *accepted, Lvb_bool 
 	Lvb_bit_lentgh **p_array;
 
 	if (b_with_sset_current_tree == LVB_TRUE || b_with_sset_proposed_tree == LVB_TRUE){
-		p_array = (Lvb_bit_lentgh **) alloc(matrix->nbranches * sizeof(Lvb_bit_lentgh *), "alloc array Lvb_bit_lentgh");
+		p_array = (Lvb_bit_lentgh **) alloc(MSA->nbranches * sizeof(Lvb_bit_lentgh *), "alloc array Lvb_bit_lentgh");
 	}
 
-	if (b_with_sset_current_tree == LVB_TRUE) n_bytes_to_write += matrix->tree_bytes;
-	else n_bytes_to_write += matrix->tree_bytes_whitout_sset;
-	if (b_with_sset_proposed_tree == LVB_TRUE) n_bytes_to_write += matrix->tree_bytes;
-	else n_bytes_to_write += matrix->tree_bytes_whitout_sset;
+	if (b_with_sset_current_tree == LVB_TRUE) n_bytes_to_write += MSA->tree_bytes;
+	else n_bytes_to_write += MSA->tree_bytes_whitout_sset;
+	if (b_with_sset_proposed_tree == LVB_TRUE) n_bytes_to_write += MSA->tree_bytes;
+	else n_bytes_to_write += MSA->tree_bytes_whitout_sset;
 
 	n_read_values = fread(&n_bytes_to_read, sizeof(n_bytes_to_read), 1, fp); checksum = CalculateBlockCRC32(sizeof(n_bytes_to_read), (unsigned char *) &n_bytes_to_read, checksum);
 	n_read_values = fread(&type_block, sizeof(type_block), 1, fp); checksum = CalculateBlockCRC32(sizeof(type_block), (unsigned char *) &type_block, checksum);
@@ -387,24 +387,24 @@ unsigned long restore_anneal(FILE *fp, Dataptr matrix, long *accepted, Lvb_bool 
 	n_read_values = fread(grad_linear, sizeof(double), 1, fp); checksum = CalculateBlockCRC32(sizeof(double), (unsigned char *) grad_linear, checksum);
 
 	if (b_with_sset_current_tree == LVB_TRUE){
-		for (int i = 0; i < matrix->nbranches; i++) *(p_array + i) = p_current_tree[i].sset;
-		n_read_values = fread(p_current_tree, matrix->tree_bytes, 1, fp);
-		checksum = CalculateBlockCRC32(matrix->tree_bytes, (unsigned char *) p_current_tree, checksum);
-		for (int i = 0; i < matrix->nbranches; i++) p_current_tree[i].sset = *(p_array + i);
+		for (int i = 0; i < MSA->nbranches; i++) *(p_array + i) = p_current_tree[i].sset;
+		n_read_values = fread(p_current_tree, MSA->tree_bytes, 1, fp);
+		checksum = CalculateBlockCRC32(MSA->tree_bytes, (unsigned char *) p_current_tree, checksum);
+		for (int i = 0; i < MSA->nbranches; i++) p_current_tree[i].sset = *(p_array + i);
 	}
 	else{
-		n_read_values = fread(p_current_tree, matrix->tree_bytes_whitout_sset, 1, fp);
-		checksum = CalculateBlockCRC32(matrix->tree_bytes_whitout_sset, (unsigned char *) p_current_tree, checksum);
+		n_read_values = fread(p_current_tree, MSA->tree_bytes_whitout_sset, 1, fp);
+		checksum = CalculateBlockCRC32(MSA->tree_bytes_whitout_sset, (unsigned char *) p_current_tree, checksum);
 	}
 	if (b_with_sset_proposed_tree == LVB_TRUE){
-		for (int i = 0; i < matrix->nbranches; i++) *(p_array + i) = p_proposed_tree[i].sset;
-		n_read_values = fread(p_proposed_tree, matrix->tree_bytes, 1, fp);
-		checksum = CalculateBlockCRC32(matrix->tree_bytes, (unsigned char *) p_proposed_tree, checksum);
-		for (int i = 0; i < matrix->nbranches; i++) p_proposed_tree[i].sset = *(p_array + i);
+		for (int i = 0; i < MSA->nbranches; i++) *(p_array + i) = p_proposed_tree[i].sset;
+		n_read_values = fread(p_proposed_tree, MSA->tree_bytes, 1, fp);
+		checksum = CalculateBlockCRC32(MSA->tree_bytes, (unsigned char *) p_proposed_tree, checksum);
+		for (int i = 0; i < MSA->nbranches; i++) p_proposed_tree[i].sset = *(p_array + i);
 	}
 	else{
-		n_read_values = fread(p_proposed_tree, matrix->tree_bytes_whitout_sset, 1, fp);
-		checksum = CalculateBlockCRC32(matrix->tree_bytes_whitout_sset, (unsigned char *) p_proposed_tree, checksum);
+		n_read_values = fread(p_proposed_tree, MSA->tree_bytes_whitout_sset, 1, fp);
+		checksum = CalculateBlockCRC32(MSA->tree_bytes_whitout_sset, (unsigned char *) p_proposed_tree, checksum);
 	}
 	n_read_values = fread(&checksum_read, sizeof(unsigned long), 1, fp);
 
@@ -416,7 +416,7 @@ unsigned long restore_anneal(FILE *fp, Dataptr matrix, long *accepted, Lvb_bool 
 	return checksum;
 }
 
-Lvb_bool compare_params(Params *p_rcstruct, Params *p_rcstruct_2, Lvb_bool b_test_seed){
+Lvb_bool compare_params(Parameters *p_rcstruct, Parameters *p_rcstruct_2, Lvb_bool b_test_seed){
 
 	if (p_rcstruct->verbose != p_rcstruct_2->verbose) return LVB_FALSE;
 	if (b_test_seed == LVB_TRUE && p_rcstruct->seed != p_rcstruct_2->seed) return LVB_FALSE;
@@ -434,9 +434,9 @@ Lvb_bool compare_params(Params *p_rcstruct, Params *p_rcstruct_2, Lvb_bool b_tes
 	return LVB_TRUE;
 }
 
-Lvb_bool is_parameters_are_same_from_state(Params *p_rcstruct, int myMPIid, Lvb_bool b_test_different_seeds){
+Lvb_bool is_parameters_are_same_from_state(Parameters *p_rcstruct, int myMPIid, Lvb_bool b_test_different_seeds){
 
-	Params rcstruct;
+	Parameters rcstruct;
 	FILE *fp = open_file_by_MPIid(myMPIid, "rb", LVB_FALSE);
 	lvb_assert(point_file_pointer_to_block(fp, STATE_BLOCK_PARAMETERS) == LVB_TRUE);
 
@@ -454,7 +454,7 @@ Lvb_bool is_parameters_are_same_from_state(Params *p_rcstruct, int myMPIid, Lvb_
     return b_is_same;
 }
 
-void save_finish_state_file(Params *p_rcstruct, int myMPIid){
+void save_finish_state_file(Parameters *p_rcstruct, int myMPIid){
 	char filename[LVB_FNAMSIZE], filename_temp[LVB_FNAMSIZE];
 	int n_number_blocks, is_process_finished;
 	sprintf(filename_temp, "%s_%d.temp", CHECKPOINT_FNAM_BASE, myMPIid); /* name of output file for this process */

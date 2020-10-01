@@ -50,7 +50,7 @@ int main(void)
     long n;				/* sequences */
     int max_length_name;		/* mas name length */
     Lvb_bool success = LVB_FALSE;	/* test passed */
-    Params rcstruct;		/* configurable parameters */
+    Parameters rcstruct;		/* configurable parameters */
 
     lvb_initialize();
 

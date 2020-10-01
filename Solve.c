@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "LVB.h"
 
-static void lenlog(FILE *lengthfp, Treestack *bstackp, long iteration, long length, double temperature)
+static void lenlog(FILE *lengthfp, TREESTACK *bstackp, long iteration, long length, double temperature)
 /* write a message to file pointer lengthfp; iteration gives current iteration;
  * crash verbosely on write error */
 {
@@ -58,12 +58,12 @@ static void lenlog(FILE *lengthfp, Treestack *bstackp, long iteration, long leng
 } /* end lenlog() */
 
 #ifdef LVB_MAPREDUCE  // okay
-long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *const inittree,
-	Params rcstruct, long root, FILE * const lenfp, long *current_iter, Lvb_bool log_progress, 
+long deterministic_hillclimb(Dataptr MSA, TREESTACK *bstackp, const TREESTACK_TREE_BRANCH *const inittree,
+	Parameters rcstruct, long root, FILE * const lenfp, long *current_iter, Lvb_bool log_progress, 
 	MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer)
 #else //okay
-long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *const inittree,
-		Params rcstruct, long root, FILE * const lenfp, long *current_iter, Lvb_bool log_progress)
+long deterministic_hillclimb(Dataptr MSA, TREESTACK *bstackp, const TREESTACK_TREE_BRANCH *const inittree,
+		Parameters rcstruct, long root, FILE * const lenfp, long *current_iter, Lvb_bool log_progress)
 #endif
 /* perform a deterministic hill-climbing optimization on the tree in inittree,
  * using NNI on all internal branches until no changes are accepted; return the
@@ -79,8 +79,8 @@ long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *c
     long rootdash = root;			/* root of proposed new config */
     long deltalen;					/* change in length */
     Lvb_bool newtree;				/* accepted a new configuration */
-    Branch *p_current_tree;			/* current configuration */
-    Branch *p_proposed_tree;		/* proposed new configuration */
+    TREESTACK_TREE_BRANCH *p_current_tree;			/* current configuration */
+    TREESTACK_TREE_BRANCH *p_proposed_tree;		/* proposed new configuration */
     unsigned int *todo;				/* array of internal branch numbers */
     Lvb_bool leftright[] = { LVB_FALSE, LVB_TRUE }; /* to loop through left and right */
     long *p_todo_arr; /* [MAX_BRANCHES + 1];	 list of "dirty" branch nos */
@@ -93,24 +93,24 @@ long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *c
 	#endif
 
     /* "local" dynamic heap memory */
-    p_current_tree = treealloc(matrix, LVB_TRUE);
-    p_proposed_tree = treealloc(matrix, LVB_TRUE);
-    todo = (unsigned int *) alloc(matrix->nbranches * sizeof(unsigned int), "old parent alloc");
+    p_current_tree = treealloc(MSA, LVB_TRUE);
+    p_proposed_tree = treealloc(MSA, LVB_TRUE);
+    todo = (unsigned int *) alloc(MSA->nbranches * sizeof(unsigned int), "old parent alloc");
 
-    treecopy(matrix, p_current_tree, inittree, LVB_TRUE);      /* current configuration */
-	alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-	len = getplen(matrix, p_current_tree, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+    treecopy(MSA, p_current_tree, inittree, LVB_TRUE);      /* current configuration */
+	alloc_memory_to_getplen(MSA, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
+	len = getplen(MSA, p_current_tree, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 
     /* identify internal branches */
-    for (i = matrix->n; i < matrix->nbranches; i++) todo[todo_cnt++] = i;
-    lvb_assert(todo_cnt == matrix->nbranches - matrix->n);
+    for (i = MSA->n; i < MSA->nbranches; i++) todo[todo_cnt++] = i;
+    lvb_assert(todo_cnt == MSA->nbranches - MSA->n);
 
     do {
 		newtree = LVB_FALSE;
 		for (i = 0; i < todo_cnt; i++) {
 			for (j = 0; j < 2; j++) {
-				mutate_deterministic(matrix, p_proposed_tree, p_current_tree, root, todo[i], leftright[j]);
-				lendash = getplen(matrix, p_proposed_tree, rcstruct, rootdash, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+				mutate_deterministic(MSA, p_proposed_tree, p_current_tree, root, todo[i], leftright[j]);
+				lendash = getplen(MSA, p_proposed_tree, rcstruct, rootdash, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 				lvb_assert (lendash >= 1L);
 				deltalen = lendash - len;
 				#ifdef LVB_MAPREDUCE  // check
@@ -121,15 +121,15 @@ long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *c
 						if (deltalen < 0)  /* very best so far */
 						{
 							ClearTreestack(bstackp);
-							PushCurrentTreeToStack(matrix, bstackp, p_proposed_tree, rootdash, LVB_FALSE);
+							PushCurrentTreeToStack(MSA, bstackp, p_proposed_tree, rootdash, LVB_FALSE);
 							misc->ID = bstackp->next;
 							misc->SB = 1;
-							tree_setpush(matrix, p_proposed_tree, rootdash, mrTreeStack, misc);
+							tree_setpush(MSA, p_proposed_tree, rootdash, mrTreeStack, misc);
 							len = lendash;
 						} else {
 
 						  misc->SB = 0;
-						  tree_setpush(matrix, p_proposed_tree, rootdash, mrBuffer, misc);
+						  tree_setpush(MSA, p_proposed_tree, rootdash, mrBuffer, misc);
 						  mrBuffer->add(mrTreeStack);
 						  mrBuffer->collate(NULL);
 
@@ -155,9 +155,9 @@ long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *c
 						  MPI_Bcast(&check_cmp, 1, MPI_INT, 0,    MPI_COMM_WORLD);
 						  if (check_cmp == 0) {
 								misc->SB = 1;
-								tree_setpush(matrix, p_proposed_tree, rootdash, mrBuffer, misc);
+								tree_setpush(MSA, p_proposed_tree, rootdash, mrBuffer, misc);
 								mrTreeStack->add(mrBuffer);
-							if (CompareTreeToTreestack(matrix, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1) {
+							if (CompareTreeToTreestack(MSA, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1) {
 								misc->ID = bstackp->next;
 
 								newtree = LVB_TRUE;
@@ -175,7 +175,7 @@ long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *c
 						ClearTreestack(bstackp);
 						len = lendash;
 					}
-					if (CompareTreeToTreestack(matrix, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1) {
+					if (CompareTreeToTreestack(MSA, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1) {
 						newtree = LVB_TRUE;
 						treeswap(&p_current_tree, &root, &p_proposed_tree, &rootdash);
 					}
@@ -200,13 +200,13 @@ long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *c
 } /* end deterministic_hillclimb */
 
 #ifdef LVB_MAPREDUCE  // okay
-long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch *const inittree, Params rcstruct,
+long anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_TREE_BRANCH *const inittree, Parameters rcstruct,
 	long root, const double t0, const long maxaccept, const long maxpropose,
 	const long maxfail, FILE *const lenfp, long *current_iter,
 	Lvb_bool log_progress, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer)
 
 #else //okay
-long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch *const inittree, Params rcstruct,
+long anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_TREE_BRANCH *const inittree, Parameters rcstruct,
 	long root, const double t0, const long maxaccept, const long maxpropose,
 	const long maxfail, FILE *const lenfp, long *current_iter,
 	Lvb_bool log_progress)
@@ -244,8 +244,8 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
     double grad_geom = 0.99;		/* "gradient" of the geometric schedule */
 	double grad_linear = 10 * LVB_EPS; /* gradient of the linear schedule */
 	/* double grad_linear = 10 * LVB_EPS; */ /* gradient of the linear schedule */
-    Branch *p_current_tree;			/* current configuration */
-    Branch *p_proposed_tree;		/* proposed new configuration */
+    TREESTACK_TREE_BRANCH *p_current_tree;			/* current configuration */
+    TREESTACK_TREE_BRANCH *p_proposed_tree;		/* proposed new configuration */
     long *p_todo_arr; /* [MAX_BRANCHES + 1];	 list of "dirty" branch nos */
     long *p_todo_arr_sum_changes; /*used in openMP, to sum the partial changes */
     int *p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */
@@ -262,21 +262,21 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 
 	 long w_changes_prop = 0;
     	long w_changes_acc = 0;  
-    p_proposed_tree = treealloc(matrix, LVB_TRUE);
-    p_current_tree = treealloc(matrix, LVB_TRUE);
+    p_proposed_tree = treealloc(MSA, LVB_TRUE);
+    p_current_tree = treealloc(MSA, LVB_TRUE);
 
-    treecopy(matrix, p_current_tree, inittree, LVB_TRUE);	/* current configuration */
+    treecopy(MSA, p_current_tree, inittree, LVB_TRUE);	/* current configuration */
 
-    alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-    len = getplen(matrix, p_current_tree, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+    alloc_memory_to_getplen(MSA, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
+    len = getplen(MSA, p_current_tree, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
     dect = LVB_FALSE;		/* made LVB_TRUE as necessary at end of loop */
 
     lvb_assert( ((float) t >= (float) LVB_EPS) && (t <= 1.0) && (grad_geom >= LVB_EPS) && (grad_linear >= LVB_EPS));
 
     lenbest = len;
-    CompareTreeToTreestack(matrix, bstackp, inittree, root, LVB_FALSE);	/* init. tree initially best */
+    CompareTreeToTreestack(MSA, bstackp, inittree, root, LVB_FALSE);	/* init. tree initially best */
 			if(rcstruct.algorithm_selection ==2)
-	CompareTreeToTreestack(matrix, treevo, inittree, root, LVB_FALSE);
+	CompareTreeToTreestack(MSA, treevo, inittree, root, LVB_FALSE);
 
 	double trops_counter[3] = {1,1,1};
 	double trops_probs[3] = {0,0,0};
@@ -294,7 +294,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 		MPI_Bcast(&lenbest,  1, MPI_LONG, 0, MPI_COMM_WORLD);
 		misc->ID = bstackp->next;
 		misc->SB = 1;
-		tree_setpush(matrix, inittree, root, mrTreeStack, misc);
+		tree_setpush(MSA, inittree, root, mrTreeStack, misc);
 		#endif
 
 		/*Writing output to table.tsv*/
@@ -307,14 +307,14 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 	   fprintf (pFile, "Iteration\tAlgorithm\tAccepted\tLength\tTemperature\tTreestack Size\n");
 	}
 	}
-	r_lenmin = (double) matrix->min_len_tree;
+	r_lenmin = (double) MSA->min_len_tree;
 	
 	   while (1) {
         int changeAcc = 0;
     	*current_iter += 1;
 		/* occasionally re-root, to prevent influence from root position */
 		if ((*current_iter % REROOT_INTERVAL) == 0){
-			root = arbreroot(matrix, p_current_tree, root);
+			root = arbreroot(MSA, p_current_tree, root);
 			if ((log_progress == LVB_TRUE) && ((*current_iter % STAT_LOG_INTERVAL) == 0)) {
         		lenlog(lenfp, bstackp, *current_iter, len, t);
         	}
@@ -336,19 +336,19 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 		  {
 		double random_val = uni();
  		if (random_val < trops_probs[0]) {
-        		mutate_nni(matrix, p_proposed_tree, p_current_tree, root);	/* local change */
+        		mutate_nni(MSA, p_proposed_tree, p_current_tree, root);	/* local change */
 			strcpy(change,"NNI");
 			if (rcstruct.algorithm_selection == 2)
 			trops_id = 0;
 		}
     	else if (random_val < trops_probs[0] + trops_probs[1]) {
-        	mutate_spr(matrix, p_proposed_tree, p_current_tree, root);	/* global change */
+        	mutate_spr(MSA, p_proposed_tree, p_current_tree, root);	/* global change */
             strcpy(change,"SPR");
 			if (rcstruct.algorithm_selection == 2)
 			trops_id = 1;
         }
     	else {
-    	   	mutate_tbr(matrix, p_proposed_tree, p_current_tree, root);	/* global change */
+    	   	mutate_tbr(MSA, p_proposed_tree, p_current_tree, root);	/* global change */
             strcpy(change,"TBR");
 			if (rcstruct.algorithm_selection == 2)
 			trops_id = 2;
@@ -356,13 +356,13 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 		  }
 		else
 		{
-		if (iter & 0x01) { mutate_spr(matrix, p_proposed_tree, p_current_tree, root);	/* global change */
+		if (iter & 0x01) { mutate_spr(MSA, p_proposed_tree, p_current_tree, root);	/* global change */
 		strcpy(change,"SPR"); }
-		else { mutate_nni (matrix, p_proposed_tree, p_current_tree, root);	/* local change */
+		else { mutate_nni (MSA, p_proposed_tree, p_current_tree, root);	/* local change */
 		strcpy(change,"NNI"); }
 		}
 		
-		lendash = getplen(matrix, p_proposed_tree, rcstruct, rootdash, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+		lendash = getplen(MSA, p_proposed_tree, rcstruct, rootdash, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 		lvb_assert (lendash >= 1L);
 		deltalen = lendash - len;
 		deltah = (r_lenmin / (double) len) - (r_lenmin / (double) lendash);
@@ -383,11 +383,11 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 						ClearTreestack(bstackp);
 						mrTreeStack->map( mrTreeStack, map_clean, NULL );
 
-						if (CompareTreeToTreestack(matrix, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1){
+						if (CompareTreeToTreestack(MSA, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1){
 						misc->ID = bstackp->next;
 
 					    misc->SB = 1;
-						tree_setpush(matrix, p_proposed_tree, rootdash, mrTreeStack, misc);
+						tree_setpush(MSA, p_proposed_tree, rootdash, mrTreeStack, misc);
 
 						accepted++;
 						MPI_Bcast(&accepted,  1, MPI_LONG, 0, MPI_COMM_WORLD);
@@ -397,7 +397,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 					} else {
 
 	                    misc->SB = 0;
-						tree_setpush(matrix, p_proposed_tree, rootdash, mrBuffer, misc);
+						tree_setpush(MSA, p_proposed_tree, rootdash, mrBuffer, misc);
 						mrBuffer->add(mrTreeStack);
 						mrBuffer->collate(NULL);
 
@@ -428,11 +428,11 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 						MPI_Bcast(&check_cmp, 1, MPI_INT, 0,    MPI_COMM_WORLD);
 						if (check_cmp == 1) {
 
-							if (CompareTreeToTreestack(matrix, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1){
+							if (CompareTreeToTreestack(MSA, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1){
 	                                                misc->ID = bstackp->next;
 
 							misc->SB = 1;
-							tree_setpush(matrix, p_proposed_tree, rootdash, mrBuffer, misc);
+							tree_setpush(MSA, p_proposed_tree, rootdash, mrBuffer, misc);
 							mrTreeStack->add(mrBuffer);
 							accepted++;
 							MPI_Bcast(&accepted,  1, MPI_LONG, 0, MPI_COMM_WORLD);
@@ -450,7 +450,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 			{
 				/*printf("%ld\n", *current_iter);*/
 				if (lendash < lenbest) ClearTreestack(bstackp);	/* discard old bests */
-				if (CompareTreeToTreestack(matrix, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1){
+				if (CompareTreeToTreestack(MSA, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1){
 					accepted++;
 				}
 			}
@@ -616,7 +616,7 @@ long anneal(Dataptr matrix, Treestack *bstackp, Treestack *treevo, const Branch 
 			MPI_Barrier(MPI_COMM_WORLD);
 
 	    }
-	    print_sets(matrix, bstackp, misc);
+	    print_sets(MSA, bstackp, misc);
 		#else // okay
     }
 		#endif
@@ -681,7 +681,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "StoreStates.h"
 
-static void lenlog(FILE *lengthfp, Treestack *bstackp, int myMPIid, long iteration, long length, double temperature)
+static void lenlog(FILE *lengthfp, TREESTACK *bstackp, int myMPIid, long iteration, long length, double temperature)
 	/* write a message to file pointer lengthfp; iteration gives current iteration;
 	 * crash verbosely on write error */
 	{
@@ -695,8 +695,8 @@ static void lenlog(FILE *lengthfp, Treestack *bstackp, int myMPIid, long iterati
 
 
 
-	long deterministic_hillclimb(Dataptr matrix, Treestack *bstackp, const Branch *const inittree,
-					Params rcstruct, long root, FILE * const lenfp,  long *current_iter, int myMPIid,
+	long deterministic_hillclimb(Dataptr MSA, TREESTACK *bstackp, const TREESTACK_TREE_BRANCH *const inittree,
+					Parameters rcstruct, long root, FILE * const lenfp,  long *current_iter, int myMPIid,
 					Lvb_bool log_progress)
 	/* perform a deterministic hill-climbing optimization on the tree in inittree,
 	 * using NNI on all internal branches until no changes are accepted; return the
@@ -712,8 +712,8 @@ static void lenlog(FILE *lengthfp, Treestack *bstackp, int myMPIid, long iterati
 	    long rootdash = root;		/* root of proposed new config */
 	    long deltalen;			/* change in length */
 	    Lvb_bool newtree;			/* accepted a new configuration */
-	    Branch *p_current_tree;				/* current configuration */
-	    Branch *p_proposed_tree;			/* proposed new configuration */
+	    TREESTACK_TREE_BRANCH *p_current_tree;				/* current configuration */
+	    TREESTACK_TREE_BRANCH *p_proposed_tree;			/* proposed new configuration */
 	    static long todo[MAX_BRANCHES];	/* array of internal branch numbers */
 	    static Lvb_bool leftright[] = {	LVB_FALSE, LVB_TRUE }; /* to loop through left and right */
 	    long *p_todo_arr; /* [MAX_BRANCHES + 1];	 list of "dirty" branch nos */
@@ -721,21 +721,21 @@ static void lenlog(FILE *lengthfp, Treestack *bstackp, int myMPIid, long iterati
 	    int *p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */
 
 	    /* "local" dynamic heap memory */
-	    p_current_tree  = treealloc(matrix, LVB_TRUE);
-	    p_proposed_tree = treealloc(matrix, LVB_TRUE);
-	    treecopy(matrix, p_current_tree, inittree, LVB_TRUE);      /* current configuration */
-	    alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-	    len = getplen(matrix, p_current_tree, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+	    p_current_tree  = treealloc(MSA, LVB_TRUE);
+	    p_proposed_tree = treealloc(MSA, LVB_TRUE);
+	    treecopy(MSA, p_current_tree, inittree, LVB_TRUE);      /* current configuration */
+	    alloc_memory_to_getplen(MSA, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
+	    len = getplen(MSA, p_current_tree, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 
 	    /* identify internal branches */
-	    for (i = matrix->n; i < matrix->nbranches; i++) todo[todo_cnt++] = i;
-	    lvb_assert(todo_cnt == matrix->nbranches - matrix->n);
+	    for (i = MSA->n; i < MSA->nbranches; i++) todo[todo_cnt++] = i;
+	    lvb_assert(todo_cnt == MSA->nbranches - MSA->n);
 	    do {
 			newtree = LVB_FALSE;
 			for (i = 0; i < todo_cnt; i++) {
 				for (j = 0; j < 2; j++) {
-					mutate_deterministic(matrix, p_proposed_tree, p_current_tree, root, todo[i], leftright[j]);
-					lendash = getplen(matrix, p_proposed_tree, rcstruct, rootdash, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+					mutate_deterministic(MSA, p_proposed_tree, p_current_tree, root, todo[i], leftright[j]);
+					lendash = getplen(MSA, p_proposed_tree, rcstruct, rootdash, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 
 					lvb_assert (lendash >= 1L);
 					deltalen = lendash - len;
@@ -746,7 +746,7 @@ static void lenlog(FILE *lengthfp, Treestack *bstackp, int myMPIid, long iterati
 							ClearTreestack(bstackp);
 							len = lendash;
 						}
-						if (CompareTreeToTreestack(matrix, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1) {
+						if (CompareTreeToTreestack(MSA, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1) {
 							newtree = LVB_TRUE;
 							treeswap(&p_current_tree, &root, &p_proposed_tree, &rootdash);
 						}
@@ -770,7 +770,7 @@ static void lenlog(FILE *lengthfp, Treestack *bstackp, int myMPIid, long iterati
 	}
 
 
-	long anneal(Dataptr matrix, Treestack *bstackp, const Branch *const inittree, Params *p_rcstruct,
+	long anneal(Dataptr MSA, TREESTACK *bstackp, const TREESTACK_TREE_BRANCH *const inittree, Parameters *p_rcstruct,
 				long root, double t0, const long maxaccept, const long maxpropose,
 				const long maxfail, FILE *const lenfp, long *current_iter, int myMPIid,
 				int *p_n_state_progress, int *p_n_number_tried_seed, Lvb_bool log_progress)
@@ -808,8 +808,8 @@ static void lenlog(FILE *lengthfp, Treestack *bstackp, int myMPIid, long iterati
 	    double t = t0;				/* current temperature */
 	    double grad_geom = GRAD_GEOM;			/* "gradient" of the geometric schedule */
 	    double grad_linear = GRAD_LINEAR; 	/* gradient of the linear schedule */
-	    Branch *p_current_tree;			/* current configuration */
-	    Branch *p_proposed_tree;			/* proposed new configuration */
+	    TREESTACK_TREE_BRANCH *p_current_tree;			/* current configuration */
+	    TREESTACK_TREE_BRANCH *p_proposed_tree;			/* proposed new configuration */
 	    long *p_todo_arr; 				/* [MAX_BRANCHES + 1];	 list of "dirty" branch nos */
 	    long *p_todo_arr_sum_changes; 		/*used in openMP, to sum the partial changes */
 	    int *p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */
@@ -854,20 +854,20 @@ static void lenlog(FILE *lengthfp, Treestack *bstackp, int myMPIid, long iterati
 	    double log_wrapper_t0;
 	    /* REND variables that could calculate immediately */
 
-	    p_proposed_tree = treealloc(matrix, LVB_TRUE);
-	    p_current_tree  = treealloc(matrix, LVB_TRUE);
-	    alloc_memory_to_getplen(matrix, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
+	    p_proposed_tree = treealloc(MSA, LVB_TRUE);
+	    p_current_tree  = treealloc(MSA, LVB_TRUE);
+	    alloc_memory_to_getplen(MSA, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
 	    /* read the check point files at this point */
 
 	    if (p_rcstruct->n_flag_is_possible_read_state_files == CHECK_POINT_READ_STATE_FILES) {
 	    	fp = open_file_by_MPIid(myMPIid, "rb", LVB_FALSE);
 	    	lvb_assert(point_file_pointer_to_block(fp, STATE_BLOCK_ANNEAL) == LVB_TRUE);
-			restore_anneal(fp, matrix, &accepted, &dect, &deltah, &deltalen,
+			restore_anneal(fp, MSA, &accepted, &dect, &deltah, &deltalen,
 					&failedcnt, &iter, current_iter, &len, &lenbest, &lendash, &ln_t,
 					&t_n, &t0, &pacc, &proposed, &r_lenmin, &root, &t, &grad_geom,
 					&grad_linear, p_current_tree, LVB_TRUE, p_proposed_tree, LVB_TRUE);
 			lvb_assert(point_file_pointer_to_block(fp, STATE_BLOCK_TREESTACK) == LVB_TRUE);
-			restore_treestack(fp, bstackp, matrix, LVB_FALSE);
+			restore_treestack(fp, bstackp, MSA, LVB_FALSE);
 			lvb_assert(point_file_pointer_to_block(fp, STATE_BLOCK_UNI) == LVB_TRUE);
 			restore_uni(fp);
 			lvb_assert(fclose(fp) == 0);
@@ -882,21 +882,21 @@ static void lenlog(FILE *lengthfp, Treestack *bstackp, int myMPIid, long iterati
 	    	log_wrapper_grad_geom = log_wrapper(grad_geom);
 	    	log_wrapper_t0        = log_wrapper(t0);
 
-			treecopy(matrix, p_current_tree, inittree, LVB_TRUE);	/* current configuration */
+			treecopy(MSA, p_current_tree, inittree, LVB_TRUE);	/* current configuration */
 
-			len = getplen(matrix, p_current_tree, *p_rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+			len = getplen(MSA, p_current_tree, *p_rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 			dect = LVB_FALSE;		/* made LVB_TRUE as necessary at end of loop */
 
 			lvb_assert( ((float) t >= (float) LVB_EPS) && (t <= 1.0) && (grad_geom >= LVB_EPS) && (grad_linear >= LVB_EPS));
 
 			lenbest = len;
-			CompareTreeToTreestack(matrix, bstackp, inittree, root, LVB_FALSE);	/* init. tree initially best */
+			CompareTreeToTreestack(MSA, bstackp, inittree, root, LVB_FALSE);	/* init. tree initially best */
 
 			if ((log_progress == LVB_TRUE) && (*current_iter == 0)) {
 				fprintf(lenfp, "\nTemperature:   Rearrangement: TreeStack size: Length:\n");
 			}
 
-			r_lenmin = (double) matrix->min_len_tree;
+			r_lenmin = (double) MSA->min_len_tree;
 	    }
 
 	    *p_n_state_progress = MESSAGE_ANNEAL_FINISHED_AND_REPEAT; /* we consider always is necessary to repeat */
@@ -905,7 +905,7 @@ static void lenlog(FILE *lengthfp, Treestack *bstackp, int myMPIid, long iterati
 			*current_iter += 1;
 			/* occasionally re-root, to prevent influence from root position */
 			if ((*current_iter % REROOT_INTERVAL) == 0){
-				root = arbreroot(matrix, p_current_tree, root);
+				root = arbreroot(MSA, p_current_tree, root);
 				if ((log_progress == LVB_TRUE) && ((*current_iter % STAT_LOG_INTERVAL) == 0)) {
 					lenlog(lenfp, bstackp, myMPIid, *current_iter, len, t);
 
@@ -943,10 +943,10 @@ static void lenlog(FILE *lengthfp, Treestack *bstackp, int myMPIid, long iterati
 
 			/* mutation: alternate between the two mutation functions */
 			rootdash = root;
-			if (iter & 0x01) mutate_spr(matrix, p_proposed_tree, p_current_tree, root);	/* global change */
-			else mutate_nni(matrix, p_proposed_tree, p_current_tree, root);	/* local change */
+			if (iter & 0x01) mutate_spr(MSA, p_proposed_tree, p_current_tree, root);	/* global change */
+			else mutate_nni(MSA, p_proposed_tree, p_current_tree, root);	/* local change */
 
-			lendash = getplen(matrix, p_proposed_tree, *p_rcstruct, rootdash, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+			lendash = getplen(MSA, p_proposed_tree, *p_rcstruct, rootdash, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 			lvb_assert (lendash >= 1L);
 			deltalen = lendash - len;
 			deltah = (r_lenmin / (double) len) - (r_lenmin / (double) lendash);
@@ -958,7 +958,7 @@ static void lenlog(FILE *lengthfp, Treestack *bstackp, int myMPIid, long iterati
 				{
 					/*printf("%ld\n", *current_iter);*/
 					if (lendash < lenbest) ClearTreestack(bstackp);	/* discard old bests */
-					if (CompareTreeToTreestack(matrix, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1){
+					if (CompareTreeToTreestack(MSA, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1){
 						accepted++;
 					}
 				}
@@ -1071,9 +1071,9 @@ static void lenlog(FILE *lengthfp, Treestack *bstackp, int myMPIid, long iterati
 		    	int is_process_finished = CHECK_POINT_PROCESS_NOT_FINISHED, n_number_blocks = 4;
 		    	fwrite(&is_process_finished, sizeof(is_process_finished), 1, fp);
 				fwrite(&n_number_blocks, sizeof(n_number_blocks), 1, fp);
-				checkpoint_treestack(fp, bstackp, matrix, LVB_FALSE);
+				checkpoint_treestack(fp, bstackp, MSA, LVB_FALSE);
 				checkpoint_uni(fp);
-				checkpoint_anneal(fp, matrix, accepted, dect, deltah, deltalen, failedcnt, iter, *current_iter, len, lenbest,
+				checkpoint_anneal(fp, MSA, accepted, dect, deltah, deltalen, failedcnt, iter, *current_iter, len, lenbest,
 					lendash, ln_t, t_n, t0, pacc, proposed, r_lenmin, root, t, grad_geom, grad_linear,
 					p_current_tree, LVB_TRUE, p_proposed_tree, LVB_TRUE);
 				checkpoint_params(fp, p_rcstruct);
