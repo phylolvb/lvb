@@ -66,7 +66,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef LVB_MAPREDUCE
 #include <mpi.h>
-#include "CMapReduce.h"
+#include "MapReduce.h"
 #include <omp.h>
 #include <iostream>
 
