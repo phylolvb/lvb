@@ -1,5 +1,3 @@
-#ifdef LVB_PARALLEL_SEARCH
-
 /* LVB
 
 (c) Copyright 2003-2012 by Daniel Barker
@@ -180,5 +178,3 @@ InteractionTemperature.c - decide which processes continue their search
 		free_next_temperature(p_data->p_temperature);
 		free(p_data);
 	}
-
-#endif
