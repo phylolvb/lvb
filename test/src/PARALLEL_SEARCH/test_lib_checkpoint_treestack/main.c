@@ -55,7 +55,7 @@ int main(int argc, char **argv)
     FILE *fp;				/* checkpoint file */
     long i;				/* loop counter */
     Dataptr MSA;			/* data MSA */
-    DataSeqPtr matrix_seq_data;
+    Dataptr MSA;
     Parameters rcstruct;			/* configurable parameters */
     long root1;				/* root of tree 1 */
     long root2;				/* root of tree 2 */
@@ -74,9 +74,9 @@ int main(int argc, char **argv)
 		lvb_initialize();
 		getparam(&rcstruct, argc, argv);
 		MSA = (Dataptr) alloc(sizeof(DataStructure), "alloc data structure");
-		matrix_seq_data = (DataSeqPtr) alloc(sizeof(DataSeqStructure), "alloc data structure");
-		phylip_dna_matrin("infile", FORMAT_PHYLIP, MSA, matrix_seq_data);
-		matchange(MSA, matrix_seq_data, rcstruct);
+		MSA = (Dataptr) alloc(sizeof(DataStructure), "alloc data structure");
+		phylip_dna_matrin("infile", FORMAT_PHYLIP, MSA);
+		matchange(MSA, rcstruct);
 		tree1 = treealloc(MSA, LVB_TRUE);
 		tree2 = treealloc(MSA, LVB_TRUE);
 		s_with_checkpoint = CreateNewTreestack();

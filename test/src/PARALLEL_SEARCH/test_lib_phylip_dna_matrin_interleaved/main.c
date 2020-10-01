@@ -63,7 +63,7 @@ int main(void)
 {
 
     Dataptr MSA;	/* data MSA as input */
-    DataSeqPtr matrix_seq_data;	/* data MSA as input */
+    Dataptr MSA;	/* data MSA as input */
 
     long i;		/* loop counter */
     lvb_initialize();
@@ -74,24 +74,24 @@ int main(void)
     lvb_initialize();
     MSA = (Dataptr) malloc(sizeof(DataStructure));
 
-    matrix_seq_data = (DataSeqPtr) alloc(sizeof(DataSeqStructure), "alloc data structure");
-    matrix_seq_data->row = NULL;
-    matrix_seq_data->rowtitle = NULL;
-    phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, MSA, matrix_seq_data);
+    MSA = (Dataptr) alloc(sizeof(DataStructure), "alloc data structure");
+    MSA->row = NULL;
+    MSA->rowtitle = NULL;
+    phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, MSA);
 
     lvb_assert(MSA->m == 42);
     lvb_assert(MSA->n == 5);
 
     for (i = 0; i < 5; i++)
     {
-        lvb_assert(strlen(matrix_seq_data->row[i]) == 42);
-        lvb_assert(strlen(matrix_seq_data->rowtitle[i]) == strlen(name_expected[i]));
-	lvb_assert(strcmp(matrix_seq_data->row[i], sequence_expected[i]) == 0);
-	lvb_assert(strcmp(matrix_seq_data->rowtitle[i], name_expected[i]) == 0);
+        lvb_assert(strlen(MSA->row[i]) == 42);
+        lvb_assert(strlen(MSA->rowtitle[i]) == strlen(name_expected[i]));
+	lvb_assert(strcmp(MSA->row[i], sequence_expected[i]) == 0);
+	lvb_assert(strcmp(MSA->rowtitle[i], name_expected[i]) == 0);
     }
 
-    rowfree(matrix_seq_data, MSA->n);
-    free(matrix_seq_data);
+    rowfree(MSA, MSA->n);
+    free(MSA);
     free(MSA);
 
     printf("test passed\n");

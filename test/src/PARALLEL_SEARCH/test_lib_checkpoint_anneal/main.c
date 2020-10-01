@@ -47,7 +47,7 @@ int main(int argc, char **argv)
     FILE *fp;			/* checkpoint file */
     int my_id;			/* MPI process ID */
     Dataptr MSA;					/* data MSA */
-    DataSeqPtr matrix_seq_data;
+    Dataptr MSA;
     Parameters rcstruct;
 
     TREESTACK_TREE_BRANCH *p_current_tree, *p_current_tree_2;	/* first tree to compare */
@@ -78,10 +78,10 @@ int main(int argc, char **argv)
     if (my_id == 0) {
     	rinit(SEED);
     	MSA = (Dataptr) alloc(sizeof(DataStructure), "alloc data structure");
-    	matrix_seq_data = (DataSeqPtr) alloc(sizeof(DataSeqStructure), "alloc data structure");
+    	MSA = (Dataptr) alloc(sizeof(DataStructure), "alloc data structure");
     	getparam(&rcstruct, argc, argv);
-    	phylip_dna_matrin("infile", FORMAT_PHYLIP, MSA, matrix_seq_data);
-    	matchange(MSA, matrix_seq_data, rcstruct);
+    	phylip_dna_matrin("infile", FORMAT_PHYLIP, MSA);
+    	matchange(MSA, rcstruct);
 
     	fp = fopen("uni_anneal", "wb");
     	/* fill a treestack without checkpointing */
@@ -125,7 +125,7 @@ int main(int argc, char **argv)
     	free(p_current_tree_2);
     	free(p_proposed_tree_2);
     	free(MSA);
-    	free(matrix_seq_data);
+    	free(MSA);
     }
     MPI_Finalize();
 }

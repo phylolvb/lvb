@@ -336,9 +336,9 @@ long getplen(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *CurrentTreeArray, Para
 			long j;						/* loop counter */
 			long ch;					/* partial changes */
 
-			Lvb_bit_lentgh u;					/* for s. set and length calcs */
-			Lvb_bit_lentgh x;					/* batch of 8 left state sets */
-			Lvb_bit_lentgh y;					/* batch of 8 right state sets */
+			Lvb_bit_length u;					/* for s. set and length calcs */
+			Lvb_bit_length x;					/* batch of 8 left state sets */
+			Lvb_bit_length y;					/* batch of 8 right state sets */
 
 			done = 0;
 			l_end = MSA->n_slice_size_getplen * (omp_get_thread_num() + 1);
@@ -368,8 +368,8 @@ long getplen(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *CurrentTreeArray, Para
 				printf("1 : Thread# %d: make branch: %d\n", omp_get_thread_num(), branch);
 #endif
 							n_changes_temp = 0;
-							Lvb_bit_lentgh *restrict l_ssets = CurrentTreeArray[left].sset;
-							Lvb_bit_lentgh *restrict r_ssets = CurrentTreeArray[right].sset;
+							Lvb_bit_length *restrict l_ssets = CurrentTreeArray[left].sset;
+							Lvb_bit_length *restrict r_ssets = CurrentTreeArray[right].sset;
 							for (j = MSA->n_slice_size_getplen * omp_get_thread_num(); j < l_end; j++){
 								x = l_ssets[j];
 								y = r_ssets[j];
@@ -473,14 +473,14 @@ long getplen(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *CurrentTreeArray, Para
 		}
 		/* END of threading code */
     }
-	else{	/* code to the orginal version, whitout threading */
+	else{	/* code to the orginal version, without threading */
 
 		long ch;					/* partial changes */
 		long j;						/* loop counter */
 
-		Lvb_bit_lentgh u;				/* for s. set and length calcs */
-		Lvb_bit_lentgh x;				/* batch of 8 left state sets */
-		Lvb_bit_lentgh y;				/* batch of 8 right state sets */
+		Lvb_bit_length u;				/* for s. set and length calcs */
+		Lvb_bit_length x;				/* batch of 8 left state sets */
+		Lvb_bit_length y;				/* batch of 8 right state sets */
 
 		for (i = MSA->n; i < MSA->nbranches; i++) {
 			if (CurrentTreeArray[i].sset[0] == 0U){
@@ -504,8 +504,8 @@ long getplen(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *CurrentTreeArray, Para
 					right = CurrentTreeArray[branch].right;
 					if (CurrentTreeArray[left].sset[0] && CurrentTreeArray[right].sset[0])
 					{
-						Lvb_bit_lentgh *restrict l_ssets = CurrentTreeArray[left].sset;
-						Lvb_bit_lentgh *restrict r_ssets = CurrentTreeArray[right].sset;
+						Lvb_bit_length *restrict l_ssets = CurrentTreeArray[left].sset;
+						Lvb_bit_length *restrict r_ssets = CurrentTreeArray[right].sset;
 						for (j = 0; j < MSA->nwords; j++){
 							x = l_ssets[j];
 							y = r_ssets[j];

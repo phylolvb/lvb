@@ -172,29 +172,26 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 typedef enum { LVB_FALSE, LVB_TRUE } Lvb_bool;	/* boolean type */
 
+/* MSA and associated information */
 typedef struct data
 {
-     long m;				/* number of columns */
-     long original_m;	/* number of columns read from MSA*/
-     long n;				/* number of rows */
-     long max_length_seq_name; 	/* length of the sequence names */
-     long nbranches; 	/* number of possible braches */
-     long bytes;
-     long tree_bytes;	/* length the tree in bytes */
-     long tree_bytes_whitout_sset;	/* length the tree in bytes whitout sset */
-     long nwords;
-     long min_len_tree;	     /*  minimum length of any tree based on MSA */
-     long nsets;	/* sets per tree */
-     long mssz;	/* maximum objects per set */
-     int n_threads_getplen;  	/* number of possible threads in getplen function */
-     int n_slice_size_getplen;   /* slice size in getplen function, usually m/n_threads_getplen  */
+    int n_threads_getplen;  /* number of possible threads in getplen function */
+    int n_slice_size_getplen;  /* slice size in getplen function, usually m/n_threads_getplen  */
+    long m;				/* number of columns */
+    long original_m;	/* number of columns read from MSA*/
+    long n;				/* number of rows */
+    long max_length_seq_name; 	/* length of the sequence names */
+    long nbranches; 	/* number of possible branches */
+    long bytes;
+    long tree_bytes;	/* length the tree in bytes */
+    long tree_bytes_without_sset;	/* length the tree in bytes without sset */
+    long nwords;
+    long min_len_tree;	     /*  minimum length of any tree based on MSA */
+    long nsets;			/* sets per tree */
+    long mssz;			/* maximum objects per set */
+    char **row;			/* array of row strings */
+    char **rowtitle;	/* array of row title strings */
 } *Dataptr, DataStructure;
-
-typedef struct seq_data
-{
-     char **row;
-     char **rowtitle;
-}*DataSeqPtr, DataSeqStructure;
 
 /* user- or programmer-configurable parameters */
 typedef struct
@@ -202,6 +199,7 @@ typedef struct
      long verbose;		/* verboseness level */
      int seed;			/* seed for random number generator */
      int cooling_schedule;   /* cooling schedule: 0 is geometric, 1 is linear */
+     int algorithm_selection;             /* algorithm selection: 0 is original, 1 is no SEQ-TNS, and 2 is PBS */
      int n_file_format;		/* number of file format, must be FORMAT_PHYLIP, FORMAT_FASTA, FORMAT_NEXUS, FORMAT_MSF, FORMAT_CLUSTAL*/
      int n_processors_available;	/* number of processors available */
      int n_seeds_need_to_try;	/* number of seeds that go to try, minimum is the number of mpi process */

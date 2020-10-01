@@ -155,20 +155,21 @@ structure containing the data matrix.
 
 **********/
 
-	int phylip_dna_matrin(char *p_file_name, int n_file_format, Dataptr lvbmat, DataSeqPtr lvbmat_seq)
-	{
-		int n_error_code = read_file(p_file_name, n_file_format, lvbmat, lvbmat_seq);
-		if (n_error_code != EXIT_SUCCESS) return n_error_code;
+void phylip_dna_matrin(char *p_file_name, int n_file_format, Dataptr lvbmat)
+{
+	read_file(p_file_name, n_file_format, lvbmat);
 
-		/* check number of sequences is in range for LVB */
-	    if (lvbmat->n < MIN_N) crash("The data matrix must have at least %ld sequences.", MIN_N);
-	    else if (lvbmat->n > MAX_N) crash("The data matrix must have no more than %ld sequences.", MAX_N);
-	    /* check number of sites is in range for LVB */
-	    else if (lvbmat->m < MIN_M) crash("The data matrix must have at least %ld sites.", MIN_M);
-	    else if (lvbmat->m > MAX_M) crash("The data matrix must have no more than %ld sites.", MAX_M);
+    /* check number of sequences is in range for LVB */
+    if (lvbmat->n < MIN_N) crash("The data matrix must have at least %ld sequences.", MIN_N);
+    else if (lvbmat->n > MAX_N) crash("The data matrix must have no more than %ld sequences.", MAX_N);
+    /* check number of sites is in range for LVB */
+    else if (lvbmat->m < MIN_M) crash("The data matrix must have at least %ld sites.", MIN_M);
+    else if (lvbmat->m > MAX_M) crash("The data matrix must have no more than %ld sites.", MAX_M);
 
-	    return EXIT_SUCCESS;
-	} /* end phylip_dna_matrin() */
+    /* maximum number of object sets per tree */
+    lvb_assert (lvbmat->nsets <= (MAX_N - 3));
+
+} /* end phylip_dna_matrin() */
 
 
 /**********

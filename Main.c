@@ -614,7 +614,7 @@ static void writeinf(Parameters prms, Dataptr MSA, int myMPIid, int n_process)
 } /* end writeinf() */
 
 
-static void logtree1(Dataptr MSA, DataSeqPtr restrict matrix_seq_data, const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long start, const long cycle, long root)
+static void logtree1(Dataptr MSA, const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long start, const long cycle, long root)
 /* log initial tree for cycle cycle of start start (in CurrentTreeArray) to outfp */
 {
     static char outfnam[LVB_FNAMSIZE]; 	/* current file name */
@@ -626,13 +626,13 @@ static void logtree1(Dataptr MSA, DataSeqPtr restrict matrix_seq_data, const TRE
 
     /* create tree file */
     outfp = clnopen(outfnam, "w");
-    lvb_treeprint(MSA, matrix_seq_data, outfp, CurrentTreeArray, root);
+    lvb_treeprint(MSA, outfp, CurrentTreeArray, root);
     clnclose(outfp, outfnam);
 
 } /* end logtree1() */
 
-	static long getsoln(Dataptr restrict MSA, DataSeqPtr restrict matrix_seq_data, Parameters rcstruct,
-			TREESTACK* bstack_overall, Lvb_bit_lentgh **enc_mat, int myMPIid, Lvb_bool log_progress)
+	static long getsoln(Dataptr restrict MSA, Parameters rcstruct,
+			TREESTACK* bstack_overall, Lvb_bit_length **enc_mat, int myMPIid, Lvb_bool log_progress)
 	/* get and output solution(s) according to parameters in rcstruct;
 	 * return length of shortest tree(s) found  */
 	{
@@ -707,7 +707,7 @@ static void logtree1(Dataptr MSA, DataSeqPtr restrict matrix_seq_data, const TRE
 					alloc_memory_to_getplen(MSA, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
 					fprintf(sumfp, "%d\t%ld\t%ld\t%ld\t", myMPIid, start, cyc, getplen(MSA, tree, rcstruct, initroot, p_todo_arr, p_todo_arr_sum_changes, p_runs));
 					free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-					logtree1(MSA, matrix_seq_data, tree, start, cyc, initroot);
+					logtree1(MSA, tree, start, cyc, initroot);
 				}
 			}
 			else{
@@ -745,7 +745,7 @@ static void logtree1(Dataptr MSA, DataSeqPtr restrict matrix_seq_data, const TRE
 					/* save it */
 					sprintf(file_name_output, "%s_%d", rcstruct.file_name_out, n_number_tried_seed); /* name of output file for this process */
 					outtreefp = clnopen(file_name_output, "w");
-					trees_output = PrintTreestack(MSA, matrix_seq_data, bstack_overall, outtreefp, LVB_FALSE);
+					trees_output = PrintTreestack(MSA, bstack_overall, outtreefp, LVB_FALSE);
 					clnclose(outtreefp, file_name_output);
 					printf("\nProcess:%d   Rearrangements tried: %ld\n", myMPIid, l_iterations);
 					if (trees_output == 1L) { printf("1 most parsimonious tree of length %ld written to file '%s'\n", treelength, file_name_output); }
@@ -831,7 +831,7 @@ static void logstim(void)
 		printf("min_len_tree: %ld\n", p_lvbmat->min_len_tree);
 	}
 
-	void print_data_seq(DataSeqPtr p_lvbmat, int n_size, int n_thread){
+	void print_data_seq(Dataptr p_lvbmat, int n_size, int n_thread){
 
 		printf("########### SEQ ####################\n thread: %d\n", n_thread);
 		int i;
@@ -841,7 +841,7 @@ static void logstim(void)
 		}
 	}
 
-	void print_binary_data(Lvb_bit_lentgh **p_enc_data, int n_size, int nwords, int n_thread){
+	void print_binary_data(Lvb_bit_length **p_enc_data, int n_size, int nwords, int n_thread){
 
 		printf("########### SEQ ####################\n thread: %d\n", n_thread);
 		int i, x;
@@ -1043,15 +1043,14 @@ static void logstim(void)
 	int main(int argc, char **argv)
 	{
 	    Dataptr MSA;	/* data MSA */
-	    DataSeqPtr matrix_seq_data;
 	    Parameters rcstruct;		/* configurable parameters */
 	    long i, n_buffer_size_matrix, n_buffer_size_binary;			/* loop counter */
 	    int position, n_error_code = EXIT_SUCCESS; /* return value */
-	    Lvb_bit_lentgh **enc_mat = NULL;/* encoded data mat. */
+	    Lvb_bit_length **enc_mat = NULL;/* encoded data mat. */
 	    Lvb_bool log_progress;	/* whether or not to log anneal search */
 	    TREESTACK *p_bstack_overall = NULL;	/* overall best tree stack */
 	    char *pack_data = NULL;
-	    Lvb_bit_lentgh *p_pack_data_binary = NULL;
+	    Lvb_bit_length *p_pack_data_binary = NULL;
 	    /* global files */
 
 	    /* define mpi */
@@ -1071,9 +1070,8 @@ static void logstim(void)
 		}
 
 		MSA = (data *) alloc(sizeof(DataStructure), "alloc data structure");
-		matrix_seq_data = (seq_data *) alloc(sizeof(DataSeqStructure), "alloc data structure");
-		matrix_seq_data->row = NULL;
-		matrix_seq_data->rowtitle = NULL;
+		MSA->row = NULL;
+		MSA->rowtitle = NULL;
 
 		/* define the MSA structure MPI */
 		int				nItems = 2;
@@ -1149,27 +1147,27 @@ static void logstim(void)
 			/* test some static values */
 			lvb_initialize();
 
-			n_error_code = getparam(&rcstruct, argc, argv);
+			getparam(&rcstruct, argc, argv);
 			if (n_error_code == EXIT_SUCCESS){
 				logstim();
 				/* read and alloc space to the data structure */
-				n_error_code = phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, MSA, matrix_seq_data);
+				phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, MSA);
 				if (n_error_code == EXIT_SUCCESS){
 
 					/* send message to continue */
 					MPI_Bcast(&n_error_code, 1, MPI_INT, MPI_MAIN_PROCESS, MPI_COMM_WORLD);
 
 					/* start the main process */
-					matchange(MSA, matrix_seq_data, rcstruct);	/* cut columns */
+					matchange(MSA, rcstruct);	/* cut columns */
 					if (rcstruct.n_seeds_need_to_try < (num_procs - 1)) { rcstruct.n_seeds_need_to_try = num_procs - 1; }
 					writeinf(rcstruct, MSA, myMPIid, num_procs);
 					calc_distribution_processors(MSA, rcstruct);
 
 					/* Allocation of the initial encoded MSA is non-contiguous because
 					 * this MSA isn't used much, so any performance penalty won't matter. */
-					enc_mat = (Lvb_bit_lentgh **) alloc((MSA->n) * sizeof(Lvb_bit_lentgh *), "state sets");
-					for (i = 0; i < MSA->n; i++) enc_mat[i] = (Lvb_bit_lentgh *) alloc(MSA->bytes, "state sets");
-					DNAToBinary(MSA, matrix_seq_data, enc_mat);
+					enc_mat = (Lvb_bit_length **) alloc((MSA->n) * sizeof(Lvb_bit_length *), "state sets");
+					for (i = 0; i < MSA->n; i++) enc_mat[i] = (Lvb_bit_length *) alloc(MSA->bytes, "state sets");
+					DNAToBinary(MSA, enc_mat);
 
 					/* pack data for seq MSA */
 			#ifdef MPI_SEND_ONLY_MATRIX_NAMES
@@ -1182,15 +1180,15 @@ static void logstim(void)
 					position = 0;
 					for (i = 0; i < MSA->n; i++){
 			#ifndef MPI_SEND_ONLY_MATRIX_NAMES
-						MPI_Pack(matrix_seq_data->row[i], MSA->m + 1, MPI_CHAR, pack_data, n_buffer_size_matrix, &position, MPI_COMM_WORLD);
+						MPI_Pack(MSA->row[i], MSA->m + 1, MPI_CHAR, pack_data, n_buffer_size_matrix, &position, MPI_COMM_WORLD);
 			#endif
-						MPI_Pack(matrix_seq_data->rowtitle[i], MSA->max_length_seq_name + 1, MPI_CHAR, pack_data, n_buffer_size_matrix, &position, MPI_COMM_WORLD);
+						MPI_Pack(MSA->rowtitle[i], MSA->max_length_seq_name + 1, MPI_CHAR, pack_data, n_buffer_size_matrix, &position, MPI_COMM_WORLD);
 					}
 					/* END pack data for seq MSA */
 
 					/* pack binary for seq data */
 					n_buffer_size_binary = MSA->bytes * MSA->n;
-					p_pack_data_binary = (Lvb_bit_lentgh *) alloc(n_buffer_size_binary, "binary packing");
+					p_pack_data_binary = (Lvb_bit_length *) alloc(n_buffer_size_binary, "binary packing");
 					position = 0;
 					for (i = 0; i < MSA->n; i++){
 						MPI_Pack(enc_mat[i], MSA->bytes, MPI_CHAR, p_pack_data_binary, n_buffer_size_binary, &position, MPI_COMM_WORLD);
@@ -1220,7 +1218,7 @@ static void logstim(void)
 					/* clean memory */
 					for (i = 0; i < MSA->n; i++) free(enc_mat[i]);
 					free(enc_mat);
-					rowfree(matrix_seq_data, MSA->n);
+					rowfree(MSA, MSA->n);
 					free(pack_data);
 					free(p_pack_data_binary);
 					free(p_bstack_overall);
@@ -1243,14 +1241,14 @@ static void logstim(void)
 				MPI_Recv(&rcstruct, 1, mpi_params, MPI_MAIN_PROCESS, MPI_TAG_PARAMS, MPI_COMM_WORLD, &status);
 				//writeinf(rcstruct, MSA, myMPIid, num_procs); /* print data.... */
 
-				matrix_seq_data->rowtitle = (char **) malloc((MSA->n) * sizeof(char *));
+				MSA->rowtitle = (char **) malloc((MSA->n) * sizeof(char *));
 		#ifdef MPI_SEND_ONLY_MATRIX_NAMES
 				n_buffer_size_matrix = sizeof(char) * MSA->n * (MSA->max_length_seq_name + 1);
-				matrix_seq_data->row = 0L;
+				MSA->row = 0L;
 		#else
 				n_buffer_size_matrix = sizeof(char) * MSA->n * (MSA->m + 1) + sizeof(char) * MSA->n * (MSA->max_length_seq_name + 1);
 				/* array for row strings */
-				matrix_seq_data->row = (char **) malloc((MSA->n) * sizeof(char *));
+				MSA->row = (char **) malloc((MSA->n) * sizeof(char *));
 		#endif
 
 				/* send names and/or seq and names */
@@ -1261,27 +1259,27 @@ static void logstim(void)
 				position = 0;
 				for ( i = 0; i < MSA->n; i++){
 		#ifndef MPI_SEND_ONLY_MATRIX_NAMES
-					matrix_seq_data->row[i] = (char*) malloc(sizeof(char) * (MSA->m + 1));
-					memcpy((char*) (matrix_seq_data->row[i]), pack_data + position, MSA->m + 1);
+					MSA->row[i] = (char*) malloc(sizeof(char) * (MSA->m + 1));
+					memcpy((char*) (MSA->row[i]), pack_data + position, MSA->m + 1);
 					position += MSA->m + 1;
 		#endif
-					matrix_seq_data->rowtitle[i] = (char*) malloc(sizeof(char) * (MSA->max_length_seq_name + 1));
-					memcpy((char*) (matrix_seq_data->rowtitle[i]), pack_data + position, MSA->max_length_seq_name + 1);
+					MSA->rowtitle[i] = (char*) malloc(sizeof(char) * (MSA->max_length_seq_name + 1));
+					memcpy((char*) (MSA->rowtitle[i]), pack_data + position, MSA->max_length_seq_name + 1);
 					position += MSA->max_length_seq_name + 1;
 				}
 				/* print data.... */
-		//		print_data_seq(matrix_seq_data, MSA->n, myMPIid);
+		//		print_data_seq(MSA, MSA->n, myMPIid);
 				/* END send names and/or seq and names */
 
 				/* send binary data */
 				n_buffer_size_binary = MSA->bytes * MSA->n;
-				p_pack_data_binary = (Lvb_bit_lentgh *) alloc(n_buffer_size_binary, "binary packing");
+				p_pack_data_binary = (Lvb_bit_length *) alloc(n_buffer_size_binary, "binary packing");
 				MPI_Recv(p_pack_data_binary, n_buffer_size_binary, MPI_CHAR, MPI_MAIN_PROCESS, MPI_TAG_BINARY_DATA, MPI_COMM_WORLD, &status);
 
-				enc_mat = (Lvb_bit_lentgh **) alloc((MSA->n) * sizeof(Lvb_bit_lentgh *), "state sets");
+				enc_mat = (Lvb_bit_length **) alloc((MSA->n) * sizeof(Lvb_bit_length *), "state sets");
 				for (i = 0; i < MSA->n; i++){
-					enc_mat[i] = (Lvb_bit_lentgh *) alloc(sizeof(char) * MSA->bytes, "binary packing");
-					memcpy((Lvb_bit_lentgh *) (enc_mat[i]), p_pack_data_binary + i * MSA->nwords, MSA->bytes);
+					enc_mat[i] = (Lvb_bit_length *) alloc(sizeof(char) * MSA->bytes, "binary packing");
+					memcpy((Lvb_bit_length *) (enc_mat[i]), p_pack_data_binary + i * MSA->nwords, MSA->bytes);
 				}
 		//		print_binary_data(enc_mat, MSA->n, MSA->nwords, myMPIid);
 				/* END send binary data */
@@ -1329,7 +1327,7 @@ static void logstim(void)
 					p_bstack_overall = CreateNewTreestack();
 					log_progress = LVB_TRUE;
 					/* get the length and the tree */
-					getsoln(MSA, matrix_seq_data, rcstruct, p_bstack_overall, enc_mat, myMPIid, log_progress);
+					getsoln(MSA, rcstruct, p_bstack_overall, enc_mat, myMPIid, log_progress);
 					/* "file-local" dynamic heap memory */
 					FreeTreestackMemory(p_bstack_overall);
 
@@ -1348,7 +1346,7 @@ static void logstim(void)
 				/* clean memory */
 				for (i = 0; i < MSA->n; i++) free(enc_mat[i]);
 				free(enc_mat);
-				rowfree(matrix_seq_data, MSA->n);
+				rowfree(MSA, MSA->n);
 				free(pack_data);
 				free(p_pack_data_binary);
 				free(p_bstack_overall);
@@ -1356,7 +1354,7 @@ static void logstim(void)
 		}
 		MPI_Type_free(&mpi_matrix);
 		MPI_Type_free(&mpi_params);
-		free(matrix_seq_data);
+		free(MSA);
 	    free(MSA);
 	    if (rcstruct.verbose == LVB_TRUE) {
 	        printf("Process finish: %d\n", myMPIid);

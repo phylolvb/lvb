@@ -52,7 +52,7 @@ int main(int argc, char **argv)
     char filename[] = "test_file";
     Parameters rcstruct, rcstruct_2;	/* configurable parameters */
     Dataptr MSA;					/* data MSA */
-    DataSeqPtr matrix_seq_data;
+    Dataptr MSA;
     long root1;						/* root of tree 1 */
     TREESTACK_TREE_BRANCH *tree1;					/* first tree to compare */
     TREESTACK *tree_checkpoint;		/* tree stack without checkpointing */
@@ -71,9 +71,9 @@ int main(int argc, char **argv)
 
     	getparam(&rcstruct, argc, argv);
     	MSA = (Dataptr) alloc(sizeof(DataStructure), "alloc data structure");
-    	matrix_seq_data = (DataSeqPtr) alloc(sizeof(DataSeqStructure), "alloc data structure");
-    	phylip_dna_matrin("infile", FORMAT_PHYLIP, MSA, matrix_seq_data);
-    	matchange(MSA, matrix_seq_data, rcstruct);
+    	MSA = (Dataptr) alloc(sizeof(DataStructure), "alloc data structure");
+    	phylip_dna_matrin("infile", FORMAT_PHYLIP, MSA);
+    	matchange(MSA, rcstruct);
     	tree_checkpoint = CreateNewTreestack();
 
 		/* fill a treestack without checkpointing */
@@ -124,7 +124,7 @@ int main(int argc, char **argv)
 
     	free(tree1);
     	free(MSA);
-    	free(matrix_seq_data);
+    	free(MSA);
     	remove(filename);
     	printf("test passed\n");
     }

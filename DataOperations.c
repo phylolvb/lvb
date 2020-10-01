@@ -512,12 +512,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef MPI_Implementation
 
-static long constchar(Dataptr restrict MSA, DataSeqPtr restrict matrix_seq, Lvb_bool *const togo, const Lvb_bool verbose);
-	static void cutcols(Dataptr MSA, DataSeqPtr matrix_seq, const Lvb_bool *const tocut, long n_columns_to_change);
+static long constchar(Dataptr restrict MSA, Lvb_bool *const togo, const Lvb_bool verbose);
+	static void cutcols(Dataptr MSA, const Lvb_bool *const tocut, long n_columns_to_change);
 	static void logcut(const Lvb_bool *const cut, const long m);
-	static long getminlen(const Dataptr MSA, DataSeqPtr matrix_seq);
 
-static char *getstatev(const Dataptr MSA, DataSeqPtr matrix_seq, const long k)
+static char *getstatev(const Dataptr MSA, const long k)
 	/* return pointer to string containing 1 instance of each character state in
 	 * column k of MSA, or NULL if more than MAXSTATES states are
 	 * found; does not include '-', '?', 'N' or 'X'; ignores the special meaning
@@ -534,9 +533,9 @@ static char *getstatev(const Dataptr MSA, DataSeqPtr matrix_seq, const long k)
 
 	    /* update record of states for column k */
 	    for (i = 0; i < MSA->n; ++i){
-			if (strchr(statev, (int) matrix_seq->row[i][k]) == NULL){	/* new state */
-				if ((matrix_seq->row[i][k] != '-') && (matrix_seq->row[i][k] != '?') && (matrix_seq->row[i][k] != 'N') && (matrix_seq->row[i][k] != 'X')) {
-					statev[statec++] = matrix_seq->row[i][k];
+			if (strchr(statev, (int) MSA->row[i][k]) == NULL){	/* new state */
+				if ((MSA->row[i][k] != '-') && (MSA->row[i][k] != '?') && (MSA->row[i][k] != 'N') && (MSA->row[i][k] != 'X')) {
+					statev[statec++] = MSA->row[i][k];
 	    		}
 	    		if (statec > MAXSTATES) return NULL;
 	    		statev[statec] = '\0';	/* for strchr() */
@@ -545,7 +544,7 @@ static char *getstatev(const Dataptr MSA, DataSeqPtr matrix_seq, const long k)
 	    return statev;
 	} /* end getstatev() */
 
-	long getminlen(const Dataptr MSA, DataSeqPtr matrix_seq)
+	long getminlen(const Dataptr MSA)
 	/* return minimum length of any tree based on MSA; FIXME not quite right
 	 * with ambiguity codes */
 	{
@@ -554,7 +553,7 @@ static char *getstatev(const Dataptr MSA, DataSeqPtr matrix_seq, const long k)
 		long k;		/* loop counter */
 
 		for (k = 0; k < MSA->m; ++k) {
-			statev = getstatev(MSA, matrix_seq, k);
+			statev = getstatev(MSA, k);
 			if (statev == NULL) minlen += MAXSTATES;
 			else minlen += strlen(statev) - 1;
 		}
@@ -622,7 +621,7 @@ C<mat>C<->E<gt>C<row>[I<i>][I<j>], where I<i> is in the interval
 
 **********/
 
-void DNAToBinary(Dataptr restrict mat, DataSeqPtr matrix_seq, Lvb_bit_lentgh **enc_mat)
+void DNAToBinary(Dataptr restrict mat, Lvb_bit_length **enc_mat)
 
 /* convert MSA from string form to binary-encoded form, in which each
  * biological character occupies half a byte; the MSA is padded with
@@ -635,8 +634,8 @@ void DNAToBinary(Dataptr restrict mat, DataSeqPtr matrix_seq, Lvb_bit_lentgh **e
     long k;		/* loop counter */
     long mat_offset;	/* current position within MSA row */
     char base;		/* current base as text character */
-    Lvb_bit_lentgh sset = 0U;	/* binary-encoded single state set */
-    Lvb_bit_lentgh enc_ssets;	/* set of four binary-encoded state sets */
+    Lvb_bit_length sset = 0U;	/* binary-encoded single state set */
+    Lvb_bit_length enc_ssets;	/* set of four binary-encoded state sets */
 
     for (i = 0; i < mat->n; i++)
     {
@@ -649,7 +648,7 @@ void DNAToBinary(Dataptr restrict mat, DataSeqPtr matrix_seq, Lvb_bit_lentgh **e
 				if (mat_offset >= mat->m)	/* padding required */
 					base = 'N';
 				else
-					base = matrix_seq->row[i][(j << LENGTH_WORD_BITS_MULTIPLY) + k];	/* observed base required */
+					base = mat->row[i][(j << LENGTH_WORD_BITS_MULTIPLY) + k];	/* observed base required */
 
 				/* unambiguous bases */
 				if (base == 'A')
@@ -711,7 +710,7 @@ void DNAToBinary(Dataptr restrict mat, DataSeqPtr matrix_seq, Lvb_bit_lentgh **e
 } /* end DNAToBinary() */
 
 
-	void rowfree(DataSeqPtr MSA, int n_lines)
+	void rowfree(Dataptr MSA, int n_lines)
 	/* free memory used for row strings and array of row strings in MSA,
 	 * and make the array of row title strings NULL;
 	 * or, if the array of row title strings is already NULL, do nothing */
@@ -731,7 +730,7 @@ void DNAToBinary(Dataptr restrict mat, DataSeqPtr matrix_seq, Lvb_bit_lentgh **e
 	} /* end rowfree() */
 
 
-	static long constchar(Dataptr restrict MSA, DataSeqPtr restrict matrix_seq, Lvb_bool *const togo, const Lvb_bool verbose)
+	static long constchar(Dataptr restrict MSA, Lvb_bool *const togo, const Lvb_bool verbose)
 /* Make sure MSA->m-element array togo is LVB_TRUE where MSA column
  * contains only one character state;
  * log details of new columns to ignore if verbose is LVB_TRUE.
@@ -746,7 +745,7 @@ void DNAToBinary(Dataptr restrict mat, DataSeqPtr matrix_seq, Lvb_bit_lentgh **e
     /* discover variable columns */
     for (k = 0; k < MSA->m; ++k){
     	for (i = 1; i < MSA->n; ++i){
-    		if (matrix_seq->row[i][k] != matrix_seq->row[0][k]){
+    		if (MSA->row[i][k] != MSA->row[0][k]){
 				togo[k] = LVB_TRUE;
 				n_columns += 1;
 				break;
@@ -762,7 +761,7 @@ void DNAToBinary(Dataptr restrict mat, DataSeqPtr matrix_seq, Lvb_bit_lentgh **e
     return n_columns;
 } /* end constchar() */
 
-    void matchange(Dataptr MSA, DataSeqPtr matrix_seq, const Parameters rcstruct)
+    void matchange(Dataptr MSA, const Parameters rcstruct)
 /* change and remove columns in MSA, partly in response to rcstruct,
  * verbosely or not according to value of verbose */
 {
@@ -779,21 +778,21 @@ void DNAToBinary(Dataptr restrict mat, DataSeqPtr matrix_seq, Lvb_bit_lentgh **e
     /* initialize all elements to LVB_FALSE ('don't ignore') */
     for(n_columns_to_change = 0; n_columns_to_change < MSA->m; n_columns_to_change ++) *(togo + n_columns_to_change) = LVB_FALSE;
 
-    n_columns_to_change = constchar(MSA, matrix_seq, togo, (Lvb_bool) rcstruct.verbose);	/* compuslory cut */
+    n_columns_to_change = constchar(MSA, togo, (Lvb_bool) rcstruct.verbose);	/* compuslory cut */
     /* N.B. a function to mark autapomorphic characters for cutting
 	 * could be called at this point. The effect would be more noticable
 	 * with unrealistically small test matrices than with real data */
 
 	/* cut the cols as indicated, and crash verbosely if too few remain */
 	if (n_columns_to_change != MSA->m){
-		cutcols(MSA, matrix_seq, togo, n_columns_to_change);	/* make changes to MSA */
+		cutcols(MSA, togo, n_columns_to_change);	/* make changes to MSA */
 	}
 	else{
 		MSA->bytes = bytes_per_row(MSA->m);
 		MSA->nwords = words_per_row(MSA->m);
 		MSA->tree_bytes = tree_bytes(MSA);
-		MSA->tree_bytes_whitout_sset = tree_bytes_whitout_sset(MSA);
-		MSA->min_len_tree = getminlen(MSA, matrix_seq);
+		MSA->tree_bytes_without_sset = tree_bytes_without_sset(MSA);
+		MSA->min_len_tree = getminlen(MSA);
 	}
 	if (MSA->m < MIN_M)
 		crash("after constant columns are ignored, data MSA has\n"
@@ -808,7 +807,7 @@ void DNAToBinary(Dataptr restrict mat, DataSeqPtr matrix_seq, Lvb_bit_lentgh **e
 
 } /* end matchange() */
 
-    static void cutcols(Dataptr MSA, DataSeqPtr matrix_seq, const Lvb_bool *const tocut, long n_columns_to_change)
+    static void cutcols(Dataptr MSA, const Lvb_bool *const tocut, long n_columns_to_change)
 /* remove columns in MSA for which the corresponding element of
 MSA->m-element array tocut is LVB_TRUE, and update MSA->m;
 return the number of columns cut */
@@ -828,7 +827,7 @@ return the number of columns cut */
     for (k = 0; k < uum; ++k){	/* for every column */
 		if (tocut[k] == LVB_TRUE){	/* keep this column */
 			for (i = 0; i < uun; ++i)	/* fill for ea. row */
-				newrow[i][newk] = matrix_seq->row[i][k];
+				newrow[i][newk] = MSA->row[i][k];
 			++newk;	/* fill next row next time */
 		}
     }
@@ -844,9 +843,9 @@ return the number of columns cut */
     MSA->bytes = bytes_per_row(MSA->m);
     MSA->nwords = words_per_row(MSA->m);
     MSA->tree_bytes = tree_bytes(MSA);
-    MSA->tree_bytes_whitout_sset = tree_bytes_whitout_sset(MSA);
-    matrix_seq->row = newrow;
-    MSA->min_len_tree = getminlen(MSA, matrix_seq);
+    MSA->tree_bytes_without_sset = tree_bytes_without_sset(MSA);
+    MSA->row = newrow;
+    MSA->min_len_tree = getminlen(MSA);
 } /* end cutcols() */
 
 
@@ -907,12 +906,12 @@ static void logcut(const Lvb_bool *const cut, const long m)
 } /* end logcut() */
 
 
-void uint32_dump(FILE *stream, Lvb_bit_lentgh u)
+void uint32_dump(FILE *stream, Lvb_bit_length u)
 /* output a uint32 in binary format */
 {
 	long i;			/* loop counter */
-	Lvb_bit_lentgh mask;		/* to obtain current bit */
-	Lvb_bit_lentgh output_as_int;
+	Lvb_bit_length mask;		/* to obtain current bit */
+	Lvb_bit_length output_as_int;
     static char buffer[NUMBER_OF_BITS + 2];
 
     for (i = 0; i < NUMBER_OF_BITS; i++){
@@ -948,7 +947,7 @@ long bytes_per_row(const long m)
  * to the nearest 32-bit word - which allows for the optimization of White and
  * Holland (2011, Bioinformatics 27:1359-1367, specifically Section 2.10) */
 {
-	return words_per_row(m) * sizeof(Lvb_bit_lentgh);
+	return words_per_row(m) * sizeof(Lvb_bit_length);
 }
 
 #endif

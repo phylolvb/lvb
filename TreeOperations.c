@@ -1528,7 +1528,7 @@ static void sort(Objset *const oset_1, Objset *const oset_2, const long nels, Lv
 static void ssarralloc(Dataptr restrict MSA, Objset *nobjset_1, Objset *nobjset_2);
 static void tree_make_canonical(Dataptr restrict, TREESTACK_TREE_BRANCH *const CurrentTreeArray, long *objnos);
 
-static void ur_print(Dataptr, DataSeqPtr restrict matrix_seq_data, FILE *const stream, const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long root);
+static void ur_print(Dataptr restrict MSA, FILE *const stream, const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long root);
 
 
 /* object sets for tree 1 in comparison */
@@ -1560,7 +1560,7 @@ long tree_bytes(Dataptr restrict MSA)
     return (MSA->nbranches * sizeof(TREESTACK_TREE_BRANCH)) + (MSA->nbranches * MSA->bytes);
 } /* end tree_bytes() */
 
-long tree_bytes_whitout_sset(Dataptr restrict MSA)
+long tree_bytes_without_sset(Dataptr restrict MSA)
 /* return bytes required for contiguous allocation of a tree for the data
  * accessible by MSA, */
 {
@@ -1953,7 +1953,7 @@ static void cr_bpnc(const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const l
 TREESTACK_TREE_BRANCH *const mvBranch(long nbranches, TREESTACK_TREE_BRANCH *const dest, const TREESTACK_TREE_BRANCH *const src)
 {
 	long i;
-	Lvb_bit_lentgh *tmp_sset;
+	Lvb_bit_length *tmp_sset;
 	for(i = 0; i < nbranches; i++){
 		tmp_sset = dest[i].sset;
 		dest[i] = src[i];
@@ -1970,7 +1970,7 @@ void treecopy(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const dest, const TRE
  * treealloc() is changed */
 {
     long i;				/* loop counter */
-    Lvb_bit_lentgh *tmp_sset;		/* temporary variable used in copy */
+    Lvb_bit_length *tmp_sset;		/* temporary variable used in copy */
     unsigned char *src_statesets_all;	/* start of source's statesets */
     unsigned char *dest_statesets_all;	/* start of dest's statesets */
 
@@ -2068,7 +2068,7 @@ static void tree_make_canonical(Dataptr MSA, TREESTACK_TREE_BRANCH *const Curren
 
     /* patch up assignment of sset memory to prevent trouble in treecopy() */
     for (i = 0; i < nbranches; i++){
-    	CurrentTreeArray[i].sset = (Lvb_bit_lentgh *) (ss0_start + i * MSA->bytes);
+    	CurrentTreeArray[i].sset = (Lvb_bit_length *) (ss0_start + i * MSA->bytes);
     }
 
     for (i = 0; i < n_lines; i++) {
@@ -2111,7 +2111,7 @@ TREESTACK_TREE_BRANCH *treealloc(Dataptr restrict MSA, Lvb_bool b_with_sset)
 
     if (b_with_sset) CurrentTreeArray = (TREESTACK_TREE_BRANCH *) alloc(MSA->tree_bytes, "tree with statesets");
     else{ /* don't need to do anything else */
-    	CurrentTreeArray = (TREESTACK_TREE_BRANCH *) alloc(MSA->tree_bytes_whitout_sset, "tree without statesets");
+    	CurrentTreeArray = (TREESTACK_TREE_BRANCH *) alloc(MSA->tree_bytes_without_sset, "tree without statesets");
     	return CurrentTreeArray;
     }
 
@@ -2123,7 +2123,7 @@ TREESTACK_TREE_BRANCH *treealloc(Dataptr restrict MSA, Lvb_bool b_with_sset)
     lvb_assert((MSA->bytes % NIBBLE_WIDTH) == 0);
 
     for (i = 0; i < MSA->nbranches; i++){
-    	CurrentTreeArray[i].sset = (Lvb_bit_lentgh *) (ss0_start + i * MSA->bytes);
+    	CurrentTreeArray[i].sset = (Lvb_bit_length *) (ss0_start + i * MSA->bytes);
     	*CurrentTreeArray[i].sset = 0U;  /* make durty */
     }
 
@@ -2257,7 +2257,7 @@ void treedump_b(Dataptr MSA, FILE *const stream, const TREESTACK_TREE_BRANCH *co
 /* dump tree as binary data to file pointed to by stream */
 {
     lvb_assert(b_with_sset == LVB_FALSE);	/* not implemented for ssets */
-    fwrite(tree, MSA->tree_bytes_whitout_sset, 1, stream);
+    fwrite(tree, MSA->tree_bytes_without_sset, 1, stream);
     lvb_assert(ferror(stream) == 0);
 }
 
@@ -2319,14 +2319,14 @@ static void cr_uxe(FILE *const stream, const char *const msg)
 } /* end cr_uxe */
 
 
-	void lvb_treeprint (Dataptr MSA, DataSeqPtr restrict matrix_seq_data, FILE *const stream, const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long root)
+	void lvb_treeprint (Dataptr MSA, FILE *const stream, const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long root)
 	/* print tree in CurrentTreeArray (of root root) in bracketed text form to stream stream,
 	 * in unrooted form */
 	{
-		ur_print(MSA, matrix_seq_data, stream, CurrentTreeArray, root);
+		ur_print(MSA, stream, CurrentTreeArray, root);
 	} /* end lvb_treeprint() */
 
-	static void ur_print(Dataptr MSA, DataSeqPtr restrict matrix_seq_data, FILE *const stream, const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long root)
+	static void ur_print(Dataptr MSA, FILE *const stream, const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long root)
 	/* send tree in CurrentTreeArray, of root root, to file pointed to by stream in
 	 * unrooted form */
 	{
@@ -2340,8 +2340,8 @@ static void cr_uxe(FILE *const stream, const char *const msg)
 	    if (doneabsroot == LVB_FALSE)	/* print whole tree */
 	    {
 			/* start tree */
-			tmp_title = (char *) alloc(strlen(matrix_seq_data->rowtitle[obj]) + 1, "temp. title");
-			strcpy(tmp_title, matrix_seq_data->rowtitle[obj]);
+			tmp_title = (char *) alloc(strlen(MSA->rowtitle[obj]) + 1, "temp. title");
+			strcpy(tmp_title, MSA->rowtitle[obj]);
 
 			while(tmp_title[strlen(tmp_title) - 1] == ' '){
 				tmp_title[strlen(tmp_title) - 1] = '\0';
@@ -2351,8 +2351,8 @@ static void cr_uxe(FILE *const stream, const char *const msg)
 			usecomma = LVB_TRUE;
 			doneabsroot = LVB_TRUE;
 
-			ur_print(MSA, matrix_seq_data, stream, CurrentTreeArray, CurrentTreeArray[root].left);
-			ur_print(MSA, matrix_seq_data, stream, CurrentTreeArray, CurrentTreeArray[root].right);
+			ur_print(MSA, stream, CurrentTreeArray, CurrentTreeArray[root].left);
+			ur_print(MSA, stream, CurrentTreeArray, CurrentTreeArray[root].right);
 			/* end tree */
 			fprintf(stream, ");\n");
 			if (ferror(stream))
@@ -2367,8 +2367,8 @@ static void cr_uxe(FILE *const stream, const char *const msg)
 			if (usecomma == LVB_TRUE) fprintf(stream, "%s", CLADESEP);
 			if (root < MSA->n)	/* leaf */
 			{
-				tmp_title = (char *) alloc(strlen(matrix_seq_data->rowtitle[obj]) + 1, "temp. title");
-				strcpy(tmp_title, matrix_seq_data->rowtitle[obj]);
+				tmp_title = (char *) alloc(strlen(MSA->rowtitle[obj]) + 1, "temp. title");
+				strcpy(tmp_title, MSA->rowtitle[obj]);
 				while(tmp_title[strlen(tmp_title) - 1] == ' '){
 					tmp_title[strlen(tmp_title) - 1] = '\0';
 				}
@@ -2380,8 +2380,8 @@ static void cr_uxe(FILE *const stream, const char *const msg)
 			{
 				fprintf(stream, "(");
 				usecomma = LVB_FALSE;
-				ur_print(MSA, matrix_seq_data, stream, CurrentTreeArray, CurrentTreeArray[root].left);
-				ur_print(MSA, matrix_seq_data, stream, CurrentTreeArray, CurrentTreeArray[root].right);
+				ur_print(MSA, stream, CurrentTreeArray, CurrentTreeArray[root].left);
+				ur_print(MSA, stream, CurrentTreeArray, CurrentTreeArray[root].right);
 				fputc(')', stream);
 				usecomma = LVB_TRUE;
 			}
@@ -2606,7 +2606,7 @@ static int objnocmp(const void *o1, const void *o2)
 
 } /* end objnocmp() */
 
-void ss_init(Dataptr MSA, TREESTACK_TREE_BRANCH *tree, Lvb_bit_lentgh **enc_mat)
+void ss_init(Dataptr MSA, TREESTACK_TREE_BRANCH *tree, Lvb_bit_length **enc_mat)
 /* copy m states from enc_mat to the stateset arrays for the leaves in tree,
  * including padding at the end; the nth entry in enc_mat is assumed to be the
  * encoded state sets for object number n in the tree; non-leaf branches in the

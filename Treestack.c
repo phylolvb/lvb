@@ -641,7 +641,7 @@ void checkpoint_treestack(FILE *fp, TREESTACK *s, Dataptr MSA, Lvb_bool b_with_s
     unsigned long n_bytes_to_write = 2 * sizeof(long) + sizeof(unsigned short);
     /* size of tree stack element */
     if (b_with_sset == LVB_TRUE) n_bytes_to_write += trees * (MSA->tree_bytes + sizeof(long));
-    else n_bytes_to_write += trees * (MSA->tree_bytes_whitout_sset + sizeof(long));
+    else n_bytes_to_write += trees * (MSA->tree_bytes_without_sset + sizeof(long));
     unsigned long checksum = 0;
     unsigned short type_block = STATE_BLOCK_TREESTACK;
     fwrite(&n_bytes_to_write, sizeof(n_bytes_to_write), 1, fp); checksum = CalculateBlockCRC32(sizeof(n_bytes_to_write), (unsigned char *) &n_bytes_to_write, checksum);
@@ -661,8 +661,8 @@ void checkpoint_treestack(FILE *fp, TREESTACK *s, Dataptr MSA, Lvb_bool b_with_s
 			checksum = CalculateBlockCRC32(MSA->tree_bytes, (unsigned char *) current_element.tree, checksum);
 		}
 		else{
-			fwrite(current_element.tree, MSA->tree_bytes_whitout_sset, 1, fp);
-			checksum = CalculateBlockCRC32(MSA->tree_bytes_whitout_sset, (unsigned char *) current_element.tree, checksum);
+			fwrite(current_element.tree, MSA->tree_bytes_without_sset, 1, fp);
+			checksum = CalculateBlockCRC32(MSA->tree_bytes_without_sset, (unsigned char *) current_element.tree, checksum);
 		}
     }
     fwrite(&checksum, sizeof(unsigned long), 1, fp);
@@ -692,7 +692,7 @@ void restore_treestack(FILE *fp, TREESTACK *sp, Dataptr MSA, Lvb_bool b_with_sse
     n_read_values = fread(&trees, sizeof(long), 1, fp); checksum = CalculateBlockCRC32(sizeof(trees), (unsigned char *) &trees, checksum);
     n_read_values = fread(&size, sizeof(long), 1, fp); checksum = CalculateBlockCRC32(sizeof(size), (unsigned char *) &size, checksum);
     if (b_with_sset == LVB_TRUE) n_bytes_to_write += trees * (MSA->tree_bytes + sizeof(long));
-    else n_bytes_to_write += trees * (MSA->tree_bytes_whitout_sset + sizeof(long));
+    else n_bytes_to_write += trees * (MSA->tree_bytes_without_sset + sizeof(long));
     for (i = 0; i < trees; i++) {
     	n_read_values = fread(&current_root, sizeof(long), 1, fp); checksum = CalculateBlockCRC32(sizeof(long), (unsigned char *) &current_root, checksum);
     	if (b_with_sset == LVB_TRUE){
@@ -700,8 +700,8 @@ void restore_treestack(FILE *fp, TREESTACK *sp, Dataptr MSA, Lvb_bool b_with_sse
     		checksum = CalculateBlockCRC32(MSA->tree_bytes, (unsigned char *) p_current_tree, checksum);
     	}
     	else{
-    		n_read_values = fread(p_current_tree, MSA->tree_bytes_whitout_sset, 1, fp);
-    		checksum = CalculateBlockCRC32(MSA->tree_bytes_whitout_sset, (unsigned char *) p_current_tree, checksum);
+    		n_read_values = fread(p_current_tree, MSA->tree_bytes_without_sset, 1, fp);
+    		checksum = CalculateBlockCRC32(MSA->tree_bytes_without_sset, (unsigned char *) p_current_tree, checksum);
     	}
     	lvb_assert(n_read_values == 1);
 		PushCurrentTreeToStack(MSA, sp, p_current_tree, current_root, b_with_sset);
@@ -915,7 +915,7 @@ long PullTreefromTreestack(Dataptr MSA, TREESTACK_TREE_BRANCH *CurrentTreeArray,
 } /* end PullTreefromTreestack() */
 
 
-long PrintTreestack(Dataptr MSA, DataSeqPtr restrict matrix_seq_data, TREESTACK *sp, FILE *const outfp, Lvb_bool onerandom)
+long PrintTreestack(Dataptr MSA, TREESTACK *sp, FILE *const outfp, Lvb_bool onerandom)
 {
     const long d_obj1 = 0L;	/* 1st obj. for output trees */
     long root;			/* root of current tree */
@@ -941,7 +941,7 @@ long PrintTreestack(Dataptr MSA, DataSeqPtr restrict matrix_seq_data, TREESTACK 
         if (sp->stack[i].root != d_obj1) lvb_reroot(MSA, CurrentTreeArray, sp->stack[i].root, d_obj1, LVB_FALSE);
         root = d_obj1;
 
-        lvb_treeprint(MSA, matrix_seq_data, outfp, CurrentTreeArray, root);
+        lvb_treeprint(MSA, outfp, CurrentTreeArray, root);
     }
     if (fflush(outfp) != 0)
     	crash("file write error when writing best trees");

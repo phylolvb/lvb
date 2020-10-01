@@ -62,7 +62,7 @@ static const char *sequence_expected[6] =
     "GGCAGCCAATCAC"
 };
 
-	static void check(Dataptr MSA, DataSeqPtr matrix_seq)
+	static void check(Dataptr MSA, Dataptr MSA)
 	/* check MSA has been input correctly, or crash if not */
 	{
 	    long i;		/* loop counter */
@@ -71,10 +71,10 @@ static const char *sequence_expected[6] =
 
 	    for (i = 0; i < 6; i++)
 	    {
-		lvb_assert(strlen(matrix_seq->row[i]) == 13);
-	 	lvb_assert(strlen(matrix_seq->rowtitle[i]) == strlen(name_expected[i]));
-		lvb_assert(strcmp(matrix_seq->row[i], sequence_expected[i]) == 0);
-		lvb_assert(strcmp(matrix_seq->rowtitle[i], name_expected[i]) == 0);
+		lvb_assert(strlen(MSA->row[i]) == 13);
+	 	lvb_assert(strlen(MSA->rowtitle[i]) == strlen(name_expected[i]));
+		lvb_assert(strcmp(MSA->row[i], sequence_expected[i]) == 0);
+		lvb_assert(strcmp(MSA->rowtitle[i], name_expected[i]) == 0);
 	    }
 	}
 
@@ -83,8 +83,8 @@ int main(void)
     Dataptr matrix1;	/* data MSA as input (interleaved) */
     Dataptr matrix2;	/* data MSA as input (sequential) */
 
-    DataSeqPtr matrix_seq_data_1;	/* data MSA as input */
-    DataSeqPtr matrix_seq_data_2;	/* data MSA as input */
+    Dataptr MSA_1;	/* data MSA as input */
+    Dataptr MSA_2;	/* data MSA as input */
 
     Parameters rcstruct;		/* configurable parameters */
     strcpy(rcstruct.file_name_in, "infile");
@@ -95,24 +95,24 @@ int main(void)
     matrix1 = (Dataptr) malloc(sizeof(DataStructure));
     matrix2 = (Dataptr) malloc(sizeof(DataStructure));
 
-    matrix_seq_data_1 = (DataSeqPtr) alloc(sizeof(DataSeqStructure), "alloc data structure");
-    matrix_seq_data_1->row = NULL;
-    matrix_seq_data_1->rowtitle = NULL;
-    phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix1, matrix_seq_data_1);
-    check(matrix1, matrix_seq_data_1);
+    MSA_1 = (Dataptr) alloc(sizeof(DataStructure), "alloc data structure");
+    MSA_1->row = NULL;
+    MSA_1->rowtitle = NULL;
+    phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix1, MSA_1);
+    check(matrix1, MSA_1);
 
-    matrix_seq_data_2 = (DataSeqPtr) alloc(sizeof(DataSeqStructure), "alloc data structure");
-    matrix_seq_data_2->row = NULL;
-    matrix_seq_data_2->rowtitle = NULL;
-    phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix2, matrix_seq_data_2);
-    check(matrix2, matrix_seq_data_2);
+    MSA_2 = (Dataptr) alloc(sizeof(DataStructure), "alloc data structure");
+    MSA_2->row = NULL;
+    MSA_2->rowtitle = NULL;
+    phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix2, MSA_2);
+    check(matrix2, MSA_2);
 
-    rowfree(matrix_seq_data_1, matrix1->n);
-    free(matrix_seq_data_1);
+    rowfree(MSA_1, matrix1->n);
+    free(MSA_1);
     free(matrix1);
 
-    rowfree(matrix_seq_data_2, matrix2->n);
-    free(matrix_seq_data_2);
+    rowfree(MSA_2, matrix2->n);
+    free(MSA_2);
     free(matrix2);
 
     printf("test passed\n");
