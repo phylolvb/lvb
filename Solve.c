@@ -95,15 +95,15 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *bstackp, const TREESTACK_TR
     /* "local" dynamic heap memory */
     p_current_tree = treealloc(MSA, LVB_TRUE);
     p_proposed_tree = treealloc(MSA, LVB_TRUE);
-    todo = (unsigned int *) alloc(MSA->nbranches * sizeof(unsigned int), "old parent alloc");
+    todo = (unsigned int *) alloc(MSA->numberofpossiblebranches * sizeof(unsigned int), "old parent alloc");
 
     treecopy(MSA, p_current_tree, inittree, LVB_TRUE);      /* current configuration */
 	alloc_memory_to_getplen(MSA, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
 	len = getplen(MSA, p_current_tree, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 
     /* identify internal branches */
-    for (i = MSA->n; i < MSA->nbranches; i++) todo[todo_cnt++] = i;
-    lvb_assert(todo_cnt == MSA->nbranches - MSA->n);
+    for (i = MSA->n; i < MSA->numberofpossiblebranches; i++) todo[todo_cnt++] = i;
+    lvb_assert(todo_cnt == MSA->numberofpossiblebranches - MSA->n);
 
     do {
 		newtree = LVB_FALSE;
@@ -161,7 +161,7 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *bstackp, const TREESTACK_TR
 								misc->ID = bstackp->next;
 
 								newtree = LVB_TRUE;
-								treeswap(&p_current_tree, &root, &p_proposed_tree, &rootdash);
+								SwapTrees(&p_current_tree, &root, &p_proposed_tree, &rootdash);
 							}
 						  }
 						  free(misc->count);
@@ -177,7 +177,7 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *bstackp, const TREESTACK_TR
 					}
 					if (CompareTreeToTreestack(MSA, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1) {
 						newtree = LVB_TRUE;
-						treeswap(&p_current_tree, &root, &p_proposed_tree, &rootdash);
+						SwapTrees(&p_current_tree, &root, &p_proposed_tree, &rootdash);
 					}
 					
 					#endif
@@ -200,13 +200,13 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *bstackp, const TREESTACK_TR
 } /* end deterministic_hillclimb */
 
 #ifdef LVB_MAPREDUCE  // okay
-long anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_TREE_BRANCH *const inittree, Parameters rcstruct,
+long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_TREE_BRANCH *const inittree, Parameters rcstruct,
 	long root, const double t0, const long maxaccept, const long maxpropose,
 	const long maxfail, FILE *const lenfp, long *current_iter,
 	Lvb_bool log_progress, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer)
 
 #else //okay
-long anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_TREE_BRANCH *const inittree, Parameters rcstruct,
+long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_TREE_BRANCH *const inittree, Parameters rcstruct,
 	long root, const double t0, const long maxaccept, const long maxpropose,
 	const long maxfail, FILE *const lenfp, long *current_iter,
 	Lvb_bool log_progress)
@@ -366,7 +366,7 @@ long anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
 		lvb_assert (lendash >= 1L);
 		deltalen = lendash - len;
 		deltah = (r_lenmin / (double) len) - (r_lenmin / (double) lendash);
-		if (deltah > 1.0) deltah = 1.0; /* getminlen() problem with ambiguous sites */
+		if (deltah > 1.0) deltah = 1.0; /* MinimumTreeLength() problem with ambiguous sites */
 
 		#ifdef LVB_MAPREDUCE  // check
 			MPI_Bcast(&deltalen, 1, MPI_LONG, 0, MPI_COMM_WORLD);
@@ -457,7 +457,7 @@ long anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
 				#endif
 			/* update current tree and its stats */
 			len = lendash;
-			treeswap(&p_current_tree, &root, &p_proposed_tree, &rootdash);
+			SwapTrees(&p_current_tree, &root, &p_proposed_tree, &rootdash);
 
 			/* very best so far */
 			if (lendash < lenbest) {
@@ -507,7 +507,7 @@ long anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
 				pacc = exp_wrapper(-deltah/t);
 				if (uni() < pacc)	/* do accept the change */
 				{
-					treeswap(&p_current_tree, &root, &p_proposed_tree, &rootdash);
+					SwapTrees(&p_current_tree, &root, &p_proposed_tree, &rootdash);
 				if (rcstruct.algorithm_selection == 2)
 				w_changes_acc++; 
 					len = lendash;
@@ -628,7 +628,7 @@ long anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
     free(p_proposed_tree);
     return lenbest;
 
-} /* end anneal() */
+} /* end Anneal() */
 
 #elif LVB_PARALLEL_SEARCH
 /* LVB
@@ -728,8 +728,8 @@ static void lenlog(FILE *lengthfp, TREESTACK *bstackp, int myMPIid, long iterati
 	    len = getplen(MSA, p_current_tree, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 
 	    /* identify internal branches */
-	    for (i = MSA->n; i < MSA->nbranches; i++) todo[todo_cnt++] = i;
-	    lvb_assert(todo_cnt == MSA->nbranches - MSA->n);
+	    for (i = MSA->n; i < MSA->numberofpossiblebranches; i++) todo[todo_cnt++] = i;
+	    lvb_assert(todo_cnt == MSA->numberofpossiblebranches - MSA->n);
 	    do {
 			newtree = LVB_FALSE;
 			for (i = 0; i < todo_cnt; i++) {
@@ -748,7 +748,7 @@ static void lenlog(FILE *lengthfp, TREESTACK *bstackp, int myMPIid, long iterati
 						}
 						if (CompareTreeToTreestack(MSA, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1) {
 							newtree = LVB_TRUE;
-							treeswap(&p_current_tree, &root, &p_proposed_tree, &rootdash);
+							SwapTrees(&p_current_tree, &root, &p_proposed_tree, &rootdash);
 						}
 					}
 					if ((log_progress == LVB_TRUE) && ((*current_iter % STAT_LOG_INTERVAL) == 0)) {
@@ -770,7 +770,7 @@ static void lenlog(FILE *lengthfp, TREESTACK *bstackp, int myMPIid, long iterati
 	}
 
 
-	long anneal(Dataptr MSA, TREESTACK *bstackp, const TREESTACK_TREE_BRANCH *const inittree, Parameters *p_rcstruct,
+	long Anneal(Dataptr MSA, TREESTACK *bstackp, const TREESTACK_TREE_BRANCH *const inittree, Parameters *p_rcstruct,
 				long root, double t0, const long maxaccept, const long maxpropose,
 				const long maxfail, FILE *const lenfp, long *current_iter, int myMPIid,
 				int *p_n_state_progress, int *p_n_number_tried_seed, Lvb_bool log_progress)
@@ -950,7 +950,7 @@ static void lenlog(FILE *lengthfp, TREESTACK *bstackp, int myMPIid, long iterati
 			lvb_assert (lendash >= 1L);
 			deltalen = lendash - len;
 			deltah = (r_lenmin / (double) len) - (r_lenmin / (double) lendash);
-			if (deltah > 1.0) deltah = 1.0; /* getminlen() problem with ambiguous sites */
+			if (deltah > 1.0) deltah = 1.0; /* MinimumTreeLength() problem with ambiguous sites */
 
 			if (deltalen <= 0)	/* accept the change */
 			{
@@ -964,7 +964,7 @@ static void lenlog(FILE *lengthfp, TREESTACK *bstackp, int myMPIid, long iterati
 				}
 				/* update current tree and its stats */
 				len = lendash;
-				treeswap(&p_current_tree, &root, &p_proposed_tree, &rootdash);
+				SwapTrees(&p_current_tree, &root, &p_proposed_tree, &rootdash);
 
 				/* very best so far */
 				if (lendash < lenbest) {
@@ -1009,7 +1009,7 @@ static void lenlog(FILE *lengthfp, TREESTACK *bstackp, int myMPIid, long iterati
 					pacc = exp_wrapper(-deltah/t);
 					if (uni() < pacc)	/* do accept the change */
 					{
-						treeswap(&p_current_tree, &root, &p_proposed_tree, &rootdash);
+						SwapTrees(&p_current_tree, &root, &p_proposed_tree, &rootdash);
 						len = lendash;
 					}
 				}
@@ -1130,7 +1130,7 @@ static void lenlog(FILE *lengthfp, TREESTACK *bstackp, int myMPIid, long iterati
 	    free(p_proposed_tree);
 	    return lenbest;
 
-	} /* end anneal() */
+	} /* end Anneal() */
 
 #endif
 

@@ -62,11 +62,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * desired value the search stops and the current temperature is 
  * returned as starting temperature.
  * Note: The procedures for creating mutations and deciding on 
- * whether to accept them have been adopted from the anneal()
+ * whether to accept them have been adopted from the Anneal()
  * function.
 */ 
 {
-	/* Variables for the generation of transitions (adopted from anneal()) */
+	/* Variables for the generation of transitions (adopted from Anneal()) */
     double deltah;		/* change in energy (1 - C.I.) */
     long deltalen;		/* change in length with new tree */
     long iter;		/* iteration of mutate/evaluate loop */
@@ -92,7 +92,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     const double log_wrapper_LVB_EPS = log_wrapper(LVB_EPS);
 
     /* Create "local" dynamic heap memory and initialise tree 
-     * structures like in anneal() */
+     * structures like in Anneal() */
     x = treealloc(MSA, LVB_TRUE);
     xdash = treealloc(MSA, LVB_TRUE);
 
@@ -100,7 +100,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     alloc_memory_to_getplen(MSA, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
     len = getplen(MSA, x, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
     
-	lenmin = getminlen(MSA);
+	lenmin = MinimumTreeLength(MSA);
     r_lenmin = (double) lenmin;
     
     /* Log progress to standard output if chosen*/
@@ -113,7 +113,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		* and compute the ratio of proposed vs accepted worse changes*/
 		for (iter = 0; iter <= sample_size; iter++)
 		{
-			/* Create an alternative tree topology (adopted from anneal()) */
+			/* Create an alternative tree topology (adopted from Anneal()) */
 
 			/* occasionally re-root, to prevent influence from root position */
 			if ((iter % REROOT_INTERVAL) == 0) root = arbreroot(MSA, x, root);
@@ -130,15 +130,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 			deltalen = lendash - len;
 			deltah = (r_lenmin / (double) len) - (r_lenmin / (double) lendash);
 			
-			if (deltah > 1.0)	/* getminlen() problem with ambiguous sites */
+			if (deltah > 1.0)	/* MinimumTreeLength() problem with ambiguous sites */
 				deltah = 1.0;
 
-			/* Check whether the change is accepted (Again adopted from anneal()*/
+			/* Check whether the change is accepted (Again adopted from Anneal()*/
 			if (deltalen <= 0)	/* accept the change */
 			{
 				/* update current tree and its stats */
 				len = lendash;
-				treeswap(&x, &root, &xdash, &rootdash);
+				SwapTrees(&x, &root, &xdash, &rootdash);
 			}	
 			else {
 				prop_pos_trans++; /* Another positive transition has been generated*/
@@ -157,7 +157,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 					if (uni() < pacc)	/* do accept the change */
 					{
 						len = lendash;
-						treeswap(&x, &root, &xdash, &rootdash);
+						SwapTrees(&x, &root, &xdash, &rootdash);
 						acc_pos_trans++;  /* The change has been accepted */
 					}
 				}

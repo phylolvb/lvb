@@ -85,7 +85,7 @@ int main(int argc, char **argv)
 		/* fill a treestack without checkpointing */
 		rinit(SEED);
 		for (i = 0; i < RAND_TREES; i++){
-			randtree(MSA, tree1);
+			PullRandomTree(MSA, tree1);
 			root1 = arbreroot(MSA, tree1, 0);
 			CompareTreeToTreestack(MSA, s_no_checkpoint, tree1, root1, LVB_FALSE);
 		}
@@ -94,7 +94,7 @@ int main(int argc, char **argv)
 		rinit(SEED);
 		for (i = 0; i < RAND_TREES; i++)
 		{
-			randtree(MSA, tree2);
+			PullRandomTree(MSA, tree2);
 			root2 = arbreroot(MSA, tree2, 0);
 			CompareTreeToTreestack(MSA, s_with_checkpoint, tree2, root2, LVB_FALSE);
 			if ((i % CHECKPOINT_INTERVAL) == 0) {

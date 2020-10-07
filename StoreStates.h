@@ -75,14 +75,14 @@ Lvb_bool test_consistency_state_file(char *file_name, int myMPIid);
 unsigned long checkpoint_anneal(FILE *fp, Dataptr MSA, long accepted, Lvb_bool dect, double deltah, long deltalen,
     long failedcnt, long iter, long current_iter, long len, long lenbest, long lendash, double ln_t,
     long t_n, double t0, double pacc, long proposed, double r_lenmin, long rootdash, double t, double grad_geom,
-    double grad_linear, TREESTACK_TREE_BRANCH *p_current_tree, Lvb_bool b_with_sset_current_tree,
-	TREESTACK_TREE_BRANCH *p_proposed_tree, Lvb_bool b_with_sset_proposed_tree);
+    double grad_linear, TREESTACK_TREE_BRANCH *p_current_tree, Lvb_bool b_with_sitestate_current_tree,
+	TREESTACK_TREE_BRANCH *p_proposed_tree, Lvb_bool b_with_sitestate_proposed_tree);
 
 unsigned long restore_anneal(FILE *fp, Dataptr MSA, long *accepted, Lvb_bool *dect, double *deltah, long *deltalen,
     long *failedcnt, long *iter, long *current_iter, long *len, long *lenbest, long *lendash, double *ln_t,
     long *t_n, double *t0, double *pacc, long *proposed, double *r_lenmin, long *rootdash, double *t, double *grad_geom,
-    double *grad_linear, TREESTACK_TREE_BRANCH *p_current_tree, Lvb_bool b_with_sset_current_tree,
-	TREESTACK_TREE_BRANCH *p_proposed_tree, Lvb_bool b_with_sset_proposed_tree);
+    double *grad_linear, TREESTACK_TREE_BRANCH *p_current_tree, Lvb_bool b_with_sitestate_current_tree,
+	TREESTACK_TREE_BRANCH *p_proposed_tree, Lvb_bool b_with_sitestate_proposed_tree);
 
 #endif /* LVB_STORE_STATES_H */
 

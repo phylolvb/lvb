@@ -204,13 +204,13 @@ static long getsoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb
     }
 	
     /* determine starting temperature */
-    randtree(MSA, tree);	/* initialise required variables */
+    PullRandomTree(MSA, tree);	/* initialise required variables */
     ss_init(MSA, tree, enc_mat);
     initroot = 0;
 
 	t0 = StartingTemperature(MSA, tree, rcstruct, initroot, log_progress);
 	
-    randtree(MSA, tree);	/* begin from scratch */
+    PullRandomTree(MSA, tree);	/* begin from scratch */
     ss_init(MSA, tree, enc_mat);
     initroot = 0;
 
@@ -232,7 +232,7 @@ static long getsoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb
 	#ifdef LVB_MAPREDUCE  // check
 		MPI_Barrier(MPI_COMM_WORLD);
 		/* find solution(s) */
-		treelength = anneal(MSA, &bstack_overall, &stack_treevo, tree, rcstruct, initroot, t0, maxaccept,
+		treelength = Anneal(MSA, &bstack_overall, &stack_treevo, tree, rcstruct, initroot, t0, maxaccept,
 				maxpropose, maxfail, stdout, iter_p, log_progress, misc, mrTreeStack, mrBuffer );
 
 		long val = PullTreefromTreestack(MSA, tree, &initroot, &bstack_overall, LVB_FALSE);
@@ -282,7 +282,7 @@ static long getsoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb
 
 	#else
 	    /* find solution(s) */
-    treelength = anneal(MSA, &bstack_overall, &stack_treevo, tree, rcstruct, initroot, t0, maxaccept, 
+    treelength = Anneal(MSA, &bstack_overall, &stack_treevo, tree, rcstruct, initroot, t0, maxaccept, 
     maxpropose, maxfail, stdout, iter_p, log_progress);
     PullTreefromTreestack(MSA, tree, &initroot, &bstack_overall, LVB_FALSE);
     CompareTreeToTreestack(MSA, &bstack_overall, tree, initroot, LVB_FALSE);
@@ -359,7 +359,7 @@ int main(int argc, char **argv)
 	long final_length;		/* length of shortest tree(s) found */
 	FILE *outtreefp;		/* best trees found overall */
 	outtreefp = (FILE *) alloc (sizeof(FILE), "alloc FILE");
-	Lvb_bool log_progress;	/* whether or not to log anneal search */
+	Lvb_bool log_progress;	/* whether or not to log Anneal search */
 
 	#ifdef LVB_MAPREDUCE  // okay
 
@@ -415,7 +415,7 @@ int main(int argc, char **argv)
     calc_distribution_processors(MSA, rcstruct);
 
     if (rcstruct.verbose == LVB_TRUE) {
-		printf("getminlen: %ld\n\n", getminlen(MSA));
+		printf("MinimumTreeLength: %ld\n\n", MinimumTreeLength(MSA));
     }
     rinit(rcstruct.seed);
 	log_progress = LVB_TRUE;
@@ -682,7 +682,7 @@ static void logtree1(Dataptr MSA, const TREESTACK_TREE_BRANCH *const CurrentTree
 			}
 
 			/* IMPORTANT: always necessary to initialize this tree, even if it is going to read a checkpoint file */
-			randtree(MSA, tree);	/* initialise required variables */
+			PullRandomTree(MSA, tree);	/* initialise required variables */
 			ss_init(MSA, tree, enc_mat);
 
 			/* is going to start from beginning */
@@ -692,7 +692,7 @@ static void logtree1(Dataptr MSA, const TREESTACK_TREE_BRANCH *const CurrentTree
 				t0 = StartingTemperature(MSA, tree, rcstruct, initroot, myMPIid, log_progress);
 			//    t0 = 0.18540001000004463;
 
-				randtree(MSA, tree);	/* begin from scratch */
+				PullRandomTree(MSA, tree);	/* begin from scratch */
 				ss_init(MSA, tree, enc_mat);
 				initroot = 0;
 
@@ -712,7 +712,7 @@ static void logtree1(Dataptr MSA, const TREESTACK_TREE_BRANCH *const CurrentTree
 			}
 			else{
 				t0 = 0; /* it's only a problem of initialization
-				 	 	 	 it's going to be read from anneal checkpoint file*/
+				 	 	 	 it's going to be read from Anneal checkpoint file*/
 			}
 
 
@@ -721,7 +721,7 @@ static void logtree1(Dataptr MSA, const TREESTACK_TREE_BRANCH *const CurrentTree
 			n_number_tried_seed = n_number_tried_seed_next;
 			maxaccept = get_random_maxaccept();
 			printf("\nProcess:%d    maxaccept:%ld\n", myMPIid, maxaccept);
-			treelength = anneal(MSA, bstack_overall, tree, &rcstruct, initroot, t0, maxaccept,
+			treelength = Anneal(MSA, bstack_overall, tree, &rcstruct, initroot, t0, maxaccept,
 					maxpropose, maxfail, stdout, &l_iterations, myMPIid, &n_state_progress, &n_number_tried_seed_next,
 					log_progress);
 
@@ -1047,7 +1047,7 @@ static void logstim(void)
 	    long i, n_buffer_size_matrix, n_buffer_size_binary;			/* loop counter */
 	    int position, n_error_code = EXIT_SUCCESS; /* return value */
 	    Lvb_bit_length **enc_mat = NULL;/* encoded data mat. */
-	    Lvb_bool log_progress;	/* whether or not to log anneal search */
+	    Lvb_bool log_progress;	/* whether or not to log Anneal search */
 	    TREESTACK *p_bstack_overall = NULL;	/* overall best tree stack */
 	    char *pack_data = NULL;
 	    Lvb_bit_length *p_pack_data_binary = NULL;

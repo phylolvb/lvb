@@ -131,7 +131,7 @@ typedef struct
     long left;			/* index of first child in tree array */
     long right;			/* index of second child in tree array */
     long changes;		/* changes associated with this branch */
-    Lvb_bit_length *sset;	/* statesets for all sites */
+    Lvb_bit_length *sitestate;	/* statesets for all sites */
 } TREESTACK_TREE_BRANCH;
 
 /* tree stacks */
@@ -139,7 +139,7 @@ typedef struct
 {
 	TREESTACK_TREE_BRANCH *tree;	/* pointer to first branch in tree array */
 	long root;		/* root of tree */
-    Objset *p_sset;	/* array with sset with the root always on zero */
+    Objset *p_sitestate;	/* array with sitestate with the root always on zero */
 } TREESTACK_TREE;
 
 typedef struct
@@ -208,7 +208,7 @@ void crash(const char *const, ...);
 void dnapars_wrapper(void);
 char *f2str(FILE *const);
 Lvb_bool file_exists(const char *const);
-long getminlen(const Dataptr);
+long MinimumTreeLength(const Dataptr);
 void getparam(Parameters *, int argc, char **argv);
 long getplen(Dataptr restrict, TREESTACK_TREE_BRANCH *, Parameters rcstruct, const long, long *restrict p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs);
 void alloc_memory_to_getplen(Dataptr MSA, long **p_todo_arr, long **p_todo_arr_sum_changes, int **p_runs);
@@ -219,7 +219,7 @@ long getroot(const TREESTACK_TREE_BRANCH *const);
 void lvb_assertion_fail(const char *, const char *, int);
 void lvb_initialize(void);
 Dataptr lvb_matrin(const char *);
-long lvb_reroot(Dataptr restrict, TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long oldroot, const long newroot, Lvb_bool b_with_sset);
+long lvb_reroot(Dataptr restrict, TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long oldroot, const long newroot, Lvb_bool b_with_sitestate);
 void lvb_treeprint (Dataptr, FILE *const, const TREESTACK_TREE_BRANCH *const, const long);
 
 void matchange(Dataptr, const Parameters);
@@ -234,36 +234,35 @@ long objreroot(TREESTACK_TREE_BRANCH *const, const long, const long);
 void params_change(Parameters *);
 void phylip_dna_matrin(char *, int, Dataptr);
 void phylip_mat_dims_in(char *, int, long *, long *, int *);
-void randtree(Dataptr, TREESTACK_TREE_BRANCH *const);
+void PullRandomTree(Dataptr, TREESTACK_TREE_BRANCH *const);
 long randpint(const long);
 void rowfree(Dataptr);
 void scream(const char *const, ...);
 void ss_init(Dataptr, TREESTACK_TREE_BRANCH *, Lvb_bit_length **);
 char *supper(char *const s);
-TREESTACK_TREE_BRANCH *treealloc(Dataptr restrict, Lvb_bool b_with_sset);
+TREESTACK_TREE_BRANCH *treealloc(Dataptr restrict, Lvb_bool b_with_sitestate);
 long tree_bytes(Dataptr restrict MSA);
-long tree_bytes_without_sset(Dataptr restrict MSA);
+long tree_bytes_without_sitestate(Dataptr restrict MSA);
 void treeclear(Dataptr, TREESTACK_TREE_BRANCH *const);
-void treecopy(Dataptr restrict, TREESTACK_TREE_BRANCH *const, const TREESTACK_TREE_BRANCH *const, Lvb_bool b_with_sset);
-void treedump(Dataptr, FILE *const, const TREESTACK_TREE_BRANCH *const, Lvb_bool b_with_sset);
+void treecopy(Dataptr restrict, TREESTACK_TREE_BRANCH *const, const TREESTACK_TREE_BRANCH *const, Lvb_bool b_with_sitestate);
+void treedump(Dataptr, FILE *const, const TREESTACK_TREE_BRANCH *const, Lvb_bool b_with_sitestate);
 void treedump_screen(Dataptr MSA, const TREESTACK_TREE_BRANCH *const tree);
 void ClearTreestack(TREESTACK *);
 long CountTreestack(TREESTACK);
 void FreeTreestackMemory(Dataptr restrict MSA, TREESTACK *);
 TREESTACK CreateNewTreestack(void);
-long PullTreefromTreestack(Dataptr, TREESTACK_TREE_BRANCH *, long *, TREESTACK *, Lvb_bool b_with_sset);
-long CompareTreeToTreestack(Dataptr, TREESTACK *, const TREESTACK_TREE_BRANCH *const, const long, Lvb_bool b_with_sset);
+long PullTreefromTreestack(Dataptr, TREESTACK_TREE_BRANCH *, long *, TREESTACK *, Lvb_bool b_with_sitestate);
+long CompareTreeToTreestack(Dataptr, TREESTACK *, const TREESTACK_TREE_BRANCH *const, const long, Lvb_bool b_with_sitestate);
 int PrintTreestack(Dataptr, TREESTACK *, FILE *const, Lvb_bool onerandom);
-void treeswap(TREESTACK_TREE_BRANCH **const, long *const, TREESTACK_TREE_BRANCH **const, long *const);
-void uint32_dump(FILE *, Lvb_bit_length);
+void SwapTrees(TREESTACK_TREE_BRANCH **const, long *const, TREESTACK_TREE_BRANCH **const, long *const);
 long words_per_row(const long);
 int count(TREESTACK_TREE_BRANCH *const, int);
 int addtoarray(TREESTACK_TREE_BRANCH *const, int, int *, int);
 void dump_objset_to_screen(Dataptr MSA, Objset *oset_1);
-void copy_sset(Dataptr restrict MSA, Objset *p_sset_1);
+void copy_sitestate(Dataptr restrict MSA, Objset *p_sitestate_1);
 void DNAToBinary(Dataptr restrict, Lvb_bit_length **);
 void makesets(Dataptr restrict, const TREESTACK_TREE_BRANCH *const tree_2, const long root);
-long setstcmp_with_sset2(Dataptr MSA, Objset *const oset_1);
+long setstcmp_with_sitestate2(Dataptr MSA, Objset *const oset_1);
 long TopologyComparison(Dataptr restrict, Objset *, const TREESTACK_TREE_BRANCH *const, Lvb_bool b_first);
 void PrintLVBCopyright();
 void PrintLVBInfo();
@@ -273,7 +272,7 @@ bool LogFileExists(const char *filename);
 double StartingTemperature(Dataptr, const TREESTACK_TREE_BRANCH *const, Parameters rcstruct, long, Lvb_bool);
 
 #ifdef LVB_MAPREDUCE  // check
-long anneal(Dataptr restrict, TREESTACK *, TREESTACK *, const TREESTACK_TREE_BRANCH *const, Parameters rcstruct, long, const double,
+long Anneal(Dataptr restrict, TREESTACK *, TREESTACK *, const TREESTACK_TREE_BRANCH *const, Parameters rcstruct, long, const double,
 	const long, const long, const long, FILE *const, long *, Lvb_bool, MISC *misc, MapReduce *mrStackTree, MapReduce *mrBuffer);
 
 void defaults_params(Parameters *const);
@@ -285,17 +284,17 @@ void reduce_count(char *key, int keybytes, char *multivalue, int nvalues, int *v
 void reduce_sets(char *key, int keybytes, char *multivalue, int nvalues, int *valuebytes, KeyValue *kv, void *ptr);
 void reduce_filter(char *key, int keybytes, char *multivalue, int nvalues, int *valuebytes, KeyValue *kv, void *ptr);
 void print_sets(Dataptr MSA, TREESTACK *sp, MISC *misc);
-long PushCurrentTreeToStack(Dataptr, TREESTACK *, const TREESTACK_TREE_BRANCH *const, const long, Lvb_bool b_with_sset);
+long PushCurrentTreeToStack(Dataptr, TREESTACK *, const TREESTACK_TREE_BRANCH *const, const long, Lvb_bool b_with_sitestate);
 
 #else
-long anneal(Dataptr restrict, TREESTACK *, TREESTACK *, const TREESTACK_TREE_BRANCH *const, Parameters rcstruct, long, const double,
+long Anneal(Dataptr restrict, TREESTACK *, TREESTACK *, const TREESTACK_TREE_BRANCH *const, Parameters rcstruct, long, const double,
  const long, const long, const long, FILE *const, long *, Lvb_bool);
 
 void defaults_params(Parameters *const prms);
 long deterministic_hillclimb(Dataptr, TREESTACK *, const TREESTACK_TREE_BRANCH *const, Parameters rcstruct,
 	long, FILE * const, long *, Lvb_bool);
 void dump_stack_to_screen(Dataptr MSA, TREESTACK *sp);
-void dump_objset_to_screen_sset_2(Dataptr MSA);
+void dump_objset_to_screen_sitestate_2(Dataptr MSA);
 
 
 #endif
@@ -464,7 +463,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* END MPI definitions... */
 
-/* anneal state */
+/* Anneal state */
 #define MESSAGE_ANNEAL_IS_RUNNING_OR_WAIT_TO_RUN			0x00
 #define MESSAGE_ANNEAL_FINISHED_AND_NOT_REPEAT				0x01
 #define MESSAGE_ANNEAL_FINISHED_AND_REPEAT					0x02
@@ -474,7 +473,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define MESSAGE_ANNEAL_STOP_PROCESS_WAIT_FINAL_MESSAGE		0x06
 #define MESSAGE_ANNEAL_STOP_PROCESS							0x07
 #define MESSAGE_BEGIN_CONTROL								0x08
-/* anneal state */
+/* Anneal state */
 
 
 /* Define calc iterations algorithm */
@@ -493,7 +492,7 @@ typedef struct
     long left;			/* index of first child in tree array */
     long right;			/* index of second child in tree array */
     long changes;		/* changes associated with this branch */
-    Lvb_bit_length *sset;	/* statesets for all sites */
+    Lvb_bit_length *sitestate;	/* statesets for all sites */
 } TREESTACK_TREE_BRANCH;
 
 /* tree stacks */
@@ -544,7 +543,7 @@ typedef struct
 /* LVB global functions */
 void *alloc(const size_t, const char *const);
 
-long anneal(Dataptr restrict, TREESTACK *, const TREESTACK_TREE_BRANCH *const, Parameters *p_rcstruct, long, const double,
+long Anneal(Dataptr restrict, TREESTACK *, const TREESTACK_TREE_BRANCH *const, Parameters *p_rcstruct, long, const double,
 	const long, const long, const long, FILE *const, long *, int, int *p_n_state_progress, int *p_n_number_tried_seed, Lvb_bool);
 long arbreroot(Dataptr, TREESTACK_TREE_BRANCH *const, const long);
 long bytes_per_row(const long);
@@ -558,12 +557,12 @@ void crash(const char *const, ...);
 void defaults_params(Parameters *const);
 unsigned long checkpoint_uni(FILE *);
 unsigned long restore_uni(FILE *);
-void checkpoint_treestack(FILE *, TREESTACK *, Dataptr, Lvb_bool b_with_sset);
-void restore_treestack(FILE *, TREESTACK *, Dataptr, Lvb_bool b_with_sset);
+void checkpoint_treestack(FILE *, TREESTACK *, Dataptr, Lvb_bool b_with_sitestate);
+void restore_treestack(FILE *, TREESTACK *, Dataptr, Lvb_bool b_with_sitestate);
 void DNAToBinary(Dataptr restrict, Lvb_bit_length **);
 long deterministic_hillclimb(Dataptr, TREESTACK *, const TREESTACK_TREE_BRANCH *const, Parameters rcstruct,
 	long, FILE * const, long *, int myMPIid, Lvb_bool);
-long getminlen(const Dataptr);
+long MinimumTreeLength(const Dataptr);
 void dnapars_wrapper(void);
 char *f2str(FILE *const);
 Lvb_bool file_exists(const char *const);
@@ -582,7 +581,7 @@ long getroot(const TREESTACK_TREE_BRANCH *const);
 void lvb_assertion_fail(const char *, const char *, int);
 void lvb_initialize(void);
 Dataptr lvb_matrin(const char *);
-long lvb_reroot(Dataptr restrict, TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long oldroot, const long newroot, Lvb_bool b_with_sset);
+long lvb_reroot(Dataptr restrict, TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long oldroot, const long newroot, Lvb_bool b_with_sitestate);
 
 void lvb_treeprint (Dataptr, FILE *const, const TREESTACK_TREE_BRANCH *const, const long);
 void matchange(Dataptr, const Parameters);
@@ -599,25 +598,25 @@ void rowfree(Dataptr, int n_lines);
 void phylip_dna_matrin(char *, int, Dataptr);
 void phylip_mat_dims_in(char *, int, long *, long *, int *);
 
-void randtree(Dataptr, TREESTACK_TREE_BRANCH *const);
+void PullRandomTree(Dataptr, TREESTACK_TREE_BRANCH *const);
 long randpint(const long);
 
 void scream(const char *const, ...);
 void ss_init(Dataptr, TREESTACK_TREE_BRANCH *, Lvb_bit_length **);
 char *supper(char *const s);
-TREESTACK_TREE_BRANCH *treealloc(Dataptr restrict, Lvb_bool b_with_sset);
+TREESTACK_TREE_BRANCH *treealloc(Dataptr restrict, Lvb_bool b_with_sitestate);
 long tree_bytes(Dataptr restrict MSA);
-long tree_bytes_without_sset(Dataptr restrict MSA);
+long tree_bytes_without_sitestate(Dataptr restrict MSA);
 void treeclear(Dataptr, TREESTACK_TREE_BRANCH *const);
-void treecopy(Dataptr restrict, TREESTACK_TREE_BRANCH *const, const TREESTACK_TREE_BRANCH *const, Lvb_bool b_with_sset);
+void treecopy(Dataptr restrict, TREESTACK_TREE_BRANCH *const, const TREESTACK_TREE_BRANCH *const, Lvb_bool b_with_sitestate);
 long TopologyComparison(Dataptr MSA, const TREESTACK_TREE_BRANCH *const tree_1, const TREESTACK_TREE_BRANCH *const tree_2, long root, Lvb_bool b_First);
-void treedump(Dataptr, FILE *const, const TREESTACK_TREE_BRANCH *const, Lvb_bool b_with_sset);
+void treedump(Dataptr, FILE *const, const TREESTACK_TREE_BRANCH *const, Lvb_bool b_with_sitestate);
 void treedump_b(Dataptr, FILE *const, const TREESTACK_TREE_BRANCH *const, Lvb_bool);
 void treedump_screen(Dataptr MSA, const TREESTACK_TREE_BRANCH *const tree);
 void ClearTreestack(TREESTACK *);
 long CountTreestack(TREESTACK);
 void FreeTreestackMemory(TREESTACK *);
-long PullTreefromTreestack(Dataptr, TREESTACK_TREE_BRANCH *, long *, TREESTACK *, Lvb_bool b_with_sset);
+long PullTreefromTreestack(Dataptr, TREESTACK_TREE_BRANCH *, long *, TREESTACK *, Lvb_bool b_with_sitestate);
 TREESTACK *CreateNewTreestack(void);
 long PrintTreestack(Dataptr, TREESTACK *, FILE *const, Lvb_bool);
 
@@ -625,10 +624,8 @@ IterationTemperature *get_alloc_main_calc_iterations(void);
 void add_temperature_cal_iterations(IterationTemperature *p_data, SendInfoToMaster *p_info_temp, int n_process);
 Lvb_bool is_possible_to_continue(IterationTemperature *p_data, double d_temperature, int n_iteration, int l_tree_length, int n_max_number_process, int n_count_call);
 void release_main_calc_iterations(IterationTemperature *p_data);
-
-long CompareTreeToTreestack(Dataptr, TREESTACK *, const TREESTACK_TREE_BRANCH *const, long, Lvb_bool b_with_sset);
-void treeswap(TREESTACK_TREE_BRANCH **const, long *const, TREESTACK_TREE_BRANCH **const, long *const);
-void uint32_dump(FILE *, Lvb_bit_length);
+long CompareTreeToTreestack(Dataptr, TREESTACK *, const TREESTACK_TREE_BRANCH *const, long, Lvb_bool b_with_sitestate);
+void SwapTrees(TREESTACK_TREE_BRANCH **const, long *const, TREESTACK_TREE_BRANCH **const, long *const);
 long words_per_row(const long);
 
 #endif // MPI_Implementation //

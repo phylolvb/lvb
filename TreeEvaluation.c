@@ -64,9 +64,9 @@ long getplen(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *CurrentTreeArray, Para
     if (MSA->n_threads_getplen > 1){	/* only if is greather than 1 that use the thread version */
 
 		/* get the branches to touch */
-		memset(p_runs, 0, MSA->n_threads_getplen * (MSA->nbranches - MSA->n) * sizeof(int));
-		for (i = MSA->n; i < MSA->nbranches; i++) {
-			if (CurrentTreeArray[i].sset[0] == 0U){
+		memset(p_runs, 0, MSA->n_threads_getplen * (MSA->numberofpossiblebranches - MSA->n) * sizeof(int));
+		for (i = MSA->n; i < MSA->numberofpossiblebranches; i++) {
+			if (CurrentTreeArray[i].sitestate[0] == 0U){
 				*(p_todo_arr + todo_cnt++) = i;
 			}
 			else{
@@ -101,17 +101,17 @@ long getplen(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *CurrentTreeArray, Para
 								(right < MSA->n || *(p_runs + ((right - MSA->n) * MSA->n_threads_getplen) + omp_get_thread_num()) == 1))
 						{
 							n_changes_temp = 0;
-							Lvb_bit_length *restrict l_ssets = CurrentTreeArray[left].sset;
-							Lvb_bit_length *restrict r_ssets = CurrentTreeArray[right].sset;
+							Lvb_bit_length *restrict l_sitestates = CurrentTreeArray[left].sitestate;
+							Lvb_bit_length *restrict r_sitestates = CurrentTreeArray[right].sitestate;
 							for (j = MSA->n_slice_size_getplen * omp_get_thread_num(); j < l_end; j++){
-								x = l_ssets[j];
-								y = r_ssets[j];
+								x = l_sitestates[j];
+								y = r_sitestates[j];
 								u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
 								__asm__ ("popcnt %1, %0" : "=r" (ch) : "0" (u));
 								ch = LENGTH_WORD - ch;
 								u >>= 3;
 								n_changes_temp += ch;
-								CurrentTreeArray[branch].sset[j] = (x & y) | ((x | y) & ((u + MASK_SEVEN) ^ MASK_EIGHT));;
+								CurrentTreeArray[branch].sitestate[j] = (x & y) | ((x | y) & ((u + MASK_SEVEN) ^ MASK_EIGHT));;
 							}
 							*(p_todo_arr_sum_changes + (i * MSA->n_threads_getplen) + omp_get_thread_num()) = n_changes_temp;
 							done++;
@@ -126,8 +126,8 @@ long getplen(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *CurrentTreeArray, Para
 			left = CurrentTreeArray[root].left;
 			right = CurrentTreeArray[root].right;
 			for (j = MSA->n_slice_size_getplen * omp_get_thread_num(); j < l_end; j++){
-				x = CurrentTreeArray[left].sset[j];
-				y = CurrentTreeArray[right].sset[j];
+				x = CurrentTreeArray[left].sitestate[j];
+				y = CurrentTreeArray[right].sitestate[j];
 				u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
 				__asm__ ("popcnt %1, %0" : "=r" (ch) : "0" (u));
 
@@ -136,7 +136,7 @@ long getplen(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *CurrentTreeArray, Para
 				n_changes_temp += ch;
 
 				x = (x & y) | ((x | y) & ((u + MASK_SEVEN) ^ MASK_EIGHT));
-				y = CurrentTreeArray[root].sset[j];
+				y = CurrentTreeArray[root].sitestate[j];
 				u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
 				__asm__ ("popcnt %1, %0" : "=r" (ch) : "0" (u));
 				ch = LENGTH_WORD - ch;
@@ -168,8 +168,8 @@ long getplen(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *CurrentTreeArray, Para
 		Lvb_bit_length x;					/* batch of 8 left state sets */
 		Lvb_bit_length y;					/* batch of 8 right state sets */
 
-		for (i = MSA->n; i < MSA->nbranches; i++) {
-			if (CurrentTreeArray[i].sset[0] == 0U){
+		for (i = MSA->n; i < MSA->numberofpossiblebranches; i++) {
+			if (CurrentTreeArray[i].sitestate[0] == 0U){
 				*(p_todo_arr + todo_cnt++) = i;
 				CurrentTreeArray[i].changes = 0;
 			}
@@ -181,23 +181,23 @@ long getplen(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *CurrentTreeArray, Para
 		while (done < todo_cnt) {
 			for (i = 0; i < todo_cnt; i++) {
 				branch = *(p_todo_arr + i);
-				if (CurrentTreeArray[branch].sset[0] == 0U)	/* "dirty" */
+				if (CurrentTreeArray[branch].sitestate[0] == 0U)	/* "dirty" */
 				{
 					left = CurrentTreeArray[branch].left;
 					right = CurrentTreeArray[branch].right;
-					if (CurrentTreeArray[left].sset[0] && CurrentTreeArray[right].sset[0])
+					if (CurrentTreeArray[left].sitestate[0] && CurrentTreeArray[right].sitestate[0])
 					{
-						Lvb_bit_length *restrict l_ssets = CurrentTreeArray[left].sset;
-						Lvb_bit_length *restrict r_ssets = CurrentTreeArray[right].sset;
+						Lvb_bit_length *restrict l_sitestates = CurrentTreeArray[left].sitestate;
+						Lvb_bit_length *restrict r_sitestates = CurrentTreeArray[right].sitestate;
 						for (j = 0; j < MSA->nwords; j++){
-							x = l_ssets[j];
-							y = r_ssets[j];
+							x = l_sitestates[j];
+							y = r_sitestates[j];
 							u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
 							__asm__ ("popcnt %1, %0" : "=r" (ch) : "0" (u));
 							ch = LENGTH_WORD - ch;
 
 							u >>= 3;
-							CurrentTreeArray[branch].sset[j] = (x & y) | ((x | y) & ((u + MASK_SEVEN) ^ MASK_EIGHT));
+							CurrentTreeArray[branch].sitestate[j] = (x & y) | ((x | y) & ((u + MASK_SEVEN) ^ MASK_EIGHT));
 							CurrentTreeArray[branch].changes += ch;
 							changes += ch;
 						}
@@ -214,8 +214,8 @@ long getplen(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *CurrentTreeArray, Para
 		left = CurrentTreeArray[root].left;
 		right = CurrentTreeArray[root].right;
 		for (j = 0; j < MSA->nwords; j++){
-			x = CurrentTreeArray[left].sset[j];
-			y = CurrentTreeArray[right].sset[j];
+			x = CurrentTreeArray[left].sitestate[j];
+			y = CurrentTreeArray[right].sitestate[j];
 			u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
 			__asm__ ("popcnt %1, %0" : "=r" (ch) : "0" (u));
 			ch = LENGTH_WORD - ch;
@@ -223,7 +223,7 @@ long getplen(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *CurrentTreeArray, Para
 			changes += ch;
 
 			x = (x & y) | ((x | y) & ((u + MASK_SEVEN) ^ MASK_EIGHT));
-			y = CurrentTreeArray[root].sset[j];
+			y = CurrentTreeArray[root].sitestate[j];
 			u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
 			__asm__ ("popcnt %1, %0" : "=r" (ch) : "0" (u));
 			ch = LENGTH_WORD - ch;
@@ -314,9 +314,9 @@ long getplen(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *CurrentTreeArray, Para
 #endif
 
 		/* get the branches to touch */
-		memset(p_runs, 0, MSA->n_threads_getplen * (MSA->nbranches - MSA->n) * sizeof(int));
-		for (i = MSA->n; i < MSA->nbranches; i++) {
-			if (CurrentTreeArray[i].sset[0] == 0U){
+		memset(p_runs, 0, MSA->n_threads_getplen * (MSA->numberofpossiblebranches - MSA->n) * sizeof(int));
+		for (i = MSA->n; i < MSA->numberofpossiblebranches; i++) {
+			if (CurrentTreeArray[i].sitestate[0] == 0U){
 #ifdef	PRINT_PRINTF
 			printf("touch: %d   left:%d  right:%d\n", i, CurrentTreeArray[i].left, CurrentTreeArray[i].right);
 #endif
@@ -368,11 +368,11 @@ long getplen(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *CurrentTreeArray, Para
 				printf("1 : Thread# %d: make branch: %d\n", omp_get_thread_num(), branch);
 #endif
 							n_changes_temp = 0;
-							Lvb_bit_length *restrict l_ssets = CurrentTreeArray[left].sset;
-							Lvb_bit_length *restrict r_ssets = CurrentTreeArray[right].sset;
+							Lvb_bit_length *restrict l_sitestates = CurrentTreeArray[left].sitestate;
+							Lvb_bit_length *restrict r_sitestates = CurrentTreeArray[right].sitestate;
 							for (j = MSA->n_slice_size_getplen * omp_get_thread_num(); j < l_end; j++){
-								x = l_ssets[j];
-								y = r_ssets[j];
+								x = l_sitestates[j];
+								y = r_sitestates[j];
 
 								/* because bootstrap change the weights of the positions it is necessary to look one by one */
 								/* MDW: weights gone, still necessary? */
@@ -394,7 +394,7 @@ long getplen(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *CurrentTreeArray, Para
 								ch = LENGTH_WORD - ch;
 								u >>= 3;
 								n_changes_temp += ch;
-								CurrentTreeArray[branch].sset[j] = (x & y) | ((x | y) & ((u + MASK_SEVEN) ^ MASK_EIGHT));;
+								CurrentTreeArray[branch].sitestate[j] = (x & y) | ((x | y) & ((u + MASK_SEVEN) ^ MASK_EIGHT));;
 							}
 							*(p_todo_arr_sum_changes + (i * MSA->n_threads_getplen) + omp_get_thread_num()) = n_changes_temp;
 							done++;
@@ -409,8 +409,8 @@ long getplen(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *CurrentTreeArray, Para
 			left = CurrentTreeArray[root].left;
 			right = CurrentTreeArray[root].right;
 			for (j = MSA->n_slice_size_getplen * omp_get_thread_num(); j < l_end; j++){
-				x = CurrentTreeArray[left].sset[j];
-				y = CurrentTreeArray[right].sset[j];
+				x = CurrentTreeArray[left].sitestate[j];
+				y = CurrentTreeArray[right].sitestate[j];
 
 				u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
 
@@ -434,7 +434,7 @@ long getplen(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *CurrentTreeArray, Para
 				n_changes_temp += ch;
 
 				x = (x & y) | ((x | y) & ((u + MASK_SEVEN) ^ MASK_EIGHT));
-				y = CurrentTreeArray[root].sset[j];
+				y = CurrentTreeArray[root].sitestate[j];
 
 				u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
 
@@ -482,8 +482,8 @@ long getplen(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *CurrentTreeArray, Para
 		Lvb_bit_length x;				/* batch of 8 left state sets */
 		Lvb_bit_length y;				/* batch of 8 right state sets */
 
-		for (i = MSA->n; i < MSA->nbranches; i++) {
-			if (CurrentTreeArray[i].sset[0] == 0U){
+		for (i = MSA->n; i < MSA->numberofpossiblebranches; i++) {
+			if (CurrentTreeArray[i].sitestate[0] == 0U){
 #ifdef	PRINT_PRINTF
 			printf("touch: %d   left:%d  right:%d\n", i, CurrentTreeArray[i].left, CurrentTreeArray[i].right);
 #endif
@@ -498,17 +498,17 @@ long getplen(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *CurrentTreeArray, Para
 		while (done < todo_cnt) {
 			for (i = 0; i < todo_cnt; i++) {
 				branch = *(p_todo_arr + i);
-				if (CurrentTreeArray[branch].sset[0] == 0U)	/* "dirty" */
+				if (CurrentTreeArray[branch].sitestate[0] == 0U)	/* "dirty" */
 				{
 					left = CurrentTreeArray[branch].left;
 					right = CurrentTreeArray[branch].right;
-					if (CurrentTreeArray[left].sset[0] && CurrentTreeArray[right].sset[0])
+					if (CurrentTreeArray[left].sitestate[0] && CurrentTreeArray[right].sitestate[0])
 					{
-						Lvb_bit_length *restrict l_ssets = CurrentTreeArray[left].sset;
-						Lvb_bit_length *restrict r_ssets = CurrentTreeArray[right].sset;
+						Lvb_bit_length *restrict l_sitestates = CurrentTreeArray[left].sitestate;
+						Lvb_bit_length *restrict r_sitestates = CurrentTreeArray[right].sitestate;
 						for (j = 0; j < MSA->nwords; j++){
-							x = l_ssets[j];
-							y = r_ssets[j];
+							x = l_sitestates[j];
+							y = r_sitestates[j];
 #ifdef	PRINT_PRINTF
 	printf("       branch: %d   left = %d\n", branch, left);
 	printf("       branch: %d   right = %d\n", branch, right);
@@ -540,12 +540,12 @@ long getplen(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *CurrentTreeArray, Para
 
 							u >>= 3;
 
-							CurrentTreeArray[branch].sset[j] = (x & y) | ((x | y) & ((u + MASK_SEVEN) ^ MASK_EIGHT));
+							CurrentTreeArray[branch].sitestate[j] = (x & y) | ((x | y) & ((u + MASK_SEVEN) ^ MASK_EIGHT));
 #ifdef	PRINT_PRINTF
 	#ifdef COMPILE_64_BITS
-		printf("      branch:%d   0x%016llX\n", branch, CurrentTreeArray[branch].sset[j]);
+		printf("      branch:%d   0x%016llX\n", branch, CurrentTreeArray[branch].sitestate[j]);
 	#else
-		printf("      branch:%d   0x%X\n", branch, CurrentTreeArray[branch].sset[j]);
+		printf("      branch:%d   0x%X\n", branch, CurrentTreeArray[branch].sitestate[j]);
 	#endif
 #endif
 							CurrentTreeArray[branch].changes += ch;
@@ -564,8 +564,8 @@ long getplen(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *CurrentTreeArray, Para
 		left = CurrentTreeArray[root].left;
 		right = CurrentTreeArray[root].right;
 		for (j = 0; j < MSA->nwords; j++){
-			x = CurrentTreeArray[left].sset[j];
-			y = CurrentTreeArray[right].sset[j];
+			x = CurrentTreeArray[left].sitestate[j];
+			y = CurrentTreeArray[right].sitestate[j];
 
 			u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
 
@@ -588,7 +588,7 @@ long getplen(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *CurrentTreeArray, Para
 			changes += ch;
 
 			x = (x & y) | ((x | y) & ((u + MASK_SEVEN) ^ MASK_EIGHT));
-			y = CurrentTreeArray[root].sset[j];
+			y = CurrentTreeArray[root].sitestate[j];
 
 			u = ((((x & y & MASK_SEVEN) + MASK_SEVEN) | (x & y)) & MASK_EIGHT);
 

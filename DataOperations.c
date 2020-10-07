@@ -81,7 +81,7 @@ static char *getstatev(const Dataptr MSA, const long k)
 
 } /* end getstatev() */
 
-long getminlen(const Dataptr MSA)
+long MinimumTreeLength(const Dataptr MSA)
 /* return minimum length of any tree based on MSA; FIXME not quite right
  * with ambiguity codes */
 {
@@ -96,7 +96,7 @@ long getminlen(const Dataptr MSA)
     }
     return minlen;
 
-} /* end getminlen() */
+} /* end MinimumTreeLength() */
 
 /**********
 
@@ -167,14 +167,14 @@ void DNAToBinary(Dataptr restrict mat, Lvb_bit_length **enc_mat)
     long k;		/* loop counter */
     long mat_offset;	/* current position within MSA row */
     char base;		/* current base as text character */
-    Lvb_bit_length sset = 0U;	/* binary-encoded single state set */
-    Lvb_bit_length enc_ssets;	/* set of four binary-encoded state sets */
+    Lvb_bit_length sitestate = 0U;	/* binary-encoded single state set */
+    Lvb_bit_length enc_sitestates;	/* set of four binary-encoded state sets */
 
     for (i = 0; i < mat->n; i++)
     {
         for (j = 0; j < mat->nwords; j++)
 		{
-			enc_ssets = 0U;
+			enc_sitestates = 0U;
 			for (k = 0; k < LENGTH_WORD; k++)
 			{
 				mat_offset = (j << LENGTH_WORD_BITS_MULTIPLY) + k;
@@ -185,45 +185,45 @@ void DNAToBinary(Dataptr restrict mat, Lvb_bit_length **enc_mat)
 
 				/* unambiguous bases */
 				if (base == 'A')
-					sset = A_BIT;
+					sitestate = A_BIT;
 				else if (base == 'C')
-					sset = C_BIT;
+					sitestate = C_BIT;
 				else if (base == 'G')
-					sset = G_BIT;
+					sitestate = G_BIT;
 				else if (base == 'T')
-					sset = T_BIT;
+					sitestate = T_BIT;
 				else if (base == 'U')	/* treat the same as 'U' */
-					sset = T_BIT;
+					sitestate = T_BIT;
 
 				/* ambiguous bases */
 				else if (base == 'Y')
-					sset = C_BIT | T_BIT;
+					sitestate = C_BIT | T_BIT;
 				else if (base == 'R')
-					sset = A_BIT | G_BIT;
+					sitestate = A_BIT | G_BIT;
 				else if (base == 'W')
-					sset = A_BIT | T_BIT;
+					sitestate = A_BIT | T_BIT;
 				else if (base == 'S')
-					sset = C_BIT | G_BIT;
+					sitestate = C_BIT | G_BIT;
 				else if (base == 'K')
-					sset = T_BIT | G_BIT;
+					sitestate = T_BIT | G_BIT;
 				else if (base == 'M')
-					sset = C_BIT | A_BIT;
+					sitestate = C_BIT | A_BIT;
 				else if (base == 'B')
-					sset = C_BIT | G_BIT | T_BIT;
+					sitestate = C_BIT | G_BIT | T_BIT;
 				else if (base == 'D')
-					sset = A_BIT | G_BIT | T_BIT;
+					sitestate = A_BIT | G_BIT | T_BIT;
 				else if (base == 'H')
-					sset = A_BIT | C_BIT | T_BIT;
+					sitestate = A_BIT | C_BIT | T_BIT;
 				else if (base == 'V')
-					sset = A_BIT | C_BIT | G_BIT;
+					sitestate = A_BIT | C_BIT | G_BIT;
 				else if (base == 'N')
-					sset = A_BIT | C_BIT | G_BIT | T_BIT;
+					sitestate = A_BIT | C_BIT | G_BIT | T_BIT;
 				else if (base == 'X')
-					sset = A_BIT | C_BIT | G_BIT | T_BIT;
+					sitestate = A_BIT | C_BIT | G_BIT | T_BIT;
 
 				/* total ambiguity or deletion - now always the same as 'N' */
 				else if ((base == '?') || (base == '-'))
-					sset = A_BIT | C_BIT | G_BIT | T_BIT;
+					sitestate = A_BIT | C_BIT | G_BIT | T_BIT;
 
 				/* all other bases are not allowed */
 				else
@@ -234,10 +234,10 @@ void DNAToBinary(Dataptr restrict mat, Lvb_bit_length **enc_mat)
 					crash("cannot read data MSA");
 				}
 
-				lvb_assert(sset != 0U);
-				enc_ssets |= sset << (k << NIBBLE_WIDTH_BITS);
+				lvb_assert(sitestate != 0U);
+				enc_sitestates |= sitestate << (k << NIBBLE_WIDTH_BITS);
 			}
-			enc_mat[i][j] = enc_ssets;
+			enc_mat[i][j] = enc_sitestates;
 		}
     }
 } /* end DNAToBinary() */
@@ -325,8 +325,8 @@ void matchange(Dataptr MSA, const Parameters rcstruct)
         MSA->bytes = bytes_per_row(MSA->m);
         MSA->nwords = words_per_row(MSA->m);
         MSA->tree_bytes = tree_bytes(MSA);
-        MSA->tree_bytes_without_sset = tree_bytes_without_sset(MSA);
-		MSA->min_len_tree = getminlen(MSA);
+        MSA->tree_bytes_without_sitestate = tree_bytes_without_sitestate(MSA);
+		MSA->min_len_tree = MinimumTreeLength(MSA);
     }
     if (MSA->m < MIN_M)
     	crash("after constant columns are ignored, data MSA has\n"
@@ -378,8 +378,8 @@ return the number of columns cut */
     MSA->bytes = bytes_per_row(MSA->m);
     MSA->nwords = words_per_row(MSA->m);
     MSA->tree_bytes = tree_bytes(MSA);
-    MSA->tree_bytes_without_sset = tree_bytes_without_sset(MSA);
-	MSA->min_len_tree = getminlen(MSA);
+    MSA->tree_bytes_without_sitestate = tree_bytes_without_sitestate(MSA);
+	MSA->min_len_tree = MinimumTreeLength(MSA);
 } /* end cutcols() */
 
 static void logcut(const Lvb_bool *const cut, const long m)
@@ -417,27 +417,6 @@ static void logcut(const Lvb_bool *const cut, const long m)
 
 } /* end logcut() */
 
-
-void uint32_dump(FILE *stream, Lvb_bit_length u)
-/* output a uint32 in binary format */
-{
-	long i;			/* loop counter */
-	Lvb_bit_length mask;		/* to obtain current bit */
-	Lvb_bit_length output_as_int;
-    static char buffer[NUMBER_OF_BITS + 2];
-
-    for (i = 0; i < NUMBER_OF_BITS; i++){
-    	mask = 1U << i;
-    	output_as_int = mask & u;
-    	if(output_as_int) buffer[NUMBER_OF_BITS -1 - i] = '1';
-    	else buffer[NUMBER_OF_BITS -1 - i] = '0';
-    }
-	buffer[NUMBER_OF_BITS] = '\n';
-	buffer[NUMBER_OF_BITS+1] = '\0';
-	fputs(buffer, stream);
-}
-
-
 long words_per_row(const long m)
 /* return the number of 32-bit words required to hold an encoded row of the
  * data MSA for m state sets, assuming half a byte per state set rounded up
@@ -450,8 +429,6 @@ long words_per_row(const long m)
     if (m % LENGTH_WORD) words += 1;
     return words;
 }
-
-
 
 long bytes_per_row(const long m)
 /* return the number of 8-bit bytes required to hold an encoded row of the
@@ -544,7 +521,7 @@ static char *getstatev(const Dataptr MSA, const long k)
 	    return statev;
 	} /* end getstatev() */
 
-	long getminlen(const Dataptr MSA)
+	long MinimumTreeLength(const Dataptr MSA)
 	/* return minimum length of any tree based on MSA; FIXME not quite right
 	 * with ambiguity codes */
 	{
@@ -559,7 +536,7 @@ static char *getstatev(const Dataptr MSA, const long k)
 		}
 		return minlen;
 
-	} /* end getminlen() */
+	} /* end MinimumTreeLength() */
 
 
 
@@ -634,14 +611,14 @@ void DNAToBinary(Dataptr restrict mat, Lvb_bit_length **enc_mat)
     long k;		/* loop counter */
     long mat_offset;	/* current position within MSA row */
     char base;		/* current base as text character */
-    Lvb_bit_length sset = 0U;	/* binary-encoded single state set */
-    Lvb_bit_length enc_ssets;	/* set of four binary-encoded state sets */
+    Lvb_bit_length sitestate = 0U;	/* binary-encoded single state set */
+    Lvb_bit_length enc_sitestates;	/* set of four binary-encoded state sets */
 
     for (i = 0; i < mat->n; i++)
     {
         for (j = 0; j < mat->nwords; j++)
 		{
-			enc_ssets = 0U;
+			enc_sitestates = 0U;
 			for (k = 0; k < LENGTH_WORD; k++)
 			{
 				mat_offset = (j << LENGTH_WORD_BITS_MULTIPLY) + k;
@@ -652,45 +629,45 @@ void DNAToBinary(Dataptr restrict mat, Lvb_bit_length **enc_mat)
 
 				/* unambiguous bases */
 				if (base == 'A')
-					sset = A_BIT;
+					sitestate = A_BIT;
 				else if (base == 'C')
-					sset = C_BIT;
+					sitestate = C_BIT;
 				else if (base == 'G')
-					sset = G_BIT;
+					sitestate = G_BIT;
 				else if (base == 'T')
-					sset = T_BIT;
+					sitestate = T_BIT;
 				else if (base == 'U')	/* treat the same as 'U' */
-					sset = T_BIT;
+					sitestate = T_BIT;
 
 				/* ambiguous bases */
 				else if (base == 'Y')
-					sset = C_BIT | T_BIT;
+					sitestate = C_BIT | T_BIT;
 				else if (base == 'R')
-					sset = A_BIT | G_BIT;
+					sitestate = A_BIT | G_BIT;
 				else if (base == 'W')
-					sset = A_BIT | T_BIT;
+					sitestate = A_BIT | T_BIT;
 				else if (base == 'S')
-					sset = C_BIT | G_BIT;
+					sitestate = C_BIT | G_BIT;
 				else if (base == 'K')
-					sset = T_BIT | G_BIT;
+					sitestate = T_BIT | G_BIT;
 				else if (base == 'M')
-					sset = C_BIT | A_BIT;
+					sitestate = C_BIT | A_BIT;
 				else if (base == 'B')
-					sset = C_BIT | G_BIT | T_BIT;
+					sitestate = C_BIT | G_BIT | T_BIT;
 				else if (base == 'D')
-					sset = A_BIT | G_BIT | T_BIT;
+					sitestate = A_BIT | G_BIT | T_BIT;
 				else if (base == 'H')
-					sset = A_BIT | C_BIT | T_BIT;
+					sitestate = A_BIT | C_BIT | T_BIT;
 				else if (base == 'V')
-					sset = A_BIT | C_BIT | G_BIT;
+					sitestate = A_BIT | C_BIT | G_BIT;
 				else if (base == 'N')
-					sset = A_BIT | C_BIT | G_BIT | T_BIT;
+					sitestate = A_BIT | C_BIT | G_BIT | T_BIT;
 				else if (base == 'X')
-					sset = A_BIT | C_BIT | G_BIT | T_BIT;
+					sitestate = A_BIT | C_BIT | G_BIT | T_BIT;
 
 				/* total ambiguity or deletion - now always the same as 'N' */
 				else if ((base == '?') || (base == '-'))
-					sset = A_BIT | C_BIT | G_BIT | T_BIT;
+					sitestate = A_BIT | C_BIT | G_BIT | T_BIT;
 
 				/* all other bases are not allowed */
 				else
@@ -701,10 +678,10 @@ void DNAToBinary(Dataptr restrict mat, Lvb_bit_length **enc_mat)
 					crash("cannot read data MSA");
 				}
 
-				lvb_assert(sset != 0U);
-				enc_ssets |= sset << (k << NIBBLE_WIDTH_BITS);
+				lvb_assert(sitestate != 0U);
+				enc_sitestates |= sitestate << (k << NIBBLE_WIDTH_BITS);
 			}
-			enc_mat[i][j] = enc_ssets;
+			enc_mat[i][j] = enc_sitestates;
 		}
     }
 } /* end DNAToBinary() */
@@ -791,8 +768,8 @@ void DNAToBinary(Dataptr restrict mat, Lvb_bit_length **enc_mat)
 		MSA->bytes = bytes_per_row(MSA->m);
 		MSA->nwords = words_per_row(MSA->m);
 		MSA->tree_bytes = tree_bytes(MSA);
-		MSA->tree_bytes_without_sset = tree_bytes_without_sset(MSA);
-		MSA->min_len_tree = getminlen(MSA);
+		MSA->tree_bytes_without_sitestate = tree_bytes_without_sitestate(MSA);
+		MSA->min_len_tree = MinimumTreeLength(MSA);
 	}
 	if (MSA->m < MIN_M)
 		crash("after constant columns are ignored, data MSA has\n"
@@ -843,9 +820,9 @@ return the number of columns cut */
     MSA->bytes = bytes_per_row(MSA->m);
     MSA->nwords = words_per_row(MSA->m);
     MSA->tree_bytes = tree_bytes(MSA);
-    MSA->tree_bytes_without_sset = tree_bytes_without_sset(MSA);
+    MSA->tree_bytes_without_sitestate = tree_bytes_without_sitestate(MSA);
     MSA->row = newrow;
-    MSA->min_len_tree = getminlen(MSA);
+    MSA->min_len_tree = MinimumTreeLength(MSA);
 } /* end cutcols() */
 
 
@@ -904,26 +881,6 @@ static void logcut(const Lvb_bool *const cut, const long m)
 	crash("write error on standard output"); /* FIXME: helpful? */
 
 } /* end logcut() */
-
-
-void uint32_dump(FILE *stream, Lvb_bit_length u)
-/* output a uint32 in binary format */
-{
-	long i;			/* loop counter */
-	Lvb_bit_length mask;		/* to obtain current bit */
-	Lvb_bit_length output_as_int;
-    static char buffer[NUMBER_OF_BITS + 2];
-
-    for (i = 0; i < NUMBER_OF_BITS; i++){
-    	mask = 1U << i;
-    	output_as_int = mask & u;
-    	if(output_as_int) buffer[NUMBER_OF_BITS -1 - i] = '1';
-    	else buffer[NUMBER_OF_BITS -1 - i] = '0';
-    }
-	buffer[NUMBER_OF_BITS] = '\n';
-	buffer[NUMBER_OF_BITS+1] = '\0';
-	fputs(buffer, stream);
-}
 
 
 long words_per_row(const long m)

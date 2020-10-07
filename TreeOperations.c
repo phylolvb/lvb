@@ -54,7 +54,7 @@ void nodeclear(TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long brnch)
     CurrentTreeArray[brnch].right = UNSET;
     CurrentTreeArray[brnch].parent = UNSET;
     CurrentTreeArray[brnch].changes = UNSET;
-    CurrentTreeArray[brnch].sset[0] = 0U;		/* "dirty" */
+    CurrentTreeArray[brnch].sitestate[0] = 0U;		/* "dirty" */
 
 } /* end nodeclear() */
 
@@ -64,15 +64,15 @@ long tree_bytes(Dataptr restrict MSA)
  * as one contiguous array */
 {
 	/* return in bytes */
-    return (MSA->nbranches * sizeof(TREESTACK_TREE_BRANCH)) + (MSA->nbranches * MSA->bytes);
+    return (MSA->numberofpossiblebranches * sizeof(TREESTACK_TREE_BRANCH)) + (MSA->numberofpossiblebranches * MSA->bytes);
 } /* end tree_bytes() */
 
-long tree_bytes_without_sset(Dataptr restrict MSA)
+long tree_bytes_without_sitestate(Dataptr restrict MSA)
 /* return bytes required for contiguous allocation of a tree for the data
  * accessible by MSA, */
 {
 	/* return in bytes */
-    return (MSA->nbranches * sizeof(TREESTACK_TREE_BRANCH));
+    return (MSA->numberofpossiblebranches * sizeof(TREESTACK_TREE_BRANCH));
 } /* end tree_bytes() */
 
 void treeclear(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray)
@@ -80,7 +80,7 @@ void treeclear(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArr
  * the data MSA; mark all branches dirty */
 {
     long i;					/* loop counter */
-    for (i = 0; i < MSA->nbranches; i++) nodeclear(CurrentTreeArray, i);
+    for (i = 0; i < MSA->numberofpossiblebranches; i++) nodeclear(CurrentTreeArray, i);
 
 } /* end treeclear() */
 
@@ -94,7 +94,7 @@ static void make_dirty_below(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *tree, 
     lvb_assert(dirty_node >= MSA->n);	/* not leaf/root */
     lvb_assert(tree[dirty_node].parent != UNSET);
     do {
-		tree[dirty_node].sset[0] = 0U;	/* " make dirty" */
+		tree[dirty_node].sitestate[0] = 0U;	/* " make dirty" */
 		dirty_node = tree[dirty_node].parent;
     } while (tree[dirty_node].parent != UNSET);
 
@@ -163,7 +163,7 @@ void mutate_nni(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const desttree, con
     treecopy(MSA, tree, sourcetree, LVB_TRUE);
 
     /* get a random internal branch */
-    u = randpint(MSA->nbranches - MSA->n - 1) + MSA->n;
+    u = randpint(MSA->numberofpossiblebranches - MSA->n - 1) + MSA->n;
     v = tree[u].parent;
     a = tree[u].left;
     b = tree[u].right;
@@ -235,7 +235,7 @@ void mutate_spr(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const desttree, con
 
     /* get random branch but not root and not root's immediate descendant */
     do {
-    	src = randpint(MSA->nbranches - 1);
+    	src = randpint(MSA->numberofpossiblebranches - 1);
     } while ((src == root) || (src == tree[root].left) || (src == tree[root].right));
 
     src_parent = tree[src].parent;
@@ -246,7 +246,7 @@ void mutate_spr(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const desttree, con
     /* get destination that is not source or its parent, sister or descendant
      * or the root */
     do {
-    	dest = randpint(MSA->nbranches - 1);
+    	dest = randpint(MSA->numberofpossiblebranches - 1);
     } while ((dest == src) || (dest == src_parent) || (dest == src_sister)
        || (dest == root) || is_descendant(tree, root, src, dest));
 
@@ -336,7 +336,7 @@ void mutate_tbr(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const desttree, con
 
     /* get random branch but not root and not root's immediate descendant */
     do {
-    	src = randpint(MSA->nbranches - 1);
+    	src = randpint(MSA->numberofpossiblebranches - 1);
     } while ((src == root) || (src == tree[root].left) || (src == tree[root].right));
 
     src_parent = tree[src].parent;
@@ -347,7 +347,7 @@ void mutate_tbr(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const desttree, con
     /* get destination that is not source or its parent, sister or descendant
      * or the root */
     do {
-    	dest = randpint(MSA->nbranches - 1);
+    	dest = randpint(MSA->numberofpossiblebranches - 1);
     } while ((dest == src) || (dest == src_parent) || (dest == src_sister)
        || (dest == root) || is_descendant(tree, root, src, dest));
 
@@ -395,7 +395,7 @@ void mutate_tbr(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const desttree, con
     lvb_assert(orig_child != UNSET);
     tree[orig_child].parent = excess_br;
 
-		if (oldparent == NULL) oldparent = (int *) alloc(MSA->nbranches * sizeof(int), "old parent alloc");
+		if (oldparent == NULL) oldparent = (int *) alloc(MSA->numberofpossiblebranches * sizeof(int), "old parent alloc");
 
 		int size = count(tree, src);
 		int *arr=NULL;
@@ -408,7 +408,7 @@ void mutate_tbr(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const desttree, con
 	/*reroot source branch (only if size of subtree > than 2) */
 	if (size > 2) {
 		oldroot = src;
-		for (current = 0; current < MSA->nbranches; current++)
+		for (current = 0; current < MSA->numberofpossiblebranches; current++)
 	    	oldparent[current] = tree[current].parent;
 
      		addtoarray(tree, src, arr, 0);		
@@ -517,7 +517,7 @@ int addtoarray(TREESTACK_TREE_BRANCH *const tree, int current, int arr[], int i)
 }
 
 
-long lvb_reroot(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long oldroot, const long newroot, Lvb_bool b_with_sset)
+long lvb_reroot(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long oldroot, const long newroot, Lvb_bool b_with_sitestate)
 /* Change the root of the tree in CurrentTreeArray from oldroot to newroot, which
  * must not be the same. Mark all internal nodes (everything but the leaves
  * and root) as "dirty". Return oldroot. */
@@ -531,10 +531,10 @@ long lvb_reroot(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const CurrentTreeAr
     /* check new root is a leaf but not the current root */
     lvb_assert(newroot < MSA->n);
     lvb_assert(newroot != oldroot);
-    if (oldparent == NULL) oldparent = (long int *) alloc(MSA->nbranches * sizeof(long int), "old parent alloc");
+    if (oldparent == NULL) oldparent = (long int *) alloc(MSA->numberofpossiblebranches * sizeof(long int), "old parent alloc");
 
     /* create record of parents as they are now */
-    for (current = 0; current < MSA->nbranches; current++)
+    for (current = 0; current < MSA->numberofpossiblebranches; current++)
     	oldparent[current] = CurrentTreeArray[current].parent;
 
     current = newroot;
@@ -568,9 +568,9 @@ long lvb_reroot(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const CurrentTreeAr
     CurrentTreeArray[oldroot].left = UNSET;
     CurrentTreeArray[oldroot].right = UNSET;
 
-    if (b_with_sset){
-    	for (current = MSA->n; current < MSA->nbranches; current++)
-    		CurrentTreeArray[current].sset[0] = 0U;
+    if (b_with_sitestate){
+    	for (current = MSA->n; current < MSA->numberofpossiblebranches; current++)
+    		CurrentTreeArray[current].sitestate[0] = 0U;
     }
     return oldroot;
 } /* end lvb_reroot() */
@@ -653,89 +653,89 @@ static void cr_bpnc(const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const l
 
 }	/* end cr_bpnc() */
 
-TREESTACK_TREE_BRANCH *mvBranch(long nbranches, TREESTACK_TREE_BRANCH *const dest, const TREESTACK_TREE_BRANCH *const src)
+TREESTACK_TREE_BRANCH *mvBranch(long numberofpossiblebranches, TREESTACK_TREE_BRANCH *const dest, const TREESTACK_TREE_BRANCH *const src)
 {
 	long i;
-	Lvb_bit_length *tmp_sset;
-	for(i = 0; i < nbranches; i++){
-		tmp_sset = dest[i].sset;
+	Lvb_bit_length *tmp_sitestate;
+	for(i = 0; i < numberofpossiblebranches; i++){
+		tmp_sitestate = dest[i].sitestate;
 		dest[i] = src[i];
-		dest[i].sset = tmp_sset;
+		dest[i].sitestate = tmp_sitestate;
 	}
 	return dest;
 }
 
-void treecopy(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const dest, const TREESTACK_TREE_BRANCH *const src, Lvb_bool b_with_sset)
+void treecopy(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const dest, const TREESTACK_TREE_BRANCH *const src, Lvb_bool b_with_sitestate)
 /* copy tree from src to dest; dest must be totally distinct from source
  * in memory, and have enough space; the approach used below may fail if
  * treealloc() is changed */
 {
     long i;				/* loop counter */
-    Lvb_bit_length *tmp_sset;		/* temporary variable used in copy */
+    Lvb_bit_length *tmp_sitestate;		/* temporary variable used in copy */
     unsigned char *src_statesets_all;	/* start of source's statesets */
     unsigned char *dest_statesets_all;	/* start of dest's statesets */
 
-    if (b_with_sset){
+    if (b_with_sitestate){
 		/* scalars */
-		for (i = 0; i < MSA->nbranches; i++){
-			tmp_sset = dest[i].sset;
+		for (i = 0; i < MSA->numberofpossiblebranches; i++){
+			tmp_sitestate = dest[i].sitestate;
 			dest[i] = src[i];
-			dest[i].sset = tmp_sset;	/* keep dest's stateset arrs for dest */
+			dest[i].sitestate = tmp_sitestate;	/* keep dest's stateset arrs for dest */
 		}
 
 		/* stateset arrays */
-		src_statesets_all = ((unsigned char *) src) + MSA->nbranches * sizeof(TREESTACK_TREE_BRANCH);
-		dest_statesets_all = ((unsigned char *) dest) + MSA->nbranches * sizeof(TREESTACK_TREE_BRANCH);
-		memcpy(dest_statesets_all, src_statesets_all, MSA->nbranches * MSA->bytes);
+		src_statesets_all = ((unsigned char *) src) + MSA->numberofpossiblebranches * sizeof(TREESTACK_TREE_BRANCH);
+		dest_statesets_all = ((unsigned char *) dest) + MSA->numberofpossiblebranches * sizeof(TREESTACK_TREE_BRANCH);
+		memcpy(dest_statesets_all, src_statesets_all, MSA->numberofpossiblebranches * MSA->bytes);
     }else{
     	/* only the scalars */
-		for (i = 0; i < MSA->nbranches; i++){
-			tmp_sset = dest[i].sset;
+		for (i = 0; i < MSA->numberofpossiblebranches; i++){
+			tmp_sitestate = dest[i].sitestate;
 			dest[i] = src[i];
-			dest[i].sset = tmp_sset;
+			dest[i].sitestate = tmp_sitestate;
 		}
     }
 
 } /* end treecopy() */
 
-void copy_sset(Dataptr restrict MSA, Objset *p_sset_1){
+void copy_sitestate(Dataptr restrict MSA, Objset *p_sitestate_1){
 
 	long to_copy;
 	for (long i = 0; i < MSA->nsets; i++){
-		to_copy = sset_2[i].cnt * sizeof(long);
-		if (p_sset_1[i].set == NULL){	// need to alloc memory
-			p_sset_1[i].set = (long *) alloc(to_copy, "object set object arrays");
+		to_copy = sitestate_2[i].cnt * sizeof(long);
+		if (p_sitestate_1[i].set == NULL){	// need to alloc memory
+			p_sitestate_1[i].set = (long *) alloc(to_copy, "object set object arrays");
 
-		}else if (p_sset_1[i].cnt != sset_2[i].cnt){
-			p_sset_1[i].set = (long *) realloc(p_sset_1[i].set, to_copy);
-			if (p_sset_1[i].set == NULL){
-			     crash("out of memory: cannot increase allocation for best sset %ld elements", to_copy);
+		}else if (p_sitestate_1[i].cnt != sitestate_2[i].cnt){
+			p_sitestate_1[i].set = (long *) realloc(p_sitestate_1[i].set, to_copy);
+			if (p_sitestate_1[i].set == NULL){
+			     crash("out of memory: cannot increase allocation for best sitestate %ld elements", to_copy);
 			}
 		}
-		memcpy(p_sset_1[i].set, sset_2[i].set, to_copy);
-		p_sset_1[i].cnt = sset_2[i].cnt;
+		memcpy(p_sitestate_1[i].set, sitestate_2[i].set, to_copy);
+		p_sitestate_1[i].cnt = sitestate_2[i].cnt;
 	}
 }
 
-void randtree(Dataptr MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray)
+void PullRandomTree(Dataptr MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray)
 /* fill CurrentTreeArray with a random tree, where CurrentTreeArray[0] is the root; all branches
  * in this random tree are marked as "dirty" */
 {
     Lvb_bool *leafmask;		/* LVB_TRUE where branch in array is a leaf */
-    long *objnos;		/* element i is obj associated with branch i */
+    long *currentbranchobject;		/* element i is obj associated with branch i */
 
     treeclear(MSA, CurrentTreeArray);
-    leafmask = randtopology(MSA, CurrentTreeArray, MSA->n);
-    objnos = randleaf(MSA, CurrentTreeArray, leafmask, MSA->n);
-    tree_make_canonical(MSA, CurrentTreeArray, objnos);
+    leafmask = GenerateRandomTopology(MSA, CurrentTreeArray, MSA->n);
+    currentbranchobject = randleaf(MSA, CurrentTreeArray, leafmask, MSA->n);
+    tree_make_canonical(MSA, CurrentTreeArray, currentbranchobject);
 
-} /* end randtree() */
+} /* end PullRandomTree() */
 
 static void wherever_was_now_say(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray, long was, long now)
 {
     long branchno;			/* loop counter */
 
-    for (branchno = 0; branchno < MSA->nbranches; branchno++){
+    for (branchno = 0; branchno < MSA->numberofpossiblebranches; branchno++){
 		if(CurrentTreeArray[branchno].parent == was) CurrentTreeArray[branchno].parent = now;
 		if(CurrentTreeArray[branchno].left == was) CurrentTreeArray[branchno].left = now;
 		if(CurrentTreeArray[branchno].right == was) CurrentTreeArray[branchno].right = now;
@@ -743,27 +743,27 @@ static void wherever_was_now_say(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *co
 
 } /* end wherever_was_now_say() */
 
-static void tree_make_canonical(Dataptr MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray, long *objnos)
+static void tree_make_canonical(Dataptr MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray, long *currentbranchobject)
 /* ensure that objects 0, 1, 2, ... n-1 are associated with branches 0, 1, 2,
- * ... n-1, respectively; objnos indicates for each branch the currently
+ * ... n-1, respectively; currentbranchobject indicates for each branch the currently
  * assigned object or UNSET for internal branches */
 {
     long i;								/* loop counter */
     long obj_no;							/* current object number */
-    long nbranches    = MSA->nbranches;
+    long numberofpossiblebranches    = MSA->numberofpossiblebranches;
     long n_lines      = MSA->n;
-    long impossible_1 = nbranches;					/* an out-of-range branch index */
-    long impossible_2 = nbranches + 1;					/* an out-of-range branch index */
+    long impossible_1 = numberofpossiblebranches;					/* an out-of-range branch index */
+    long impossible_2 = numberofpossiblebranches + 1;					/* an out-of-range branch index */
     long root         = UNSET;						/* root branch index */
     TREESTACK_TREE_BRANCH tmp_1, tmp_2;						/* temporary branches for swapping */
-    unsigned char *ss0_start = (unsigned char *) CurrentTreeArray[0].sset;	/* start of state set memory */
+    unsigned char *ss0_start = (unsigned char *) CurrentTreeArray[0].sitestate;	/* start of state set memory */
     Lvb_bool swap_made;							/* flag to indicate swap made */
     long tmp;								/* for swapping */
 
     do {
 		swap_made = LVB_FALSE;
-		for (i = 0; i < nbranches; i++) {
-			obj_no = objnos[i];
+		for (i = 0; i < numberofpossiblebranches; i++) {
+			obj_no = currentbranchobject[i];
 			if ((obj_no != UNSET) && (obj_no != i)) {
 				tmp_1 = CurrentTreeArray[obj_no];
 				wherever_was_now_say(MSA, CurrentTreeArray, obj_no, impossible_1);
@@ -779,17 +779,17 @@ static void tree_make_canonical(Dataptr MSA, TREESTACK_TREE_BRANCH *const Curren
 				CurrentTreeArray[obj_no] = tmp_2;
 				wherever_was_now_say(MSA, CurrentTreeArray, impossible_1, i);
 				wherever_was_now_say(MSA, CurrentTreeArray, impossible_2, obj_no);
-				tmp            = objnos[i];
-				objnos[i]      = objnos[obj_no];
-				objnos[obj_no] = tmp;
+				tmp            = currentbranchobject[i];
+				currentbranchobject[i]      = currentbranchobject[obj_no];
+				currentbranchobject[obj_no] = tmp;
 				swap_made      = LVB_TRUE;
 			}
 		}
     } while (swap_made == LVB_TRUE);
 
-    /* patch up assignment of sset memory to prevent trouble in treecopy() */
-    for (i = 0; i < nbranches; i++){
-    	CurrentTreeArray[i].sset = (Lvb_bit_length *) (ss0_start + i * MSA->bytes);
+    /* patch up assignment of sitestate memory to prevent trouble in treecopy() */
+    for (i = 0; i < numberofpossiblebranches; i++){
+    	CurrentTreeArray[i].sitestate = (Lvb_bit_length *) (ss0_start + i * MSA->bytes);
     }
 
     for (i = 0; i < n_lines; i++) {
@@ -805,16 +805,16 @@ static void tree_make_canonical(Dataptr MSA, TREESTACK_TREE_BRANCH *const Curren
 
     /* check things didn't go haywire */
     for (i = 0; i < n_lines; i++) {
-    	lvb_assert(objnos[i] == i);
+    	lvb_assert(currentbranchobject[i] == i);
     }
-    for (i = n_lines; i < nbranches; i++) {
-    	lvb_assert(objnos[i] == UNSET);
+    for (i = n_lines; i < numberofpossiblebranches; i++) {
+    	lvb_assert(currentbranchobject[i] == UNSET);
     }
 
 } /* end tree_make_canonical() */
 
-TREESTACK_TREE_BRANCH *treealloc(Dataptr restrict MSA, Lvb_bool b_with_sset)
-/* Return array of nbranches branches with scalars all UNSET, and all
+TREESTACK_TREE_BRANCH *treealloc(Dataptr restrict MSA, Lvb_bool b_with_sitestate)
+/* Return array of numberofpossiblebranches branches with scalars all UNSET, and all
  * statesets allocated for m characters but marked "dirty". Crash
  * verbosely if impossible. Memory is allocated once only, as a contiguous
  * block for the branch data structures followed by all their statesets.
@@ -827,25 +827,25 @@ TREESTACK_TREE_BRANCH *treealloc(Dataptr restrict MSA, Lvb_bool b_with_sset)
     unsigned char *ss0_start;		/* start of first stateset */
     long i;				/* loop counter */
 
-    lvb_assert(MSA->nbranches >= MIN_BRANCHES);
-    lvb_assert(MSA->nbranches <= MAX_BRANCHES);
+    lvb_assert(MSA->numberofpossiblebranches >= MIN_BRANCHES);
+    lvb_assert(MSA->numberofpossiblebranches <= MAX_BRANCHES);
 
-    if (b_with_sset) CurrentTreeArray = (TREESTACK_TREE_BRANCH *) alloc(MSA->tree_bytes, "tree with statesets");
+    if (b_with_sitestate) CurrentTreeArray = (TREESTACK_TREE_BRANCH *) alloc(MSA->tree_bytes, "tree with statesets");
     else{ /* don't need to do anything else */
-    	CurrentTreeArray = (TREESTACK_TREE_BRANCH *) alloc(MSA->tree_bytes_without_sset, "tree without statesets");
+    	CurrentTreeArray = (TREESTACK_TREE_BRANCH *) alloc(MSA->tree_bytes_without_sitestate, "tree without statesets");
     	return CurrentTreeArray;
     }
 
     CurrentTreeArray_uchar_star = (unsigned char *) CurrentTreeArray;
-    ss0_start = CurrentTreeArray_uchar_star + MSA->nbranches * sizeof(TREESTACK_TREE_BRANCH);
+    ss0_start = CurrentTreeArray_uchar_star + MSA->numberofpossiblebranches * sizeof(TREESTACK_TREE_BRANCH);
 
     /* crash if state set memory is misaligned for uint32_t */
     lvb_assert(((intptr_t) ss0_start % NIBBLE_WIDTH) == 0);
     lvb_assert((MSA->bytes % NIBBLE_WIDTH) == 0);
 
-    for (i = 0; i < MSA->nbranches; i++){
-    	CurrentTreeArray[i].sset = (Lvb_bit_length *) (ss0_start + i * MSA->bytes);
-    	*CurrentTreeArray[i].sset = 0U;  /* make durty */
+    for (i = 0; i < MSA->numberofpossiblebranches; i++){
+    	CurrentTreeArray[i].sitestate = (Lvb_bit_length *) (ss0_start + i * MSA->bytes);
+    	*CurrentTreeArray[i].sitestate = 0U;  /* make durty */
     }
 
     /*make_dirty_tree(MSA, CurrentTreeArray);  */
@@ -853,7 +853,7 @@ TREESTACK_TREE_BRANCH *treealloc(Dataptr restrict MSA, Lvb_bool b_with_sset)
 
 } /* end treealloc() */
 
-static Lvb_bool *randtopology(Dataptr MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long nobjs)
+static Lvb_bool *GenerateRandomTopology(Dataptr MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long nobjs)
 /* fill CurrentTreeArray with tree of random topology, where CurrentTreeArray[0] is root;
  * return static array where element i is LVB_TRUE if CurrentTreeArray[i] is a
  * leaf or LVB_FALSE if it is not; this array will be overwritten in
@@ -868,7 +868,7 @@ static Lvb_bool *randtopology(Dataptr MSA, TREESTACK_TREE_BRANCH *const CurrentT
     lvb_assert(nobjs == MSA->n);
 
     /* clear the leaf mask */
-    for (i = 0; i < MSA->nbranches; i++) isleaf[i] = LVB_FALSE;
+    for (i = 0; i < MSA->numberofpossiblebranches; i++) isleaf[i] = LVB_FALSE;
 
     /* start with initial tree of 3 leaves */
     CurrentTreeArray[0].parent 	    = UNSET;
@@ -906,13 +906,13 @@ static Lvb_bool *randtopology(Dataptr MSA, TREESTACK_TREE_BRANCH *const CurrentT
 
     return isleaf;
 
-} /* end randtopology() */
+} /* end GenerateRandomTopology() */
 
 static long *randleaf(Dataptr MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray, const Lvb_bool *const leafmask, const long objs)
 /* randomly assign objects numbered 0 to objs - 1 to leaves of tree in
  * CurrentTreeArray; leaves in CurrentTreeArray must be indicated by corresponding
  * LVB_TRUEs in leafmask; returns static array of object numbers, where
- * elements 0..nbranches give the object associated with branches 0..nbranches
+ * elements 0..numberofpossiblebranches give the object associated with branches 0..numberofpossiblebranches
  * respectively (UNSET for internal branches); this array will be overwritten
  * in subsequent calls */
 {
@@ -921,7 +921,7 @@ static long *randleaf(Dataptr MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray
     long i;				/* loop counter */
     static Lvb_bool used[MAX_N];	/* element i LVB_TRUE if object
     					 * i has leaf */
-    static long objnos[MAX_BRANCHES];	/* object associated with branches */
+    static long currentbranchobject[MAX_BRANCHES];	/* object associated with branches */
 
     lvb_assert(objs < MAX_N);
     lvb_assert(objs == MSA->n);
@@ -930,10 +930,10 @@ static long *randleaf(Dataptr MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray
     for (i = 0; i < objs; i++) used[i] = LVB_FALSE;
 
     /* clear object nos array, defaulting to internal branch, i.e. UNSET */
-    for (i = 0; i < MSA->nbranches; i++) objnos[i] = UNSET;
+    for (i = 0; i < MSA->numberofpossiblebranches; i++) currentbranchobject[i] = UNSET;
 
     /* assign an object to every leaf */
-    for (i = 0; i < MSA->nbranches; i++){
+    for (i = 0; i < MSA->numberofpossiblebranches; i++){
 		if (leafmask[i] == LVB_TRUE)	/* leaf, requires object */
 		{
 			do	/* get a new object number */
@@ -942,7 +942,7 @@ static long *randleaf(Dataptr MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray
 			} while(used[candidate] == LVB_TRUE);
 
 			/* assign object to leaf */
-			objnos[i] = candidate;
+			currentbranchobject[i] = candidate;
 			used[candidate] = LVB_TRUE;
 			assigned++;
 		}
@@ -950,11 +950,11 @@ static long *randleaf(Dataptr MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray
 
     lvb_assert(assigned == objs);
 
-    return objnos;
+    return currentbranchobject;
 
 } /* end randleaf() */
 
-void treeswap(TREESTACK_TREE_BRANCH **const tree1, long *const root1,
+void SwapTrees(TREESTACK_TREE_BRANCH **const tree1, long *const root1,
  TREESTACK_TREE_BRANCH **const tree2, long *const root2)
 /* swap trees pointed to by tree1 and tree2; also swap records of their
  * roots, as pointed to by root1 and root2 */
@@ -972,27 +972,27 @@ void treeswap(TREESTACK_TREE_BRANCH **const tree1, long *const root1,
     *root1 = *root2;
     *root2 = tmproot;
 
-} /* end treeswap() */
+} /* end SwapTrees() */
 
-void treedump(Dataptr MSA, FILE *const stream, const TREESTACK_TREE_BRANCH *const tree, Lvb_bool b_with_sset)
+void treedump(Dataptr MSA, FILE *const stream, const TREESTACK_TREE_BRANCH *const tree, Lvb_bool b_with_sitestate)
 /* send tree as table of integers to file pointed to by stream */
 {
     long i;				/* loop counter */
     long j;				/* loop counter */
 
     fprintf(stream, "TREESTACK_TREE_BRANCH\tParent\tLeft\tRight\tChanges\tDirty\tSset_arr\tSsets\n");
-    for (i = 0; i < MSA->nbranches; i++) {
+    for (i = 0; i < MSA->numberofpossiblebranches; i++) {
     	fprintf(stream, "%ld\t%ld\t%ld\t%ld\t%ld", i, tree[i].parent, tree[i].left, tree[i].right, tree[i].changes);
-    	if (tree[i].sset[0] == 0U) fprintf(stream, "\tyes");
+    	if (tree[i].sitestate[0] == 0U) fprintf(stream, "\tyes");
     	else fprintf(stream, "\tno");
-    	if (b_with_sset){
-			fprintf(stream, "\t%p", (void *) tree[i].sset);
+    	if (b_with_sitestate){
+			fprintf(stream, "\t%p", (void *) tree[i].sitestate);
 			for (j = 0; j < MSA->nwords; j++){
-				fprintf(stream, "\t0%o", (unsigned) tree[i].sset[j]);
+				fprintf(stream, "\t0%o", (unsigned) tree[i].sitestate[j]);
 			}
     	}
     	else{
-    		fprintf(stream, "\tversion without sset");
+    		fprintf(stream, "\tversion without sitestate");
     	}
     	fprintf(stream, "\n");
     }
@@ -1008,10 +1008,10 @@ void treedump_screen(Dataptr MSA, const TREESTACK_TREE_BRANCH *const tree)
     long i;				/* loop counter */
 
     printf("TREESTACK_TREE_BRANCH\tParent\tLeft\tRight\tChanges\tDirty\n");
-    for (i = 0; i < MSA->nbranches; i++) {
+    for (i = 0; i < MSA->numberofpossiblebranches; i++) {
     	printf("%ld\t%ld\t%ld\t%ld\t%ld", i, tree[i].parent, tree[i].left, tree[i].right, tree[i].changes);
-    	if (tree[i].sset == NULL) printf("\tNULL\n");
-    	else if (tree[i].sset[0] == 0U) printf("\tyes\n");
+    	if (tree[i].sitestate == NULL) printf("\tNULL\n");
+    	else if (tree[i].sitestate[0] == 0U) printf("\tyes\n");
     	else printf("\tno\n");
     }
     printf("\n");
@@ -1102,13 +1102,13 @@ static void cr_uxe(FILE *const stream, const char *const msg)
 
 	} /* end ur_print() */
 
-long TopologyComparison(Dataptr MSA, Objset *sset_1, const TREESTACK_TREE_BRANCH *const tree_2, Lvb_bool b_First)
+long TopologyComparison(Dataptr MSA, Objset *sitestate_1, const TREESTACK_TREE_BRANCH *const tree_2, Lvb_bool b_First)
 /* return 0 if the topology of tree_1 (of root root_1) is the same as
  * that of tree_2 (of root root_2), or non-zero if different */
 {
 //	b_First = LVB_TRUE;
     if (b_First == LVB_TRUE) makesets(MSA, tree_2, 0 /* always root zero */);
-    return setstcmp(MSA, sset_1, sset_2, b_First /* this one is the static */);
+    return setstcmp(MSA, sitestate_1, sitestate_2, b_First /* this one is the static */);
 
 } /* end TopologyComparison() */
 
@@ -1126,15 +1126,15 @@ static long setstcmp(Dataptr MSA, Objset *const oset_1, Objset *const oset_2, Lv
     return 0;
 } /* end setstcmp() */
 
-long setstcmp_with_sset2(Dataptr MSA, Objset *const oset_1)
+long setstcmp_with_sitestate2(Dataptr MSA, Objset *const oset_1)
 /* return 0 if the same sets of objects are in oset_1 and oset_2,
  * and non-zero otherwise */
 {
     long i;		/* loop counter */
 
     for (i = 0; i < MSA->nsets; i++){
-    	if (oset_1[i].cnt != sset_2[i].cnt) return 1;
-    	if (memcmp(oset_1[i].set, sset_2[i].set, sizeof(long) * oset_1[i].cnt) != 0) return 1;
+    	if (oset_1[i].cnt != sitestate_2[i].cnt) return 1;
+    	if (memcmp(oset_1[i].set, sitestate_2[i].set, sizeof(long) * oset_1[i].cnt) != 0) return 1;
     }
     return 0;
 } /* end setstcmp() */
@@ -1143,7 +1143,7 @@ long setstcmp_with_sset2(Dataptr MSA, Objset *const oset_1)
 void dump_stack_to_screen(Dataptr MSA, TREESTACK *sp){
 	for (int i = 0; i < sp->next; i++){
 		printf("Stack number: %d\n", i);
-		dump_objset_to_screen(MSA, sp->stack[i].p_sset);
+		dump_objset_to_screen(MSA, sp->stack[i].p_sitestate);
 	}
 }
 
@@ -1158,8 +1158,8 @@ void dump_objset_to_screen(Dataptr MSA, Objset *oset_1){
 	printf("\n");
 }
 
-void dump_objset_to_screen_sset_2(Dataptr MSA){
-	dump_objset_to_screen(MSA, sset_2);
+void dump_objset_to_screen_sitestate_2(Dataptr MSA){
+	dump_objset_to_screen(MSA, sitestate_2);
 }
 
 void sort_array(long *p_array, int n_left, int n_rigth){
@@ -1229,18 +1229,18 @@ static int osetcmp(const void *oset1, const void *oset2)
 } /* end osetcmp() */
 
 void makesets(Dataptr MSA, const TREESTACK_TREE_BRANCH *const tree_2, const long root)
-/* fill static sset_1 and static sset_2 with arrays of object sets for
+/* fill static sitestate_1 and static sitestate_2 with arrays of object sets for
  * tree_1 and tree_2 (of root_1 and root_2 respectively), and return
  * the extent of each array;
  * the trees must have the same object in the root branch;
  * arrays will be overwritten on subsequent calls */
 {
-    if (sset_2[0].set == NULL){	/* first call, allocate memory  to the static sset_2*/
-		ssarralloc(MSA, sset_2);
+    if (sitestate_2[0].set == NULL){	/* first call, allocate memory  to the static sitestate_2*/
+		ssarralloc(MSA, sitestate_2);
     }
 
-    fillsets(MSA, sset_2, tree_2, root);
-    sort(MSA, sset_2, MSA->nsets);
+    fillsets(MSA, sitestate_2, tree_2, root);
+    sort(MSA, sitestate_2, MSA->nsets);
 } /* end makesets() */
 
 static void ssarralloc(Dataptr MSA, Objset *nobjset_2)
@@ -1270,7 +1270,7 @@ static void ssarralloc(Dataptr MSA, Objset *nobjset_2)
 	   long *set;
 	   TREESTACK_TREE_BRANCH *Tree;
 	   Tree = treealloc(MSA, LVB_FALSE);
-	   if (sset_2[0].set == NULL)  ssarralloc(MSA, sset_2);
+	   if (sitestate_2[0].set == NULL)  ssarralloc(MSA, sitestate_2);
 
 		if(misc->rank == 0) {
 		   for(int i=0; i < sp->next; i++) {
@@ -1285,14 +1285,14 @@ static void ssarralloc(Dataptr MSA, Objset *nobjset_2)
 			  if(root != d_obj1) lvb_reroot(MSA, Tree, root, d_obj1, LVB_FALSE);
 			  root = d_obj1;
 
-			  fillsets(MSA, sset_2, Tree, root);
-			  sort(MSA, sset_2, MSA->nsets);
+			  fillsets(MSA, sitestate_2, Tree, root);
+			  sort(MSA, sitestate_2, MSA->nsets);
 
 			  for(int j=0; j< MSA->nsets; j++) {
-				  set = (long *) alloc( sset_2[j].cnt * sizeof(long), "int array for tree comp using MR");
-				  memcpy( set, sset_2[j].set, sset_2[j].cnt * sizeof(long) );
+				  set = (long *) alloc( sitestate_2[j].cnt * sizeof(long), "int array for tree comp using MR");
+				  memcpy( set, sitestate_2[j].set, sitestate_2[j].cnt * sizeof(long) );
 
-				  /* for (int k = 0; k < sset_2[j].cnt; k++) cerr << set[k] << "\t";
+				  /* for (int k = 0; k < sitestate_2[j].cnt; k++) cerr << set[k] << "\t";
 				   * cerr <<endl; */
 
 				  free(set);
@@ -1317,7 +1317,7 @@ static void ssarralloc(Dataptr MSA, Objset *nobjset_2)
 		misc->nsets = MSA->n - 3;   /* sets per tree */
 		misc->mssz  = MSA->n - 2;   /* maximum objects per set */
 
-		if (sset_1[0].set == NULL)  ssarralloc(MSA, sset_1);
+		if (sitestate_1[0].set == NULL)  ssarralloc(MSA, sitestate_1);
 
 		copy_tree = treealloc(MSA, LVB_FALSE);
 		prev_m = uggm;
@@ -1329,8 +1329,8 @@ static void ssarralloc(Dataptr MSA, Objset *nobjset_2)
 		if(root != d_obj1) lvb_reroot(MSA, copy_tree, root, d_obj1, LVB_FALSE);
 		root = d_obj1;
 
-		fillsets(MSA, sset_1, copy_tree, root);
-		sort(MSA, sset_1, misc->nsets);
+		fillsets(MSA, sitestate_1, copy_tree, root);
+		sort(MSA, sitestate_1, misc->nsets);
 
 		MPI_Barrier(MPI_COMM_WORLD);
 		uint64_t nKV = mrObj->map(misc->nprocs, map_pushSets, misc);
@@ -1363,7 +1363,7 @@ static void ssarralloc(Dataptr MSA, Objset *nobjset_2)
 
 		if(misc->rank == 0) {
 		   for(int i=0; i<misc->nsets; i++)
-		  kv->add( (char *) sset_1[i].set, sset_1[i].cnt * sizeof(long), (char *) &ID, sizeof(int) );
+		  kv->add( (char *) sitestate_1[i].set, sitestate_1[i].cnt * sizeof(long), (char *) &ID, sizeof(int) );
 		}
 
 	}
@@ -1445,8 +1445,8 @@ void ss_init(Dataptr MSA, TREESTACK_TREE_BRANCH *tree, Lvb_bit_length **enc_mat)
  * is also a terminal */
 {
     long i;			/* loop counter */
-    for (i = 0; i < MSA->n; i++) memcpy(tree[i].sset, enc_mat[i], MSA->bytes);
-    for (i = MSA->n; i < MSA->nbranches; i++) tree[i].sset[0] = 0U;
+    for (i = 0; i < MSA->n; i++) memcpy(tree[i].sitestate, enc_mat[i], MSA->bytes);
+    for (i = MSA->n; i < MSA->numberofpossiblebranches; i++) tree[i].sitestate[0] = 0U;
 
 } /* end ss_init() */
 
@@ -1522,20 +1522,20 @@ static int objnocmp(const void *o1, const void *o2);
 static int osetcmp(const void *oset1, const void *oset2);
 static long *randleaf(Dataptr, TREESTACK_TREE_BRANCH *const CurrentTreeArray, const Lvb_bool *const leafmask, const long objs);
 static void realgetobjs(Dataptr, const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long root, long *const objarr, long *const cnt);
-static Lvb_bool *randtopology(Dataptr, TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long nobjs);
+static Lvb_bool *GenerateRandomTopology(Dataptr, TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long nobjs);
 static long setstcmp(Dataptr restrict, Objset *const oset_1, Objset *const oset_2, Lvb_bool b_First);
 static void sort(Objset *const oset_1, Objset *const oset_2, const long nels, Lvb_bool b_First);
 static void ssarralloc(Dataptr restrict MSA, Objset *nobjset_1, Objset *nobjset_2);
-static void tree_make_canonical(Dataptr restrict, TREESTACK_TREE_BRANCH *const CurrentTreeArray, long *objnos);
+static void tree_make_canonical(Dataptr restrict, TREESTACK_TREE_BRANCH *const CurrentTreeArray, long *currentbranchobject);
 
 static void ur_print(Dataptr restrict MSA, FILE *const stream, const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long root);
 
 
 /* object sets for tree 1 in comparison */
-static Objset sset_1[MAX_N - 3] = { { NULL, 0 } };
+static Objset sitestate_1[MAX_N - 3] = { { NULL, 0 } };
 
 /* object sets for tree 2 in comparison */
-static Objset sset_2[MAX_N - 3] = { { NULL, 0 } };
+static Objset sitestate_2[MAX_N - 3] = { { NULL, 0 } };
 
 // ----------------------------------------------------------------------------
 
@@ -1547,7 +1547,7 @@ void nodeclear(TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long brnch)
     CurrentTreeArray[brnch].right   = UNSET;
     CurrentTreeArray[brnch].parent  = UNSET;
     CurrentTreeArray[brnch].changes = UNSET;
-    CurrentTreeArray[brnch].sset[0] = 0U;		/* "dirty" */
+    CurrentTreeArray[brnch].sitestate[0] = 0U;		/* "dirty" */
 
 } /* end nodeclear() */
 
@@ -1557,15 +1557,15 @@ long tree_bytes(Dataptr restrict MSA)
  * as one contiguous array */
 {
 	/* return in bytes */
-    return (MSA->nbranches * sizeof(TREESTACK_TREE_BRANCH)) + (MSA->nbranches * MSA->bytes);
+    return (MSA->numberofpossiblebranches * sizeof(TREESTACK_TREE_BRANCH)) + (MSA->numberofpossiblebranches * MSA->bytes);
 } /* end tree_bytes() */
 
-long tree_bytes_without_sset(Dataptr restrict MSA)
+long tree_bytes_without_sitestate(Dataptr restrict MSA)
 /* return bytes required for contiguous allocation of a tree for the data
  * accessible by MSA, */
 {
 	/* return in bytes */
-    return (MSA->nbranches * sizeof(TREESTACK_TREE_BRANCH));
+    return (MSA->numberofpossiblebranches * sizeof(TREESTACK_TREE_BRANCH));
 } /* end tree_bytes() */
 
 
@@ -1575,7 +1575,7 @@ void treeclear(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArr
  * the data MSA; mark all branches dirty */
 {
     long i;					/* loop counter */
-    for (i = 0; i < MSA->nbranches; i++) nodeclear(CurrentTreeArray, i);
+    for (i = 0; i < MSA->numberofpossiblebranches; i++) nodeclear(CurrentTreeArray, i);
 
 } /* end treeclear() */
 
@@ -1590,7 +1590,7 @@ static void make_dirty_below(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *tree, 
     lvb_assert(dirty_node >= MSA->n);	/* not leaf/root */
     lvb_assert(tree[dirty_node].parent != UNSET);
     do {
-		tree[dirty_node].sset[0] = 0U;	/* " make dirty" */
+		tree[dirty_node].sitestate[0] = 0U;	/* " make dirty" */
 		dirty_node = tree[dirty_node].parent;
     } while (tree[dirty_node].parent != UNSET);
 
@@ -1600,9 +1600,9 @@ static void make_dirty_tree(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *tree)
 /* mark all branches in tree tree as dirty: internal, external and root */
 {
     long i, j;					/* loop counter */
-    for (i = 0; i < MSA->nbranches; i++){
+    for (i = 0; i < MSA->numberofpossiblebranches; i++){
     	for (j = 0; j < MSA->nwords; j++){ /* overkill beyond j=0, but harmless */
-    		tree[i].sset[j] = 0U;
+    		tree[i].sitestate[j] = 0U;
     	}
     }
 } /* end make_dirty_tree() */
@@ -1670,7 +1670,7 @@ void mutate_nni(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const desttree, con
     treecopy(MSA, tree, sourcetree, LVB_TRUE);
 
     /* get a random internal branch */
-    u = randpint(MSA->nbranches - MSA->n - 1) + MSA->n;
+    u = randpint(MSA->numberofpossiblebranches - MSA->n - 1) + MSA->n;
     v = tree[u].parent;
     a = tree[u].left;
     b = tree[u].right;
@@ -1742,7 +1742,7 @@ void mutate_spr(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const desttree, con
 
     /* get random branch but not root and not root's immediate descendant */
     do {
-    	src = randpint(MSA->nbranches - 1);
+    	src = randpint(MSA->numberofpossiblebranches - 1);
     } while ((src == root) || (src == tree[root].left) || (src == tree[root].right));
 
     src_parent = tree[src].parent;
@@ -1753,7 +1753,7 @@ void mutate_spr(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const desttree, con
     /* get destination that is not source or its parent, sister or descendant
      * or the root */
     do {
-    	dest = randpint(MSA->nbranches - 1);
+    	dest = randpint(MSA->numberofpossiblebranches - 1);
     } while ((dest == src) || (dest == src_parent) || (dest == src_sister)
        || (dest == root) || is_descendant(tree, root, src, dest));
 
@@ -1813,7 +1813,7 @@ void mutate_spr(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const desttree, con
 
 } /* end mutate_spr() */
 
-long lvb_reroot(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long oldroot, const long newroot, Lvb_bool b_with_sset)
+long lvb_reroot(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long oldroot, const long newroot, Lvb_bool b_with_sitestate)
 /* Change the root of the tree in CurrentTreeArray from oldroot to newroot, which
  * must not be the same. Mark all internal nodes (everything but the leaves
  * and root) as "dirty". Return oldroot. */
@@ -1830,7 +1830,7 @@ long lvb_reroot(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const CurrentTreeAr
     lvb_assert(newroot != oldroot);
 
     /* create record of parents as they are now */
-    for (current = 0; current < MSA->nbranches; current++)
+    for (current = 0; current < MSA->numberofpossiblebranches; current++)
     	oldparent[current] = CurrentTreeArray[current].parent;
 
     current = newroot;
@@ -1864,9 +1864,9 @@ long lvb_reroot(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const CurrentTreeAr
     CurrentTreeArray[oldroot].left  = UNSET;
     CurrentTreeArray[oldroot].right = UNSET;
 
-    if (b_with_sset){
-    	for (current = MSA->n; current < MSA->nbranches; current++)
-    		CurrentTreeArray[current].sset[0] = 0U;
+    if (b_with_sitestate){
+    	for (current = MSA->n; current < MSA->numberofpossiblebranches; current++)
+    		CurrentTreeArray[current].sitestate[0] = 0U;
     }
 
     return oldroot;
@@ -1950,71 +1950,71 @@ static void cr_bpnc(const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const l
 
 }	/* end cr_bpnc() */
 
-TREESTACK_TREE_BRANCH *const mvBranch(long nbranches, TREESTACK_TREE_BRANCH *const dest, const TREESTACK_TREE_BRANCH *const src)
+TREESTACK_TREE_BRANCH *const mvBranch(long numberofpossiblebranches, TREESTACK_TREE_BRANCH *const dest, const TREESTACK_TREE_BRANCH *const src)
 {
 	long i;
-	Lvb_bit_length *tmp_sset;
-	for(i = 0; i < nbranches; i++){
-		tmp_sset = dest[i].sset;
+	Lvb_bit_length *tmp_sitestate;
+	for(i = 0; i < numberofpossiblebranches; i++){
+		tmp_sitestate = dest[i].sitestate;
 		dest[i] = src[i];
-		dest[i].sset = tmp_sset;
+		dest[i].sitestate = tmp_sitestate;
 	}
 	return dest;
 }
 
 
 
-void treecopy(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const dest, const TREESTACK_TREE_BRANCH *const src, Lvb_bool b_with_sset)
+void treecopy(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const dest, const TREESTACK_TREE_BRANCH *const src, Lvb_bool b_with_sitestate)
 /* copy tree from src to dest; dest must be totally distinct from source
  * in memory, and have enough space; the approach used below may fail if
  * treealloc() is changed */
 {
     long i;				/* loop counter */
-    Lvb_bit_length *tmp_sset;		/* temporary variable used in copy */
+    Lvb_bit_length *tmp_sitestate;		/* temporary variable used in copy */
     unsigned char *src_statesets_all;	/* start of source's statesets */
     unsigned char *dest_statesets_all;	/* start of dest's statesets */
 
-    if (b_with_sset){
+    if (b_with_sitestate){
 		/* scalars */
-		for (i = 0; i < MSA->nbranches; i++){
-			tmp_sset = dest[i].sset;
+		for (i = 0; i < MSA->numberofpossiblebranches; i++){
+			tmp_sitestate = dest[i].sitestate;
 			dest[i] = src[i];
-			dest[i].sset = tmp_sset;	/* keep dest's stateset arrs for dest */
+			dest[i].sitestate = tmp_sitestate;	/* keep dest's stateset arrs for dest */
 		}
 
 		/* stateset arrays */
-		src_statesets_all  = ((unsigned char *) src)  + MSA->nbranches * sizeof(TREESTACK_TREE_BRANCH);
-		dest_statesets_all = ((unsigned char *) dest) + MSA->nbranches * sizeof(TREESTACK_TREE_BRANCH);
-		memcpy(dest_statesets_all, src_statesets_all, MSA->nbranches * MSA->bytes);
+		src_statesets_all  = ((unsigned char *) src)  + MSA->numberofpossiblebranches * sizeof(TREESTACK_TREE_BRANCH);
+		dest_statesets_all = ((unsigned char *) dest) + MSA->numberofpossiblebranches * sizeof(TREESTACK_TREE_BRANCH);
+		memcpy(dest_statesets_all, src_statesets_all, MSA->numberofpossiblebranches * MSA->bytes);
     }else{
     	/* only the scalars */
-		for (i = 0; i < MSA->nbranches; i++){
-			tmp_sset = dest[i].sset;
+		for (i = 0; i < MSA->numberofpossiblebranches; i++){
+			tmp_sitestate = dest[i].sitestate;
 			dest[i] = src[i];
-			dest[i].sset = tmp_sset;
+			dest[i].sitestate = tmp_sitestate;
 		}
     }
 } /* end treecopy() */
 
-void randtree(Dataptr MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray)
+void PullRandomTree(Dataptr MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray)
 /* fill CurrentTreeArray with a random tree, where CurrentTreeArray[0] is the root; all branches
  * in this random tree are marked as "dirty" */
 {
     Lvb_bool *leafmask;		/* LVB_TRUE where branch in array is a leaf */
-    long *objnos;		/* element i is obj associated with branch i */
+    long *currentbranchobject;		/* element i is obj associated with branch i */
 
     treeclear(MSA, CurrentTreeArray);
-    leafmask = randtopology(MSA, CurrentTreeArray, MSA->n);
-    objnos   = randleaf(MSA, CurrentTreeArray, leafmask, MSA->n);
-    tree_make_canonical(MSA, CurrentTreeArray, objnos);
+    leafmask = GenerateRandomTopology(MSA, CurrentTreeArray, MSA->n);
+    currentbranchobject   = randleaf(MSA, CurrentTreeArray, leafmask, MSA->n);
+    tree_make_canonical(MSA, CurrentTreeArray, currentbranchobject);
 
-} /* end randtree() */
+} /* end PullRandomTree() */
 
 static void wherever_was_now_say(Dataptr MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray, long was, long now)
 {
     long branchno;			/* loop counter */
 
-    for (branchno = 0; branchno < MSA->nbranches; branchno++){
+    for (branchno = 0; branchno < MSA->numberofpossiblebranches; branchno++){
 		if(CurrentTreeArray[branchno].parent == was) CurrentTreeArray[branchno].parent = now;
 		if(CurrentTreeArray[branchno].left   == was) CurrentTreeArray[branchno].left   = now;
 		if(CurrentTreeArray[branchno].right  == was) CurrentTreeArray[branchno].right  = now;
@@ -2022,27 +2022,27 @@ static void wherever_was_now_say(Dataptr MSA, TREESTACK_TREE_BRANCH *const Curre
 
 } /* end wherever_was_now_say() */
 
-static void tree_make_canonical(Dataptr MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray, long *objnos)
+static void tree_make_canonical(Dataptr MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray, long *currentbranchobject)
 /* ensure that objects 0, 1, 2, ... n-1 are associated with branches 0, 1, 2,
- * ... n-1, respectively; objnos indicates for each branch the currently
+ * ... n-1, respectively; currentbranchobject indicates for each branch the currently
  * assigned object or UNSET for internal branches */
 {
     long i;								/* loop counter */
     long obj_no;							/* current object number */
-    long nbranches    = MSA->nbranches;
+    long numberofpossiblebranches    = MSA->numberofpossiblebranches;
     long n_lines      = MSA->n;
-    long impossible_1 = nbranches;					/* an out-of-range branch index */
-    long impossible_2 = nbranches + 1;					/* an out-of-range branch index */
+    long impossible_1 = numberofpossiblebranches;					/* an out-of-range branch index */
+    long impossible_2 = numberofpossiblebranches + 1;					/* an out-of-range branch index */
     long root         = UNSET;						/* root branch index */
     TREESTACK_TREE_BRANCH tmp_1, tmp_2;						/* temporary branches for swapping */
-    unsigned char *ss0_start = (unsigned char *) CurrentTreeArray[0].sset;	/* start of state set memory */
+    unsigned char *ss0_start = (unsigned char *) CurrentTreeArray[0].sitestate;	/* start of state set memory */
     Lvb_bool swap_made;							/* flag to indicate swap made */
     long tmp;								/* for swapping */
 
     do {
 		swap_made = LVB_FALSE;
-		for (i = 0; i < nbranches; i++) {
-			obj_no = objnos[i];
+		for (i = 0; i < numberofpossiblebranches; i++) {
+			obj_no = currentbranchobject[i];
 			if ((obj_no != UNSET) && (obj_no != i)) {
 				tmp_1 = CurrentTreeArray[obj_no];
 				wherever_was_now_say(MSA, CurrentTreeArray, obj_no, impossible_1);
@@ -2058,17 +2058,17 @@ static void tree_make_canonical(Dataptr MSA, TREESTACK_TREE_BRANCH *const Curren
 				CurrentTreeArray[obj_no] = tmp_2;
 				wherever_was_now_say(MSA, CurrentTreeArray, impossible_1, i);
 				wherever_was_now_say(MSA, CurrentTreeArray, impossible_2, obj_no);
-				tmp            = objnos[i];
-				objnos[i]      = objnos[obj_no];
-				objnos[obj_no] = tmp;
+				tmp            = currentbranchobject[i];
+				currentbranchobject[i]      = currentbranchobject[obj_no];
+				currentbranchobject[obj_no] = tmp;
 				swap_made      = LVB_TRUE;
 			}
 		}
     } while (swap_made == LVB_TRUE);
 
-    /* patch up assignment of sset memory to prevent trouble in treecopy() */
-    for (i = 0; i < nbranches; i++){
-    	CurrentTreeArray[i].sset = (Lvb_bit_length *) (ss0_start + i * MSA->bytes);
+    /* patch up assignment of sitestate memory to prevent trouble in treecopy() */
+    for (i = 0; i < numberofpossiblebranches; i++){
+    	CurrentTreeArray[i].sitestate = (Lvb_bit_length *) (ss0_start + i * MSA->bytes);
     }
 
     for (i = 0; i < n_lines; i++) {
@@ -2084,16 +2084,16 @@ static void tree_make_canonical(Dataptr MSA, TREESTACK_TREE_BRANCH *const Curren
 
     /* check things didn't go haywire */
     for (i = 0; i < n_lines; i++) {
-    	lvb_assert(objnos[i] == i);
+    	lvb_assert(currentbranchobject[i] == i);
     }
-    for (i = n_lines; i < nbranches; i++) {
-    	lvb_assert(objnos[i] == UNSET);
+    for (i = n_lines; i < numberofpossiblebranches; i++) {
+    	lvb_assert(currentbranchobject[i] == UNSET);
     }
 
 } /* end tree_make_canonical() */
 
-TREESTACK_TREE_BRANCH *treealloc(Dataptr restrict MSA, Lvb_bool b_with_sset)
-/* Return array of nbranches branches with scalars all UNSET, and all
+TREESTACK_TREE_BRANCH *treealloc(Dataptr restrict MSA, Lvb_bool b_with_sitestate)
+/* Return array of numberofpossiblebranches branches with scalars all UNSET, and all
  * statesets allocated for m characters but marked "dirty". crash
  * verbosely if impossible. Memory is allocated once only, as a contiguous
  * block for the branch data structures followed by all their statesets.
@@ -2106,25 +2106,25 @@ TREESTACK_TREE_BRANCH *treealloc(Dataptr restrict MSA, Lvb_bool b_with_sset)
     unsigned char *ss0_start;		/* start of first stateset */
     long i;				/* loop counter */
 
-    lvb_assert(MSA->nbranches >= MIN_BRANCHES);
-    lvb_assert(MSA->nbranches <= MAX_BRANCHES);
+    lvb_assert(MSA->numberofpossiblebranches >= MIN_BRANCHES);
+    lvb_assert(MSA->numberofpossiblebranches <= MAX_BRANCHES);
 
-    if (b_with_sset) CurrentTreeArray = (TREESTACK_TREE_BRANCH *) alloc(MSA->tree_bytes, "tree with statesets");
+    if (b_with_sitestate) CurrentTreeArray = (TREESTACK_TREE_BRANCH *) alloc(MSA->tree_bytes, "tree with statesets");
     else{ /* don't need to do anything else */
-    	CurrentTreeArray = (TREESTACK_TREE_BRANCH *) alloc(MSA->tree_bytes_without_sset, "tree without statesets");
+    	CurrentTreeArray = (TREESTACK_TREE_BRANCH *) alloc(MSA->tree_bytes_without_sitestate, "tree without statesets");
     	return CurrentTreeArray;
     }
 
     CurrentTreeArray_uchar_star = (unsigned char *) CurrentTreeArray;
-    ss0_start = CurrentTreeArray_uchar_star + MSA->nbranches * sizeof(TREESTACK_TREE_BRANCH);
+    ss0_start = CurrentTreeArray_uchar_star + MSA->numberofpossiblebranches * sizeof(TREESTACK_TREE_BRANCH);
 
     /* crash if state set memory is misaligned for uint32_t */
     lvb_assert(((intptr_t) ss0_start % NIBBLE_WIDTH) == 0);
     lvb_assert((MSA->bytes % NIBBLE_WIDTH) == 0);
 
-    for (i = 0; i < MSA->nbranches; i++){
-    	CurrentTreeArray[i].sset = (Lvb_bit_length *) (ss0_start + i * MSA->bytes);
-    	*CurrentTreeArray[i].sset = 0U;  /* make durty */
+    for (i = 0; i < MSA->numberofpossiblebranches; i++){
+    	CurrentTreeArray[i].sitestate = (Lvb_bit_length *) (ss0_start + i * MSA->bytes);
+    	*CurrentTreeArray[i].sitestate = 0U;  /* make durty */
     }
 
     /*make_dirty_tree(MSA, CurrentTreeArray);  */
@@ -2132,7 +2132,7 @@ TREESTACK_TREE_BRANCH *treealloc(Dataptr restrict MSA, Lvb_bool b_with_sset)
 
 } /* end treealloc() */
 
-static Lvb_bool *randtopology(Dataptr MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long nobjs)
+static Lvb_bool *GenerateRandomTopology(Dataptr MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long nobjs)
 /* fill CurrentTreeArray with tree of random topology, where CurrentTreeArray[0] is root;
  * return static array where element i is LVB_TRUE if CurrentTreeArray[i] is a
  * leaf or LVB_FALSE if it is not; this array will be overwritten in
@@ -2147,7 +2147,7 @@ static Lvb_bool *randtopology(Dataptr MSA, TREESTACK_TREE_BRANCH *const CurrentT
     lvb_assert(nobjs == MSA->n);
 
     /* clear the leaf mask */
-    for (i = 0; i < MSA->nbranches; i++) isleaf[i] = LVB_FALSE;
+    for (i = 0; i < MSA->numberofpossiblebranches; i++) isleaf[i] = LVB_FALSE;
 
     /* start with initial tree of 3 leaves */
     CurrentTreeArray[0].parent 	    = UNSET;
@@ -2185,13 +2185,13 @@ static Lvb_bool *randtopology(Dataptr MSA, TREESTACK_TREE_BRANCH *const CurrentT
 
     return isleaf;
 
-} /* end randtopology() */
+} /* end GenerateRandomTopology() */
 
 static long *randleaf(Dataptr MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray, const Lvb_bool *const leafmask, const long objs)
 /* randomly assign objects numbered 0 to objs - 1 to leaves of tree in
  * CurrentTreeArray; leaves in CurrentTreeArray must be indicated by corresponding
  * LVB_TRUEs in leafmask; returns static array of object numbers, where
- * elements 0..nbranches give the object associated with branches 0..nbranches
+ * elements 0..numberofpossiblebranches give the object associated with branches 0..numberofpossiblebranches
  * respectively (UNSET for internal branches); this array will be overwritten
  * in subsequent calls */
 {
@@ -2200,7 +2200,7 @@ static long *randleaf(Dataptr MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray
     long i;				/* loop counter */
     static Lvb_bool used[MAX_N];	/* element i LVB_TRUE if object
     					 * i has leaf */
-    static long objnos[MAX_BRANCHES];	/* object associated with branches */
+    static long currentbranchobject[MAX_BRANCHES];	/* object associated with branches */
 
     lvb_assert(objs < MAX_N);
     lvb_assert(objs == MSA->n);
@@ -2209,10 +2209,10 @@ static long *randleaf(Dataptr MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray
     for (i = 0; i < objs; i++) used[i] = LVB_FALSE;
 
     /* clear object nos array, defaulting to internal branch, i.e. UNSET */
-    for (i = 0; i < MSA->nbranches; i++) objnos[i] = UNSET;
+    for (i = 0; i < MSA->numberofpossiblebranches; i++) currentbranchobject[i] = UNSET;
 
     /* assign an object to every leaf */
-    for (i = 0; i < MSA->nbranches; i++){
+    for (i = 0; i < MSA->numberofpossiblebranches; i++){
 		if (leafmask[i] == LVB_TRUE)	/* leaf, requires object */
 		{
 			do	/* get a new object number */
@@ -2221,7 +2221,7 @@ static long *randleaf(Dataptr MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray
 			} while(used[candidate] == LVB_TRUE);
 
 			/* assign object to leaf */
-			objnos[i] = candidate;
+			currentbranchobject[i] = candidate;
 			used[candidate] = LVB_TRUE;
 			assigned++;
 		}
@@ -2229,11 +2229,11 @@ static long *randleaf(Dataptr MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray
 
     lvb_assert(assigned == objs);
 
-    return objnos;
+    return currentbranchobject;
 
 } /* end randleaf() */
 
-void treeswap(TREESTACK_TREE_BRANCH **const tree1, long *const root1,
+void SwapTrees(TREESTACK_TREE_BRANCH **const tree1, long *const root1,
  TREESTACK_TREE_BRANCH **const tree2, long *const root2)
 /* swap trees pointed to by tree1 and tree2; also swap records of their
  * roots, as pointed to by root1 and root2 */
@@ -2251,35 +2251,35 @@ void treeswap(TREESTACK_TREE_BRANCH **const tree1, long *const root1,
     *root1 = *root2;
     *root2 = tmproot;
 
-} /* end treeswap() */
+} /* end SwapTrees() */
 
-void treedump_b(Dataptr MSA, FILE *const stream, const TREESTACK_TREE_BRANCH *const tree, Lvb_bool b_with_sset)
+void treedump_b(Dataptr MSA, FILE *const stream, const TREESTACK_TREE_BRANCH *const tree, Lvb_bool b_with_sitestate)
 /* dump tree as binary data to file pointed to by stream */
 {
-    lvb_assert(b_with_sset == LVB_FALSE);	/* not implemented for ssets */
-    fwrite(tree, MSA->tree_bytes_without_sset, 1, stream);
+    lvb_assert(b_with_sitestate == LVB_FALSE);	/* not implemented for sitestates */
+    fwrite(tree, MSA->tree_bytes_without_sitestate, 1, stream);
     lvb_assert(ferror(stream) == 0);
 }
 
-void treedump(Dataptr MSA, FILE *const stream, const TREESTACK_TREE_BRANCH *const tree, Lvb_bool b_with_sset)
+void treedump(Dataptr MSA, FILE *const stream, const TREESTACK_TREE_BRANCH *const tree, Lvb_bool b_with_sitestate)
 /* send tree as table of integers to file pointed to by stream */
 {
     long i;				/* loop counter */
     long j;				/* loop counter */
 
     fprintf(stream, "TREESTACK_TREE_BRANCH\tParent\tLeft\tRight\tChanges\tDirty\tSset_arr\tSsets\n");
-    for (i = 0; i < MSA->nbranches; i++) {
+    for (i = 0; i < MSA->numberofpossiblebranches; i++) {
     	fprintf(stream, "%ld\t%ld\t%ld\t%ld\t%ld", i, tree[i].parent, tree[i].left, tree[i].right, tree[i].changes);
-    	if (tree[i].sset[0] == 0U) fprintf(stream, "\tyes");
+    	if (tree[i].sitestate[0] == 0U) fprintf(stream, "\tyes");
     	else fprintf(stream, "\tno");
-    	if (b_with_sset){
-			fprintf(stream, "\t%p", (void *) tree[i].sset);
+    	if (b_with_sitestate){
+			fprintf(stream, "\t%p", (void *) tree[i].sitestate);
 			for (j = 0; j < MSA->nwords; j++){
-				fprintf(stream, "\t0%o", (unsigned) tree[i].sset[j]);
+				fprintf(stream, "\t0%o", (unsigned) tree[i].sitestate[j]);
 			}
     	}
     	else{
-    		fprintf(stream, "\tversion without sset");
+    		fprintf(stream, "\tversion without sitestate");
     	}
     	fprintf(stream, "\n");
     }
@@ -2295,10 +2295,10 @@ void treedump_screen(Dataptr MSA, const TREESTACK_TREE_BRANCH *const tree)
     long i;				/* loop counter */
 
     printf("TREESTACK_TREE_BRANCH\tParent\tLeft\tRight\tChanges\tDirty\n");
-    for (i = 0; i < MSA->nbranches; i++) {
+    for (i = 0; i < MSA->numberofpossiblebranches; i++) {
     	printf("%ld\t%ld\t%ld\t%ld\t%ld", i, tree[i].parent, tree[i].left, tree[i].right, tree[i].changes);
-    	if (tree[i].sset == NULL) printf("\tNULL\n");
-    	else if (tree[i].sset[0] == 0U) printf("\tyes\n");
+    	if (tree[i].sitestate == NULL) printf("\tNULL\n");
+    	else if (tree[i].sitestate[0] == 0U) printf("\tyes\n");
     	else printf("\tno\n");
     }
     printf("\n");
@@ -2396,7 +2396,7 @@ long TopologyComparison(Dataptr MSA, const TREESTACK_TREE_BRANCH *const tree_1, 
 {
 //	b_First = LVB_TRUE;
 	makesets(MSA, tree_1, tree_2, root, b_First);
-	return setstcmp(MSA, sset_1, sset_2, b_First);
+	return setstcmp(MSA, sitestate_1, sitestate_2, b_First);
 
 } /* end TopologyComparison() */
 
@@ -2492,18 +2492,18 @@ static int osetcmp(const void *oset1, const void *oset2)
 } /* end osetcmp() */
 
 static void makesets(Dataptr MSA, const TREESTACK_TREE_BRANCH *const tree_1, const TREESTACK_TREE_BRANCH *const tree_2, const long root, Lvb_bool b_First)
-/* fill static sset_1 and static sset_2 with arrays of object sets for
+/* fill static sitestate_1 and static sitestate_2 with arrays of object sets for
  * tree_1 and tree_2 (of root_1 and root_2 respectively), and return
  * the extent of each array;
  * the trees must have the same object in the root branch;
  * arrays will be overwritten on subsequent calls */
 {
-    if (sset_1[0].set == NULL){	/* first call, allocate memory */
-		ssarralloc(MSA, sset_1, sset_2);
+    if (sitestate_1[0].set == NULL){	/* first call, allocate memory */
+		ssarralloc(MSA, sitestate_1, sitestate_2);
     }
 
-    fillsets(MSA, sset_1, tree_1, root);
-	if (b_First == LVB_TRUE) fillsets(MSA, sset_2, tree_2, root);
+    fillsets(MSA, sitestate_1, tree_1, root);
+	if (b_First == LVB_TRUE) fillsets(MSA, sitestate_2, tree_2, root);
 
 } /* end makesets() */
 
@@ -2614,8 +2614,8 @@ void ss_init(Dataptr MSA, TREESTACK_TREE_BRANCH *tree, Lvb_bit_length **enc_mat)
  * is also a terminal */
 {
     long i;			/* loop counter */
-    for (i = 0; i < MSA->n; i++) memcpy(tree[i].sset, enc_mat[i], MSA->bytes);
-    for (i = MSA->n; i < MSA->nbranches; i++) tree[i].sset[0] = 0U;
+    for (i = 0; i < MSA->n; i++) memcpy(tree[i].sitestate, enc_mat[i], MSA->bytes);
+    for (i = MSA->n; i < MSA->numberofpossiblebranches; i++) tree[i].sitestate[0] = 0U;
 
 } /* end ss_init() */
 

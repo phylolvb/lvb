@@ -75,27 +75,27 @@ static void TreestackAllocationIncrease(Dataptr restrict MSA, TREESTACK *sp)
     	sp->stack[i].root = -1;
 
     	int j;
-        /* set memory for sset */
-    	sp->stack[sp->next].p_sset = (Objset *) alloc(MSA->nsets * sizeof(Objset), "object set object arrays");
+        /* set memory for sitestate */
+    	sp->stack[sp->next].p_sitestate = (Objset *) alloc(MSA->nsets * sizeof(Objset), "object set object arrays");
     	for (j = 0; j < MSA->nsets; j++){
-    		sp->stack[sp->next].p_sset[j].set = NULL; // alloc(to_copy, "object set object arrays");
-    		sp->stack[sp->next].p_sset[j].cnt = UNSET;
+    		sp->stack[sp->next].p_sitestate[j].set = NULL; // alloc(to_copy, "object set object arrays");
+    		sp->stack[sp->next].p_sitestate[j].cnt = UNSET;
     	}
 
     }
  
 } /* end TreestackAllocationIncrease() */
 
-long PushCurrentTreeToStack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long root, Lvb_bool b_with_sset)
+long PushCurrentTreeToStack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long root, Lvb_bool b_with_sitestate)
 /* push tree in CurrentTreeArray (of root root) on to stack *sp */
 {
     lvb_assert(sp->next <= sp->size);
     if (sp->next == sp->size) TreestackAllocationIncrease(MSA, sp);
-    treecopy(MSA, sp->stack[sp->next].tree, CurrentTreeArray, b_with_sset);
+    treecopy(MSA, sp->stack[sp->next].tree, CurrentTreeArray, b_with_sitestate);
     sp->stack[sp->next].root = root;
 
-    /* need to copy the sset_2 to the sp->stack[sp->next].sset  */
-    copy_sset(MSA, sp->stack[sp->next].p_sset);
+    /* need to copy the sitestate_2 to the sp->stack[sp->next].sitestate  */
+    copy_sitestate(MSA, sp->stack[sp->next].p_sitestate);
     sp->next++;
 
     return 1;
@@ -224,7 +224,7 @@ Returns 1 if the tree was pushed, or 0 if not.
 
 **********/
 
-long CompareTreeToTreestack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long root, Lvb_bool b_with_sset)
+long CompareTreeToTreestack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long root, Lvb_bool b_with_sitestate)
 {
     long i = 0, new_root = 0;
     static TREESTACK_TREE_BRANCH *copy_2 = NULL;			/* possibly re-rooted tree 2 */
@@ -234,15 +234,15 @@ long CompareTreeToTreestack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRA
     
     #define MIN_THREAD_SEARCH_SSET		5
     long slice = 0, slice_tail = 0;
-    Lvb_bool b_find_sset = LVB_FALSE;
+    Lvb_bool b_find_sitestate = LVB_FALSE;
 
     #endif
 
 	/* allocate "local" static heap memory - static - do not free! */
-	if (copy_2 == NULL) copy_2 = treealloc(MSA, b_with_sset);
-    treecopy(MSA, copy_2, CurrentTreeArray, b_with_sset);
+	if (copy_2 == NULL) copy_2 = treealloc(MSA, b_with_sitestate);
+    treecopy(MSA, copy_2, CurrentTreeArray, b_with_sitestate);
     if (root != 0){
-    	lvb_reroot(MSA, copy_2, root, new_root, b_with_sset);
+    	lvb_reroot(MSA, copy_2, root, new_root, b_with_sitestate);
     }
 
     /* return before push if not a new topology */
@@ -258,30 +258,30 @@ long CompareTreeToTreestack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRA
     		makesets(MSA, copy_2, 0 /* always root zero */);
     		slice_tail = (sp->next - (slice * MSA->n_threads_getplen));
     		omp_set_dynamic(0);	  /* disable dinamic threathing */
-    		#pragma omp parallel num_threads(MSA->n_threads_getplen) private(i) shared(slice, slice_tail, b_find_sset)
+    		#pragma omp parallel num_threads(MSA->n_threads_getplen) private(i) shared(slice, slice_tail, b_find_sitestate)
     		{
     			int n_count = 0;
     			int n_end = slice * (omp_get_thread_num() + 1);
     			int n_begin = slice * omp_get_thread_num();
     			if (MSA->n_threads_getplen == (omp_get_thread_num() + 1)) n_end += slice_tail;
     			for (i = n_begin; i < n_end; i++) {
-    				if (setstcmp_with_sset2(MSA, sp->stack[i].p_sset) == 0){
+    				if (setstcmp_with_sitestate2(MSA, sp->stack[i].p_sitestate) == 0){
 						// #pragma omp atomic
-    					b_find_sset = LVB_TRUE;
+    					b_find_sitestate = LVB_TRUE;
     					break;
     				}
-    				if (n_count > 0 && (n_count % 20) == 0 && b_find_sset == LVB_TRUE){
+    				if (n_count > 0 && (n_count % 20) == 0 && b_find_sitestate == LVB_TRUE){
     					break;
     				}
     				n_count += 1;
     			}
     		}
-    		if (b_find_sset == LVB_TRUE) return 0;
+    		if (b_find_sitestate == LVB_TRUE) return 0;
     	}
     #endif
     	else{
     		for (i = sp->next - 1; i >= 0; i--) {
-    			if (TopologyComparison(MSA, sp->stack[i].p_sset, copy_2, b_First) == 0) return 0;
+    			if (TopologyComparison(MSA, sp->stack[i].p_sitestate, copy_2, b_First) == 0) return 0;
     			b_First = LVB_FALSE;
     		}
     	}
@@ -291,7 +291,7 @@ long CompareTreeToTreestack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRA
 
     /* topology is new so must be pushed */
     lvb_assert(root < MSA->n);
-    PushCurrentTreeToStack(MSA, sp, CurrentTreeArray, root, b_with_sset);
+    PushCurrentTreeToStack(MSA, sp, CurrentTreeArray, root, b_with_sitestate);
     return 1;
 
 } /* end CompareTreeToTreestack() */
@@ -343,13 +343,13 @@ Returns 1 if a tree was popped, or 0 if the stack was empty.
 
 **********/
 
-long PullTreefromTreestack(Dataptr MSA, TREESTACK_TREE_BRANCH *CurrentTreeArray, long *root, TREESTACK *sp, Lvb_bool b_with_sset)
+long PullTreefromTreestack(Dataptr MSA, TREESTACK_TREE_BRANCH *CurrentTreeArray, long *root, TREESTACK *sp, Lvb_bool b_with_sitestate)
 {
     long val;	/* return value */
 
     if (sp->next >= 1){
         sp->next--;
-        treecopy(MSA, CurrentTreeArray, sp->stack[sp->next].tree, b_with_sset);
+        treecopy(MSA, CurrentTreeArray, sp->stack[sp->next].tree, b_with_sitestate);
         *root = sp->stack[sp->next].root;
 
         val = 1;
@@ -442,12 +442,12 @@ void FreeTreestackMemory(Dataptr restrict MSA, TREESTACK *sp)
         sp->stack[i].root = -1;
 
         int j;
-        if (sp->stack[i].p_sset != NULL){
+        if (sp->stack[i].p_sitestate != NULL){
         	for (j = 0; j < (int)MSA->nsets; j++){
-				if (sp->stack[i].p_sset[j].set != NULL) free(sp->stack[i].p_sset[j].set);
-				sp->stack[i].p_sset[j].cnt = UNSET;
+				if (sp->stack[i].p_sitestate[j].set != NULL) free(sp->stack[i].p_sitestate[j].set);
+				sp->stack[i].p_sitestate[j].cnt = UNSET;
 			}
-        	free(sp->stack[i].p_sset);
+        	free(sp->stack[i].p_sitestate);
         }
     }
     free(sp->stack);
@@ -579,12 +579,12 @@ static void TreestackAllocationIncrease(Dataptr MSA, TREESTACK *sp)
  
 } /* end TreestackAllocationIncrease() */
 
-static void PushCurrentTreeToStack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long root, Lvb_bool b_with_sset)
+static void PushCurrentTreeToStack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long root, Lvb_bool b_with_sitestate)
 /* push tree in CurrentTreeArray (of root root) on to stack *sp */
 {
     lvb_assert(sp->next <= sp->size);
     if (sp->next == sp->size) TreestackAllocationIncrease(MSA, sp);
-    treecopy(MSA, sp->stack[sp->next].tree, CurrentTreeArray, b_with_sset);
+    treecopy(MSA, sp->stack[sp->next].tree, CurrentTreeArray, b_with_sitestate);
     sp->stack[sp->next].root = root;
     sp->next++;
  
@@ -630,7 +630,7 @@ Returns number of trees on stack C<s>.
  *     - long int, the root of the tree; followed by
  *     - array of TREESTACK_TREE_BRANCH, the contents of the tree. */
 
-void checkpoint_treestack(FILE *fp, TREESTACK *s, Dataptr MSA, Lvb_bool b_with_sset)
+void checkpoint_treestack(FILE *fp, TREESTACK *s, Dataptr MSA, Lvb_bool b_with_sitestate)
 {
     long i;					/* loop counter */
     TREESTACK_TREE *stack = s->stack;	/* actual stack */
@@ -640,8 +640,8 @@ void checkpoint_treestack(FILE *fp, TREESTACK *s, Dataptr MSA, Lvb_bool b_with_s
 
     unsigned long n_bytes_to_write = 2 * sizeof(long) + sizeof(unsigned short);
     /* size of tree stack element */
-    if (b_with_sset == LVB_TRUE) n_bytes_to_write += trees * (MSA->tree_bytes + sizeof(long));
-    else n_bytes_to_write += trees * (MSA->tree_bytes_without_sset + sizeof(long));
+    if (b_with_sitestate == LVB_TRUE) n_bytes_to_write += trees * (MSA->tree_bytes + sizeof(long));
+    else n_bytes_to_write += trees * (MSA->tree_bytes_without_sitestate + sizeof(long));
     unsigned long checksum = 0;
     unsigned short type_block = STATE_BLOCK_TREESTACK;
     fwrite(&n_bytes_to_write, sizeof(n_bytes_to_write), 1, fp); checksum = CalculateBlockCRC32(sizeof(n_bytes_to_write), (unsigned char *) &n_bytes_to_write, checksum);
@@ -656,13 +656,13 @@ void checkpoint_treestack(FILE *fp, TREESTACK *s, Dataptr MSA, Lvb_bool b_with_s
 		current_element = stack[i];
 		fwrite(&current_element.root, sizeof(long), 1, fp); checksum = CalculateBlockCRC32(sizeof(trees), (unsigned char *) &current_element.root, checksum);
 
-		if (b_with_sset == LVB_TRUE){
+		if (b_with_sitestate == LVB_TRUE){
 			fwrite(current_element.tree, MSA->tree_bytes, 1, fp);
 			checksum = CalculateBlockCRC32(MSA->tree_bytes, (unsigned char *) current_element.tree, checksum);
 		}
 		else{
-			fwrite(current_element.tree, MSA->tree_bytes_without_sset, 1, fp);
-			checksum = CalculateBlockCRC32(MSA->tree_bytes_without_sset, (unsigned char *) current_element.tree, checksum);
+			fwrite(current_element.tree, MSA->tree_bytes_without_sitestate, 1, fp);
+			checksum = CalculateBlockCRC32(MSA->tree_bytes_without_sitestate, (unsigned char *) current_element.tree, checksum);
 		}
     }
     fwrite(&checksum, sizeof(unsigned long), 1, fp);
@@ -673,7 +673,7 @@ void checkpoint_treestack(FILE *fp, TREESTACK *s, Dataptr MSA, Lvb_bool b_with_s
 
 /* ********** restore_treestack() - restore the treestack ********** */
 
-void restore_treestack(FILE *fp, TREESTACK *sp, Dataptr MSA, Lvb_bool b_with_sset)
+void restore_treestack(FILE *fp, TREESTACK *sp, Dataptr MSA, Lvb_bool b_with_sitestate)
 {
     long i;			/* loop counter */
     long current_root;		/* current root read in from file */
@@ -685,26 +685,26 @@ void restore_treestack(FILE *fp, TREESTACK *sp, Dataptr MSA, Lvb_bool b_with_sse
     unsigned short type_block;
 
     /* 'local' heap memory */
-    p_current_tree = treealloc(MSA, b_with_sset);
+    p_current_tree = treealloc(MSA, b_with_sitestate);
 
     n_read_values = fread(&n_bytes_to_read, sizeof(n_bytes_to_read), 1, fp); checksum = CalculateBlockCRC32(sizeof(n_bytes_to_read), (unsigned char *) &n_bytes_to_read, checksum);
     n_read_values = fread(&type_block, sizeof(type_block), 1, fp); checksum = CalculateBlockCRC32(sizeof(type_block), (unsigned char *) &type_block, checksum);
     n_read_values = fread(&trees, sizeof(long), 1, fp); checksum = CalculateBlockCRC32(sizeof(trees), (unsigned char *) &trees, checksum);
     n_read_values = fread(&size, sizeof(long), 1, fp); checksum = CalculateBlockCRC32(sizeof(size), (unsigned char *) &size, checksum);
-    if (b_with_sset == LVB_TRUE) n_bytes_to_write += trees * (MSA->tree_bytes + sizeof(long));
-    else n_bytes_to_write += trees * (MSA->tree_bytes_without_sset + sizeof(long));
+    if (b_with_sitestate == LVB_TRUE) n_bytes_to_write += trees * (MSA->tree_bytes + sizeof(long));
+    else n_bytes_to_write += trees * (MSA->tree_bytes_without_sitestate + sizeof(long));
     for (i = 0; i < trees; i++) {
     	n_read_values = fread(&current_root, sizeof(long), 1, fp); checksum = CalculateBlockCRC32(sizeof(long), (unsigned char *) &current_root, checksum);
-    	if (b_with_sset == LVB_TRUE){
+    	if (b_with_sitestate == LVB_TRUE){
     		n_read_values = fread(p_current_tree, MSA->tree_bytes, 1, fp);
     		checksum = CalculateBlockCRC32(MSA->tree_bytes, (unsigned char *) p_current_tree, checksum);
     	}
     	else{
-    		n_read_values = fread(p_current_tree, MSA->tree_bytes_without_sset, 1, fp);
-    		checksum = CalculateBlockCRC32(MSA->tree_bytes_without_sset, (unsigned char *) p_current_tree, checksum);
+    		n_read_values = fread(p_current_tree, MSA->tree_bytes_without_sitestate, 1, fp);
+    		checksum = CalculateBlockCRC32(MSA->tree_bytes_without_sitestate, (unsigned char *) p_current_tree, checksum);
     	}
     	lvb_assert(n_read_values == 1);
-		PushCurrentTreeToStack(MSA, sp, p_current_tree, current_root, b_with_sset);
+		PushCurrentTreeToStack(MSA, sp, p_current_tree, current_root, b_with_sitestate);
     }
     n_read_values = fread(&checksum_read, sizeof(unsigned long), 1, fp);
 	lvb_assert(n_bytes_to_read == n_bytes_to_write);
@@ -806,7 +806,7 @@ Returns 1 if the tree was pushed, or 0 if not.
 
 **********/
 
-long CompareTreeToTreestack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long root, Lvb_bool b_with_sset)
+long CompareTreeToTreestack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long root, Lvb_bool b_with_sitestate)
 {
 	long i, new_root = root;			/* loop counter */
 	long stackroot;		/* root of current tree */
@@ -815,16 +815,16 @@ long CompareTreeToTreestack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRA
 
 	/* allocate "local" static heap memory - static - do not free! */
 	if (copy_2 == NULL) {
-		copy_2 = treealloc(MSA, b_with_sset);
+		copy_2 = treealloc(MSA, b_with_sitestate);
 	}
-	treecopy(MSA, copy_2, CurrentTreeArray, b_with_sset);
+	treecopy(MSA, copy_2, CurrentTreeArray, b_with_sitestate);
 
 	/* return before push if not a new topology */
 	/* check backwards as similar trees may be discovered together */
 	for (i = sp->next - 1; i >= 0; i--) {
 		stackroot = sp->stack[i].root;
 		if(stackroot != new_root){
-			lvb_reroot(MSA, copy_2, new_root, stackroot, b_with_sset);
+			lvb_reroot(MSA, copy_2, new_root, stackroot, b_with_sitestate);
 			new_root = stackroot;
 			b_First = LVB_TRUE;
 		}
@@ -836,7 +836,7 @@ long CompareTreeToTreestack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRA
 	lvb_assert(root < MSA->n);
 
     /* topology is new so must be pushed */
-    PushCurrentTreeToStack(MSA, sp, CurrentTreeArray, root, b_with_sset);
+    PushCurrentTreeToStack(MSA, sp, CurrentTreeArray, root, b_with_sitestate);
     return 1;
 
 } /* end CompareTreeToTreestack() */
@@ -897,13 +897,13 @@ Returns 1 if a tree was popped, or 0 if the stack was empty.
 
 **********/
 
-long PullTreefromTreestack(Dataptr MSA, TREESTACK_TREE_BRANCH *CurrentTreeArray, long *root, TREESTACK *sp, Lvb_bool b_with_sset)
+long PullTreefromTreestack(Dataptr MSA, TREESTACK_TREE_BRANCH *CurrentTreeArray, long *root, TREESTACK *sp, Lvb_bool b_with_sitestate)
 {
     long val;	/* return value */
 
     if (sp->next >= 1){
         sp->next--;
-        treecopy(MSA, CurrentTreeArray, sp->stack[sp->next].tree, b_with_sset);
+        treecopy(MSA, CurrentTreeArray, sp->stack[sp->next].tree, b_with_sitestate);
         *root = sp->stack[sp->next].root;
         val = 1;
     }

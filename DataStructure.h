@@ -63,10 +63,10 @@ typedef struct data
     long original_m;	/* number of columns read from MSA*/
     long n;				/* number of rows */
     long max_length_seq_name; 	/* length of the sequence names */
-    long nbranches; 	/* number of possible branches */
+    long numberofpossiblebranches; 	/* number of possible branches */
     long bytes;
     long tree_bytes;	/* length the tree in bytes */
-    long tree_bytes_without_sset;	/* length the tree in bytes without sset */
+    long tree_bytes_without_sitestate;	/* length the tree in bytes without sitestate */
     long nwords;
     long min_len_tree;	     /*  minimum length of any tree based on MSA */
     long nsets;			/* sets per tree */
@@ -181,10 +181,10 @@ typedef struct data
     long original_m;	/* number of columns read from MSA*/
     long n;				/* number of rows */
     long max_length_seq_name; 	/* length of the sequence names */
-    long nbranches; 	/* number of possible branches */
+    long numberofpossiblebranches; 	/* number of possible branches */
     long bytes;
     long tree_bytes;	/* length the tree in bytes */
-    long tree_bytes_without_sset;	/* length the tree in bytes without sset */
+    long tree_bytes_without_sitestate;	/* length the tree in bytes without sitestate */
     long nwords;
     long min_len_tree;	     /*  minimum length of any tree based on MSA */
     long nsets;			/* sets per tree */

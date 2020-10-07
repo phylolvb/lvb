@@ -61,7 +61,7 @@ int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat){
 		p_lvbmat->m = (long) readFiles.get_length_sequences();
 		p_lvbmat->original_m = p_lvbmat->m;
 		p_lvbmat->n = (long) readFiles.get_number_seqs();
-		p_lvbmat->nbranches = brcnt(p_lvbmat->n); 		/* possible number of braches */
+		p_lvbmat->numberofpossiblebranches = brcnt(p_lvbmat->n); 		/* possible number of braches */
 		p_lvbmat->max_length_seq_name = readFiles.get_max_length_seq_name();
 
 		/* it is used in tree compare */
@@ -355,7 +355,7 @@ int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat){
 		p_lvbmat->m = (long) readFiles.get_length_sequences();
 		p_lvbmat->original_m = p_lvbmat->m;
 		p_lvbmat->n = (long) readFiles.get_number_seqs();
-		p_lvbmat->nbranches = brcnt(p_lvbmat->n); 		/* possible number of braches */
+		p_lvbmat->numberofpossiblebranches = brcnt(p_lvbmat->n); 		/* possible number of braches */
 		p_lvbmat->max_length_seq_name = readFiles.get_max_length_seq_name();
 
 		/* it is used in tree compare */

@@ -80,7 +80,7 @@ int main(int argc, char **argv)
     	tree1 = treealloc(MSA, LVB_TRUE);
 		rinit(SEED);
 		for (i = 0; i < RAND_TREES; i++){
-			randtree(MSA, tree1);
+			PullRandomTree(MSA, tree1);
 			root1 = arbreroot(MSA, tree1, 0);
 			CompareTreeToTreestack(MSA, tree_checkpoint, tree1, root1, LVB_FALSE);
 		}

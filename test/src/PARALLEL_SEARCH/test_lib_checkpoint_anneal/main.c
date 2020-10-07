@@ -85,24 +85,24 @@ int main(int argc, char **argv)
 
     	fp = fopen("uni_anneal", "wb");
     	/* fill a treestack without checkpointing */
-    	Lvb_bool b_with_sset_current_tree = LVB_TRUE;
-    	Lvb_bool b_with_sset_proposed_tree = LVB_TRUE;
-    	p_current_tree = treealloc(MSA, b_with_sset_current_tree);
-    	p_proposed_tree = treealloc(MSA, b_with_sset_proposed_tree);
-    	p_current_tree_2 = treealloc(MSA, b_with_sset_current_tree);
-    	p_proposed_tree_2 = treealloc(MSA, b_with_sset_proposed_tree);
+    	Lvb_bool b_with_sitestate_current_tree = LVB_TRUE;
+    	Lvb_bool b_with_sitestate_proposed_tree = LVB_TRUE;
+    	p_current_tree = treealloc(MSA, b_with_sitestate_current_tree);
+    	p_proposed_tree = treealloc(MSA, b_with_sitestate_proposed_tree);
+    	p_current_tree_2 = treealloc(MSA, b_with_sitestate_current_tree);
+    	p_proposed_tree_2 = treealloc(MSA, b_with_sitestate_proposed_tree);
     	rinit(SEED);
-    	randtree(MSA, p_current_tree);// rootdash = arbreroot(MSA, p_current_tree, rootdash);
-    	randtree(MSA, p_proposed_tree);// rootdash = arbreroot(MSA, p_proposed_tree, rootdash);
+    	PullRandomTree(MSA, p_current_tree);// rootdash = arbreroot(MSA, p_current_tree, rootdash);
+    	PullRandomTree(MSA, p_proposed_tree);// rootdash = arbreroot(MSA, p_proposed_tree, rootdash);
     	r_lenmin = (double) MSA->min_len_tree;
     	checkpoint_anneal(fp, MSA, accepted, dect, deltah, deltalen, failedcnt, iter, current_iter, len, lenbest,
     						lendash, ln_t, t_n, t0, pacc, proposed, r_lenmin, rootdash, t, grad_geom, grad_linear,
-    						p_current_tree, b_with_sset_current_tree, p_proposed_tree, b_with_sset_proposed_tree);
+    						p_current_tree, b_with_sitestate_current_tree, p_proposed_tree, b_with_sitestate_proposed_tree);
     	lvb_assert(fclose(fp) == 0);
 		fp = fopen("uni_anneal", "rb");
     	restore_anneal(fp, MSA, &accepted_2, &dect_2, &deltah_2, &deltalen_2, &failedcnt_2, &iter_2, &current_iter_2, &len_2, &lenbest_2,
     			    &lendash_2, &ln_t_2, &t_n_2, &t0_2, &pacc_2, &proposed_2, &r_lenmin_2, &rootdash_2, &t_2, &grad_geom_2,
-    				&grad_linear_2, p_current_tree_2, b_with_sset_current_tree, p_proposed_tree_2, b_with_sset_proposed_tree);
+    				&grad_linear_2, p_current_tree_2, b_with_sitestate_current_tree, p_proposed_tree_2, b_with_sitestate_proposed_tree);
     	lvb_assert(fclose(fp) == 0);
     	remove("uni_anneal");
 

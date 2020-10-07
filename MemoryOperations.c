@@ -118,9 +118,9 @@ void *alloc(const size_t bytes, const char *const msg)
 }	/* end alloc() */
 
 void alloc_memory_to_getplen(Dataptr MSA, long **p_todo_arr, long **p_todo_arr_sum_changes, int **p_runs) {
-	*p_todo_arr = (long *) alloc((MSA->nbranches - MSA->n) * sizeof(long), "alloc to count runs");
-    *p_todo_arr_sum_changes = (long *) alloc(MSA->n_threads_getplen * (1 + MSA->nbranches - MSA->n) * sizeof(long), "alloc to count runs");
-	*p_runs = (int *) alloc(MSA->n_threads_getplen * (MSA->nbranches - MSA->n) * sizeof(int), "alloc to count runs");
+	*p_todo_arr = (long *) alloc((MSA->numberofpossiblebranches - MSA->n) * sizeof(long), "alloc to count runs");
+    *p_todo_arr_sum_changes = (long *) alloc(MSA->n_threads_getplen * (1 + MSA->numberofpossiblebranches - MSA->n) * sizeof(long), "alloc to count runs");
+	*p_runs = (int *) alloc(MSA->n_threads_getplen * (MSA->numberofpossiblebranches - MSA->n) * sizeof(int), "alloc to count runs");
 }
 
 void free_memory_to_getplen(long **p_todo_arr, long **p_todo_arr_sum_changes, int **p_runs) {
@@ -251,9 +251,9 @@ void *alloc(const size_t bytes, const char *const msg)
 }	/* end alloc() */
 
 void alloc_memory_to_getplen(Dataptr MSA, long **p_todo_arr, long **p_todo_arr_sum_changes, int **p_runs) {
-	*p_todo_arr 		= (long *) alloc((MSA->nbranches - MSA->n) * sizeof(long), "alloc to count runs");
-    *p_todo_arr_sum_changes = (long *) alloc(MSA->n_threads_getplen * (1 + MSA->nbranches - MSA->n) * sizeof(long), "alloc to count runs");
-	*p_runs 		= (int *) alloc(MSA->n_threads_getplen * (MSA->nbranches - MSA->n) * sizeof(int), "alloc to count runs");
+	*p_todo_arr 		= (long *) alloc((MSA->numberofpossiblebranches - MSA->n) * sizeof(long), "alloc to count runs");
+    *p_todo_arr_sum_changes = (long *) alloc(MSA->n_threads_getplen * (1 + MSA->numberofpossiblebranches - MSA->n) * sizeof(long), "alloc to count runs");
+	*p_runs 		= (int *) alloc(MSA->n_threads_getplen * (MSA->numberofpossiblebranches - MSA->n) * sizeof(int), "alloc to count runs");
 }
 
 void free_memory_to_getplen(long **p_todo_arr, long **p_todo_arr_sum_changes, int **p_runs) {

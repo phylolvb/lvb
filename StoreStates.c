@@ -284,17 +284,17 @@ unsigned long restore_params(FILE *fp, Parameters *p_rcstruct)
 unsigned long checkpoint_anneal(FILE *fp, Dataptr MSA, long accepted, Lvb_bool dect, double deltah, long deltalen,
     long failedcnt, long iter, long current_iter, long len, long lenbest, long lendash, double ln_t,
     long t_n, double t0, double pacc, long proposed, double r_lenmin, long rootdash, double t, double grad_geom,
-    double grad_linear, TREESTACK_TREE_BRANCH *p_current_tree, Lvb_bool b_with_sset_current_tree,
-	TREESTACK_TREE_BRANCH *p_proposed_tree, Lvb_bool b_with_sset_proposed_tree)
+    double grad_linear, TREESTACK_TREE_BRANCH *p_current_tree, Lvb_bool b_with_sitestate_current_tree,
+	TREESTACK_TREE_BRANCH *p_proposed_tree, Lvb_bool b_with_sitestate_proposed_tree)
 {
 	unsigned long n_bytes_to_write = 11 * sizeof(long) + 8 * sizeof(double) + sizeof(unsigned short) + sizeof(Lvb_bool);
 	unsigned long checksum = 0;
 	unsigned short type_block = STATE_BLOCK_ANNEAL;
 
-	if (b_with_sset_current_tree == LVB_TRUE) n_bytes_to_write += MSA->tree_bytes;
-	else n_bytes_to_write += MSA->tree_bytes_without_sset;
-	if (b_with_sset_proposed_tree == LVB_TRUE) n_bytes_to_write += MSA->tree_bytes;
-	else n_bytes_to_write += MSA->tree_bytes_without_sset;
+	if (b_with_sitestate_current_tree == LVB_TRUE) n_bytes_to_write += MSA->tree_bytes;
+	else n_bytes_to_write += MSA->tree_bytes_without_sitestate;
+	if (b_with_sitestate_proposed_tree == LVB_TRUE) n_bytes_to_write += MSA->tree_bytes;
+	else n_bytes_to_write += MSA->tree_bytes_without_sitestate;
 	fwrite(&n_bytes_to_write, sizeof(n_bytes_to_write), 1, fp); checksum = CalculateBlockCRC32(sizeof(n_bytes_to_write), (unsigned char *) &n_bytes_to_write, checksum);
 	fwrite(&type_block, sizeof(type_block), 1, fp); checksum = CalculateBlockCRC32(sizeof(type_block), (unsigned char *) &type_block, checksum);
     fwrite(&accepted, sizeof(accepted), 1, fp); checksum = CalculateBlockCRC32(sizeof(accepted), (unsigned char *) &accepted, checksum);
@@ -319,22 +319,22 @@ unsigned long checkpoint_anneal(FILE *fp, Dataptr MSA, long accepted, Lvb_bool d
     fwrite(&grad_linear, sizeof(grad_linear), 1, fp); checksum = CalculateBlockCRC32(sizeof(grad_linear), (unsigned char *) &grad_linear, checksum);
 
     /* copy all space in used in treealloc */
-    if (b_with_sset_current_tree == LVB_TRUE){
+    if (b_with_sitestate_current_tree == LVB_TRUE){
     	fwrite(p_current_tree, MSA->tree_bytes, 1, fp);
     	checksum = CalculateBlockCRC32(MSA->tree_bytes, (unsigned char *) p_current_tree, checksum);
     }
     else{
-    	fwrite(p_current_tree, MSA->tree_bytes_without_sset, 1, fp);
-    	checksum = CalculateBlockCRC32(MSA->tree_bytes_without_sset, (unsigned char *) p_current_tree, checksum);
+    	fwrite(p_current_tree, MSA->tree_bytes_without_sitestate, 1, fp);
+    	checksum = CalculateBlockCRC32(MSA->tree_bytes_without_sitestate, (unsigned char *) p_current_tree, checksum);
     }
 
-    if (b_with_sset_proposed_tree == LVB_TRUE){
+    if (b_with_sitestate_proposed_tree == LVB_TRUE){
     	fwrite(p_proposed_tree, MSA->tree_bytes, 1, fp);
     	checksum = CalculateBlockCRC32(MSA->tree_bytes, (unsigned char *) p_proposed_tree, checksum);
     }
     else{
-    	fwrite(p_proposed_tree, MSA->tree_bytes_without_sset, 1, fp);
-    	checksum = CalculateBlockCRC32(MSA->tree_bytes_without_sset, (unsigned char *) p_proposed_tree, checksum);
+    	fwrite(p_proposed_tree, MSA->tree_bytes_without_sitestate, 1, fp);
+    	checksum = CalculateBlockCRC32(MSA->tree_bytes_without_sitestate, (unsigned char *) p_proposed_tree, checksum);
     }
     fwrite(&checksum, sizeof(unsigned long), 1, fp);
     lvb_assert(ferror(fp) == 0);
@@ -346,22 +346,22 @@ unsigned long checkpoint_anneal(FILE *fp, Dataptr MSA, long accepted, Lvb_bool d
 unsigned long restore_anneal(FILE *fp, Dataptr MSA, long *accepted, Lvb_bool *dect, double *deltah, long *deltalen,
     long *failedcnt, long *iter, long *current_iter, long *len, long *lenbest, long *lendash, double *ln_t,
     long *t_n, double *t0, double *pacc, long *proposed, double *r_lenmin, long *rootdash, double *t, double *grad_geom,
-    double *grad_linear, TREESTACK_TREE_BRANCH *p_current_tree, Lvb_bool b_with_sset_current_tree,
-	TREESTACK_TREE_BRANCH *p_proposed_tree, Lvb_bool b_with_sset_proposed_tree)
+    double *grad_linear, TREESTACK_TREE_BRANCH *p_current_tree, Lvb_bool b_with_sitestate_current_tree,
+	TREESTACK_TREE_BRANCH *p_proposed_tree, Lvb_bool b_with_sitestate_proposed_tree)
 {
 	unsigned long n_bytes_to_write = 11 * sizeof(long) + 8 * sizeof(double) + sizeof(unsigned short) + sizeof(Lvb_bool), n_bytes_to_read = 0;
 	unsigned long checksum = 0, checksum_read, n_read_values;
 	unsigned short type_block;
 	Lvb_bit_length **p_array;
 
-	if (b_with_sset_current_tree == LVB_TRUE || b_with_sset_proposed_tree == LVB_TRUE){
-		p_array = (Lvb_bit_length **) alloc(MSA->nbranches * sizeof(Lvb_bit_length *), "alloc array Lvb_bit_length");
+	if (b_with_sitestate_current_tree == LVB_TRUE || b_with_sitestate_proposed_tree == LVB_TRUE){
+		p_array = (Lvb_bit_length **) alloc(MSA->numberofpossiblebranches * sizeof(Lvb_bit_length *), "alloc array Lvb_bit_length");
 	}
 
-	if (b_with_sset_current_tree == LVB_TRUE) n_bytes_to_write += MSA->tree_bytes;
-	else n_bytes_to_write += MSA->tree_bytes_without_sset;
-	if (b_with_sset_proposed_tree == LVB_TRUE) n_bytes_to_write += MSA->tree_bytes;
-	else n_bytes_to_write += MSA->tree_bytes_without_sset;
+	if (b_with_sitestate_current_tree == LVB_TRUE) n_bytes_to_write += MSA->tree_bytes;
+	else n_bytes_to_write += MSA->tree_bytes_without_sitestate;
+	if (b_with_sitestate_proposed_tree == LVB_TRUE) n_bytes_to_write += MSA->tree_bytes;
+	else n_bytes_to_write += MSA->tree_bytes_without_sitestate;
 
 	n_read_values = fread(&n_bytes_to_read, sizeof(n_bytes_to_read), 1, fp); checksum = CalculateBlockCRC32(sizeof(n_bytes_to_read), (unsigned char *) &n_bytes_to_read, checksum);
 	n_read_values = fread(&type_block, sizeof(type_block), 1, fp); checksum = CalculateBlockCRC32(sizeof(type_block), (unsigned char *) &type_block, checksum);
@@ -386,29 +386,29 @@ unsigned long restore_anneal(FILE *fp, Dataptr MSA, long *accepted, Lvb_bool *de
 	n_read_values = fread(grad_geom, sizeof(double), 1, fp); checksum = CalculateBlockCRC32(sizeof(double), (unsigned char *) grad_geom, checksum);
 	n_read_values = fread(grad_linear, sizeof(double), 1, fp); checksum = CalculateBlockCRC32(sizeof(double), (unsigned char *) grad_linear, checksum);
 
-	if (b_with_sset_current_tree == LVB_TRUE){
-		for (int i = 0; i < MSA->nbranches; i++) *(p_array + i) = p_current_tree[i].sset;
+	if (b_with_sitestate_current_tree == LVB_TRUE){
+		for (int i = 0; i < MSA->numberofpossiblebranches; i++) *(p_array + i) = p_current_tree[i].sitestate;
 		n_read_values = fread(p_current_tree, MSA->tree_bytes, 1, fp);
 		checksum = CalculateBlockCRC32(MSA->tree_bytes, (unsigned char *) p_current_tree, checksum);
-		for (int i = 0; i < MSA->nbranches; i++) p_current_tree[i].sset = *(p_array + i);
+		for (int i = 0; i < MSA->numberofpossiblebranches; i++) p_current_tree[i].sitestate = *(p_array + i);
 	}
 	else{
-		n_read_values = fread(p_current_tree, MSA->tree_bytes_without_sset, 1, fp);
-		checksum = CalculateBlockCRC32(MSA->tree_bytes_without_sset, (unsigned char *) p_current_tree, checksum);
+		n_read_values = fread(p_current_tree, MSA->tree_bytes_without_sitestate, 1, fp);
+		checksum = CalculateBlockCRC32(MSA->tree_bytes_without_sitestate, (unsigned char *) p_current_tree, checksum);
 	}
-	if (b_with_sset_proposed_tree == LVB_TRUE){
-		for (int i = 0; i < MSA->nbranches; i++) *(p_array + i) = p_proposed_tree[i].sset;
+	if (b_with_sitestate_proposed_tree == LVB_TRUE){
+		for (int i = 0; i < MSA->numberofpossiblebranches; i++) *(p_array + i) = p_proposed_tree[i].sitestate;
 		n_read_values = fread(p_proposed_tree, MSA->tree_bytes, 1, fp);
 		checksum = CalculateBlockCRC32(MSA->tree_bytes, (unsigned char *) p_proposed_tree, checksum);
-		for (int i = 0; i < MSA->nbranches; i++) p_proposed_tree[i].sset = *(p_array + i);
+		for (int i = 0; i < MSA->numberofpossiblebranches; i++) p_proposed_tree[i].sitestate = *(p_array + i);
 	}
 	else{
-		n_read_values = fread(p_proposed_tree, MSA->tree_bytes_without_sset, 1, fp);
-		checksum = CalculateBlockCRC32(MSA->tree_bytes_without_sset, (unsigned char *) p_proposed_tree, checksum);
+		n_read_values = fread(p_proposed_tree, MSA->tree_bytes_without_sitestate, 1, fp);
+		checksum = CalculateBlockCRC32(MSA->tree_bytes_without_sitestate, (unsigned char *) p_proposed_tree, checksum);
 	}
 	n_read_values = fread(&checksum_read, sizeof(unsigned long), 1, fp);
 
-	if (b_with_sset_current_tree == LVB_TRUE || b_with_sset_proposed_tree == LVB_TRUE) free(p_array);
+	if (b_with_sitestate_current_tree == LVB_TRUE || b_with_sitestate_proposed_tree == LVB_TRUE) free(p_array);
     lvb_assert(n_read_values == 1);
 	lvb_assert(ferror(fp) == 0);
 	lvb_assert(n_bytes_to_read == n_bytes_to_write);
