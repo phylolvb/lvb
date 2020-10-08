@@ -84,8 +84,8 @@ CFLAGS += -msse4.2
 
 # General options
 # CFLAGS += -Wall -g -O3 -std=c99 -fopenmp  -DLVB_NP
-CFLAGS += -Wall -g -O3 -fopenmp  -DLVB_NP
-CXXFLAGS += -Wall -g -O3 -fopenmp -DLVB_NP
+CFLAGS += -Wall -g -O3 -fopenmp  -DLVB_NP -std=c++11
+CXXFLAGS += -Wall -g -O3 -fopenmp -DLVB_NP -std=c++11
 
 # System-dependent macros - OK for Linux and UNIX-like systems, for others will
 # require change
@@ -114,6 +114,7 @@ LVB_LIB_OBJS = Admin.$(OBJ) \
                FileOperations.$(OBJ) \
                SearchParameters.$(OBJ) \
                StartingTemperature.$(OBJ) \
+			   Hash.$(OBJ) \
 			   Info.$(OBJ) \
 			   LogFile.$(OBJ) \
                MemoryOperations.$(OBJ) \

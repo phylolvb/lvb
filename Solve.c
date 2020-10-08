@@ -275,8 +275,6 @@ long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
 
     lenbest = len;
     CompareTreeToTreestack(MSA, bstackp, inittree, root, LVB_FALSE);	/* init. tree initially best */
-			if(rcstruct.algorithm_selection ==2)
-	CompareTreeToTreestack(MSA, treevo, inittree, root, LVB_FALSE);
 
 	double trops_counter[3] = {1,1,1};
 	double trops_probs[3] = {0,0,0};

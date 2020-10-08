@@ -93,10 +93,23 @@ long PushCurrentTreeToStack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRA
     if (sp->next == sp->size) TreestackAllocationIncrease(MSA, sp);
     treecopy(MSA, sp->stack[sp->next].tree, CurrentTreeArray, b_with_sitestate);
     sp->stack[sp->next].root = root;
-
+  
     /* need to copy the sitestate_2 to the sp->stack[sp->next].sitestate  */
     copy_sitestate(MSA, sp->stack[sp->next].p_sitestate);
     sp->next++;
+
+    FILE *printcurrenttree;
+    FILE *printcurrenttreehashcomparison;
+    printcurrenttree = fopen("PrintCurrentTree", "w");
+    printcurrenttreehashcomparison = fopen("PrintCurrentTreeHashComparison", "a+");
+       
+    CallPrintHashTree(MSA, printcurrenttree, CurrentTreeArray, root);
+    CallPrintHashTree(MSA, printcurrenttreehashcomparison, CurrentTreeArray, root);
+
+    fclose(printcurrenttree);
+    fclose(printcurrenttreehashcomparison);
+
+    HashCurrentTree();
 
     return 1;
  

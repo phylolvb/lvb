@@ -101,7 +101,7 @@ typedef uint64_t Lvb_bit_length;								/* define 64 bits */
 
 /* values some people may feel the dangerous urge to change */
 #define LVB_INPUTSTRING_SIZE 2000	/* max. bytes for interactive input */
-#define STAT_LOG_INTERVAL 100000		/* min. interval for progress log */
+#define STAT_LOG_INTERVAL 50000		/* min. interval for progress log */
 #define REROOT_INTERVAL 1000		/* change root every ... updates */
 
 
@@ -221,6 +221,7 @@ void lvb_initialize(void);
 Dataptr lvb_matrin(const char *);
 long lvb_reroot(Dataptr restrict, TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long oldroot, const long newroot, Lvb_bool b_with_sitestate);
 void lvb_treeprint (Dataptr, FILE *const, const TREESTACK_TREE_BRANCH *const, const long);
+void CallPrintHashTree (Dataptr, FILE *const, const TREESTACK_TREE_BRANCH *const, const long);
 
 void matchange(Dataptr, const Parameters);
 Dataptr matrin(const char *const);
@@ -270,6 +271,7 @@ void LogTime();
 void StartTime();
 bool LogFileExists(const char *filename);
 double StartingTemperature(Dataptr, const TREESTACK_TREE_BRANCH *const, Parameters rcstruct, long, Lvb_bool);
+long HashCurrentTree();
 
 #ifdef LVB_MAPREDUCE  // check
 long Anneal(Dataptr restrict, TREESTACK *, TREESTACK *, const TREESTACK_TREE_BRANCH *const, Parameters rcstruct, long, const double,
@@ -285,6 +287,7 @@ void reduce_sets(char *key, int keybytes, char *multivalue, int nvalues, int *va
 void reduce_filter(char *key, int keybytes, char *multivalue, int nvalues, int *valuebytes, KeyValue *kv, void *ptr);
 void print_sets(Dataptr MSA, TREESTACK *sp, MISC *misc);
 long PushCurrentTreeToStack(Dataptr, TREESTACK *, const TREESTACK_TREE_BRANCH *const, const long, Lvb_bool b_with_sitestate);
+
 
 #else
 long Anneal(Dataptr restrict, TREESTACK *, TREESTACK *, const TREESTACK_TREE_BRANCH *const, Parameters rcstruct, long, const double,
