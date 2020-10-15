@@ -46,15 +46,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "TreeOperations.h"
 
-void nodeclear(TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long brnch)
+void nodeclear(TREESTACK_TREE_BRANCH *const BranchArray, const long brnch)
 /* Initialize all scalars in branch brnch to UNSET or zero as appropriate,
  * and mark it "dirty" */
 {
-    CurrentTreeArray[brnch].left = UNSET;
-    CurrentTreeArray[brnch].right = UNSET;
-    CurrentTreeArray[brnch].parent = UNSET;
-    CurrentTreeArray[brnch].changes = UNSET;
-    CurrentTreeArray[brnch].sitestate[0] = 0U;		/* "dirty" */
+    BranchArray[brnch].left = UNSET;
+    BranchArray[brnch].right = UNSET;
+    BranchArray[brnch].parent = UNSET;
+    BranchArray[brnch].changes = UNSET;
+    BranchArray[brnch].sitestate[0] = 0U;		/* "dirty" */
 
 } /* end nodeclear() */
 
@@ -75,12 +75,12 @@ long tree_bytes_without_sitestate(Dataptr restrict MSA)
     return (MSA->numberofpossiblebranches * sizeof(TREESTACK_TREE_BRANCH));
 } /* end tree_bytes() */
 
-void treeclear(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray)
-/* clear all branches in array CurrentTreeArray, on the assumption that its size fits
+void treeclear(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const BranchArray)
+/* clear all branches in array BranchArray, on the assumption that its size fits
  * the data MSA; mark all branches dirty */
 {
     long i;					/* loop counter */
-    for (i = 0; i < MSA->numberofpossiblebranches; i++) nodeclear(CurrentTreeArray, i);
+    for (i = 0; i < MSA->numberofpossiblebranches; i++) nodeclear(BranchArray, i);
 
 } /* end treeclear() */
 
@@ -517,8 +517,8 @@ int addtoarray(TREESTACK_TREE_BRANCH *const tree, int current, int arr[], int i)
 }
 
 
-long lvb_reroot(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long oldroot, const long newroot, Lvb_bool b_with_sitestate)
-/* Change the root of the tree in CurrentTreeArray from oldroot to newroot, which
+long lvb_reroot(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const BranchArray, const long oldroot, const long newroot, Lvb_bool b_with_sitestate)
+/* Change the root of the tree in BranchArray from oldroot to newroot, which
  * must not be the same. Mark all internal nodes (everything but the leaves
  * and root) as "dirty". Return oldroot. */
 {
@@ -535,7 +535,7 @@ long lvb_reroot(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const CurrentTreeAr
 
     /* create record of parents as they are now */
     for (current = 0; current < MSA->numberofpossiblebranches; current++)
-    	oldparent[current] = CurrentTreeArray[current].parent;
+    	oldparent[current] = BranchArray[current].parent;
 
     current = newroot;
     previous = UNSET;
@@ -543,20 +543,20 @@ long lvb_reroot(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const CurrentTreeAr
     {
 		lvb_assert(current != UNSET);
 		parnt = oldparent[current];		/* original parent */
-		if (current == CurrentTreeArray[parnt].left) sister = CurrentTreeArray[parnt].right;
-		else if (current == CurrentTreeArray[parnt].right) sister = CurrentTreeArray[parnt].left;
+		if (current == BranchArray[parnt].left) sister = BranchArray[parnt].right;
+		else if (current == BranchArray[parnt].right) sister = BranchArray[parnt].left;
 		else	/* error in tree structure */
 			crash("internal error in function lvb_reroot(): current\n"
 			 "branch %ld has old parent %ld, but old parent does not\n"
 			 "have it as a child", current, parnt);
-		CurrentTreeArray[current].parent = previous;	/* now chld of prev. */
+		BranchArray[current].parent = previous;	/* now chld of prev. */
 
 		/* make former parent the new left child, and former sister the
 		 * new right child of the current branch */
-		CurrentTreeArray[current].left = parnt;
-		CurrentTreeArray[current].right = sister;
-		CurrentTreeArray[parnt].parent = current;
-		CurrentTreeArray[sister].parent = current;
+		BranchArray[current].left = parnt;
+		BranchArray[current].right = sister;
+		BranchArray[parnt].parent = current;
+		BranchArray[sister].parent = current;
 
 		/* move towards original root, i.e. to original parent of
 		 * current branch */
@@ -565,12 +565,12 @@ long lvb_reroot(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const CurrentTreeAr
     }
 
     /* former root is now a normal leaf, without descendants */
-    CurrentTreeArray[oldroot].left = UNSET;
-    CurrentTreeArray[oldroot].right = UNSET;
+    BranchArray[oldroot].left = UNSET;
+    BranchArray[oldroot].right = UNSET;
 
     if (b_with_sitestate){
     	for (current = MSA->n; current < MSA->numberofpossiblebranches; current++)
-    		CurrentTreeArray[current].sitestate[0] = 0U;
+    		BranchArray[current].sitestate[0] = 0U;
     }
     return oldroot;
 } /* end lvb_reroot() */
@@ -594,19 +594,19 @@ long arbreroot(Dataptr MSA, TREESTACK_TREE_BRANCH *const tree, const long oldroo
 
 } /* end arbreroot() */
 
-static long getsister(const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long branch)
-/* return number of sister of branch branch in tree in CurrentTreeArray, or UNSET if
+static long getsister(const TREESTACK_TREE_BRANCH *const BranchArray, const long branch)
+/* return number of sister of branch branch in tree in BranchArray, or UNSET if
  * branch has none */
 {
     long parnt;		/* parent of current branch */
 
-    parnt = CurrentTreeArray[branch].parent;
+    parnt = BranchArray[branch].parent;
     if (parnt == UNSET) return UNSET;
-    if (branch == CurrentTreeArray[parnt].left) return CurrentTreeArray[parnt].right;
-    else if (branch == CurrentTreeArray[parnt].right) return CurrentTreeArray[parnt].left;
+    if (branch == BranchArray[parnt].left) return BranchArray[parnt].right;
+    else if (branch == BranchArray[parnt].right) return BranchArray[parnt].left;
     else	/* error in tree structure */
     {
-		cr_bpnc(CurrentTreeArray, branch);
+		cr_bpnc(BranchArray, branch);
 		return 0;	/* NEVER reached but it shuts up compilers */
     }
 
@@ -626,30 +626,30 @@ long childadd(TREESTACK_TREE_BRANCH *const tree, const long destination, const l
 
 } /* end childadd() */
 
-static void cr_chaf(const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long destination, const long newchild)
+static void cr_chaf(const TREESTACK_TREE_BRANCH *const BranchArray, const long destination, const long newchild)
 /* crash because we want to add branch newchild to the children of
- * branch destination in tree in CurrentTreeArray, but it already has two so
+ * branch destination in tree in BranchArray, but it already has two so
  * there is no room */
 {
     crash("internal error in tree array %p: cannot make branch %ld a\n"
      "child of branch %ld since this already has 2 children (left is\n"
-     "branch %ld, right is branch %ld)", (const void *) CurrentTreeArray,
-     newchild, destination, CurrentTreeArray[destination].left,
-     CurrentTreeArray[destination].right);
+     "branch %ld, right is branch %ld)", (const void *) BranchArray,
+     newchild, destination, BranchArray[destination].left,
+     BranchArray[destination].right);
 
 } /* end cr_chaf() */
 
-static void cr_bpnc(const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long branch)
-/* crash because branch branch in tree in CurrentTreeArray is not connected to
+static void cr_bpnc(const TREESTACK_TREE_BRANCH *const BranchArray, const long branch)
+/* crash because branch branch in tree in BranchArray is not connected to
  * its parent, i.e. it is not a child of the branch it claims as
  * parent, according to that 'parent's' record of its own children */
 {
-    const long parnt = CurrentTreeArray[branch].parent;	/* parent of branch */
+    const long parnt = BranchArray[branch].parent;	/* parent of branch */
 
     crash("internal error in tree array %p: branch record %ld says\n"
      "it has parent %ld, but branch record %ld has left child %ld\n"
-     "and right child %ld", (const void *) CurrentTreeArray, branch, parnt,
-     parnt, CurrentTreeArray[parnt].left, CurrentTreeArray[parnt].right);
+     "and right child %ld", (const void *) BranchArray, branch, parnt,
+     parnt, BranchArray[parnt].left, BranchArray[parnt].right);
 
 }	/* end cr_bpnc() */
 
@@ -717,33 +717,33 @@ void copy_sitestate(Dataptr restrict MSA, Objset *p_sitestate_1){
 	}
 }
 
-void PullRandomTree(Dataptr MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray)
-/* fill CurrentTreeArray with a random tree, where CurrentTreeArray[0] is the root; all branches
+void PullRandomTree(Dataptr MSA, TREESTACK_TREE_BRANCH *const BranchArray)
+/* fill BranchArray with a random tree, where BranchArray[0] is the root; all branches
  * in this random tree are marked as "dirty" */
 {
     Lvb_bool *leafmask;		/* LVB_TRUE where branch in array is a leaf */
     long *currentbranchobject;		/* element i is obj associated with branch i */
 
-    treeclear(MSA, CurrentTreeArray);
-    leafmask = GenerateRandomTopology(MSA, CurrentTreeArray, MSA->n);
-    currentbranchobject = randleaf(MSA, CurrentTreeArray, leafmask, MSA->n);
-    tree_make_canonical(MSA, CurrentTreeArray, currentbranchobject);
+    treeclear(MSA, BranchArray);
+    leafmask = GenerateRandomTopology(MSA, BranchArray, MSA->n);
+    currentbranchobject = randleaf(MSA, BranchArray, leafmask, MSA->n);
+    tree_make_canonical(MSA, BranchArray, currentbranchobject);
 
 } /* end PullRandomTree() */
 
-static void wherever_was_now_say(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray, long was, long now)
+static void wherever_was_now_say(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const BranchArray, long was, long now)
 {
     long branchno;			/* loop counter */
 
     for (branchno = 0; branchno < MSA->numberofpossiblebranches; branchno++){
-		if(CurrentTreeArray[branchno].parent == was) CurrentTreeArray[branchno].parent = now;
-		if(CurrentTreeArray[branchno].left == was) CurrentTreeArray[branchno].left = now;
-		if(CurrentTreeArray[branchno].right == was) CurrentTreeArray[branchno].right = now;
+		if(BranchArray[branchno].parent == was) BranchArray[branchno].parent = now;
+		if(BranchArray[branchno].left == was) BranchArray[branchno].left = now;
+		if(BranchArray[branchno].right == was) BranchArray[branchno].right = now;
     }
 
 } /* end wherever_was_now_say() */
 
-static void tree_make_canonical(Dataptr MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray, long *currentbranchobject)
+static void tree_make_canonical(Dataptr MSA, TREESTACK_TREE_BRANCH *const BranchArray, long *currentbranchobject)
 /* ensure that objects 0, 1, 2, ... n-1 are associated with branches 0, 1, 2,
  * ... n-1, respectively; currentbranchobject indicates for each branch the currently
  * assigned object or UNSET for internal branches */
@@ -756,7 +756,7 @@ static void tree_make_canonical(Dataptr MSA, TREESTACK_TREE_BRANCH *const Curren
     long impossible_2 = numberofpossiblebranches + 1;					/* an out-of-range branch index */
     long root         = UNSET;						/* root branch index */
     TREESTACK_TREE_BRANCH tmp_1, tmp_2;						/* temporary branches for swapping */
-    unsigned char *ss0_start = (unsigned char *) CurrentTreeArray[0].sitestate;	/* start of state set memory */
+    unsigned char *ss0_start = (unsigned char *) BranchArray[0].sitestate;	/* start of state set memory */
     Lvb_bool swap_made;							/* flag to indicate swap made */
     long tmp;								/* for swapping */
 
@@ -765,20 +765,20 @@ static void tree_make_canonical(Dataptr MSA, TREESTACK_TREE_BRANCH *const Curren
 		for (i = 0; i < numberofpossiblebranches; i++) {
 			obj_no = currentbranchobject[i];
 			if ((obj_no != UNSET) && (obj_no != i)) {
-				tmp_1 = CurrentTreeArray[obj_no];
-				wherever_was_now_say(MSA, CurrentTreeArray, obj_no, impossible_1);
-				tmp_2 = CurrentTreeArray[i];
-				wherever_was_now_say(MSA, CurrentTreeArray, i     , impossible_2);
+				tmp_1 = BranchArray[obj_no];
+				wherever_was_now_say(MSA, BranchArray, obj_no, impossible_1);
+				tmp_2 = BranchArray[i];
+				wherever_was_now_say(MSA, BranchArray, i     , impossible_2);
 				if (tmp_1.parent == i     ) tmp_1.parent = impossible_2;
 				if (tmp_1.left   == i     ) tmp_1.left   = impossible_2;
 				if (tmp_1.right  == i     ) tmp_1.right  = impossible_2;
 				if (tmp_2.parent == obj_no) tmp_2.parent = impossible_1;
 				if (tmp_2.left   == obj_no) tmp_2.left   = impossible_1;
 				if (tmp_2.right  == obj_no) tmp_2.right  = impossible_1;
-				CurrentTreeArray[i]      = tmp_1;
-				CurrentTreeArray[obj_no] = tmp_2;
-				wherever_was_now_say(MSA, CurrentTreeArray, impossible_1, i);
-				wherever_was_now_say(MSA, CurrentTreeArray, impossible_2, obj_no);
+				BranchArray[i]      = tmp_1;
+				BranchArray[obj_no] = tmp_2;
+				wherever_was_now_say(MSA, BranchArray, impossible_1, i);
+				wherever_was_now_say(MSA, BranchArray, impossible_2, obj_no);
 				tmp            = currentbranchobject[i];
 				currentbranchobject[i]      = currentbranchobject[obj_no];
 				currentbranchobject[obj_no] = tmp;
@@ -789,18 +789,18 @@ static void tree_make_canonical(Dataptr MSA, TREESTACK_TREE_BRANCH *const Curren
 
     /* patch up assignment of sitestate memory to prevent trouble in treecopy() */
     for (i = 0; i < numberofpossiblebranches; i++){
-    	CurrentTreeArray[i].sitestate = (Lvb_bit_length *) (ss0_start + i * MSA->bytes);
+    	BranchArray[i].sitestate = (Lvb_bit_length *) (ss0_start + i * MSA->bytes);
     }
 
     for (i = 0; i < n_lines; i++) {
-		if (CurrentTreeArray[i].parent == UNSET){
+		if (BranchArray[i].parent == UNSET){
 			lvb_assert(root == UNSET);
 			root = i;
 		}
     }
 
     if (root != 0) {
-    	lvb_reroot(MSA, CurrentTreeArray, root, 0, LVB_TRUE);
+    	lvb_reroot(MSA, BranchArray, root, 0, LVB_TRUE);
     }
 
     /* check things didn't go haywire */
@@ -822,7 +822,7 @@ TREESTACK_TREE_BRANCH *treealloc(Dataptr restrict MSA, Lvb_bool b_with_sitestate
  * ONCE ONLY, passing it the address of the first branch struct. If this
  * allocation approach is changed, be sure to change treecopy() too. */
 {
-    TREESTACK_TREE_BRANCH *CurrentTreeArray;			/* tree */
+    TREESTACK_TREE_BRANCH *BranchArray;			/* tree */
     unsigned char *CurrentTreeArray_uchar_star;	/* tree as unsigned char */
     unsigned char *ss0_start;		/* start of first stateset */
     long i;				/* loop counter */
@@ -830,13 +830,13 @@ TREESTACK_TREE_BRANCH *treealloc(Dataptr restrict MSA, Lvb_bool b_with_sitestate
     lvb_assert(MSA->numberofpossiblebranches >= MIN_BRANCHES);
     lvb_assert(MSA->numberofpossiblebranches <= MAX_BRANCHES);
 
-    if (b_with_sitestate) CurrentTreeArray = (TREESTACK_TREE_BRANCH *) alloc(MSA->tree_bytes, "tree with statesets");
+    if (b_with_sitestate) BranchArray = (TREESTACK_TREE_BRANCH *) alloc(MSA->tree_bytes, "tree with statesets");
     else{ /* don't need to do anything else */
-    	CurrentTreeArray = (TREESTACK_TREE_BRANCH *) alloc(MSA->tree_bytes_without_sitestate, "tree without statesets");
-    	return CurrentTreeArray;
+    	BranchArray = (TREESTACK_TREE_BRANCH *) alloc(MSA->tree_bytes_without_sitestate, "tree without statesets");
+    	return BranchArray;
     }
 
-    CurrentTreeArray_uchar_star = (unsigned char *) CurrentTreeArray;
+    CurrentTreeArray_uchar_star = (unsigned char *) BranchArray;
     ss0_start = CurrentTreeArray_uchar_star + MSA->numberofpossiblebranches * sizeof(TREESTACK_TREE_BRANCH);
 
     /* crash if state set memory is misaligned for uint32_t */
@@ -844,24 +844,24 @@ TREESTACK_TREE_BRANCH *treealloc(Dataptr restrict MSA, Lvb_bool b_with_sitestate
     lvb_assert((MSA->bytes % NIBBLE_WIDTH) == 0);
 
     for (i = 0; i < MSA->numberofpossiblebranches; i++){
-    	CurrentTreeArray[i].sitestate = (Lvb_bit_length *) (ss0_start + i * MSA->bytes);
-    	*CurrentTreeArray[i].sitestate = 0U;  /* make durty */
+    	BranchArray[i].sitestate = (Lvb_bit_length *) (ss0_start + i * MSA->bytes);
+    	*BranchArray[i].sitestate = 0U;  /* make durty */
     }
 
-    /*make_dirty_tree(MSA, CurrentTreeArray);  */
-    return CurrentTreeArray;
+    /*make_dirty_tree(MSA, BranchArray);  */
+    return BranchArray;
 
 } /* end treealloc() */
 
-static Lvb_bool *GenerateRandomTopology(Dataptr MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long nobjs)
-/* fill CurrentTreeArray with tree of random topology, where CurrentTreeArray[0] is root;
- * return static array where element i is LVB_TRUE if CurrentTreeArray[i] is a
+static Lvb_bool *GenerateRandomTopology(Dataptr MSA, TREESTACK_TREE_BRANCH *const BranchArray, const long nobjs)
+/* fill BranchArray with tree of random topology, where BranchArray[0] is root;
+ * return static array where element i is LVB_TRUE if BranchArray[i] is a
  * leaf or LVB_FALSE if it is not; this array will be overwritten in
  * subsequent calls */
 {
     long i;		/* loop counter */
     long leaves = 0;	/* number of leaves */
-    long nextfree = 0;	/* next unused element of CurrentTreeArray */
+    long nextfree = 0;	/* next unused element of BranchArray */
     long togrow;	/* random candidate for sprouting */
     static Lvb_bool isleaf[MAX_BRANCHES];	/* return value */
 
@@ -871,13 +871,13 @@ static Lvb_bool *GenerateRandomTopology(Dataptr MSA, TREESTACK_TREE_BRANCH *cons
     for (i = 0; i < MSA->numberofpossiblebranches; i++) isleaf[i] = LVB_FALSE;
 
     /* start with initial tree of 3 leaves */
-    CurrentTreeArray[0].parent 	    = UNSET;
+    BranchArray[0].parent 	    = UNSET;
     isleaf[nextfree++]      = LVB_TRUE;
-    CurrentTreeArray[0].left 	    = nextfree;
-    CurrentTreeArray[nextfree].parent = 0;
+    BranchArray[0].left 	    = nextfree;
+    BranchArray[nextfree].parent = 0;
     isleaf[nextfree++]      = LVB_TRUE;
-    CurrentTreeArray[0].right 	    = nextfree;
-    CurrentTreeArray[nextfree].parent = 0;
+    BranchArray[0].right 	    = nextfree;
+    BranchArray[nextfree].parent = 0;
     isleaf[nextfree++] 	    = LVB_TRUE;
     leaves 		    = 3;
 
@@ -890,13 +890,13 @@ static Lvb_bool *GenerateRandomTopology(Dataptr MSA, TREESTACK_TREE_BRANCH *cons
 		} while (isleaf[togrow] == LVB_FALSE);
 
 		/* left child */
-		CurrentTreeArray[togrow].left     = nextfree;
-		CurrentTreeArray[nextfree].parent = togrow;
+		BranchArray[togrow].left     = nextfree;
+		BranchArray[nextfree].parent = togrow;
 		isleaf[nextfree++]      = LVB_TRUE;
 
 		/* right child */
-		CurrentTreeArray[togrow].right    = nextfree;
-		CurrentTreeArray[nextfree].parent = togrow;
+		BranchArray[togrow].right    = nextfree;
+		BranchArray[nextfree].parent = togrow;
 		isleaf[nextfree++]      = LVB_TRUE;
 
 		/* other updates */
@@ -908,9 +908,9 @@ static Lvb_bool *GenerateRandomTopology(Dataptr MSA, TREESTACK_TREE_BRANCH *cons
 
 } /* end GenerateRandomTopology() */
 
-static long *randleaf(Dataptr MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray, const Lvb_bool *const leafmask, const long objs)
+static long *randleaf(Dataptr MSA, TREESTACK_TREE_BRANCH *const BranchArray, const Lvb_bool *const leafmask, const long objs)
 /* randomly assign objects numbered 0 to objs - 1 to leaves of tree in
- * CurrentTreeArray; leaves in CurrentTreeArray must be indicated by corresponding
+ * BranchArray; leaves in BranchArray must be indicated by corresponding
  * LVB_TRUEs in leafmask; returns static array of object numbers, where
  * elements 0..numberofpossiblebranches give the object associated with branches 0..numberofpossiblebranches
  * respectively (UNSET for internal branches); this array will be overwritten
@@ -1032,15 +1032,15 @@ static void cr_uxe(FILE *const stream, const char *const msg)
 } /* end cr_uxe */
 
 
-	void lvb_treeprint (Dataptr MSA, FILE *const stream, const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long root)
-	/* print tree in CurrentTreeArray (of root root) in bracketed text form to stream stream,
+	void lvb_treeprint (Dataptr MSA, FILE *const stream, const TREESTACK_TREE_BRANCH *const BranchArray, const long root)
+	/* print tree in BranchArray (of root root) in bracketed text form to stream stream,
 	 * in unrooted form */
 	{
-		ur_print(MSA, stream, CurrentTreeArray, root);
+		ur_print(MSA, stream, BranchArray, root);
 	} /* end lvb_treeprint() */
 
-	static void ur_print(Dataptr MSA, FILE *const stream, const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long root)
-	/* send tree in CurrentTreeArray, of root root, to file pointed to by stream in
+	static void ur_print(Dataptr MSA, FILE *const stream, const TREESTACK_TREE_BRANCH *const BranchArray, const long root)
+	/* send tree in BranchArray, of root root, to file pointed to by stream in
 	 * unrooted form */
 	{
 	    long obj;					/* current object */
@@ -1064,8 +1064,8 @@ static void cr_uxe(FILE *const stream, const char *const msg)
 			usecomma = LVB_TRUE;
 			doneabsroot = LVB_TRUE;
 
-			ur_print(MSA, stream, CurrentTreeArray, CurrentTreeArray[root].left);
-			ur_print(MSA, stream, CurrentTreeArray, CurrentTreeArray[root].right);
+			ur_print(MSA, stream, BranchArray, BranchArray[root].left);
+			ur_print(MSA, stream, BranchArray, BranchArray[root].right);
 			/* end tree */
 			fprintf(stream, ");\n");
 			if (ferror(stream))
@@ -1093,8 +1093,8 @@ static void cr_uxe(FILE *const stream, const char *const msg)
 			{
 				fprintf(stream, "(");
 				usecomma = LVB_FALSE;
-				ur_print(MSA, stream, CurrentTreeArray, CurrentTreeArray[root].left);
-				ur_print(MSA, stream, CurrentTreeArray, CurrentTreeArray[root].right);
+				ur_print(MSA, stream, BranchArray, BranchArray[root].left);
+				ur_print(MSA, stream, BranchArray, BranchArray[root].right);
 				fputc(')', stream);
 				usecomma = LVB_TRUE;
 			}
@@ -1401,22 +1401,22 @@ static void fillsets(Dataptr MSA, Objset *const sstruct, const TREESTACK_TREE_BR
 
 } /* end fillsets */
 
-static void getobjs(Dataptr MSA, const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long root,
+static void getobjs(Dataptr MSA, const TREESTACK_TREE_BRANCH *const BranchArray, const long root,
  long *const objarr, long *const cnt)
 /* fill objarr (which must be large enough) with numbers of all objects
- * in the tree in CurrentTreeArray in the clade starting at branch root;
+ * in the tree in BranchArray in the clade starting at branch root;
  * fill the number pointed to by cnt with the number of objects found
  * (i.e. the number of elements written to objarr) */
 {
     *cnt = 0;
-    realgetobjs(MSA, CurrentTreeArray, root, objarr, cnt);
+    realgetobjs(MSA, BranchArray, root, objarr, cnt);
 
 } /* end getobjs() */
 
-static void realgetobjs(Dataptr MSA, const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long root,
+static void realgetobjs(Dataptr MSA, const TREESTACK_TREE_BRANCH *const BranchArray, const long root,
  long *const objarr, long *const cnt)
 /* fill objarr (which must be large enough) with numbers of all objects
- * in the tree in CurrentTreeArray in the clade starting at branch root;
+ * in the tree in BranchArray in the clade starting at branch root;
  * fill the number pointed to by cnt, which must initially be zero,
  * with the number of objects found (i.e. the number of elements
  * written to objarr); this function should not be called from anywhere
@@ -1429,10 +1429,10 @@ static void realgetobjs(Dataptr MSA, const TREESTACK_TREE_BRANCH *const CurrentT
     }
     else
     {
-		if (CurrentTreeArray[root].left != UNSET)
-			realgetobjs(MSA, CurrentTreeArray, CurrentTreeArray[root].left, objarr, cnt);
-		if (CurrentTreeArray[root].right != UNSET)
-			realgetobjs(MSA, CurrentTreeArray, CurrentTreeArray[root].right, objarr, cnt);
+		if (BranchArray[root].left != UNSET)
+			realgetobjs(MSA, BranchArray, BranchArray[root].left, objarr, cnt);
+		if (BranchArray[root].right != UNSET)
+			realgetobjs(MSA, BranchArray, BranchArray[root].right, objarr, cnt);
     }
 
 } /* end realgetobjs() */
@@ -1511,24 +1511,24 @@ typedef	struct	/* object set derived from a cladogram */
 	long cnt;	/* sizes of object sets */
 }	Objset;
 
-static void cr_bpnc(const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long branch);
-static void cr_chaf(const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long destination, const long newchild);
+static void cr_bpnc(const TREESTACK_TREE_BRANCH *const BranchArray, const long branch);
+static void cr_chaf(const TREESTACK_TREE_BRANCH *const BranchArray, const long destination, const long newchild);
 static void cr_uxe(FILE *const stream, const char *const msg);
 static void fillsets(Dataptr, Objset *const sstruct, const TREESTACK_TREE_BRANCH *const tree, const long root);
-static void getobjs(Dataptr, const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long root, long *const objarr, long *const cnt);
-static long getsister(const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long branch);
+static void getobjs(Dataptr, const TREESTACK_TREE_BRANCH *const BranchArray, const long root, long *const objarr, long *const cnt);
+static long getsister(const TREESTACK_TREE_BRANCH *const BranchArray, const long branch);
 static void makesets(Dataptr MSA, const TREESTACK_TREE_BRANCH *const tree_1, const TREESTACK_TREE_BRANCH *const tree_2, const long root, Lvb_bool b_First);
 static int objnocmp(const void *o1, const void *o2);
 static int osetcmp(const void *oset1, const void *oset2);
-static long *randleaf(Dataptr, TREESTACK_TREE_BRANCH *const CurrentTreeArray, const Lvb_bool *const leafmask, const long objs);
-static void realgetobjs(Dataptr, const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long root, long *const objarr, long *const cnt);
-static Lvb_bool *GenerateRandomTopology(Dataptr, TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long nobjs);
+static long *randleaf(Dataptr, TREESTACK_TREE_BRANCH *const BranchArray, const Lvb_bool *const leafmask, const long objs);
+static void realgetobjs(Dataptr, const TREESTACK_TREE_BRANCH *const BranchArray, const long root, long *const objarr, long *const cnt);
+static Lvb_bool *GenerateRandomTopology(Dataptr, TREESTACK_TREE_BRANCH *const BranchArray, const long nobjs);
 static long setstcmp(Dataptr restrict, Objset *const oset_1, Objset *const oset_2, Lvb_bool b_First);
 static void sort(Objset *const oset_1, Objset *const oset_2, const long nels, Lvb_bool b_First);
 static void ssarralloc(Dataptr restrict MSA, Objset *nobjset_1, Objset *nobjset_2);
-static void tree_make_canonical(Dataptr restrict, TREESTACK_TREE_BRANCH *const CurrentTreeArray, long *currentbranchobject);
+static void tree_make_canonical(Dataptr restrict, TREESTACK_TREE_BRANCH *const BranchArray, long *currentbranchobject);
 
-static void ur_print(Dataptr restrict MSA, FILE *const stream, const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long root);
+static void ur_print(Dataptr restrict MSA, FILE *const stream, const TREESTACK_TREE_BRANCH *const BranchArray, const long root);
 
 
 /* object sets for tree 1 in comparison */
@@ -1539,15 +1539,15 @@ static Objset sitestate_2[MAX_N - 3] = { { NULL, 0 } };
 
 // ----------------------------------------------------------------------------
 
-void nodeclear(TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long brnch)
+void nodeclear(TREESTACK_TREE_BRANCH *const BranchArray, const long brnch)
 /* Initialize all scalars in branch brnch to UNSET or zero as appropriate,
  * and mark it "dirty" */
 {
-    CurrentTreeArray[brnch].left    = UNSET;
-    CurrentTreeArray[brnch].right   = UNSET;
-    CurrentTreeArray[brnch].parent  = UNSET;
-    CurrentTreeArray[brnch].changes = UNSET;
-    CurrentTreeArray[brnch].sitestate[0] = 0U;		/* "dirty" */
+    BranchArray[brnch].left    = UNSET;
+    BranchArray[brnch].right   = UNSET;
+    BranchArray[brnch].parent  = UNSET;
+    BranchArray[brnch].changes = UNSET;
+    BranchArray[brnch].sitestate[0] = 0U;		/* "dirty" */
 
 } /* end nodeclear() */
 
@@ -1570,12 +1570,12 @@ long tree_bytes_without_sitestate(Dataptr restrict MSA)
 
 
 
-void treeclear(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray)
-/* clear all branches in array CurrentTreeArray, on the assumption that its size fits
+void treeclear(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const BranchArray)
+/* clear all branches in array BranchArray, on the assumption that its size fits
  * the data MSA; mark all branches dirty */
 {
     long i;					/* loop counter */
-    for (i = 0; i < MSA->numberofpossiblebranches; i++) nodeclear(CurrentTreeArray, i);
+    for (i = 0; i < MSA->numberofpossiblebranches; i++) nodeclear(BranchArray, i);
 
 } /* end treeclear() */
 
@@ -1813,8 +1813,8 @@ void mutate_spr(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const desttree, con
 
 } /* end mutate_spr() */
 
-long lvb_reroot(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long oldroot, const long newroot, Lvb_bool b_with_sitestate)
-/* Change the root of the tree in CurrentTreeArray from oldroot to newroot, which
+long lvb_reroot(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const BranchArray, const long oldroot, const long newroot, Lvb_bool b_with_sitestate)
+/* Change the root of the tree in BranchArray from oldroot to newroot, which
  * must not be the same. Mark all internal nodes (everything but the leaves
  * and root) as "dirty". Return oldroot. */
 {
@@ -1831,7 +1831,7 @@ long lvb_reroot(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const CurrentTreeAr
 
     /* create record of parents as they are now */
     for (current = 0; current < MSA->numberofpossiblebranches; current++)
-    	oldparent[current] = CurrentTreeArray[current].parent;
+    	oldparent[current] = BranchArray[current].parent;
 
     current = newroot;
     previous = UNSET;
@@ -1839,20 +1839,20 @@ long lvb_reroot(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const CurrentTreeAr
     {
 		lvb_assert(current != UNSET);
 		parnt = oldparent[current];		/* original parent */
-		if      (current == CurrentTreeArray[parnt].left)  sister = CurrentTreeArray[parnt].right;
-		else if (current == CurrentTreeArray[parnt].right) sister = CurrentTreeArray[parnt].left;
+		if      (current == BranchArray[parnt].left)  sister = BranchArray[parnt].right;
+		else if (current == BranchArray[parnt].right) sister = BranchArray[parnt].left;
 		else	/* error in tree structure */
 			crash("internal error in function lvb_reroot(): current\n"
 			 "branch %ld has old parent %ld, but old parent does not\n"
 			 "have it as a child", current, parnt);
-		CurrentTreeArray[current].parent = previous;	/* now chld of prev. */
+		BranchArray[current].parent = previous;	/* now chld of prev. */
 
 		/* make former parent the new left child, and former sister the
 		 * new right child of the current branch */
-		CurrentTreeArray[current].left   = parnt;
-		CurrentTreeArray[current].right  = sister;
-		CurrentTreeArray[parnt  ].parent = current;
-		CurrentTreeArray[sister ].parent = current;
+		BranchArray[current].left   = parnt;
+		BranchArray[current].right  = sister;
+		BranchArray[parnt  ].parent = current;
+		BranchArray[sister ].parent = current;
 
 		/* move towards original root, i.e. to original parent of
 		 * current branch */
@@ -1861,12 +1861,12 @@ long lvb_reroot(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const CurrentTreeAr
     }
 
     /* former root is now a normal leaf, without descendants */
-    CurrentTreeArray[oldroot].left  = UNSET;
-    CurrentTreeArray[oldroot].right = UNSET;
+    BranchArray[oldroot].left  = UNSET;
+    BranchArray[oldroot].right = UNSET;
 
     if (b_with_sitestate){
     	for (current = MSA->n; current < MSA->numberofpossiblebranches; current++)
-    		CurrentTreeArray[current].sitestate[0] = 0U;
+    		BranchArray[current].sitestate[0] = 0U;
     }
 
     return oldroot;
@@ -1891,19 +1891,19 @@ long arbreroot(Dataptr MSA, TREESTACK_TREE_BRANCH *const tree, const long oldroo
 
 } /* end arbreroot() */
 
-static long getsister(const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long branch)
-/* return number of sister of branch branch in tree in CurrentTreeArray, or UNSET if
+static long getsister(const TREESTACK_TREE_BRANCH *const BranchArray, const long branch)
+/* return number of sister of branch branch in tree in BranchArray, or UNSET if
  * branch has none */
 {
     long parnt;		/* parent of current branch */
 
-    parnt = CurrentTreeArray[branch].parent;
+    parnt = BranchArray[branch].parent;
     if (parnt == UNSET) return UNSET;
-    if (branch == CurrentTreeArray[parnt].left) return CurrentTreeArray[parnt].right;
-    else if (branch == CurrentTreeArray[parnt].right) return CurrentTreeArray[parnt].left;
+    if (branch == BranchArray[parnt].left) return BranchArray[parnt].right;
+    else if (branch == BranchArray[parnt].right) return BranchArray[parnt].left;
     else	/* error in tree structure */
     {
-		cr_bpnc(CurrentTreeArray, branch);
+		cr_bpnc(BranchArray, branch);
 		return 0;	/* NEVER reached but it shuts up compilers */
     }
 
@@ -1923,30 +1923,30 @@ long childadd(TREESTACK_TREE_BRANCH *const tree, const long destination, const l
 
 } /* end childadd() */
 
-static void cr_chaf(const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long destination, const long newchild)
+static void cr_chaf(const TREESTACK_TREE_BRANCH *const BranchArray, const long destination, const long newchild)
 /* crash because we want to add branch newchild to the children of
- * branch destination in tree in CurrentTreeArray, but it already has two so
+ * branch destination in tree in BranchArray, but it already has two so
  * there is no room */
 {
     crash("internal error in tree array %p: cannot make branch %ld a\n"
      "child of branch %ld since this already has 2 children (left is\n"
-     "branch %ld, right is branch %ld)", (const void *) CurrentTreeArray,
-     newchild, destination, CurrentTreeArray[destination].left,
-     CurrentTreeArray[destination].right);
+     "branch %ld, right is branch %ld)", (const void *) BranchArray,
+     newchild, destination, BranchArray[destination].left,
+     BranchArray[destination].right);
 
 } /* end cr_chaf() */
 
-static void cr_bpnc(const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long branch)
-/* crash because branch branch in tree in CurrentTreeArray is not connected to
+static void cr_bpnc(const TREESTACK_TREE_BRANCH *const BranchArray, const long branch)
+/* crash because branch branch in tree in BranchArray is not connected to
  * its parent, i.e. it is not a child of the branch it claims as
  * parent, according to that 'parent's' record of its own children */
 {
-    const long parnt = CurrentTreeArray[branch].parent;	/* parent of branch */
+    const long parnt = BranchArray[branch].parent;	/* parent of branch */
 
     crash("internal error in tree array %p: branch record %ld says\n"
      "it has parent %ld, but branch record %ld has left child %ld\n"
-     "and right child %ld", (const void *) CurrentTreeArray, branch, parnt,
-     parnt, CurrentTreeArray[parnt].left, CurrentTreeArray[parnt].right);
+     "and right child %ld", (const void *) BranchArray, branch, parnt,
+     parnt, BranchArray[parnt].left, BranchArray[parnt].right);
 
 }	/* end cr_bpnc() */
 
@@ -1996,33 +1996,33 @@ void treecopy(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const dest, const TRE
     }
 } /* end treecopy() */
 
-void PullRandomTree(Dataptr MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray)
-/* fill CurrentTreeArray with a random tree, where CurrentTreeArray[0] is the root; all branches
+void PullRandomTree(Dataptr MSA, TREESTACK_TREE_BRANCH *const BranchArray)
+/* fill BranchArray with a random tree, where BranchArray[0] is the root; all branches
  * in this random tree are marked as "dirty" */
 {
     Lvb_bool *leafmask;		/* LVB_TRUE where branch in array is a leaf */
     long *currentbranchobject;		/* element i is obj associated with branch i */
 
-    treeclear(MSA, CurrentTreeArray);
-    leafmask = GenerateRandomTopology(MSA, CurrentTreeArray, MSA->n);
-    currentbranchobject   = randleaf(MSA, CurrentTreeArray, leafmask, MSA->n);
-    tree_make_canonical(MSA, CurrentTreeArray, currentbranchobject);
+    treeclear(MSA, BranchArray);
+    leafmask = GenerateRandomTopology(MSA, BranchArray, MSA->n);
+    currentbranchobject   = randleaf(MSA, BranchArray, leafmask, MSA->n);
+    tree_make_canonical(MSA, BranchArray, currentbranchobject);
 
 } /* end PullRandomTree() */
 
-static void wherever_was_now_say(Dataptr MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray, long was, long now)
+static void wherever_was_now_say(Dataptr MSA, TREESTACK_TREE_BRANCH *const BranchArray, long was, long now)
 {
     long branchno;			/* loop counter */
 
     for (branchno = 0; branchno < MSA->numberofpossiblebranches; branchno++){
-		if(CurrentTreeArray[branchno].parent == was) CurrentTreeArray[branchno].parent = now;
-		if(CurrentTreeArray[branchno].left   == was) CurrentTreeArray[branchno].left   = now;
-		if(CurrentTreeArray[branchno].right  == was) CurrentTreeArray[branchno].right  = now;
+		if(BranchArray[branchno].parent == was) BranchArray[branchno].parent = now;
+		if(BranchArray[branchno].left   == was) BranchArray[branchno].left   = now;
+		if(BranchArray[branchno].right  == was) BranchArray[branchno].right  = now;
     }
 
 } /* end wherever_was_now_say() */
 
-static void tree_make_canonical(Dataptr MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray, long *currentbranchobject)
+static void tree_make_canonical(Dataptr MSA, TREESTACK_TREE_BRANCH *const BranchArray, long *currentbranchobject)
 /* ensure that objects 0, 1, 2, ... n-1 are associated with branches 0, 1, 2,
  * ... n-1, respectively; currentbranchobject indicates for each branch the currently
  * assigned object or UNSET for internal branches */
@@ -2035,7 +2035,7 @@ static void tree_make_canonical(Dataptr MSA, TREESTACK_TREE_BRANCH *const Curren
     long impossible_2 = numberofpossiblebranches + 1;					/* an out-of-range branch index */
     long root         = UNSET;						/* root branch index */
     TREESTACK_TREE_BRANCH tmp_1, tmp_2;						/* temporary branches for swapping */
-    unsigned char *ss0_start = (unsigned char *) CurrentTreeArray[0].sitestate;	/* start of state set memory */
+    unsigned char *ss0_start = (unsigned char *) BranchArray[0].sitestate;	/* start of state set memory */
     Lvb_bool swap_made;							/* flag to indicate swap made */
     long tmp;								/* for swapping */
 
@@ -2044,20 +2044,20 @@ static void tree_make_canonical(Dataptr MSA, TREESTACK_TREE_BRANCH *const Curren
 		for (i = 0; i < numberofpossiblebranches; i++) {
 			obj_no = currentbranchobject[i];
 			if ((obj_no != UNSET) && (obj_no != i)) {
-				tmp_1 = CurrentTreeArray[obj_no];
-				wherever_was_now_say(MSA, CurrentTreeArray, obj_no, impossible_1);
-				tmp_2 = CurrentTreeArray[i];
-				wherever_was_now_say(MSA, CurrentTreeArray, i     , impossible_2);
+				tmp_1 = BranchArray[obj_no];
+				wherever_was_now_say(MSA, BranchArray, obj_no, impossible_1);
+				tmp_2 = BranchArray[i];
+				wherever_was_now_say(MSA, BranchArray, i     , impossible_2);
 				if (tmp_1.parent == i     ) tmp_1.parent = impossible_2;
 				if (tmp_1.left   == i     ) tmp_1.left   = impossible_2;
 				if (tmp_1.right  == i     ) tmp_1.right  = impossible_2;
 				if (tmp_2.parent == obj_no) tmp_2.parent = impossible_1;
 				if (tmp_2.left   == obj_no) tmp_2.left   = impossible_1;
 				if (tmp_2.right  == obj_no) tmp_2.right  = impossible_1;
-				CurrentTreeArray[i]      = tmp_1;
-				CurrentTreeArray[obj_no] = tmp_2;
-				wherever_was_now_say(MSA, CurrentTreeArray, impossible_1, i);
-				wherever_was_now_say(MSA, CurrentTreeArray, impossible_2, obj_no);
+				BranchArray[i]      = tmp_1;
+				BranchArray[obj_no] = tmp_2;
+				wherever_was_now_say(MSA, BranchArray, impossible_1, i);
+				wherever_was_now_say(MSA, BranchArray, impossible_2, obj_no);
 				tmp            = currentbranchobject[i];
 				currentbranchobject[i]      = currentbranchobject[obj_no];
 				currentbranchobject[obj_no] = tmp;
@@ -2068,18 +2068,18 @@ static void tree_make_canonical(Dataptr MSA, TREESTACK_TREE_BRANCH *const Curren
 
     /* patch up assignment of sitestate memory to prevent trouble in treecopy() */
     for (i = 0; i < numberofpossiblebranches; i++){
-    	CurrentTreeArray[i].sitestate = (Lvb_bit_length *) (ss0_start + i * MSA->bytes);
+    	BranchArray[i].sitestate = (Lvb_bit_length *) (ss0_start + i * MSA->bytes);
     }
 
     for (i = 0; i < n_lines; i++) {
-		if (CurrentTreeArray[i].parent == UNSET){
+		if (BranchArray[i].parent == UNSET){
 			lvb_assert(root == UNSET);
 			root = i;
 		}
     }
 
     if (root != 0) {
-    	lvb_reroot(MSA, CurrentTreeArray, root, 0, LVB_TRUE);
+    	lvb_reroot(MSA, BranchArray, root, 0, LVB_TRUE);
     }
 
     /* check things didn't go haywire */
@@ -2101,7 +2101,7 @@ TREESTACK_TREE_BRANCH *treealloc(Dataptr restrict MSA, Lvb_bool b_with_sitestate
  * ONCE ONLY, passing it the address of the first branch struct. If this
  * allocation approach is changed, be sure to change treecopy() too. */
 {
-    TREESTACK_TREE_BRANCH *CurrentTreeArray;			/* tree */
+    TREESTACK_TREE_BRANCH *BranchArray;			/* tree */
     unsigned char *CurrentTreeArray_uchar_star;	/* tree as unsigned char */
     unsigned char *ss0_start;		/* start of first stateset */
     long i;				/* loop counter */
@@ -2109,13 +2109,13 @@ TREESTACK_TREE_BRANCH *treealloc(Dataptr restrict MSA, Lvb_bool b_with_sitestate
     lvb_assert(MSA->numberofpossiblebranches >= MIN_BRANCHES);
     lvb_assert(MSA->numberofpossiblebranches <= MAX_BRANCHES);
 
-    if (b_with_sitestate) CurrentTreeArray = (TREESTACK_TREE_BRANCH *) alloc(MSA->tree_bytes, "tree with statesets");
+    if (b_with_sitestate) BranchArray = (TREESTACK_TREE_BRANCH *) alloc(MSA->tree_bytes, "tree with statesets");
     else{ /* don't need to do anything else */
-    	CurrentTreeArray = (TREESTACK_TREE_BRANCH *) alloc(MSA->tree_bytes_without_sitestate, "tree without statesets");
-    	return CurrentTreeArray;
+    	BranchArray = (TREESTACK_TREE_BRANCH *) alloc(MSA->tree_bytes_without_sitestate, "tree without statesets");
+    	return BranchArray;
     }
 
-    CurrentTreeArray_uchar_star = (unsigned char *) CurrentTreeArray;
+    CurrentTreeArray_uchar_star = (unsigned char *) BranchArray;
     ss0_start = CurrentTreeArray_uchar_star + MSA->numberofpossiblebranches * sizeof(TREESTACK_TREE_BRANCH);
 
     /* crash if state set memory is misaligned for uint32_t */
@@ -2123,24 +2123,24 @@ TREESTACK_TREE_BRANCH *treealloc(Dataptr restrict MSA, Lvb_bool b_with_sitestate
     lvb_assert((MSA->bytes % NIBBLE_WIDTH) == 0);
 
     for (i = 0; i < MSA->numberofpossiblebranches; i++){
-    	CurrentTreeArray[i].sitestate = (Lvb_bit_length *) (ss0_start + i * MSA->bytes);
-    	*CurrentTreeArray[i].sitestate = 0U;  /* make durty */
+    	BranchArray[i].sitestate = (Lvb_bit_length *) (ss0_start + i * MSA->bytes);
+    	*BranchArray[i].sitestate = 0U;  /* make durty */
     }
 
-    /*make_dirty_tree(MSA, CurrentTreeArray);  */
-    return CurrentTreeArray;
+    /*make_dirty_tree(MSA, BranchArray);  */
+    return BranchArray;
 
 } /* end treealloc() */
 
-static Lvb_bool *GenerateRandomTopology(Dataptr MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long nobjs)
-/* fill CurrentTreeArray with tree of random topology, where CurrentTreeArray[0] is root;
- * return static array where element i is LVB_TRUE if CurrentTreeArray[i] is a
+static Lvb_bool *GenerateRandomTopology(Dataptr MSA, TREESTACK_TREE_BRANCH *const BranchArray, const long nobjs)
+/* fill BranchArray with tree of random topology, where BranchArray[0] is root;
+ * return static array where element i is LVB_TRUE if BranchArray[i] is a
  * leaf or LVB_FALSE if it is not; this array will be overwritten in
  * subsequent calls */
 {
     long i;		/* loop counter */
     long leaves = 0;	/* number of leaves */
-    long nextfree = 0;	/* next unused element of CurrentTreeArray */
+    long nextfree = 0;	/* next unused element of BranchArray */
     long togrow;	/* random candidate for sprouting */
     static Lvb_bool isleaf[MAX_BRANCHES];	/* return value */
 
@@ -2150,13 +2150,13 @@ static Lvb_bool *GenerateRandomTopology(Dataptr MSA, TREESTACK_TREE_BRANCH *cons
     for (i = 0; i < MSA->numberofpossiblebranches; i++) isleaf[i] = LVB_FALSE;
 
     /* start with initial tree of 3 leaves */
-    CurrentTreeArray[0].parent 	    = UNSET;
+    BranchArray[0].parent 	    = UNSET;
     isleaf[nextfree++]      = LVB_TRUE;
-    CurrentTreeArray[0].left 	    = nextfree;
-    CurrentTreeArray[nextfree].parent = 0;
+    BranchArray[0].left 	    = nextfree;
+    BranchArray[nextfree].parent = 0;
     isleaf[nextfree++]      = LVB_TRUE;
-    CurrentTreeArray[0].right 	    = nextfree;
-    CurrentTreeArray[nextfree].parent = 0;
+    BranchArray[0].right 	    = nextfree;
+    BranchArray[nextfree].parent = 0;
     isleaf[nextfree++] 	    = LVB_TRUE;
     leaves 		    = 3;
 
@@ -2169,13 +2169,13 @@ static Lvb_bool *GenerateRandomTopology(Dataptr MSA, TREESTACK_TREE_BRANCH *cons
 		} while (isleaf[togrow] == LVB_FALSE);
 
 		/* left child */
-		CurrentTreeArray[togrow].left     = nextfree;
-		CurrentTreeArray[nextfree].parent = togrow;
+		BranchArray[togrow].left     = nextfree;
+		BranchArray[nextfree].parent = togrow;
 		isleaf[nextfree++]      = LVB_TRUE;
 
 		/* right child */
-		CurrentTreeArray[togrow].right    = nextfree;
-		CurrentTreeArray[nextfree].parent = togrow;
+		BranchArray[togrow].right    = nextfree;
+		BranchArray[nextfree].parent = togrow;
 		isleaf[nextfree++]      = LVB_TRUE;
 
 		/* other updates */
@@ -2187,9 +2187,9 @@ static Lvb_bool *GenerateRandomTopology(Dataptr MSA, TREESTACK_TREE_BRANCH *cons
 
 } /* end GenerateRandomTopology() */
 
-static long *randleaf(Dataptr MSA, TREESTACK_TREE_BRANCH *const CurrentTreeArray, const Lvb_bool *const leafmask, const long objs)
+static long *randleaf(Dataptr MSA, TREESTACK_TREE_BRANCH *const BranchArray, const Lvb_bool *const leafmask, const long objs)
 /* randomly assign objects numbered 0 to objs - 1 to leaves of tree in
- * CurrentTreeArray; leaves in CurrentTreeArray must be indicated by corresponding
+ * BranchArray; leaves in BranchArray must be indicated by corresponding
  * LVB_TRUEs in leafmask; returns static array of object numbers, where
  * elements 0..numberofpossiblebranches give the object associated with branches 0..numberofpossiblebranches
  * respectively (UNSET for internal branches); this array will be overwritten
@@ -2319,15 +2319,15 @@ static void cr_uxe(FILE *const stream, const char *const msg)
 } /* end cr_uxe */
 
 
-	void lvb_treeprint (Dataptr MSA, FILE *const stream, const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long root)
-	/* print tree in CurrentTreeArray (of root root) in bracketed text form to stream stream,
+	void lvb_treeprint (Dataptr MSA, FILE *const stream, const TREESTACK_TREE_BRANCH *const BranchArray, const long root)
+	/* print tree in BranchArray (of root root) in bracketed text form to stream stream,
 	 * in unrooted form */
 	{
-		ur_print(MSA, stream, CurrentTreeArray, root);
+		ur_print(MSA, stream, BranchArray, root);
 	} /* end lvb_treeprint() */
 
-	static void ur_print(Dataptr MSA, FILE *const stream, const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long root)
-	/* send tree in CurrentTreeArray, of root root, to file pointed to by stream in
+	static void ur_print(Dataptr MSA, FILE *const stream, const TREESTACK_TREE_BRANCH *const BranchArray, const long root)
+	/* send tree in BranchArray, of root root, to file pointed to by stream in
 	 * unrooted form */
 	{
 	    long obj;					/* current object */
@@ -2351,8 +2351,8 @@ static void cr_uxe(FILE *const stream, const char *const msg)
 			usecomma = LVB_TRUE;
 			doneabsroot = LVB_TRUE;
 
-			ur_print(MSA, stream, CurrentTreeArray, CurrentTreeArray[root].left);
-			ur_print(MSA, stream, CurrentTreeArray, CurrentTreeArray[root].right);
+			ur_print(MSA, stream, BranchArray, BranchArray[root].left);
+			ur_print(MSA, stream, BranchArray, BranchArray[root].right);
 			/* end tree */
 			fprintf(stream, ");\n");
 			if (ferror(stream))
@@ -2380,8 +2380,8 @@ static void cr_uxe(FILE *const stream, const char *const msg)
 			{
 				fprintf(stream, "(");
 				usecomma = LVB_FALSE;
-				ur_print(MSA, stream, CurrentTreeArray, CurrentTreeArray[root].left);
-				ur_print(MSA, stream, CurrentTreeArray, CurrentTreeArray[root].right);
+				ur_print(MSA, stream, BranchArray, BranchArray[root].left);
+				ur_print(MSA, stream, BranchArray, BranchArray[root].right);
 				fputc(')', stream);
 				usecomma = LVB_TRUE;
 			}
@@ -2556,22 +2556,22 @@ static void fillsets(Dataptr MSA, Objset *const sstruct, const TREESTACK_TREE_BR
 
 } /* end fillsets */
 
-static void getobjs(Dataptr MSA, const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long root,
+static void getobjs(Dataptr MSA, const TREESTACK_TREE_BRANCH *const BranchArray, const long root,
  long *const objarr, long *const cnt)
 /* fill objarr (which must be large enough) with numbers of all objects
- * in the tree in CurrentTreeArray in the clade starting at branch root;
+ * in the tree in BranchArray in the clade starting at branch root;
  * fill the number pointed to by cnt with the number of objects found
  * (i.e. the number of elements written to objarr) */
 {
     *cnt = 0;
-    realgetobjs(MSA, CurrentTreeArray, root, objarr, cnt);
+    realgetobjs(MSA, BranchArray, root, objarr, cnt);
 
 } /* end getobjs() */
 
-static void realgetobjs(Dataptr MSA, const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long root,
+static void realgetobjs(Dataptr MSA, const TREESTACK_TREE_BRANCH *const BranchArray, const long root,
  long *const objarr, long *const cnt)
 /* fill objarr (which must be large enough) with numbers of all objects
- * in the tree in CurrentTreeArray in the clade starting at branch root;
+ * in the tree in BranchArray in the clade starting at branch root;
  * fill the number pointed to by cnt, which must initially be zero,
  * with the number of objects found (i.e. the number of elements
  * written to objarr); this function should not be called from anywhere
@@ -2584,10 +2584,10 @@ static void realgetobjs(Dataptr MSA, const TREESTACK_TREE_BRANCH *const CurrentT
     }
     else
     {
-		if (CurrentTreeArray[root].left != UNSET)
-			realgetobjs(MSA, CurrentTreeArray, CurrentTreeArray[root].left, objarr, cnt);
-		if (CurrentTreeArray[root].right != UNSET)
-			realgetobjs(MSA, CurrentTreeArray, CurrentTreeArray[root].right, objarr, cnt);
+		if (BranchArray[root].left != UNSET)
+			realgetobjs(MSA, BranchArray, BranchArray[root].left, objarr, cnt);
+		if (BranchArray[root].right != UNSET)
+			realgetobjs(MSA, BranchArray, BranchArray[root].right, objarr, cnt);
     }
 
 } /* end realgetobjs() */

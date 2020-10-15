@@ -149,6 +149,13 @@ typedef struct
     TREESTACK_TREE *stack;	/* pointer to first element in stack */
 } TREESTACK;
 
+typedef struct
+{
+	long hash_size;			/* number of trees currently allocated for */
+	long hash_next;			/* next unused element of stack */
+    TREESTACK_TREE *hash_stack;	/* pointer to first element in stack */
+} HASH_TREESTACK;
+
 /* simulated annealing parameters */
 #define MAXACCEPT_MIN 5L		/* minimum value for maxaccept */
 #define MAXACCEPT_MAX 5L		/* maximum value for maxaccept */
@@ -219,7 +226,7 @@ long getroot(const TREESTACK_TREE_BRANCH *const);
 void lvb_assertion_fail(const char *, const char *, int);
 void lvb_initialize(void);
 Dataptr lvb_matrin(const char *);
-long lvb_reroot(Dataptr restrict, TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long oldroot, const long newroot, Lvb_bool b_with_sitestate);
+long lvb_reroot(Dataptr restrict, TREESTACK_TREE_BRANCH *const BranchArray, const long oldroot, const long newroot, Lvb_bool b_with_sitestate);
 void lvb_treeprint (Dataptr, FILE *const, const TREESTACK_TREE_BRANCH *const, const long);
 void CallPrintHashTree (Dataptr, FILE *const, const TREESTACK_TREE_BRANCH *const, const long);
 
@@ -584,7 +591,7 @@ long getroot(const TREESTACK_TREE_BRANCH *const);
 void lvb_assertion_fail(const char *, const char *, int);
 void lvb_initialize(void);
 Dataptr lvb_matrin(const char *);
-long lvb_reroot(Dataptr restrict, TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long oldroot, const long newroot, Lvb_bool b_with_sitestate);
+long lvb_reroot(Dataptr restrict, TREESTACK_TREE_BRANCH *const BranchArray, const long oldroot, const long newroot, Lvb_bool b_with_sitestate);
 
 void lvb_treeprint (Dataptr, FILE *const, const TREESTACK_TREE_BRANCH *const, const long);
 void matchange(Dataptr, const Parameters);

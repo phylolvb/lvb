@@ -124,8 +124,8 @@ static void writeinf(Parameters prms, Dataptr MSA, int argc, char **argv)
 }
 
 
-static void logtree1(Dataptr MSA, const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long start, const long cycle, long root)
-/* log initial tree for cycle cycle of start start (in CurrentTreeArray) to outfp */
+static void logtree1(Dataptr MSA, const TREESTACK_TREE_BRANCH *const BranchArray, const long start, const long cycle, long root)
+/* log initial tree for cycle cycle of start start (in BranchArray) to outfp */
 {
     static char outfnam[LVB_FNAMSIZE]; 	/* current file name */
     int fnamlen;			/* length of current file name */
@@ -136,7 +136,7 @@ static void logtree1(Dataptr MSA, const TREESTACK_TREE_BRANCH *const CurrentTree
 
     /* create tree file */
     outfp = clnopen(outfnam, "w");
-    lvb_treeprint(MSA, outfp, CurrentTreeArray, root);
+    lvb_treeprint(MSA, outfp, BranchArray, root);
     clnclose(outfp, outfnam);
 
 } /* end logtree1() */
@@ -614,8 +614,8 @@ static void writeinf(Parameters prms, Dataptr MSA, int myMPIid, int n_process)
 } /* end writeinf() */
 
 
-static void logtree1(Dataptr MSA, const TREESTACK_TREE_BRANCH *const CurrentTreeArray, const long start, const long cycle, long root)
-/* log initial tree for cycle cycle of start start (in CurrentTreeArray) to outfp */
+static void logtree1(Dataptr MSA, const TREESTACK_TREE_BRANCH *const BranchArray, const long start, const long cycle, long root)
+/* log initial tree for cycle cycle of start start (in BranchArray) to outfp */
 {
     static char outfnam[LVB_FNAMSIZE]; 	/* current file name */
     int fnamlen;			/* length of current file name */
@@ -626,7 +626,7 @@ static void logtree1(Dataptr MSA, const TREESTACK_TREE_BRANCH *const CurrentTree
 
     /* create tree file */
     outfp = clnopen(outfnam, "w");
-    lvb_treeprint(MSA, outfp, CurrentTreeArray, root);
+    lvb_treeprint(MSA, outfp, BranchArray, root);
     clnclose(outfp, outfnam);
 
 } /* end logtree1() */
