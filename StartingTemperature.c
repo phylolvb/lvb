@@ -96,7 +96,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     x = treealloc(MSA, LVB_TRUE);
     xdash = treealloc(MSA, LVB_TRUE);
 
-    treecopy(MSA, x, inittree, LVB_TRUE);	/* current configuration */
+    CopyCurrentTree(MSA, x, inittree, LVB_TRUE);	/* current configuration */
     alloc_memory_to_getplen(MSA, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
     len = getplen(MSA, x, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
     

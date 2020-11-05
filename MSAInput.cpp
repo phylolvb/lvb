@@ -679,7 +679,7 @@ int CReadFiles::read_file(std::string sz_file_name_temp, int n_file_type){
 		}
 	}
 
-	/// check the chars available to read
+	/ the chars available to read
 	unsigned int n_max_seq = get_length_sequences();
 	for (unsigned int i = 0; i < lst_sequences.size(); i++){
 		std::transform(lst_sequences[i].begin(), lst_sequences[i].end(), lst_sequences[i].begin(), ::toupper);	// make ti upper case
@@ -1415,7 +1415,7 @@ int CReadFiles::read_file(std::string sz_file_name_temp, int n_file_type){
 		}
 	}
 
-	/// check the chars available to read
+	/ the chars available to read
 	unsigned int n_max_seq = get_length_sequences();
 	for (unsigned int i = 0; i < lst_sequences.size(); i++){
 		std::transform(lst_sequences[i].begin(), lst_sequences[i].end(), lst_sequences[i].begin(), ::toupper);	// make ti upper case

@@ -226,9 +226,9 @@ long getroot(const TREESTACK_TREE_BRANCH *const);
 void lvb_assertion_fail(const char *, const char *, int);
 void lvb_initialize(void);
 Dataptr lvb_matrin(const char *);
-long lvb_reroot(Dataptr restrict, TREESTACK_TREE_BRANCH *const BranchArray, const long oldroot, const long newroot, Lvb_bool b_with_sitestate);
+long RerootCurrentTree(Dataptr restrict, TREESTACK_TREE_BRANCH *const BranchArray, const long oldroot, const long newroot, Lvb_bool b_with_sitestate);
 void lvb_treeprint (Dataptr, FILE *const, const TREESTACK_TREE_BRANCH *const, const long);
-void CallPrintHashTree (Dataptr, FILE *const, const TREESTACK_TREE_BRANCH *const, const long);
+void TopologyHashing (Dataptr, FILE *const, const TREESTACK_TREE_BRANCH *const, const long);
 
 void matchange(Dataptr, const Parameters);
 Dataptr matrin(const char *const);
@@ -252,7 +252,7 @@ TREESTACK_TREE_BRANCH *treealloc(Dataptr restrict, Lvb_bool b_with_sitestate);
 long tree_bytes(Dataptr restrict MSA);
 long tree_bytes_without_sitestate(Dataptr restrict MSA);
 void treeclear(Dataptr, TREESTACK_TREE_BRANCH *const);
-void treecopy(Dataptr restrict, TREESTACK_TREE_BRANCH *const, const TREESTACK_TREE_BRANCH *const, Lvb_bool b_with_sitestate);
+void CopyCurrentTree(Dataptr restrict, TREESTACK_TREE_BRANCH *const, const TREESTACK_TREE_BRANCH *const, Lvb_bool b_with_sitestate);
 void treedump(Dataptr, FILE *const, const TREESTACK_TREE_BRANCH *const, Lvb_bool b_with_sitestate);
 void treedump_screen(Dataptr MSA, const TREESTACK_TREE_BRANCH *const tree);
 void ClearTreestack(TREESTACK *);
@@ -280,7 +280,7 @@ bool LogFileExists(const char *filename);
 double StartingTemperature(Dataptr, const TREESTACK_TREE_BRANCH *const, Parameters rcstruct, long, Lvb_bool);
 long HashCurrentTree();
 
-#ifdef LVB_MAPREDUCE  // check
+#ifdef LVB_MAPREDUCE  
 long Anneal(Dataptr restrict, TREESTACK *, TREESTACK *, const TREESTACK_TREE_BRANCH *const, Parameters rcstruct, long, const double,
 	const long, const long, const long, FILE *const, long *, Lvb_bool, MISC *misc, MapReduce *mrStackTree, MapReduce *mrBuffer);
 
@@ -591,7 +591,7 @@ long getroot(const TREESTACK_TREE_BRANCH *const);
 void lvb_assertion_fail(const char *, const char *, int);
 void lvb_initialize(void);
 Dataptr lvb_matrin(const char *);
-long lvb_reroot(Dataptr restrict, TREESTACK_TREE_BRANCH *const BranchArray, const long oldroot, const long newroot, Lvb_bool b_with_sitestate);
+long RerootCurrentTree(Dataptr restrict, TREESTACK_TREE_BRANCH *const BranchArray, const long oldroot, const long newroot, Lvb_bool b_with_sitestate);
 
 void lvb_treeprint (Dataptr, FILE *const, const TREESTACK_TREE_BRANCH *const, const long);
 void matchange(Dataptr, const Parameters);
@@ -618,7 +618,7 @@ TREESTACK_TREE_BRANCH *treealloc(Dataptr restrict, Lvb_bool b_with_sitestate);
 long tree_bytes(Dataptr restrict MSA);
 long tree_bytes_without_sitestate(Dataptr restrict MSA);
 void treeclear(Dataptr, TREESTACK_TREE_BRANCH *const);
-void treecopy(Dataptr restrict, TREESTACK_TREE_BRANCH *const, const TREESTACK_TREE_BRANCH *const, Lvb_bool b_with_sitestate);
+void CopyCurrentTree(Dataptr restrict, TREESTACK_TREE_BRANCH *const, const TREESTACK_TREE_BRANCH *const, Lvb_bool b_with_sitestate);
 long TopologyComparison(Dataptr MSA, const TREESTACK_TREE_BRANCH *const tree_1, const TREESTACK_TREE_BRANCH *const tree_2, long root, Lvb_bool b_First);
 void treedump(Dataptr, FILE *const, const TREESTACK_TREE_BRANCH *const, Lvb_bool b_with_sitestate);
 void treedump_b(Dataptr, FILE *const, const TREESTACK_TREE_BRANCH *const, Lvb_bool);

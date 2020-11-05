@@ -91,27 +91,12 @@ long PushCurrentTreeToStack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRA
 {
     lvb_assert(sp->next <= sp->size);
     if (sp->next == sp->size) TreestackAllocationIncrease(MSA, sp);
-    treecopy(MSA, sp->stack[sp->next].tree, BranchArray, b_with_sitestate);
+    CopyCurrentTree(MSA, sp->stack[sp->next].tree, BranchArray, b_with_sitestate);
     sp->stack[sp->next].root = root;
   
     /* need to copy the sitestate_2 to the sp->stack[sp->next].sitestate  */
     copy_sitestate(MSA, sp->stack[sp->next].p_sitestate);
     sp->next++;
-
-    /* FILE *printcurrenttree;
-    FILE *printcurrenttreehashcomparison;
-    printcurrenttree = fopen("PrintCurrentTree", "w");
-    printcurrenttreehashcomparison = fopen("PrintCurrentTreeHashComparison", "a+");
-       
-    CallPrintHashTree(MSA, printcurrenttree, BranchArray, root);
-    CallPrintHashTree(MSA, printcurrenttreehashcomparison, BranchArray, root);
-
-    fclose(printcurrenttree);
-    fclose(printcurrenttreehashcomparison);
-
-    HashCurrentTree(); */
-
-    
 
     return 1;
  
@@ -242,7 +227,7 @@ Returns 1 if the tree was pushed, or 0 if not.
 long CompareTreeToTreestack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRANCH *const BranchArray, const long root, Lvb_bool b_with_sitestate)
 {
     long i = 0, new_root = 0;
-    static TREESTACK_TREE_BRANCH *copy_2 = NULL;			/* possibly re-rooted tree 2 */
+    static TREESTACK_TREE_BRANCH *current_tree_copy_ptr = NULL;			/* possibly re-rooted tree 2 */
     Lvb_bool b_First = LVB_TRUE;
 
     #ifndef LVB_MAPREDUCE
@@ -254,23 +239,25 @@ long CompareTreeToTreestack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRA
     #endif
 
 	/* allocate "local" static heap memory - static - do not free! */
-	if (copy_2 == NULL) copy_2 = treealloc(MSA, b_with_sitestate);
-    treecopy(MSA, copy_2, BranchArray, b_with_sitestate);
+	if (current_tree_copy_ptr == NULL) current_tree_copy_ptr = treealloc(MSA, b_with_sitestate);
+    CopyCurrentTree(MSA, current_tree_copy_ptr, BranchArray, b_with_sitestate);
+    /* CopyCurrentTree(dataset, from, to, sitestates)*/
     if (root != 0){
-    	lvb_reroot(MSA, copy_2, root, new_root, b_with_sitestate);
+    	RerootCurrentTree(MSA, current_tree_copy_ptr, root, new_root, b_with_sitestate);
+        /* RerootCurrentTree(data, current tree, oldroot, newroot, sitestates) */
     }
 
     /* return before push if not a new topology */
     /* check backwards as similar trees may be discovered together */
     if (sp->next == 0){
-    	makesets(MSA, copy_2, new_root /* always root zero */);
+    	makesets(MSA, current_tree_copy_ptr, new_root /* always root zero */);
     }
     #ifndef LVB_MAPREDUCE
     // Multithreading
     else{ 
     	if (sp->next > MIN_THREAD_SEARCH_SSET) slice = sp->next / MSA->n_threads_getplen;
     	if (sp->next > MIN_THREAD_SEARCH_SSET && slice > 0){
-    		makesets(MSA, copy_2, 0 /* always root zero */);
+    		makesets(MSA, current_tree_copy_ptr, 0 /* always root zero */);
     		slice_tail = (sp->next - (slice * MSA->n_threads_getplen));
     		omp_set_dynamic(0);	  /* disable dinamic threathing */
     		#pragma omp parallel num_threads(MSA->n_threads_getplen) private(i) shared(slice, slice_tail, b_find_sitestate)
@@ -296,7 +283,7 @@ long CompareTreeToTreestack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRA
     #endif
     	else{
     		for (i = sp->next - 1; i >= 0; i--) {
-    			if (TopologyComparison(MSA, sp->stack[i].p_sitestate, copy_2, b_First) == 0) return 0;
+    			if (TopologyComparison(MSA, sp->stack[i].p_sitestate, current_tree_copy_ptr, b_First) == 0) return 0;
     			b_First = LVB_FALSE;
     		}
     	}
@@ -307,6 +294,21 @@ long CompareTreeToTreestack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRA
     /* topology is new so must be pushed */
     lvb_assert(root < MSA->n);
     PushCurrentTreeToStack(MSA, sp, BranchArray, root, b_with_sitestate);
+
+    FILE *printcurrenttree;
+    FILE *printcurrenttreehashcomparison;
+    printcurrenttree = fopen("PrintCurrentTree", "w");
+    printcurrenttreehashcomparison = fopen("PrintCurrentTreeHashComparison", "a+");
+       
+    TopologyHashing(MSA, printcurrenttree, BranchArray, root);
+    TopologyHashing(MSA, printcurrenttreehashcomparison, BranchArray, root);
+
+    fclose(printcurrenttree);
+    fclose(printcurrenttreehashcomparison);
+
+    HashCurrentTree();
+
+    
     return 1;
 
 } /* end CompareTreeToTreestack() */
@@ -364,7 +366,7 @@ long PullTreefromTreestack(Dataptr MSA, TREESTACK_TREE_BRANCH *BranchArray, long
 
     if (sp->next >= 1){
         sp->next--;
-        treecopy(MSA, BranchArray, sp->stack[sp->next].tree, b_with_sitestate);
+        CopyCurrentTree(MSA, BranchArray, sp->stack[sp->next].tree, b_with_sitestate);
         *root = sp->stack[sp->next].root;
 
         val = 1;
@@ -399,8 +401,8 @@ int PrintTreestack(Dataptr MSA, TREESTACK *sp, FILE *const outfp, Lvb_bool onera
     }
 
     for (i = lower; i < upper; i++) {
-        treecopy(MSA, BranchArray, sp->stack[i].tree, LVB_FALSE);
-        if (sp->stack[i].root != d_obj1) lvb_reroot(MSA, BranchArray, sp->stack[i].root, d_obj1, LVB_FALSE);
+        CopyCurrentTree(MSA, BranchArray, sp->stack[i].tree, LVB_FALSE);
+        if (sp->stack[i].root != d_obj1) RerootCurrentTree(MSA, BranchArray, sp->stack[i].root, d_obj1, LVB_FALSE);
         root = d_obj1;
         lvb_treeprint(MSA, outfp, BranchArray, root);
     }
@@ -599,7 +601,7 @@ static void PushCurrentTreeToStack(Dataptr MSA, TREESTACK *sp, const TREESTACK_T
 {
     lvb_assert(sp->next <= sp->size);
     if (sp->next == sp->size) TreestackAllocationIncrease(MSA, sp);
-    treecopy(MSA, sp->stack[sp->next].tree, BranchArray, b_with_sitestate);
+    CopyCurrentTree(MSA, sp->stack[sp->next].tree, BranchArray, b_with_sitestate);
     sp->stack[sp->next].root = root;
     sp->next++;
  
@@ -825,25 +827,25 @@ long CompareTreeToTreestack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRA
 {
 	long i, new_root = root;			/* loop counter */
 	long stackroot;		/* root of current tree */
-	static TREESTACK_TREE_BRANCH *copy_2 = NULL;	/* possibly re-rooted tree 2 */
+	static TREESTACK_TREE_BRANCH *current_tree_copy_ptr = NULL;	/* possibly re-rooted tree 2 */
 	Lvb_bool b_First = LVB_TRUE;
 
 	/* allocate "local" static heap memory - static - do not free! */
-	if (copy_2 == NULL) {
-		copy_2 = treealloc(MSA, b_with_sitestate);
+	if (current_tree_copy_ptr == NULL) {
+		current_tree_copy_ptr = treealloc(MSA, b_with_sitestate);
 	}
-	treecopy(MSA, copy_2, BranchArray, b_with_sitestate);
+	CopyCurrentTree(MSA, current_tree_copy_ptr, BranchArray, b_with_sitestate);
 
 	/* return before push if not a new topology */
 	/* check backwards as similar trees may be discovered together */
 	for (i = sp->next - 1; i >= 0; i--) {
 		stackroot = sp->stack[i].root;
 		if(stackroot != new_root){
-			lvb_reroot(MSA, copy_2, new_root, stackroot, b_with_sitestate);
+			RerootCurrentTree(MSA, current_tree_copy_ptr, new_root, stackroot, b_with_sitestate);
 			new_root = stackroot;
 			b_First = LVB_TRUE;
 		}
-		if (TopologyComparison(MSA, sp->stack[i].tree, copy_2, stackroot, b_First) == 0) return 0;
+		if (TopologyComparison(MSA, sp->stack[i].tree, current_tree_copy_ptr, stackroot, b_First) == 0) return 0;
 		b_First = LVB_FALSE;
 	}
 
@@ -918,7 +920,7 @@ long PullTreefromTreestack(Dataptr MSA, TREESTACK_TREE_BRANCH *BranchArray, long
 
     if (sp->next >= 1){
         sp->next--;
-        treecopy(MSA, BranchArray, sp->stack[sp->next].tree, b_with_sitestate);
+        CopyCurrentTree(MSA, BranchArray, sp->stack[sp->next].tree, b_with_sitestate);
         *root = sp->stack[sp->next].root;
         val = 1;
     }
@@ -952,8 +954,8 @@ long PrintTreestack(Dataptr MSA, TREESTACK *sp, FILE *const outfp, Lvb_bool oner
     }
 
     for (i = lower; i < upper; i++) {
-        treecopy(MSA, BranchArray, sp->stack[i].tree, LVB_FALSE);
-        if (sp->stack[i].root != d_obj1) lvb_reroot(MSA, BranchArray, sp->stack[i].root, d_obj1, LVB_FALSE);
+        CopyCurrentTree(MSA, BranchArray, sp->stack[i].tree, LVB_FALSE);
+        if (sp->stack[i].root != d_obj1) RerootCurrentTree(MSA, BranchArray, sp->stack[i].root, d_obj1, LVB_FALSE);
         root = d_obj1;
 
         lvb_treeprint(MSA, outfp, BranchArray, root);
