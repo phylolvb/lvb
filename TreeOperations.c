@@ -116,7 +116,7 @@ void mutate_deterministic(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const des
 
     /* for ease of reading, make alias of desttree, tree */
     tree = desttree;
-    CopyCurrentTree(MSA, tree, sourcetree, LVB_TRUE);
+    treecopy(MSA, tree, sourcetree, LVB_TRUE);
 
     u = p;
     v = tree[u].parent;
@@ -160,7 +160,7 @@ void mutate_nni(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const desttree, con
 
     /* for ease of reading, make alias of desttree, tree */
     tree = desttree;
-    CopyCurrentTree(MSA, tree, sourcetree, LVB_TRUE);
+    treecopy(MSA, tree, sourcetree, LVB_TRUE);
 
     /* get a random internal branch */
     u = randpint(MSA->numberofpossiblebranches - MSA->n - 1) + MSA->n;
@@ -231,7 +231,7 @@ void mutate_spr(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const desttree, con
 
     /* for ease of reading, make alias of desttree, tree */
     tree = desttree;
-    CopyCurrentTree(MSA, tree, sourcetree, LVB_TRUE);
+    treecopy(MSA, tree, sourcetree, LVB_TRUE);
 
     /* get random branch but not root and not root's immediate descendant */
     do {
@@ -332,7 +332,7 @@ void mutate_tbr(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const desttree, con
 
     /* for ease of reading, make alias of desttree, tree */
     tree = desttree;
-    CopyCurrentTree(MSA, tree, sourcetree, LVB_TRUE);
+    treecopy(MSA, tree, sourcetree, LVB_TRUE);
 
     /* get random branch but not root and not root's immediate descendant */
     do {
@@ -517,7 +517,7 @@ int addtoarray(TREESTACK_TREE_BRANCH *const tree, int current, int arr[], int i)
 }
 
 
-long RerootCurrentTree(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const BranchArray, const long oldroot, const long newroot, Lvb_bool b_with_sitestate)
+long lvb_reroot(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const BranchArray, const long oldroot, const long newroot, Lvb_bool b_with_sitestate)
 /* Change the root of the tree in BranchArray from oldroot to newroot, which
  * must not be the same. Mark all internal nodes (everything but the leaves
  * and root) as "dirty". Return oldroot. */
@@ -546,7 +546,7 @@ long RerootCurrentTree(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const Branch
 		if (current == BranchArray[parnt].left) sister = BranchArray[parnt].right;
 		else if (current == BranchArray[parnt].right) sister = BranchArray[parnt].left;
 		else	/* error in tree structure */
-			crash("internal error in function RerootCurrentTree(): current\n"
+			crash("internal error in function lvb_reroot(): current\n"
 			 "branch %ld has old parent %ld, but old parent does not\n"
 			 "have it as a child", current, parnt);
 		BranchArray[current].parent = previous;	/* now chld of prev. */
@@ -573,7 +573,7 @@ long RerootCurrentTree(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const Branch
     		BranchArray[current].sitestate[0] = 0U;
     }
     return oldroot;
-} /* end RerootCurrentTree() */
+} /* end lvb_reroot() */
 
 
 long arbreroot(Dataptr MSA, TREESTACK_TREE_BRANCH *const tree, const long oldroot)
@@ -589,7 +589,7 @@ long arbreroot(Dataptr MSA, TREESTACK_TREE_BRANCH *const tree, const long oldroo
     	newroot = randpint(ugg_minus_1);
     } while (newroot == oldroot);
 
-    RerootCurrentTree(MSA, tree, oldroot, newroot, LVB_TRUE);
+    lvb_reroot(MSA, tree, oldroot, newroot, LVB_TRUE);
     return newroot;
 
 } /* end arbreroot() */
@@ -665,7 +665,7 @@ TREESTACK_TREE_BRANCH *mvBranch(long numberofpossiblebranches, TREESTACK_TREE_BR
 	return dest;
 }
 
-void CopyCurrentTree(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const dest, const TREESTACK_TREE_BRANCH *const src, Lvb_bool b_with_sitestate)
+void treecopy(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const dest, const TREESTACK_TREE_BRANCH *const src, Lvb_bool b_with_sitestate)
 /* copy tree from src to dest; dest must be totally distinct from source
  * in memory, and have enough space; the approach used below may fail if
  * treealloc() is changed */
@@ -696,7 +696,7 @@ void CopyCurrentTree(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const dest, co
 		}
     }
 
-} /* end CopyCurrentTree() */
+} /* end treecopy() */
 
 void copy_sitestate(Dataptr restrict MSA, Objset *p_sitestate_1){
 
@@ -787,7 +787,7 @@ static void tree_make_canonical(Dataptr MSA, TREESTACK_TREE_BRANCH *const Branch
 		}
     } while (swap_made == LVB_TRUE);
 
-    /* patch up assignment of sitestate memory to prevent trouble in CopyCurrentTree() */
+    /* patch up assignment of sitestate memory to prevent trouble in treecopy() */
     for (i = 0; i < numberofpossiblebranches; i++){
     	BranchArray[i].sitestate = (Lvb_bit_length *) (ss0_start + i * MSA->bytes);
     }
@@ -800,7 +800,7 @@ static void tree_make_canonical(Dataptr MSA, TREESTACK_TREE_BRANCH *const Branch
     }
 
     if (root != 0) {
-    	RerootCurrentTree(MSA, BranchArray, root, 0, LVB_TRUE);
+    	lvb_reroot(MSA, BranchArray, root, 0, LVB_TRUE);
     }
 
     /* check things didn't go haywire */
@@ -820,7 +820,7 @@ TREESTACK_TREE_BRANCH *treealloc(Dataptr restrict MSA, Lvb_bool b_with_sitestate
  * block for the branch data structures followed by all their statesets.
  * So, to deallocate the tree, call the standard library function free()
  * ONCE ONLY, passing it the address of the first branch struct. If this
- * allocation approach is changed, be sure to change CopyCurrentTree() too. */
+ * allocation approach is changed, be sure to change treecopy() too. */
 {
     TREESTACK_TREE_BRANCH *BranchArray;			/* tree */
     unsigned char *CurrentTreeArray_uchar_star;	/* tree as unsigned char */
@@ -1279,10 +1279,10 @@ static void ssarralloc(Dataptr MSA, Objset *nobjset_2)
 			  prev_n = uggn;
 			  lvb_assert((prev_m == uggm) && (prev_n == uggn));
 
-			  CopyCurrentTree(MSA, Tree, sp->stack[i].tree, LVB_FALSE);
+			  treecopy(MSA, Tree, sp->stack[i].tree, LVB_FALSE);
 			  long root = sp->stack[i].root;
 			  lvb_assert(root < uggn);
-			  if(root != d_obj1) RerootCurrentTree(MSA, Tree, root, d_obj1, LVB_FALSE);
+			  if(root != d_obj1) lvb_reroot(MSA, Tree, root, d_obj1, LVB_FALSE);
 			  root = d_obj1;
 
 			  fillsets(MSA, sitestate_2, Tree, root);
@@ -1324,9 +1324,9 @@ static void ssarralloc(Dataptr MSA, Objset *nobjset_2)
 		prev_n = uggn;
 		lvb_assert((prev_m == uggm) && (prev_n == uggn));
 
-		CopyCurrentTree(MSA, copy_tree, tree, LVB_FALSE);
+		treecopy(MSA, copy_tree, tree, LVB_FALSE);
 		lvb_assert(root < uggn);
-		if(root != d_obj1) RerootCurrentTree(MSA, copy_tree, root, d_obj1, LVB_FALSE);
+		if(root != d_obj1) lvb_reroot(MSA, copy_tree, root, d_obj1, LVB_FALSE);
 		root = d_obj1;
 
 		fillsets(MSA, sitestate_1, copy_tree, root);
@@ -1623,7 +1623,7 @@ void mutate_deterministic(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const des
 
     /* for ease of reading, make alias of desttree, tree */
     tree = desttree;
-    CopyCurrentTree(MSA, tree, sourcetree, LVB_TRUE);
+    treecopy(MSA, tree, sourcetree, LVB_TRUE);
 
     u = p;
     v = tree[u].parent;
@@ -1667,7 +1667,7 @@ void mutate_nni(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const desttree, con
 
     /* for ease of reading, make alias of desttree, tree */
     tree = desttree;
-    CopyCurrentTree(MSA, tree, sourcetree, LVB_TRUE);
+    treecopy(MSA, tree, sourcetree, LVB_TRUE);
 
     /* get a random internal branch */
     u = randpint(MSA->numberofpossiblebranches - MSA->n - 1) + MSA->n;
@@ -1738,7 +1738,7 @@ void mutate_spr(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const desttree, con
 
     /* for ease of reading, make alias of desttree, tree */
     tree = desttree;
-    CopyCurrentTree(MSA, tree, sourcetree, LVB_TRUE);
+    treecopy(MSA, tree, sourcetree, LVB_TRUE);
 
     /* get random branch but not root and not root's immediate descendant */
     do {
@@ -1813,7 +1813,7 @@ void mutate_spr(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const desttree, con
 
 } /* end mutate_spr() */
 
-long RerootCurrentTree(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const BranchArray, const long oldroot, const long newroot, Lvb_bool b_with_sitestate)
+long lvb_reroot(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const BranchArray, const long oldroot, const long newroot, Lvb_bool b_with_sitestate)
 /* Change the root of the tree in BranchArray from oldroot to newroot, which
  * must not be the same. Mark all internal nodes (everything but the leaves
  * and root) as "dirty". Return oldroot. */
@@ -1842,7 +1842,7 @@ long RerootCurrentTree(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const Branch
 		if      (current == BranchArray[parnt].left)  sister = BranchArray[parnt].right;
 		else if (current == BranchArray[parnt].right) sister = BranchArray[parnt].left;
 		else	/* error in tree structure */
-			crash("internal error in function RerootCurrentTree(): current\n"
+			crash("internal error in function lvb_reroot(): current\n"
 			 "branch %ld has old parent %ld, but old parent does not\n"
 			 "have it as a child", current, parnt);
 		BranchArray[current].parent = previous;	/* now chld of prev. */
@@ -1871,7 +1871,7 @@ long RerootCurrentTree(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const Branch
 
     return oldroot;
 
-} /* end RerootCurrentTree() */
+} /* end lvb_reroot() */
 
 long arbreroot(Dataptr MSA, TREESTACK_TREE_BRANCH *const tree, const long oldroot)
 /* Change tree's root arbitrarily, to a leaf other than oldroot.
@@ -1886,7 +1886,7 @@ long arbreroot(Dataptr MSA, TREESTACK_TREE_BRANCH *const tree, const long oldroo
     	newroot = randpint(ugg_minus_1);
     } while (newroot == oldroot);
 
-    RerootCurrentTree(MSA, tree, oldroot, newroot, LVB_TRUE);
+    lvb_reroot(MSA, tree, oldroot, newroot, LVB_TRUE);
     return newroot;
 
 } /* end arbreroot() */
@@ -1964,7 +1964,7 @@ TREESTACK_TREE_BRANCH *const mvBranch(long numberofpossiblebranches, TREESTACK_T
 
 
 
-void CopyCurrentTree(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const dest, const TREESTACK_TREE_BRANCH *const src, Lvb_bool b_with_sitestate)
+void treecopy(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const dest, const TREESTACK_TREE_BRANCH *const src, Lvb_bool b_with_sitestate)
 /* copy tree from src to dest; dest must be totally distinct from source
  * in memory, and have enough space; the approach used below may fail if
  * treealloc() is changed */
@@ -1994,7 +1994,7 @@ void CopyCurrentTree(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const dest, co
 			dest[i].sitestate = tmp_sitestate;
 		}
     }
-} /* end CopyCurrentTree() */
+} /* end treecopy() */
 
 void PullRandomTree(Dataptr MSA, TREESTACK_TREE_BRANCH *const BranchArray)
 /* fill BranchArray with a random tree, where BranchArray[0] is the root; all branches
@@ -2066,7 +2066,7 @@ static void tree_make_canonical(Dataptr MSA, TREESTACK_TREE_BRANCH *const Branch
 		}
     } while (swap_made == LVB_TRUE);
 
-    /* patch up assignment of sitestate memory to prevent trouble in CopyCurrentTree() */
+    /* patch up assignment of sitestate memory to prevent trouble in treecopy() */
     for (i = 0; i < numberofpossiblebranches; i++){
     	BranchArray[i].sitestate = (Lvb_bit_length *) (ss0_start + i * MSA->bytes);
     }
@@ -2079,7 +2079,7 @@ static void tree_make_canonical(Dataptr MSA, TREESTACK_TREE_BRANCH *const Branch
     }
 
     if (root != 0) {
-    	RerootCurrentTree(MSA, BranchArray, root, 0, LVB_TRUE);
+    	lvb_reroot(MSA, BranchArray, root, 0, LVB_TRUE);
     }
 
     /* check things didn't go haywire */
@@ -2099,7 +2099,7 @@ TREESTACK_TREE_BRANCH *treealloc(Dataptr restrict MSA, Lvb_bool b_with_sitestate
  * block for the branch data structures followed by all their statesets.
  * So, to deallocate the tree, call the standard library function free()
  * ONCE ONLY, passing it the address of the first branch struct. If this
- * allocation approach is changed, be sure to change CopyCurrentTree() too. */
+ * allocation approach is changed, be sure to change treecopy() too. */
 {
     TREESTACK_TREE_BRANCH *BranchArray;			/* tree */
     unsigned char *CurrentTreeArray_uchar_star;	/* tree as unsigned char */

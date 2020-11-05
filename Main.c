@@ -229,7 +229,7 @@ static long getsoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb
 		logtree1(MSA, tree, start, cyc, initroot);
     }
 	
-	#ifdef LVB_MAPREDUCE  
+	#ifdef LVB_MAPREDUCE  // check
 		MPI_Barrier(MPI_COMM_WORLD);
 		/* find solution(s) */
 		treelength = Anneal(MSA, &bstack_overall, &stack_treevo, tree, rcstruct, initroot, t0, maxaccept,

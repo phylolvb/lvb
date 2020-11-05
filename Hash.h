@@ -9,4 +9,4 @@
 
 using namespace std;
 
-static void PrintCurrentTree(Dataptr restrict, FILE *const stream, const TREESTACK_TREE_BRANCH *const BranchArray, const long root);
+static void PrintHashTree(Dataptr restrict, FILE *const stream, const TREESTACK_TREE_BRANCH *const BranchArray, const long root);

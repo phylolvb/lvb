@@ -43,15 +43,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define CLADESEP ","	/* clade separator for trees */
 
-void TopologyHashing(Dataptr MSA, FILE *const stream, const TREESTACK_TREE_BRANCH *const BranchArray, const long root)
+void CallPrintHashTree (Dataptr MSA, FILE *const stream, const TREESTACK_TREE_BRANCH *const BranchArray, const long root)
 	/* print tree in BranchArray (of root root) in bracketed text form to stream stream,
 	 * in unrooted form */
 	{
-		PrintCurrentTree(MSA, stream, BranchArray, root);
+		PrintHashTree(MSA, stream, BranchArray, root);
 	} /* end lvb_treeprint() */
 
 
-void PrintCurrentTree(Dataptr MSA, FILE *const stream, const TREESTACK_TREE_BRANCH *const BranchArray, const long root) {
+void PrintHashTree(Dataptr MSA, FILE *const stream, const TREESTACK_TREE_BRANCH *const BranchArray, const long root) {
     /* send tree in BranchArray, of root root, to file pointed to by stream in
 	 * unrooted form */
 	    long obj;					/* current object */
@@ -75,8 +75,8 @@ void PrintCurrentTree(Dataptr MSA, FILE *const stream, const TREESTACK_TREE_BRAN
 			usecomma = LVB_TRUE;
 			doneabsroot = LVB_TRUE;
 
-			PrintCurrentTree(MSA, stream, BranchArray, BranchArray[root].left);
-			PrintCurrentTree(MSA, stream, BranchArray, BranchArray[root].right);
+			PrintHashTree(MSA, stream, BranchArray, BranchArray[root].left);
+			PrintHashTree(MSA, stream, BranchArray, BranchArray[root].right);
 			/* end tree */
 			fprintf(stream, ");\n");
 			if (ferror(stream))
@@ -104,8 +104,8 @@ void PrintCurrentTree(Dataptr MSA, FILE *const stream, const TREESTACK_TREE_BRAN
 			{
 				fprintf(stream, "(");
 				usecomma = LVB_FALSE;
-				PrintCurrentTree(MSA, stream, BranchArray, BranchArray[root].left);
-				PrintCurrentTree(MSA, stream, BranchArray, BranchArray[root].right);
+				PrintHashTree(MSA, stream, BranchArray, BranchArray[root].left);
+				PrintHashTree(MSA, stream, BranchArray, BranchArray[root].right);
 				fputc(')', stream);
 				usecomma = LVB_TRUE;
 			}
@@ -117,8 +117,8 @@ long HashCurrentTree() {
 string line;
 ifstream myfile ("PrintCurrentTree");
 
-FILE *PrintCurrentTree;
-PrintCurrentTree = fopen("PrintCurrentTree", "a+");
+FILE *printhashtree;
+printhashtree = fopen("PrintHashTree", "a+");
 
 if (myfile.is_open())
 {
@@ -127,14 +127,14 @@ if (myfile.is_open())
         string str = line;
         size_t str_hash = hash<string>{}(str);
 
-        fprintf(PrintCurrentTree, "%lu\n", str_hash);
+        fprintf(printhashtree, "%lu\n", str_hash);
     }
     myfile.close();
 }
 
 else cout << "Unable to open file";
 
-fclose(PrintCurrentTree);
+fclose(printhashtree);
 
 return 1;
 }

@@ -97,7 +97,7 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *bstackp, const TREESTACK_TR
     p_proposed_tree = treealloc(MSA, LVB_TRUE);
     todo = (unsigned int *) alloc(MSA->numberofpossiblebranches * sizeof(unsigned int), "old parent alloc");
 
-    CopyCurrentTree(MSA, p_current_tree, inittree, LVB_TRUE);      /* current configuration */
+    treecopy(MSA, p_current_tree, inittree, LVB_TRUE);      /* current configuration */
 	alloc_memory_to_getplen(MSA, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
 	len = getplen(MSA, p_current_tree, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 
@@ -113,7 +113,7 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *bstackp, const TREESTACK_TR
 				lendash = getplen(MSA, p_proposed_tree, rcstruct, rootdash, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 				lvb_assert (lendash >= 1L);
 				deltalen = lendash - len;
-				#ifdef LVB_MAPREDUCE  
+				#ifdef LVB_MAPREDUCE  // check
 				MPI_Bcast(&deltalen, 1, MPI_LONG, 0,    MPI_COMM_WORLD);
 					MPI_Bcast(&lendash,  1, MPI_LONG, 0,    MPI_COMM_WORLD);
 
@@ -249,7 +249,7 @@ long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
     long *p_todo_arr; /* [MAX_BRANCHES + 1];	 list of "dirty" branch nos */
     long *p_todo_arr_sum_changes; /*used in openMP, to sum the partial changes */
     int *p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */
-	#ifdef LVB_MAPREDUCE  
+	#ifdef LVB_MAPREDUCE  // check
 		int *total_count;
 	    int check_cmp;
 	#endif
@@ -265,7 +265,7 @@ long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
     p_proposed_tree = treealloc(MSA, LVB_TRUE);
     p_current_tree = treealloc(MSA, LVB_TRUE);
 
-    CopyCurrentTree(MSA, p_current_tree, inittree, LVB_TRUE);	/* current configuration */
+    treecopy(MSA, p_current_tree, inittree, LVB_TRUE);	/* current configuration */
 
     alloc_memory_to_getplen(MSA, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
     len = getplen(MSA, p_current_tree, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
@@ -288,7 +288,7 @@ long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
 	fprintf(lenfp, "\n  Temperature:   Rearrangement: TreeStack size: Length:\n");
 	printf("--------------------------------------------------------\n");
 	}
-		#ifdef LVB_MAPREDUCE  
+		#ifdef LVB_MAPREDUCE  // check
 		MPI_Bcast(&lenbest,  1, MPI_LONG, 0, MPI_COMM_WORLD);
 		misc->ID = bstackp->next;
 		misc->SB = 1;
@@ -366,7 +366,7 @@ long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
 		deltah = (r_lenmin / (double) len) - (r_lenmin / (double) lendash);
 		if (deltah > 1.0) deltah = 1.0; /* MinimumTreeLength() problem with ambiguous sites */
 
-		#ifdef LVB_MAPREDUCE  
+		#ifdef LVB_MAPREDUCE  // check
 			MPI_Bcast(&deltalen, 1, MPI_LONG, 0, MPI_COMM_WORLD);
 			MPI_Bcast(&deltah,   1, MPI_LONG, 0, MPI_COMM_WORLD);
 			MPI_Bcast(&lendash,  1, MPI_LONG, 0, MPI_COMM_WORLD);
@@ -374,7 +374,7 @@ long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
 
 		if (deltalen <= 0)	/* accept the change */
 		{
-				#ifdef LVB_MAPREDUCE  
+				#ifdef LVB_MAPREDUCE  // check
 							if (lendash <= lenbest)	/* store tree if new */
 			{
 					if (lendash < lenbest) {
@@ -460,7 +460,7 @@ long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
 			/* very best so far */
 			if (lendash < lenbest) {
 				lenbest = lendash;
-			#ifdef LVB_MAPREDUCE  
+			#ifdef LVB_MAPREDUCE  // check
 			MPI_Bcast(&lenbest,  1, MPI_LONG, 0, MPI_COMM_WORLD);
 			#endif
 			}
@@ -515,7 +515,7 @@ long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
 			}
 		}
 		proposed++;
-		#ifdef LVB_MAPREDUCE  
+		#ifdef LVB_MAPREDUCE  // check
 		MPI_Bcast(&proposed,  1, MPI_LONG, 0, MPI_COMM_WORLD);
 		#endif
 
@@ -528,7 +528,7 @@ long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
 		}
 		else if (proposed >= maxpropose){	/* enough proposals */
 			failedcnt++;
-			#ifdef LVB_MAPREDUCE  
+			#ifdef LVB_MAPREDUCE  // check
 			int check_stop = 0;
 				if (misc->rank == 0 && failedcnt >= maxfail && t < FROZEN_T) check_stop = 1;
 				MPI_Bcast(&check_stop,  1, MPI_INT, 0, MPI_COMM_WORLD);
@@ -580,7 +580,7 @@ long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
 			proposed = 0;
 			accepted = 0;
 			dect = LVB_FALSE;
-		#ifdef LVB_MAPREDUCE  
+		#ifdef LVB_MAPREDUCE  // check
 		MPI_Bcast(&proposed,  1, MPI_LONG, 0, MPI_COMM_WORLD);
 		MPI_Bcast(&accepted,  1, MPI_LONG, 0, MPI_COMM_WORLD);
 		#endif
@@ -610,7 +610,7 @@ long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
 	}
 	if (rcstruct.verbose == LVB_TRUE)
 	fprintf (pFile, "%ld\t%s\t%d\t%ld\t%lf\t%ld\n", iter, change, changeAcc, len, t*10000, bstackp->next);
-		#ifdef LVB_MAPREDUCE  
+		#ifdef LVB_MAPREDUCE  // check
 			MPI_Barrier(MPI_COMM_WORLD);
 
 	    }
@@ -721,7 +721,7 @@ static void lenlog(FILE *lengthfp, TREESTACK *bstackp, int myMPIid, long iterati
 	    /* "local" dynamic heap memory */
 	    p_current_tree  = treealloc(MSA, LVB_TRUE);
 	    p_proposed_tree = treealloc(MSA, LVB_TRUE);
-	    CopyCurrentTree(MSA, p_current_tree, inittree, LVB_TRUE);      /* current configuration */
+	    treecopy(MSA, p_current_tree, inittree, LVB_TRUE);      /* current configuration */
 	    alloc_memory_to_getplen(MSA, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
 	    len = getplen(MSA, p_current_tree, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 
@@ -880,7 +880,7 @@ static void lenlog(FILE *lengthfp, TREESTACK *bstackp, int myMPIid, long iterati
 	    	log_wrapper_grad_geom = log_wrapper(grad_geom);
 	    	log_wrapper_t0        = log_wrapper(t0);
 
-			CopyCurrentTree(MSA, p_current_tree, inittree, LVB_TRUE);	/* current configuration */
+			treecopy(MSA, p_current_tree, inittree, LVB_TRUE);	/* current configuration */
 
 			len = getplen(MSA, p_current_tree, *p_rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 			dect = LVB_FALSE;		/* made LVB_TRUE as necessary at end of loop */
