@@ -1,5 +1,3 @@
-#ifdef LVB_NP
-
 /* LVB
 
 (c) Copyright 2003-2012 by Daniel Barker
@@ -58,9 +56,3 @@ void PrintLVBCopyright();
 void PrintLVBInfo();
 
 #endif  // INFO_H_
-
-#elif LVB_PARALLEL_SEARCH
-
-
-
-#endif

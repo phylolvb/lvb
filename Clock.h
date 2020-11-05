@@ -1,5 +1,3 @@
-#ifdef LVB_NP
-
 /* LVB
 
 (c) Copyright 2003-2012 by Daniel Barker
@@ -50,9 +48,3 @@ void StartTime();
 void logstim(void);
 
 #endif  // CLOCK_H_
-
-#elif LVB_PARALLEL_SEARCH
-
-
-
-#endif

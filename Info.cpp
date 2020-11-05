@@ -1,5 +1,3 @@
-#ifdef LVB_NP
-
 /* LVB
 
 (c) Copyright 2003-2012 by Daniel Barker
@@ -104,9 +102,3 @@ void PrintLVBCopyright() {
   "ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF\n"
   "ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n\n";
 }
-
-#elif LVB_PARALLEL_SEARCH
-
-
-
-#endif

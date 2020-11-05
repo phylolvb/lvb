@@ -1,5 +1,3 @@
-#ifdef LVB_NP
-
 /* LVB
 
 (c) Copyright 2003-2012 by Daniel Barker
@@ -50,9 +48,3 @@ bool LogFileExists(const char *filename) {
   
   return (stat (filename, &buffer) == 0);
 }
-
-#elif LVB_PARALLEL_SEARCH
-
-
-
-#endif

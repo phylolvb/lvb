@@ -1,5 +1,3 @@
-#ifdef LVB_NP
-
 /* LVB
 
 (c) Copyright 2003-2012 by Daniel Barker
@@ -77,9 +75,3 @@ static void sort(Dataptr MSA, Objset *const oset_2, const long nels);
 static void ssarralloc(Dataptr restrict MSA, Objset *nobjset_2);
 
 #endif  /* TROPS_H_ */
-
-#elif LVB_PARALLEL_SEARCH
-
-
-
-#endif

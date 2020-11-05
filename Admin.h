@@ -1,5 +1,3 @@
-#ifdef LVB_NP
-
 /* LVB
 
 (c) Copyright 2003-2012 by Daniel Barker
@@ -50,5 +48,3 @@ void functionality_check(void);
 void lvb_initialize(void);
 
 #endif  /* ADMIN_H_ */
-
-#endif

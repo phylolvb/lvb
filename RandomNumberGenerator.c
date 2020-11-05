@@ -62,10 +62,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "LVB.h"
 
-#ifdef LVB_PARALLEL_SEARCH
-	#include "StoreStates.h"
-#endif
-
 static void rstart(int i, int j, int k, int l);
 
 /*
@@ -241,51 +237,3 @@ long randpint(const long upper)
     return rand;
 
 } /* end randpint() */
-
-#ifdef LVB_PARALLEL_SEARCH
-
-/* each structure has the number of bytes to read in the first position in the file */
-/* the last one is a checksum unsigned long, it not summed in the structure */
-unsigned long checkpoint_uni(FILE *fp)
-{
-	unsigned long n_bytes_to_write = sizeof(uni_u) + sizeof(double) + sizeof(int) + sizeof(int) + sizeof(Lvb_bool) + sizeof(unsigned short);
-	unsigned long checksum = 0;
-	unsigned short type_block = STATE_BLOCK_UNI;
-	fwrite(&n_bytes_to_write, sizeof(n_bytes_to_write), 1, fp); checksum = CalculateBlockCRC32(sizeof(n_bytes_to_write), (unsigned char *) &n_bytes_to_write, checksum);
-	fwrite(&type_block, sizeof(type_block), 1, fp); checksum = CalculateBlockCRC32(sizeof(type_block), (unsigned char *) &type_block, checksum);
-	fwrite(uni_u, sizeof(uni_u), 1, fp);
-    for (int i = 0; i < 98; i ++) checksum = CalculateBlockCRC32(sizeof(double), (unsigned char *) &uni_u[i], checksum);
-    fwrite(&uni_c, sizeof(double), 1, fp); checksum = CalculateBlockCRC32(sizeof(uni_c), (unsigned char *) &uni_c, checksum);
-    fwrite(&uni_ui, sizeof(int), 1, fp); checksum = CalculateBlockCRC32(sizeof(uni_ui), (unsigned char *) &uni_ui, checksum);
-    fwrite(&uni_uj, sizeof(int), 1, fp); checksum = CalculateBlockCRC32(sizeof(uni_uj), (unsigned char *) &uni_uj, checksum);
-    fwrite(&rinit_called, sizeof(Lvb_bool), 1, fp); checksum = CalculateBlockCRC32(sizeof(rinit_called), (unsigned char *) &rinit_called, checksum);
-    fwrite(&checksum, sizeof(unsigned long), 1, fp);
-    lvb_assert(ferror(fp) == 0);
-    lvb_assert(fflush(fp) == 0);
-//   print_information_checkpoint("Save data uni", n_bytes_to_write, checksum);
-    return checksum;
-}
-
-unsigned long restore_uni(FILE *fp)
-{
-	unsigned long n_bytes_to_write = sizeof(uni_u) + sizeof(double) + sizeof(int) + sizeof(int) + sizeof(Lvb_bool) + sizeof(unsigned short), n_bytes_to_read = 0;
-	unsigned long checksum = 0, checksum_read, n_read_values;
-	unsigned short type_block;
-	n_read_values = fread(&n_bytes_to_read, sizeof(n_bytes_to_read), 1, fp); checksum = CalculateBlockCRC32(sizeof(n_bytes_to_read), (unsigned char *) &n_bytes_to_read, checksum);
-	n_read_values = fread(&type_block, sizeof(type_block), 1, fp); checksum = CalculateBlockCRC32(sizeof(type_block), (unsigned char *) &type_block, checksum);
-	n_read_values = fread(uni_u, sizeof(uni_u), 1, fp);
-    for (int i = 0; i < 98; i ++) checksum = CalculateBlockCRC32(sizeof(double), (unsigned char *) &uni_u[i], checksum);
-    n_read_values = fread(&uni_c, sizeof(double), 1, fp); checksum = CalculateBlockCRC32(sizeof(uni_c), (unsigned char *) &uni_c, checksum);
-    n_read_values = fread(&uni_ui, sizeof(int), 1, fp); checksum = CalculateBlockCRC32(sizeof(uni_ui), (unsigned char *) &uni_ui, checksum);
-    n_read_values = fread(&uni_uj, sizeof(int), 1, fp); checksum = CalculateBlockCRC32(sizeof(uni_uj), (unsigned char *) &uni_uj, checksum);
-    n_read_values = fread(&rinit_called, sizeof(Lvb_bool), 1, fp); checksum = CalculateBlockCRC32(sizeof(rinit_called), (unsigned char *) &rinit_called, checksum);
-    n_read_values = fread(&checksum_read, sizeof(unsigned long), 1, fp);
-    lvb_assert(n_read_values == 1);
-    lvb_assert(ferror(fp) == 0);
-    lvb_assert(n_bytes_to_read == n_bytes_to_write);
-    lvb_assert(checksum_read == checksum);
-//    print_information_checkpoint("Read data uni", n_bytes_to_write, checksum);
-    return checksum;
-}
-
-#endif

@@ -1,5 +1,3 @@
-#ifdef LVB_NP
-
 /* LVB
 
 (c) Copyright 2003-2012 by Daniel Barker
@@ -74,9 +72,3 @@ void logstim(void) {
   tim = time(NULL);
   printf("Starting at: %s\n", ctime(&tim));
 }
-
-#elif LVB_PARALLEL_SEARCH
-
-
-
-#endif
