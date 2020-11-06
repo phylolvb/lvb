@@ -94,20 +94,7 @@ long PushCurrentTreeToStack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRA
   
     /* need to copy the sitestate_2 to the sp->stack[sp->next].sitestate  */
     copy_sitestate(MSA, sp->stack[sp->next].p_sitestate);
-    sp->next++;
-
-    FILE *printcurrenttree;
-    FILE *printcurrenttreehashcomparison;
-    printcurrenttree = fopen("PrintCurrentTree", "w");
-    printcurrenttreehashcomparison = fopen("PrintCurrentTreeHashComparison", "a+");
-       
-    CallPrintHashTree(MSA, printcurrenttree, BranchArray, root);
-    CallPrintHashTree(MSA, printcurrenttreehashcomparison, BranchArray, root);
-
-    fclose(printcurrenttree);
-    fclose(printcurrenttreehashcomparison);
-
-    HashCurrentTree();    
+    sp->next++;   
 
     return 1;
  
@@ -303,6 +290,8 @@ long CompareTreeToTreestack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRA
     /* topology is new so must be pushed */
     lvb_assert(root < MSA->n);
     PushCurrentTreeToStack(MSA, sp, BranchArray, root, b_with_sitestate);
+
+    CallTopologyHashing(MSA, sp, BranchArray, root, b_with_sitestate);
     return 1;
 
 } /* end CompareTreeToTreestack() */

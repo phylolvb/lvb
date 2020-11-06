@@ -43,6 +43,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define CLADESEP ","	/* clade separator for trees */
 
+void CallTopologyHashing(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRANCH *const BranchArray, const long root, Lvb_bool b_with_sitestate)
+{
+	FILE *printcurrenttree;
+    FILE *printcurrenttreehashcomparison;
+    printcurrenttree = fopen("PrintCurrentTree", "w");
+    printcurrenttreehashcomparison = fopen("PrintCurrentTreeHashComparison", "a+");
+       
+    CallPrintHashTree(MSA, printcurrenttree, BranchArray, root);
+    CallPrintHashTree(MSA, printcurrenttreehashcomparison, BranchArray, root);
+
+    fclose(printcurrenttree);
+    fclose(printcurrenttreehashcomparison);
+
+    HashCurrentTree(); 
+}
+
 void CallPrintHashTree (Dataptr MSA, FILE *const stream, const TREESTACK_TREE_BRANCH *const BranchArray, const long root)
 	/* print tree in BranchArray (of root root) in bracketed text form to stream stream,
 	 * in unrooted form */
