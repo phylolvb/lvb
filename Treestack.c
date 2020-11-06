@@ -96,7 +96,7 @@ long PushCurrentTreeToStack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRA
     copy_sitestate(MSA, sp->stack[sp->next].p_sitestate);
     sp->next++;
 
-    /* FILE *printcurrenttree;
+    FILE *printcurrenttree;
     FILE *printcurrenttreehashcomparison;
     printcurrenttree = fopen("PrintCurrentTree", "w");
     printcurrenttreehashcomparison = fopen("PrintCurrentTreeHashComparison", "a+");
@@ -107,9 +107,7 @@ long PushCurrentTreeToStack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRA
     fclose(printcurrenttree);
     fclose(printcurrenttreehashcomparison);
 
-    HashCurrentTree(); */
-
-    
+    HashCurrentTree();    
 
     return 1;
  
