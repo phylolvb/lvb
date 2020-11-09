@@ -43,20 +43,30 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define CLADESEP ","	/* clade separator for trees */
 
-void CallTopologyHashing(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRANCH *const BranchArray, const long root, Lvb_bool b_with_sitestate)
+void TopologyHashing(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRANCH *const BranchArray, const long root, Lvb_bool b_with_sitestate)
 {
-	FILE *printcurrenttree;
-    FILE *printcurrenttreehashcomparison;
-    printcurrenttree = fopen("PrintCurrentTree", "w");
-    printcurrenttreehashcomparison = fopen("PrintCurrentTreeHashComparison", "a+");
-       
-    CallPrintHashTree(MSA, printcurrenttree, BranchArray, root);
-    CallPrintHashTree(MSA, printcurrenttreehashcomparison, BranchArray, root);
+	long current_topology_hash = 0;
+	long hashstack_count = 0;
 
-    fclose(printcurrenttree);
-    fclose(printcurrenttreehashcomparison);
+	FILE *printalltopologies = fopen("PrintAllTopologies", "a+");
+	FILE *printcurrenttopologyforhash = fopen("PrintCurrentTopologyForHash", "w");
 
-    HashCurrentTree(); 
+	CallPrintHashTree(MSA, printalltopologies, BranchArray, root);
+	CallPrintHashTree(MSA, printcurrenttopologyforhash, BranchArray, root);
+
+	fclose(printalltopologies);
+	fclose(printcurrenttopologyforhash);
+
+	current_topology_hash = HashCurrentTree();
+
+	// printf("Current Topology Hash = %lu \n", current_topology_hash);
+
+	hashstack_count = CountHashesInFile();
+
+	// printf("HashStackCount = %ld \n", hashstack_count);
+
+	// CompareHashStringToStringStack(hashstack_count, current_topology_hash);
+
 }
 
 void CallPrintHashTree (Dataptr MSA, FILE *const stream, const TREESTACK_TREE_BRANCH *const BranchArray, const long root)
@@ -129,28 +139,72 @@ void PrintHashTree(Dataptr MSA, FILE *const stream, const TREESTACK_TREE_BRANCH 
 
 }
 
-long HashCurrentTree() {
+long HashCurrentTree() /* complete */
+{
 string line;
-ifstream myfile ("PrintCurrentTree");
+ifstream myfile ("PrintCurrentTopologyForHash");
 
-FILE *printhashtree;
-printhashtree = fopen("PrintHashTree", "a+");
+FILE *printhashvalue = fopen("PrintAllHashValues", "a+");
+
+string str;
+long str_hash = 0;
 
 if (myfile.is_open())
 {
     while ( getline (myfile,line))
     {
-        string str = line;
-        size_t str_hash = hash<string>{}(str);
+        str = line;
+        str_hash = hash<string>{}(str);
 
-        fprintf(printhashtree, "%lu\n", str_hash);
+		fprintf(printhashvalue, "%lu\n", str_hash);
+		//printf("Current hash value %lu\n", str_hash);
     }
     myfile.close();
 }
 
 else cout << "Unable to open file";
 
-fclose(printhashtree);
+fclose(printhashvalue);
 
-return 1;
+return str_hash;
+}
+
+long CountHashesInFile() /* complete */
+{
+	unsigned int number_of_hashes = 0;
+	int ch;
+
+	FILE *hashfile = fopen("PrintAllHashValues", "r");
+
+	while (EOF != (ch=getc(hashfile)))
+		if ('\n' == ch)
+			++number_of_hashes;
+	return number_of_hashes;
+
+	fclose(hashfile);
+}
+
+/* for number of lines {
+	if compare == True, break
+	else add
+} */
+
+long CompareHashStringToStringStack(long hashstack_count, long current_topology_hash)
+{
+	int i; /* loop counter */
+	FILE *hashfile = fopen("PrintHashTree", "r");
+
+	/* for hashstack_count iterations compare propsed hash to each line, if match break, else add */
+
+	for (i = 0; i < hashstack_count; i++) {
+		// compare current_hash to hash at line n
+	}
+	
+	printf("Current_Hash = %ld \n", current_topology_hash);
+	// printf("Hashstack_count_in_comparison = %ld \n", hashstack_count);
+	// printf("Hashstack_count_in_myfile = %ld \n", hashfile);
+
+	fclose(hashfile);
+
+	return 0;
 }
