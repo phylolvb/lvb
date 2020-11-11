@@ -45,7 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void TopologyHashing(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRANCH *const BranchArray, const long root, Lvb_bool b_with_sitestate)
 {
-	long current_topology_hash = 0;
+	unsigned long current_topology_hash = 0;
 	long hashstack_count = 0;
 
 	FILE *printalltopologies = fopen("PrintAllTopologies", "a+");
@@ -65,7 +65,11 @@ void TopologyHashing(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRANCH *co
 
 	// printf("HashStackCount = %ld \n", hashstack_count);
 
-	// CompareHashStringToStringStack(hashstack_count, current_topology_hash);
+	//long HashValueArr[hashstack_count];
+
+	//*HashValueArr = ConvertHashStackToArray(HashValueArr, hashstack_count);
+
+	CompareHashToHashStack(current_topology_hash, hashstack_count);
 
 }
 
@@ -184,27 +188,69 @@ long CountHashesInFile() /* complete */
 	fclose(hashfile);
 }
 
+long ConvertHashStackToArray(long* HashValueArr, long hashstack_count)
+{
+	ifstream AllHashValuesFile("PrintAllHashValues");
+	if(AllHashValuesFile.is_open())
+	{
+		
+		for (int i = 0; i < hashstack_count; ++i)
+		{
+			AllHashValuesFile >> HashValueArr[i];
+		}
+	}
+	FILE* printhasharray = fopen("PrintHashArray","w");
+
+		for (int j = 0; j < hashstack_count; ++j)
+		{
+			fprintf(printhasharray, "%ld \n", HashValueArr[j]);
+		}
+	
+	fclose(printhasharray);
+
+	return 0;
+}
+
 /* for number of lines {
 	if compare == True, break
 	else add
 } */
 
-long CompareHashStringToStringStack(long hashstack_count, long current_topology_hash)
+long CompareHashToHashStack(unsigned long current_topology_hash, long hashstack_count)
 {
-	int i; /* loop counter */
+	// read in file to array
+	// compare current topology hash to array
+	long i; // loop counter
+
+	FILE *printhashvalue = fopen("PrintAllHashValues", "r");
+	FILE *printcomparehashtohashstack = fopen("PrintCompareHashToHashStack", "a+");
+	FILE *printcomparehashtohashstack2 = fopen("PrintCompareHashToHashStack2", "a+");
+
+	// compare current has to hash at line n
+	// need to assign hash at each line to variable for comparison
+	//  = 0; 0,1; 0,1,2; 0,1,2,3
+	for (i = 0; i < hashstack_count; i++) {
+		fprintf(printcomparehashtohashstack,"%ld \n", i);
+		fprintf(printcomparehashtohashstack2,"%lu \n", current_topology_hash);
+	}
+	
+
+	//fprintf(printcomparehashtohashstack,"%lu \n", current_topology_hash);
+	/* 
 	FILE *hashfile = fopen("PrintHashTree", "r");
 
-	/* for hashstack_count iterations compare propsed hash to each line, if match break, else add */
+	// for hashstack_count iterations compare propsed hash to each line, if match break, else add
 
-	for (i = 0; i < hashstack_count; i++) {
-		// compare current_hash to hash at line n
-	}
+	
 	
 	printf("Current_Hash = %ld \n", current_topology_hash);
 	// printf("Hashstack_count_in_comparison = %ld \n", hashstack_count);
 	// printf("Hashstack_count_in_myfile = %ld \n", hashfile);
+	*/
 
-	fclose(hashfile);
-
+	fclose(printcomparehashtohashstack);
+	fclose(printcomparehashtohashstack2);
+	fclose(printhashvalue);
+	
 	return 0;
 }

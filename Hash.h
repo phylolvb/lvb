@@ -10,5 +10,6 @@
 using namespace std;
 
 static void PrintHashTree(Dataptr restrict, FILE *const stream, const TREESTACK_TREE_BRANCH *const BranchArray, const long root);
-long CompareHashStringToStringStack(long, long);
+long CompareHashToHashStack(unsigned long, long);
 long CountHashesInFile();
+long ConvertHashStackToArray(long *, long);
