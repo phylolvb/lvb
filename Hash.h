@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <functional>
 #include <unordered_set>
+#include <vector>
 
 using namespace std;
 
