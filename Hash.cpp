@@ -41,18 +41,19 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Hash.h"
 
-#define CLADESEP ","	/* clade separator for trees */
-
 void TopologyHashing(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRANCH *const BranchArray, const long root, Lvb_bool b_with_sitestate)
 {
 	unsigned long current_topology_hash = 0;
 	long hashstack_count = 0;
-	unsigned int i;
+	bool hash_found = false;
 
 	FILE *printalltopologies = fopen("PrintAllTopologies", "a+");
 	FILE *printcurrenttopologyforhash = fopen("PrintCurrentTopologyForHash", "w");
-	FILE *printvector = fopen("PrintVector", "a+");
+	FILE *printvector = fopen("PrintVector", "w");
+	FILE *printreadvector = fopen("PrintReadVector", "w");
+	FILE *printduplicates = fopen("PrintHashDuplicates", "w");
 
+	/* Print topologies to file, need to be kept for retrevial later */
 	CallPrintHashTree(MSA, printalltopologies, BranchArray, root);
 	CallPrintHashTree(MSA, printcurrenttopologyforhash, BranchArray, root);
 
@@ -60,34 +61,51 @@ void TopologyHashing(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRANCH *co
 	fclose(printcurrenttopologyforhash);
 
 	current_topology_hash = HashCurrentTree();
+	// hashstack_count = CountHashesInFile();
 
-	hashstack_count = CountHashesInFile();
+	/* read in 'printvectortest', and put into vector (HashStackReadFromFile) */
+	ifstream is("printvectortest");
+	istream_iterator<unsigned long> start(is), end;
+	vector <unsigned long> HashStackReadFromFile(start, end);
+
+	for (auto i = HashStackReadFromFile.begin(); i != HashStackReadFromFile.end(); i++)
+		fprintf(printreadvector, "%lu \n", *i);
+
+	fclose(printreadvector);
 
 	vector <unsigned long> HashStack;
 
-	HashStack.push_back(current_topology_hash);	
+	/* copy HashStackReadFromFile to HashStack */
+	for (unsigned int k = 0; k<HashStackReadFromFile.size(); k++)
+		HashStack.push_back(HashStackReadFromFile[k]);
+	
+	/* check if HashStack is empty */
+	if (HashStack.empty())
+		HashStack.push_back(current_topology_hash);	
 
-	//for (i = 0; i <= HashStack.size(); i++)
-	//	fprintf(printvector, "%lu \n", HashStack.operator[](i));
+	/* loop through comparing current_topology_hash to previous elements */
+	for (unsigned int i = 0; i < HashStack.size(); i++)
+	{
+		if (current_topology_hash != HashStack[i])
+		{
+		hash_found = !hash_found;
+		printf("Hash not found \n");
+		HashStack.push_back(current_topology_hash);
+		}
+		else
+		{
+			printf("Hash found \n");
+			fprintf(printduplicates, "New Hash: %lu = %lu Old Hash \n", current_topology_hash, HashStack[i]);
+			break;
+		}
+		break;
+	}
 
+	/* print HashStack to file */
 	for (auto i = HashStack.begin(); i != HashStack.end(); i++)
 		fprintf(printvector, "%lu \n", *i);
 
 	fclose (printvector);
-
-
-	//cout << "\n HashStack Output: ";
-	//for (auto i = HashStack.begin(); i != HashStack.end(); ++i)
-	//	cout << *i << " \n";
-
-	// printf("HashStackCount = %ld \n", hashstack_count);
-
-	// long HashValueArr[hashstack_count];
-
-	// *HashValueArr = ConvertHashStackToArray(HashValueArr, hashstack_count);
-
-	// CompareHashToHashStack(current_topology_hash, hashstack_count);
-
 }
 
 void CallPrintHashTree (Dataptr MSA, FILE *const stream, const TREESTACK_TREE_BRANCH *const BranchArray, const long root)
@@ -135,7 +153,7 @@ void PrintHashTree(Dataptr MSA, FILE *const stream, const TREESTACK_TREE_BRANCH 
 	    }
 	    else	/* print remainder of tree */
 	    {
-			if (usecomma == LVB_TRUE) fprintf(stream, "%s", CLADESEP);
+			if (usecomma == LVB_TRUE) fprintf(stream, "%s", ",");
 			if (root < MSA->n)	/* leaf */
 			{
 				tmp_title = (char *) alloc(strlen(MSA->rowtitle[obj]) + 1, "temp. title");
@@ -160,7 +178,7 @@ void PrintHashTree(Dataptr MSA, FILE *const stream, const TREESTACK_TREE_BRANCH 
 
 }
 
-long HashCurrentTree() /* complete */
+long HashCurrentTree()
 {
 string line;
 ifstream myfile ("PrintCurrentTopologyForHash");
@@ -190,7 +208,7 @@ fclose(printhashvalue);
 return str_hash;
 }
 
-long CountHashesInFile() /* complete */
+long CountHashesInFile()
 {
 	unsigned int number_of_hashes = 0;
 	int ch;
@@ -204,66 +222,3 @@ long CountHashesInFile() /* complete */
 
 	fclose(hashfile);
 }
-
-/* long ConvertHashStackToArray(long* HashValueArr, long hashstack_count)
-{
-	FILE *printreadhash = fopen("PrintHashReadFromFile", "a+");
-
-	unsigned long current_hash_from_file = 0;
-
-	fstream myfile("PrintAllHashValues", ios_base::in);
-	while(myfile >> current_hash_from_file)
-	{		
-		for (int i = 0; i < hashstack_count; ++i)
-		{
-			myfile >> HashValueArr[i];
-			printf("lu \n", HashValueArr[i]);
-		}
-	}
-	FILE* printhasharray = fopen("PrintHashArray","w");
-
-		for (int j = 0; j < hashstack_count; ++j)
-		{
-			fprintf(printhasharray, "%ld \n", HashValueArr[j]);
-		}
-	
-	fclose(printhasharray);
-
-	return 0;
-} */
-
-/* for number of lines {
-	if compare == True, break
-	else add
-} */
-
-/* long CompareHashToHashStack(unsigned long current_topology_hash, long hashstack_count)
-{
-	FILE *printreadhash = fopen("PrintHashReadFromFile", "a+");
-
-	fstream myfile("PrintAllHashValues", ios_base::in);
-
-	unsigned long current_hash_from_file = 0;
-	bool found = false;
-
-	while (myfile >> current_hash_from_file)
-	{
-		if (current_topology_hash == current_hash_from_file)
-		{
-			found = true;
-			break;
-		}
-		else
-		{
-			found = false;
-		}
-		
-		if (!found)
-		fprintf(printreadhash, "%lu \n", current_hash_from_file);
-
-	}
-	
-	fclose(printreadhash);
-	
-	return 0;
-} */
