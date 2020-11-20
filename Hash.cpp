@@ -43,17 +43,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void TopologyHashing(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRANCH *const BranchArray, const long root, Lvb_bool b_with_sitestate)
 {
-	unsigned long current_topology_hash = 0;
-	long hashstack_count = 0;
-	bool hash_found = false;
+	long current_topology_hash = 0;
+	static vector<long> hashstackvector;
 
 	FILE *printalltopologies = fopen("PrintAllTopologies", "a+");
 	FILE *printcurrenttopologyforhash = fopen("PrintCurrentTopologyForHash", "w");
-	FILE *printvector = fopen("PrintVector", "w");
-	FILE *printreadvector = fopen("PrintReadVector", "w");
-	FILE *printduplicates = fopen("PrintHashDuplicates", "w");
 
-	/* Print topologies to file, need to be kept for retrevial later */
+	/* Print topologies to file, need to be kept for retrieval later */
 	CallPrintHashTree(MSA, printalltopologies, BranchArray, root);
 	CallPrintHashTree(MSA, printcurrenttopologyforhash, BranchArray, root);
 
@@ -63,46 +59,20 @@ void TopologyHashing(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRANCH *co
 	current_topology_hash = HashCurrentTree();
 	// hashstack_count = CountHashesInFile();
 
-	/* read in 'printvectortest', and put into vector (HashStackReadFromFile) */
-	ifstream is("printvectortest");
-	istream_iterator<unsigned long> start(is), end;
-	vector <unsigned long> HashStackReadFromFile(start, end);
-
-	for (auto i = HashStackReadFromFile.begin(); i != HashStackReadFromFile.end(); i++)
-		fprintf(printreadvector, "%lu \n", *i);
-
-	fclose(printreadvector);
-
-	vector <unsigned long> HashStack;
-
-	/* copy HashStackReadFromFile to HashStack */
-	for (unsigned int k = 0; k<HashStackReadFromFile.size(); k++)
-		HashStack.push_back(HashStackReadFromFile[k]);
-	
-	/* check if HashStack is empty */
-	if (HashStack.empty())
-		HashStack.push_back(current_topology_hash);	
-
-	/* loop through comparing current_topology_hash to previous elements */
-	for (unsigned int i = 0; i < HashStack.size(); i++)
+	if (binary_search(hashstackvector.begin(), hashstackvector.end(), current_topology_hash))
 	{
-		if (current_topology_hash != HashStack[i])
-		{
-		hash_found = !hash_found;
-		printf("Hash not found \n");
-		HashStack.push_back(current_topology_hash);
-		}
-		else
-		{
-			printf("Hash found \n");
-			fprintf(printduplicates, "New Hash: %lu = %lu Old Hash \n", current_topology_hash, HashStack[i]);
-			break;
-		}
-		break;
+		cout << "Hash " << current_topology_hash << "found in HashStack" << endl;
 	}
+	else
+	{
+		hashstackvector.push_back(current_topology_hash);
+	}
+	
+	sort(hashstackvector.begin(), hashstackvector.end());
 
-	/* print HashStack to file */
-	for (auto i = HashStack.begin(); i != HashStack.end(); i++)
+	FILE *printvector = fopen("PrintVector", "w");
+
+	for (auto i = hashstackvector.begin(); i != hashstackvector.end(); i++)
 		fprintf(printvector, "%lu \n", *i);
 
 	fclose (printvector);
