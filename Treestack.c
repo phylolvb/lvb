@@ -291,7 +291,7 @@ long CompareTreeToTreestack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRA
     lvb_assert(root < MSA->n);
     PushCurrentTreeToStack(MSA, sp, BranchArray, root, b_with_sitestate);
 
-    TopologyHashing(MSA, sp, BranchArray, root, b_with_sitestate);
+    // TopologyHashing(MSA, sp, BranchArray, root, b_with_sitestate);
     return 1;
 
 } /* end CompareTreeToTreestack() */
