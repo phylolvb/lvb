@@ -472,8 +472,12 @@ int main(int argc, char **argv)
 		fprintf (logfile, "%s\t%ld\t%ld\t%ld\t%.2lf\n", LVB_IMPLEMENTATION, iter, trees_output_total, final_length, Overall_Time_taken);
 		fclose(logfile);
 	}
-
 	
+	double consistencyindex = MinimumTreeLength(MSA);
+	double homoplasyindex = 0;
+	
+	consistencyindex = consistencyindex/final_length;
+	homoplasyindex = 1 - consistencyindex;
 
 	printf("\nSearch Complete\n");
 	printf("\n================================================================================\n");
@@ -481,6 +485,8 @@ int main(int argc, char **argv)
 	printf("  Rearrangements evaluated: %ld\n", iter);
 	printf("  Topologies recovered:     %ld\n", trees_output_total);
 	printf("  Tree score:               %ld\n", final_length);
+	printf("  Consistency index:        %.2lf\n", consistencyindex);
+	printf("  Homoplasy index:          %.2lf\n", homoplasyindex);
 	printf("  Total runtime (seconds):  %.2lf\n", Overall_Time_taken);
 	printf("\nAll topologies written to '%s'\n", rcstruct.file_name_out);
 
