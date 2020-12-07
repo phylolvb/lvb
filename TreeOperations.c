@@ -1254,7 +1254,7 @@ static void ssarralloc(Dataptr MSA, Objset *nobjset_2)
 
 } /* end ssarralloc() */
 
-#ifdef LVB_MAPREDUCE  // okay
+#ifdef LVB_MAPREDUCE  
 
 	void print_sets(Dataptr MSA, TREESTACK *sp, MISC *misc)
 	{

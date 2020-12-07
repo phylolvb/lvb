@@ -277,12 +277,14 @@ long CompareTreeToTreestack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRA
     		if (b_find_sitestate == LVB_TRUE) return 0;
     	}
     #endif
+
     	else{
     		for (i = sp->next - 1; i >= 0; i--) {
-    			if (TopologyComparison(MSA, sp->stack[i].p_sitestate, copy_2, b_First) == 0) return 0;
+    			if (TopologyComparison(MSA, sp->stack[i].p_sitestate, copy_2, b_First) == 0) return 0; // If trees are the same, return 0
     			b_First = LVB_FALSE;
     		}
     	}
+    
     #ifndef LVB_MAPREDUCE
     }
     #endif
@@ -291,7 +293,6 @@ long CompareTreeToTreestack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRA
     lvb_assert(root < MSA->n);
     PushCurrentTreeToStack(MSA, sp, BranchArray, root, b_with_sitestate);
 
-    // TopologyHashing(MSA, sp, BranchArray, root, b_with_sitestate);
     return 1;
 
 } /* end CompareTreeToTreestack() */

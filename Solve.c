@@ -55,7 +55,7 @@ static void lenlog(FILE *lengthfp, TREESTACK *bstackp, long iteration, long leng
 
 } /* end lenlog() */
 
-#ifdef LVB_MAPREDUCE  // okay
+#ifdef LVB_MAPREDUCE  
 long deterministic_hillclimb(Dataptr MSA, TREESTACK *bstackp, const TREESTACK_TREE_BRANCH *const inittree,
 	Parameters rcstruct, long root, FILE * const lenfp, long *current_iter, Lvb_bool log_progress, 
 	MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer)
@@ -85,7 +85,7 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *bstackp, const TREESTACK_TR
     long *p_todo_arr_sum_changes; /*used in openMP, to sum the partial changes */
     int *p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */
 
-	#ifdef LVB_MAPREDUCE  // okay
+	#ifdef LVB_MAPREDUCE  
 		int *total_count;
 	    int check_cmp;
 	#endif
@@ -111,7 +111,7 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *bstackp, const TREESTACK_TR
 				lendash = getplen(MSA, p_proposed_tree, rcstruct, rootdash, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 				lvb_assert (lendash >= 1L);
 				deltalen = lendash - len;
-				#ifdef LVB_MAPREDUCE  // check
+				#ifdef LVB_MAPREDUCE  
 				MPI_Bcast(&deltalen, 1, MPI_LONG, 0,    MPI_COMM_WORLD);
 					MPI_Bcast(&lendash,  1, MPI_LONG, 0,    MPI_COMM_WORLD);
 
@@ -171,9 +171,11 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *bstackp, const TREESTACK_TR
 					if (deltalen < 0)  /* very best so far */
 					{
 						ClearTreestack(bstackp);
+						FILE *clearhashstack = fopen("PrintAllHashValues", "w");
+						fclose(clearhashstack);
 						len = lendash;
 					}
-					if (CompareTreeToTreestack(MSA, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1) {
+					if ((CompareTreeToTreestack(MSA, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1) || (TopologyHashing(MSA, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1))  {
 						newtree = LVB_TRUE;
 						SwapTrees(&p_current_tree, &root, &p_proposed_tree, &rootdash);
 					}
@@ -197,7 +199,7 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *bstackp, const TREESTACK_TR
     return len;
 } /* end deterministic_hillclimb */
 
-#ifdef LVB_MAPREDUCE  // okay
+#ifdef LVB_MAPREDUCE  
 long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_TREE_BRANCH *const inittree, Parameters rcstruct,
 	long root, const double t0, const long maxaccept, const long maxpropose,
 	const long maxfail, FILE *const lenfp, long *current_iter,
@@ -247,7 +249,7 @@ long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
     long *p_todo_arr; /* [MAX_BRANCHES + 1];	 list of "dirty" branch nos */
     long *p_todo_arr_sum_changes; /*used in openMP, to sum the partial changes */
     int *p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */
-	#ifdef LVB_MAPREDUCE  // check
+	#ifdef LVB_MAPREDUCE  
 		int *total_count;
 	    int check_cmp;
 	#endif
@@ -272,7 +274,14 @@ long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
     lvb_assert( ((float) t >= (float) LVB_EPS) && (t <= 1.0) && (grad_geom >= LVB_EPS) && (grad_linear >= LVB_EPS));
 
     lenbest = len;
-    CompareTreeToTreestack(MSA, bstackp, inittree, root, LVB_FALSE);	/* init. tree initially best */
+
+	// #ifdef LVB_HASH
+		TopologyHashing(MSA, bstackp, inittree, root, LVB_FALSE);
+	// #else
+		CompareTreeToTreestack(MSA, bstackp, inittree, root, LVB_FALSE);	/* init. tree initially best */
+	// #endif
+    
+	
 
 	double trops_counter[3] = {1,1,1};
 	double trops_probs[3] = {0,0,0};
@@ -286,7 +295,7 @@ long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
 	fprintf(lenfp, "\n  Temperature:   Rearrangement: TreeStack size: Length:\n");
 	printf("--------------------------------------------------------\n");
 	}
-		#ifdef LVB_MAPREDUCE  // check
+		#ifdef LVB_MAPREDUCE  
 		MPI_Bcast(&lenbest,  1, MPI_LONG, 0, MPI_COMM_WORLD);
 		misc->ID = bstackp->next;
 		misc->SB = 1;
@@ -364,7 +373,7 @@ long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
 		deltah = (r_lenmin / (double) len) - (r_lenmin / (double) lendash);
 		if (deltah > 1.0) deltah = 1.0; /* MinimumTreeLength() problem with ambiguous sites */
 
-		#ifdef LVB_MAPREDUCE  // check
+		#ifdef LVB_MAPREDUCE  
 			MPI_Bcast(&deltalen, 1, MPI_LONG, 0, MPI_COMM_WORLD);
 			MPI_Bcast(&deltah,   1, MPI_LONG, 0, MPI_COMM_WORLD);
 			MPI_Bcast(&lendash,  1, MPI_LONG, 0, MPI_COMM_WORLD);
@@ -372,7 +381,7 @@ long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
 
 		if (deltalen <= 0)	/* accept the change */
 		{
-				#ifdef LVB_MAPREDUCE  // check
+				#ifdef LVB_MAPREDUCE  
 							if (lendash <= lenbest)	/* store tree if new */
 			{
 					if (lendash < lenbest) {
@@ -445,8 +454,12 @@ long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
 								if (lendash <= lenbest)	/* store tree if new */
 			{
 				/*printf("%ld\n", *current_iter);*/
-				if (lendash < lenbest) ClearTreestack(bstackp);	/* discard old bests */
-				if (CompareTreeToTreestack(MSA, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1){
+				if (lendash < lenbest) {
+					ClearTreestack(bstackp);	/* discard old bests */
+					FILE *clearhashstack = fopen("PrintAllHashValues", "w");
+					fclose(clearhashstack);	
+				} 
+				if ((CompareTreeToTreestack(MSA, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1) || (TopologyHashing(MSA, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1)) {
 					accepted++;
 				}
 			}
@@ -458,7 +471,7 @@ long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
 			/* very best so far */
 			if (lendash < lenbest) {
 				lenbest = lendash;
-			#ifdef LVB_MAPREDUCE  // check
+			#ifdef LVB_MAPREDUCE  
 			MPI_Bcast(&lenbest,  1, MPI_LONG, 0, MPI_COMM_WORLD);
 			#endif
 			}
@@ -513,7 +526,7 @@ long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
 			}
 		}
 		proposed++;
-		#ifdef LVB_MAPREDUCE  // check
+		#ifdef LVB_MAPREDUCE  
 		MPI_Bcast(&proposed,  1, MPI_LONG, 0, MPI_COMM_WORLD);
 		#endif
 
@@ -526,7 +539,7 @@ long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
 		}
 		else if (proposed >= maxpropose){	/* enough proposals */
 			failedcnt++;
-			#ifdef LVB_MAPREDUCE  // check
+			#ifdef LVB_MAPREDUCE  
 			int check_stop = 0;
 				if (misc->rank == 0 && failedcnt >= maxfail && t < FROZEN_T) check_stop = 1;
 				MPI_Bcast(&check_stop,  1, MPI_INT, 0, MPI_COMM_WORLD);
@@ -578,7 +591,7 @@ long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
 			proposed = 0;
 			accepted = 0;
 			dect = LVB_FALSE;
-		#ifdef LVB_MAPREDUCE  // check
+		#ifdef LVB_MAPREDUCE  
 		MPI_Bcast(&proposed,  1, MPI_LONG, 0, MPI_COMM_WORLD);
 		MPI_Bcast(&accepted,  1, MPI_LONG, 0, MPI_COMM_WORLD);
 		#endif
@@ -608,12 +621,12 @@ long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
 	}
 	if (rcstruct.verbose == LVB_TRUE)
 	fprintf (pFile, "%ld\t%s\t%d\t%ld\t%lf\t%ld\n", iter, change, changeAcc, len, t*10000, bstackp->next);
-		#ifdef LVB_MAPREDUCE  // check
+		#ifdef LVB_MAPREDUCE  
 			MPI_Barrier(MPI_COMM_WORLD);
 
 	    }
 	    print_sets(MSA, bstackp, misc);
-		#else // okay
+		#else 
     }
 		#endif
     /* free "local" dynamic heap memory */

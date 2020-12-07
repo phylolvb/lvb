@@ -65,7 +65,7 @@ static void smessg(long start, long cycle)
 
 } /* end smessg() */
 
-#ifdef LVB_MAPREDUCE  // okay
+#ifdef LVB_MAPREDUCE
 static void writeinf(Parameters prms, Dataptr MSA, int argc, char **argv, int n_process)
 
 #else
@@ -139,7 +139,7 @@ static void logtree1(Dataptr MSA, const TREESTACK_TREE_BRANCH *const BranchArray
 
 } /* end logtree1() */
 
-#ifdef LVB_MAPREDUCE  // okay
+#ifdef LVB_MAPREDUCE
 static long getsoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool log_progress,
 				MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer)
 #else
@@ -166,7 +166,7 @@ static long getsoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb
     long *p_todo_arr; /* [MAX_BRANCHES + 1];	 list of "dirty" branch nos */
     long *p_todo_arr_sum_changes; /*used in openMP, to sum the partial changes */
     int *p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */
-	#ifdef LVB_MAPREDUCE  // okay
+	#ifdef LVB_MAPREDUCE
 	int *total_count;
 	#endif
 
@@ -227,7 +227,7 @@ static long getsoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb
 		logtree1(MSA, tree, start, cyc, initroot);
     }
 	
-	#ifdef LVB_MAPREDUCE  // check
+	#ifdef LVB_MAPREDUCE
 		MPI_Barrier(MPI_COMM_WORLD);
 		/* find solution(s) */
 		treelength = Anneal(MSA, &bstack_overall, &stack_treevo, tree, rcstruct, initroot, t0, maxaccept,
@@ -283,7 +283,14 @@ static long getsoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb
     treelength = Anneal(MSA, &bstack_overall, &stack_treevo, tree, rcstruct, initroot, t0, maxaccept, 
     maxpropose, maxfail, stdout, iter_p, log_progress);
     PullTreefromTreestack(MSA, tree, &initroot, &bstack_overall, LVB_FALSE);
-    CompareTreeToTreestack(MSA, &bstack_overall, tree, initroot, LVB_FALSE);
+
+	// #ifdef LVB_HASH
+		TopologyHashing(MSA, &bstack_overall, tree, initroot, LVB_FALSE);
+	// #else
+		CompareTreeToTreestack(MSA, &bstack_overall, tree, initroot, LVB_FALSE);
+	// #endif
+    
+    
 
 	#endif
 
@@ -359,7 +366,7 @@ int main(int argc, char **argv)
 	outtreefp = (FILE *) alloc (sizeof(FILE), "alloc FILE");
 	Lvb_bool log_progress;	/* whether or not to log Anneal search */
 
-	#ifdef LVB_MAPREDUCE  // okay
+	#ifdef LVB_MAPREDUCE
 
 		/* MapReduce version */
 		MPI_Init(&argc,&argv);
@@ -405,7 +412,7 @@ int main(int argc, char **argv)
     stack_treevo = CreateNewTreestack();
         
     matchange(MSA, rcstruct);	/* cut columns */
-	#ifdef LVB_MAPREDUCE  // okay
+	#ifdef LVB_MAPREDUCE
     writeinf(rcstruct, MSA, argc, argv, misc.nprocs);
 	#else
 	writeinf(rcstruct, MSA, argc, argv);
@@ -424,7 +431,7 @@ int main(int argc, char **argv)
     if(rcstruct.algorithm_selection ==2)
     treEvo = fopen ("treEvo.tre","w");
 		iter = 0;     
-		#ifdef LVB_MAPREDUCE  // okay
+		#ifdef LVB_MAPREDUCE
 		final_length = getsoln(MSA, rcstruct, &iter, log_progress, &misc, mrTreeStack, mrBuffer);
 	    if (misc.rank == 0) {
 	       trees_output = PrintTreestack(MSA, &bstack_overall, outtreefp, LVB_FALSE);
@@ -441,7 +448,7 @@ int main(int argc, char **argv)
 		PrintTreestack(MSA, &stack_treevo, treEvo, LVB_FALSE);
         ClearTreestack(&bstack_overall);
 		printf("--------------------------------------------------------\n");
-		#ifdef LVB_MAPREDUCE  // okay
+		#ifdef LVB_MAPREDUCE
 		/* clean the TreeStack and buffer */
 	    mrTreeStack->map( mrTreeStack, map_clean, NULL );
 	    mrBuffer->map( mrBuffer, map_clean, NULL );
@@ -501,7 +508,7 @@ int main(int argc, char **argv)
     if (cleanup() == LVB_TRUE) val = EXIT_FAILURE;
     else val = EXIT_SUCCESS;
 
-	#ifdef LVB_MAPREDUCE  // okay
+	#ifdef LVB_MAPREDUCE
 	FreeTreestackMemory(MSA, &bstack_overall);
 	    MPI_Barrier(MPI_COMM_WORLD);
 

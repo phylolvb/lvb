@@ -48,7 +48,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define CLADESEP ","	/* clade separator for trees */
 
-#ifdef LVB_MAPREDUCE  // okay
+#ifdef LVB_MAPREDUCE  
 
 void map_pushSets(int itask, KeyValue *kv, void *ptr);
 static Objset sitestate_1[MAX_N - 3] = { { NULL, 0 } };

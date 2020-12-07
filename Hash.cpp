@@ -41,10 +41,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Hash.h"
 
-void TopologyHashing(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRANCH *const BranchArray, const long root, Lvb_bool b_with_sitestate)
+long TopologyHashing(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRANCH *const BranchArray, const long root, Lvb_bool b_with_sitestate)
 {
 	long current_topology_hash = 0;
 	static vector<long> hashstackvector;
+	bool hashfound = false;
 
 	FILE *printalltopologies = fopen("PrintAllTopologies", "a+");
 	FILE *printcurrenttopologyforhash = fopen("PrintCurrentTopologyForHash", "w");
@@ -62,20 +63,29 @@ void TopologyHashing(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRANCH *co
 	if (binary_search(hashstackvector.begin(), hashstackvector.end(), current_topology_hash))
 	{
 		cout << "Hash " << current_topology_hash << "found in HashStack" << endl;
-	}
-	else
-	{
+		!hashfound;
+		current_topology_hash = 0;
+
+	} else	{
 		hashstackvector.push_back(current_topology_hash);
 	}
-	
+
 	sort(hashstackvector.begin(), hashstackvector.end());
 
 	FILE *printvector = fopen("PrintVector", "w");
 
 	for (auto i = hashstackvector.begin(); i != hashstackvector.end(); i++)
 		fprintf(printvector, "%lu \n", *i);
-
 	fclose (printvector);
+
+	if (hashfound == false)
+	{
+		return 0;
+	}
+	else
+	{
+		return 1;
+	}
 }
 
 void CallPrintHashTree (Dataptr MSA, FILE *const stream, const TREESTACK_TREE_BRANCH *const BranchArray, const long root)
