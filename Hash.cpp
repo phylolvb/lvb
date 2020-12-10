@@ -40,18 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "Hash.h"
-
-vector<long> CopyHashStackVector(vector<long> &hashstackvector, vector<long> &hashstackvectorcopy) 
-{
-	unsigned long i;
-
-	hashstackvectorcopy.clear();
-
-	for (i = 0; i<hashstackvector.size(); i++)
-		hashstackvectorcopy.push_back(hashstackvector[i]);
-
-	return hashstackvectorcopy;
-}
+#include "LVB.h"
 
 long TopologyHashing(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRANCH *const BranchArray, const long root, Lvb_bool b_with_sitestate)
 {
@@ -59,6 +48,11 @@ long TopologyHashing(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRANCH *co
 	bool hashfound = false;
 	static vector<long> hashstackvector;
 	static vector<long> hashstackvectorcopy;
+
+	if((sp->next = 0))
+	{
+		hashstackvector.clear();
+	}
 
 	FILE *printalltopologies = fopen("PrintAllTopologies", "a+");
 	FILE *printcurrenttopologyforhash = fopen("PrintCurrentTopologyForHash", "w");
@@ -71,11 +65,10 @@ long TopologyHashing(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRANCH *co
 	fclose(printcurrenttopologyforhash);
 
 	current_topology_hash = HashCurrentTree();
-	// hashstack_count = CountHashesInFile();
 
 	if (binary_search(hashstackvector.begin(), hashstackvector.end(), current_topology_hash))
 	{
-		cout << "Hash " << current_topology_hash << "found in HashStack" << endl;
+		cout << "Hash " << current_topology_hash << " found in HashStack" << endl;
 		!hashfound;
 		current_topology_hash = 0;
 
@@ -101,12 +94,28 @@ long TopologyHashing(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRANCH *co
 
 	if (hashfound == false)
 	{
-		return 0;
+		/* topology is new so must be pushed */
+    	lvb_assert(root < MSA->n);
+    	PushCurrentTreeToStack(MSA, sp, BranchArray, root, b_with_sitestate);
+
+		return 1;
 	}
 	else
 	{
-		return 1;
+		return 0;
 	}
+}
+
+vector<long> CopyHashStackVector(vector<long> &hashstackvector, vector<long> &hashstackvectorcopy) 
+{
+	unsigned long i;
+
+	hashstackvectorcopy.clear();
+
+	for (i = 0; i<hashstackvector.size(); i++)
+		hashstackvectorcopy.push_back(hashstackvector[i]);
+
+	return hashstackvectorcopy;
 }
 
 void CallPrintHashTree (Dataptr MSA, FILE *const stream, const TREESTACK_TREE_BRANCH *const BranchArray, const long root)
@@ -208,24 +217,3 @@ fclose(printhashvalue);
 
 return str_hash;
 }
-
-/*
-long ClearHashStack(vector<long> &hashstackvector)
-{
-	FILE *printvectorbefore = fopen("PrintVectorBefore", "w");
-	FILE *printvectorafter = fopen("PrintVectorAfter", "w");
-
-	for (auto i = hashstackvector.begin(); i != hashstackvector.end(); i++)
-		fprintf(printvectorbefore, "%lu \n", *i);
-	fclose (printvectorbefore);
-
-	hashstackvector.clear();
-	cout << "Clear Vector" << endl;
-
-	for (auto i = hashstackvector.begin(); i != hashstackvector.end(); i++)
-		fprintf(printvectorafter, "%lu \n", *i);
-	fclose (printvectorafter);
-
-	return 0;
-}
-*/
