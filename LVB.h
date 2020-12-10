@@ -41,6 +41,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef LVB_LVB_H
 #define LVB_LVB_H
 
+#include <vector>
+
+using namespace std;
+
 #include <ctype.h>
 #include <errno.h>
 #include <limits.h>
@@ -153,6 +157,8 @@ typedef struct
 	long hash_next;			/* next unused element of stack */
     TREESTACK_TREE *hash_stack;	/* pointer to first element in stack */
 } HASH_TREESTACK;
+
+//vector<long> hashstackvectorcopy;
 
 /* simulated annealing parameters */
 #define MAXACCEPT_MIN 5L		/* minimum value for maxaccept */
@@ -278,6 +284,7 @@ bool LogFileExists(const char *filename);
 double StartingTemperature(Dataptr, const TREESTACK_TREE_BRANCH *const, Parameters rcstruct, long, Lvb_bool);
 long HashCurrentTree();
 long TopologyHashing(Dataptr, TREESTACK *, const TREESTACK_TREE_BRANCH *const, const long, Lvb_bool b_with_sitestate);
+long ClearHashStack(vector<long>&);
 
 #ifdef LVB_MAPREDUCE
 long Anneal(Dataptr restrict, TREESTACK *, TREESTACK *, const TREESTACK_TREE_BRANCH *const, Parameters rcstruct, long, const double,

@@ -171,8 +171,7 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *bstackp, const TREESTACK_TR
 					if (deltalen < 0)  /* very best so far */
 					{
 						ClearTreestack(bstackp);
-						FILE *clearhashstack = fopen("PrintAllHashValues", "w");
-						fclose(clearhashstack);
+						//ClearHashStack(hashstackvector);
 						len = lendash;
 					}
 					if ((CompareTreeToTreestack(MSA, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1) || (TopologyHashing(MSA, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1))  {
@@ -456,8 +455,7 @@ long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
 				/*printf("%ld\n", *current_iter);*/
 				if (lendash < lenbest) {
 					ClearTreestack(bstackp);	/* discard old bests */
-					FILE *clearhashstack = fopen("PrintAllHashValues", "w");
-					fclose(clearhashstack);	
+					//ClearHashStack(hashstackvector);
 				} 
 				if ((CompareTreeToTreestack(MSA, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1) || (TopologyHashing(MSA, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1)) {
 					accepted++;
@@ -629,6 +627,7 @@ long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
 		#else 
     }
 		#endif
+
     /* free "local" dynamic heap memory */
 	if (rcstruct.verbose == LVB_TRUE)
 	fclose(pFile);

@@ -41,11 +41,24 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Hash.h"
 
+vector<long> CopyHashStackVector(vector<long> &hashstackvector, vector<long> &hashstackvectorcopy) 
+{
+	unsigned long i;
+
+	hashstackvectorcopy.clear();
+
+	for (i = 0; i<hashstackvector.size(); i++)
+		hashstackvectorcopy.push_back(hashstackvector[i]);
+
+	return hashstackvectorcopy;
+}
+
 long TopologyHashing(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRANCH *const BranchArray, const long root, Lvb_bool b_with_sitestate)
 {
 	long current_topology_hash = 0;
-	static vector<long> hashstackvector;
 	bool hashfound = false;
+	static vector<long> hashstackvector;
+	static vector<long> hashstackvectorcopy;
 
 	FILE *printalltopologies = fopen("PrintAllTopologies", "a+");
 	FILE *printcurrenttopologyforhash = fopen("PrintCurrentTopologyForHash", "w");
@@ -72,11 +85,19 @@ long TopologyHashing(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRANCH *co
 
 	sort(hashstackvector.begin(), hashstackvector.end());
 
+	CopyHashStackVector(hashstackvector, hashstackvectorcopy);
+
 	FILE *printvector = fopen("PrintVector", "w");
 
 	for (auto i = hashstackvector.begin(); i != hashstackvector.end(); i++)
 		fprintf(printvector, "%lu \n", *i);
 	fclose (printvector);
+
+	FILE *printvectorcopy = fopen("PrintVectorCopy", "w");
+
+	for (auto i = hashstackvectorcopy.begin(); i != hashstackvectorcopy.end(); i++)
+		fprintf(printvectorcopy, "%lu \n", *i);
+	fclose (printvectorcopy);
 
 	if (hashfound == false)
 	{
@@ -188,17 +209,23 @@ fclose(printhashvalue);
 return str_hash;
 }
 
-long CountHashesInFile()
+/*
+long ClearHashStack(vector<long> &hashstackvector)
 {
-	unsigned int number_of_hashes = 0;
-	int ch;
+	FILE *printvectorbefore = fopen("PrintVectorBefore", "w");
+	FILE *printvectorafter = fopen("PrintVectorAfter", "w");
 
-	FILE *hashfile = fopen("PrintAllHashValues", "r");
+	for (auto i = hashstackvector.begin(); i != hashstackvector.end(); i++)
+		fprintf(printvectorbefore, "%lu \n", *i);
+	fclose (printvectorbefore);
 
-	while (EOF != (ch=getc(hashfile)))
-		if ('\n' == ch)
-			++number_of_hashes;
-	return number_of_hashes;
+	hashstackvector.clear();
+	cout << "Clear Vector" << endl;
 
-	fclose(hashfile);
+	for (auto i = hashstackvector.begin(); i != hashstackvector.end(); i++)
+		fprintf(printvectorafter, "%lu \n", *i);
+	fclose (printvectorafter);
+
+	return 0;
 }
+*/
