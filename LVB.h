@@ -42,7 +42,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define LVB_LVB_H
 
 #include <vector>
-
 using namespace std;
 
 #include <ctype.h>
@@ -157,8 +156,6 @@ typedef struct
 	long hash_next;			/* next unused element of stack */
     TREESTACK_TREE *hash_stack;	/* pointer to first element in stack */
 } HASH_TREESTACK;
-
-//vector<long> hashstackvectorcopy;
 
 /* simulated annealing parameters */
 #define MAXACCEPT_MIN 5L		/* minimum value for maxaccept */
