@@ -276,6 +276,9 @@ static long getsoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb
 
 			free(misc->count);
 			free(total_count);
+
+			treelength = deterministic_hillclimb(MSA, &bstack_overall, tree, rcstruct, initroot, stdout,
+				iter_p, log_progress, misc, mrTreeStack, mrBuffer);
 		}
 
 	#else
@@ -290,7 +293,8 @@ static long getsoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb
 		CompareTreeToTreestack(MSA, &bstack_overall, tree, initroot, LVB_FALSE);
 	#endif
     
-    
+    treelength = deterministic_hillclimb(MSA, &bstack_overall, tree, rcstruct, initroot, stdout,
+				iter_p, log_progress);
 
 	#endif
 
