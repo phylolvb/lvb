@@ -171,14 +171,9 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *bstackp, const TREESTACK_TR
 					if (deltalen < 0)  /* very best so far */
 					{
 						ClearTreestack(bstackp);
-						//ClearHashStack(hashstackvector);
 						len = lendash;
 					}
-					#ifdef LVB_HASH
-						if(TopologyHashing(MSA, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1)
-					#else
 						if (CompareTreeToTreestack(MSA, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1) 
-					#endif
 					{
 						newtree = LVB_TRUE;
 						SwapTrees(&p_current_tree, &root, &p_proposed_tree, &rootdash);
@@ -278,14 +273,7 @@ long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
     lvb_assert( ((float) t >= (float) LVB_EPS) && (t <= 1.0) && (grad_geom >= LVB_EPS) && (grad_linear >= LVB_EPS));
 
     lenbest = len;
-
-	#ifdef LVB_HASH
-		TopologyHashing(MSA, bstackp, inittree, root, LVB_FALSE);
-	#else
-		CompareTreeToTreestack(MSA, bstackp, inittree, root, LVB_FALSE);	/* init. tree initially best */
-	#endif
-    
-	
+		CompareTreeToTreestack(MSA, bstackp, inittree, root, LVB_FALSE);	/* init. tree initially best */  
 
 	double trops_counter[3] = {1,1,1};
 	double trops_probs[3] = {0,0,0};
@@ -460,14 +448,8 @@ long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
 				/*printf("%ld\n", *current_iter);*/
 				if (lendash < lenbest) {
 					ClearTreestack(bstackp);	/* discard old bests */
-					//ClearHashStack(hashstackvector);
 				}
-
-				#ifdef LVB_HASH
-					if(TopologyHashing(MSA, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1)
-				#else
 					if(CompareTreeToTreestack(MSA, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1)
-				#endif
 				{
 					accepted++;
 				}

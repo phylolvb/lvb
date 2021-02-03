@@ -287,11 +287,7 @@ static long getsoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb
     maxpropose, maxfail, stdout, iter_p, log_progress);
     PullTreefromTreestack(MSA, tree, &initroot, &bstack_overall, LVB_FALSE);
 
-	#ifdef LVB_HASH
-		TopologyHashing(MSA, &bstack_overall, tree, initroot, LVB_FALSE);
-	#else
-		CompareTreeToTreestack(MSA, &bstack_overall, tree, initroot, LVB_FALSE);
-	#endif
+	CompareTreeToTreestack(MSA, &bstack_overall, tree, initroot, LVB_FALSE);
     
     treelength = deterministic_hillclimb(MSA, &bstack_overall, tree, rcstruct, initroot, stdout,
 				iter_p, log_progress);

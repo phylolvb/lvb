@@ -12,6 +12,6 @@
 
 using namespace std;
 
-static void PrintHashTree(Dataptr restrict, FILE *const stream, const TREESTACK_TREE_BRANCH *const BranchArray, const long root);
+void PrintHashTree(Dataptr restrict, FILE *const stream, const TREESTACK_TREE_BRANCH *const BranchArray, const long root);
 long CompareHashToHashStack(unsigned long, long);
 vector<long> CopyHashStackVector(vector<long> &, vector<long> &);

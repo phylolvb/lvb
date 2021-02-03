@@ -102,7 +102,7 @@ LIB_EXT = a		# UNIX
 LVB_LIB = libLVB.$(LIB_EXT)
 LIBS += $(LVB_LIB)
 
-LVB_PROG = lvb$(EXE)
+LVB_PROG = lvb_hash$(EXE)
 
 # Object files that will go into the LVB library
 

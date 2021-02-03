@@ -42,6 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Hash.h"
 #include "LVB.h"
 
+/* 
 long TopologyHashing(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRANCH *const BranchArray, const long root, Lvb_bool b_with_sitestate)
 {
 	long current_topology_hash = 0;
@@ -57,7 +58,6 @@ long TopologyHashing(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRANCH *co
 	FILE *printalltopologies = fopen("PrintAllTopologies", "a+");
 	FILE *printcurrenttopologyforhash = fopen("PrintCurrentTopologyForHash", "w");
 
-	/* Print topologies to file, need to be kept for retrieval later */
 	CallPrintHashTree(MSA, printalltopologies, BranchArray, root);
 	CallPrintHashTree(MSA, printcurrenttopologyforhash, BranchArray, root);
 
@@ -94,7 +94,6 @@ long TopologyHashing(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRANCH *co
 
 	if (hashfound == false)
 	{
-		/* topology is new so must be pushed */
     	lvb_assert(root < MSA->n);
     	PushCurrentTreeToStack(MSA, sp, BranchArray, root, b_with_sitestate);
 
@@ -105,19 +104,7 @@ long TopologyHashing(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRANCH *co
 		return 0;
 	}
 }
-
-vector<long> CopyHashStackVector(vector<long> &hashstackvector, vector<long> &hashstackvectorcopy) 
-{
-	unsigned long i;
-
-	hashstackvectorcopy.clear();
-
-	for (i = 0; i<hashstackvector.size(); i++)
-		hashstackvectorcopy.push_back(hashstackvector[i]);
-
-	return hashstackvectorcopy;
-}
-
+ */
 void CallPrintHashTree (Dataptr MSA, FILE *const stream, const TREESTACK_TREE_BRANCH *const BranchArray, const long root)
 	/* print tree in BranchArray (of root root) in bracketed text form to stream stream,
 	 * in unrooted form */
