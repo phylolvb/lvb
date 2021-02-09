@@ -231,7 +231,7 @@ long CompareTreeToTreestack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRA
 
     #ifdef LVB_HASH
     long current_topology_hash = 0;
-    static vector<long> hashstackvector;
+    //static vector<long> hashstackvector;
     #endif
 
     #ifdef LVB_NP
@@ -303,20 +303,35 @@ long CompareTreeToTreestack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRA
 
         current_topology_hash = HashCurrentTree();
 
+        if((sp->next == 0))
+	        {
+		        hashstackvector.clear();
+	        }
+
         if(hashstackvector.empty()) {
             hashstackvector.push_back(current_topology_hash);
         }
 
-        sort(hashstackvector.begin(), hashstackvector.end());
+        sort(hashstackvector.begin(),
+         hashstackvector.end());
 
-        if (binary_search(hashstackvector.begin(), hashstackvector.end(), current_topology_hash)) {
-            // cout << "Hash found = " << current_topology_hash << endl;
+        if (binary_search(hashstackvector.begin(), hashstackvector.end(), current_topology_hash)) 
+        {           
+            FILE *printreturnstatement = fopen("PrintReturnStatement", "a+");
+            fprintf(printreturnstatement, "HashFound = %ld, Return 0; \n", current_topology_hash);
+            fclose(printreturnstatement);
+            cout << "Hash found = " << current_topology_hash << endl;
             return 0;
         }
         hashstackvector.push_back(current_topology_hash);
         b_First = LVB_FALSE;
+        FILE *printhashadded = fopen("PrintHashAdded", "a+");
+        fprintf(printhashadded, "HashFound = %ld, Return 1; \n", current_topology_hash);
+        cout << "Hash Added = " << current_topology_hash << endl;
+        
+        fclose(printhashadded);
 
-    FILE *printvector = fopen("PrintVector", "a+");
+    FILE *printvector = fopen("PrintVector", "w");
 
 	for (auto i = hashstackvector.begin(); i !=hashstackvector.end(); i++)
 		fprintf(printvector, "%lu \n", *i);

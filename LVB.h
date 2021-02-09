@@ -133,7 +133,7 @@ typedef struct
     long right;			/* index of second child in tree array */
     long changes;		/* changes associated with this branch */
     Lvb_bit_length *sitestate;	/* statesets for all sites */
-} TREESTACK_TREE_BRANCH;
+} TREESTACK_TREE_BRANCH; // node
 
 /* tree stacks */
 typedef struct
@@ -149,6 +149,8 @@ typedef struct
 	long next;			/* next unused element of stack */
     TREESTACK_TREE *stack;	/* pointer to first element in stack */
 } TREESTACK;
+
+static vector<long> hashstackvector;
 
 /* simulated annealing parameters */
 #define MAXACCEPT_MIN 5L		/* minimum value for maxaccept */
