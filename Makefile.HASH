@@ -1,0 +1,213 @@
+# LVB
+# 
+# (c) Copyright 2003-2012 by Daniel Barker
+# (c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl
+# (c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
+# (c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
+# and Chris Wood.
+# (c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
+# Fernando Guntoro, Maximilian Strobl and Chris Wood.
+# All rights reserved.
+#  
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+# 
+# 1. Redistributions of source code must retain the above copyright notice,
+# this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright notice,
+# this list of conditions and the following disclaimer in the documentation
+# and/or other materials provided with the distribution.
+# 
+# 3. Neither the name of the copyright holder nor the names of its contributors
+# may be used to endorse or promote products derived from this software without
+# specific prior written permission.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
+# Makefile - makefile for LVB
+
+# Requires GNU make
+# Requires pod2html (this will usually be present if Perl is installed)
+# Requires LibreOffice (and soffice must be on PATH)
+#
+# It is always safer to make from scratch after changing the source code
+# or Makefile, e.g.
+#
+# make clean
+#
+# first.
+#
+# For 64-bit Linux on AMD or Intel-based hardware, compile with
+#
+# make
+#
+# AFTER BUILDING LVB, RUN TESTS IMMEDIATELY: DO
+#
+# make test
+#
+# For 32-bit AMD or Intel-based hardware or entirely different 32-bit CPUs
+# (e.g. the Raspberry Pi), uncomment the line that adds -DCOMPILE_32_BITS to
+# CFLAGS; also, comment-out the line that adds -msse4.2.
+#
+# For OS X with the Intel C++ compiler, uncomment the definitions of CC,
+# G++ and CFLAGS as instructed below, then compile as for Linux.
+
+# Directories
+TEST_DIR = ./test/src
+DOCS_PROG_DIR = ./docs_programmer
+#LVB_READ_FILE_DIR = ./LVB_READ_FILES/src
+
+### define a c++ compiler to your platform 
+G++ = mpic++
+CC = mpic++
+
+# UNCOMMENT THIS FOR 32-BIT LINUX (E.G. OLD INTEL CPUS OR RASPBERRY PI)
+#CFLAGS += -DCOMPILE_32_BITS
+# COMMENT THIS FOR 32-BIT (E.G. OLD INTEL CPUS OR RASPBERRY PI):
+CFLAGS += -msse4.2
+
+# FOR OS X WITH THE INTEL C++ COMPILER, UNCOMMENT THE NEXT THREE LINES 
+#G++ = icpc
+#CC = icc
+#CFLAGS += -openmp-link static
+
+# General options
+# CFLAGS += -Wall -g -O3 -std=c99 -fopenmp  -DLVB_NP
+CFLAGS += -Wall -g -O3 -fopenmp  -DLVB_NP -DLVB_HASH -std=c++11
+CXXFLAGS += -Wall -g -O3 -fopenmp -DLVB_NP -DLVB_HASH -std=c++11
+
+# System-dependent macros - OK for Linux and UNIX-like systems, for others will
+# require change
+LM = -lm		# UNIX
+RANLIB = ranlib	# UNIX
+EXE =			# UNIX
+OBJ = o			# UNIX
+LIB_EXT = a		# UNIX
+
+%.OBJ : %.c
+	$(CC) $(CFLAGS) $<
+
+# LVB library
+LVB_LIB = libLVB.$(LIB_EXT)
+LIBS += $(LVB_LIB)
+
+LVB_PROG = lvb_hash$(EXE)
+
+# Object files that will go into the LVB library
+
+LVB_LIB_OBJS = Admin.$(OBJ) \
+               Cleanup.$(OBJ) \
+			   Clock.$(OBJ) \
+               DataOperations.$(OBJ) \
+               Error.$(OBJ) \
+               FileOperations.$(OBJ) \
+               SearchParameters.$(OBJ) \
+               StartingTemperature.$(OBJ) \
+			   Hash.$(OBJ) \
+			   Info.$(OBJ) \
+			   LogFile.$(OBJ) \
+               MemoryOperations.$(OBJ) \
+               MyMaths.$(OBJ) \
+               RandomNumberGenerator.$(OBJ) \
+               TreeEvaluation.$(OBJ) \
+               Solve.$(OBJ) \
+               Sops.$(OBJ) \
+			   Treestack.$(OBJ) \
+               TreeOperations.$(OBJ) \
+               Wrapper.$(OBJ)
+
+LVB_READ_FILE_OBJS = 	$(LVB_READ_FILE_DIR)MSAInput.$(OBJ) \
+			$(LVB_READ_FILE_DIR)CommandLineParser.$(OBJ)
+
+LVB_LIB_OBJS_OUTPUT = $(LVB_LIB_OBJS)
+
+# Object files that are used directly and will not go into the library
+
+LVB_PROG_OBJS = Main.$(OBJ)
+
+# Documentation files
+
+LVB_MANUAL = LVBManual.pdf
+
+DOCS_PROGRAMMER = $(TEST_MANUAL) \
+                  $(DOCS_PROG_DIR)/Main.html \
+                  $(DOCS_PROG_DIR)/Treestack.html \
+		  $(DOCS_PROG_DIR)/Cleanup.html \
+		  $(DOCS_PROG_DIR)/DataOperations.html \
+		  $(DOCS_PROG_DIR)/Error.html \
+		  $(DOCS_PROG_DIR)/FileOperations.html \
+		  $(DOCS_PROG_DIR)/SearchParameters.html \
+		  $(DOCS_PROG_DIR)/Admin.html \
+		  $(DOCS_PROG_DIR)/MemoryOperations.html \
+		  $(DOCS_PROG_DIR)/MyMaths.html \
+		  $(DOCS_PROG_DIR)/RandomNumberGenerator.html \
+		  $(DOCS_PROG_DIR)/TreeEvaluation.html \
+		  $(DOCS_PROG_DIR)/Solve.html \
+		  $(DOCS_PROG_DIR)/Sops.html \
+		  $(DOCS_PROG_DIR)/TreeOperations.html \
+		  $(DOCS_PROG_DIR)/Wrapper.html
+
+TEST_MANUAL = $(DOCS_PROG_DIR)/go.html
+
+# All documentation files
+
+DOCS = $(DOCS_PROGRAMMER) \
+       $(TEST_MANUAL) \
+       $(LVB_MANUAL)
+
+# Default rule for documentation files (not suitable for user's
+# documentation files, which are derived from *.pod not *.c, or for
+# go.html, which is derived from a different directory)
+
+%.html : $(LVB_LIB)
+	pod2html $(notdir $*).c > $@
+
+all : lvb	# allow 'make all' as synonym for 'make lvb'
+
+lvb : LVB_PROG $(DOCS)
+
+$(LVB_MANUAL) : LVBManual.odt
+	soffice --headless --convert-to pdf:writer_pdf_Export LVBManual.odt
+
+LVB_PROG : $(LVB_LIB) $(LVB_PROG_OBJS)
+	$(G++) $(CFLAGS) $(LDFLAGS) -o $(LVB_PROG) $(LVB_PROG_OBJS) $(LVB_READ_FILE_OBJS) $(LIBS) $(LM)
+
+$(LVB_LIB) : $(LVB_LIB_OBJS) $(LVB_READ_FILE_OBJS) 
+	ar rv $@ $(LVB_LIB_OBJS_OUTPUT) 
+	$(RANLIB) $(LVB_LIB)
+
+# If the main test script has changed, we should run the tests
+$(TEST_MANUAL) : $(TEST_DIR)/COMMON/go
+	pod2html $< >$@
+
+test : FORCE
+	cd test/src/COMMON ; env LVB_EXECUTABLE="`pwd`/../../../$(LVB_PROG)" LVB_LIBRARY="`pwd`/../../../$(LVB_LIB)" LVB_OTHERLIBS="$(LM)" LVB_HEADER_PATH=".." GPLUSPLUS="$(G++)" LINKERCPLUSPLUS="$(G++)" CFLAGS="$(CFLAGS)" ./go; cd ..;
+
+tests : test	# allow 'make tests' as synonym for 'make test'
+
+# make clean to remove files generated by a previous make, leaving
+# source files
+clean : FORCE
+	rm -f $(LVB_PROG) \
+	rm -f test/test*/*.o \
+	rm -f test/test*/testprog.exe \
+	rm pod2htmd.tmp \
+	rm pod2htmi.tmp \
+	$(LVB_LIB) \
+	$(LVB_LIB_OBJS) \
+	$(LVB_READ_FILE_OBJS) \
+	$(LVB_PROG_OBJS) \
+	$(DOCS)
+
+FORCE:
