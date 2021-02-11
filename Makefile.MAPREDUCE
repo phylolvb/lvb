@@ -122,8 +122,8 @@ else
 	G++ = mpic++
 	CXX = mpic++
 	CC = mpic++
-	CFLAGS += -DLVB_MAPREDUCE -DLVB_NP -std=c++11
-	CXXFLAGS += -DLVB_MAPREDUCE -DLVB_NP -std=c++11
+	CFLAGS += -DLVB_MAPREDUCE -std=c++11
+	CXXFLAGS += -DLVB_MAPREDUCE -std=c++11
 	# LM = -lm /gpfs/stfc/local/HCP006/mdw02/cxk42-mdw02/LIBs/mrmpi-22Nov13/src/libmrmpi_mpicc.a
 	# LM = -lm /home/dbarker/mrmpi/mrmpi-7Apr14/src/libmrmpi_mpicc.a
 	LM = -lm /home/s1880345/bin/libmrmpi_mpicc.a

@@ -71,7 +71,7 @@ static void realgetobjs(Dataptr, const TREESTACK_TREE_BRANCH *const BranchArray,
 static Lvb_bool *GenerateRandomTopology(Dataptr, TREESTACK_TREE_BRANCH *const BranchArray, const long nobjs);
 static void ur_print(Dataptr restrict, FILE *const stream, const TREESTACK_TREE_BRANCH *const BranchArray, const long root);
 static long setstcmp(Dataptr restrict, Objset *const oset_1, Objset *const oset_2, Lvb_bool b_First);
-static void sort(Dataptr MSA, Objset *const oset_2, const long nels);
+static void Sort(Dataptr MSA, Objset *const oset_2, const long nels);
 static void ssarralloc(Dataptr restrict MSA, Objset *nobjset_2);
 
 #endif  /* TROPS_H_ */

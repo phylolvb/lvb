@@ -1183,7 +1183,7 @@ void sort_array(long *p_array, int n_left, int n_rigth){
 	if (l_hold < n_rigth) sort_array(p_array, l_hold, n_rigth);
 }
 
-static void sort(Dataptr MSA, Objset *const oset_2, const long nels)
+static void Sort(Dataptr MSA, Objset *const oset_2, const long nels)
 /* sort the nels object sets in oset so that each is in order, and sort oset so
  * that the sets themselves are in order of size and content */
 {
@@ -1238,7 +1238,7 @@ void makesets(Dataptr MSA, const TREESTACK_TREE_BRANCH *const tree_2, const long
     }
 
     fillsets(MSA, sitestate_2, tree_2, root);
-    sort(MSA, sitestate_2, MSA->nsets);
+    Sort(MSA, sitestate_2, MSA->nsets);
 } /* end makesets() */
 
 static void ssarralloc(Dataptr MSA, Objset *nobjset_2)
@@ -1284,7 +1284,7 @@ static void ssarralloc(Dataptr MSA, Objset *nobjset_2)
 			  root = d_obj1;
 
 			  fillsets(MSA, sitestate_2, Tree, root);
-			  sort(MSA, sitestate_2, MSA->nsets);
+			  Sort(MSA, sitestate_2, MSA->nsets);
 
 			  for(int j=0; j< MSA->nsets; j++) {
 				  set = (long *) alloc( sitestate_2[j].cnt * sizeof(long), "int array for tree comp using MR");
@@ -1328,7 +1328,7 @@ static void ssarralloc(Dataptr MSA, Objset *nobjset_2)
 		root = d_obj1;
 
 		fillsets(MSA, sitestate_1, copy_tree, root);
-		sort(MSA, sitestate_1, misc->nsets);
+		Sort(MSA, sitestate_1, misc->nsets);
 
 		MPI_Barrier(MPI_COMM_WORLD);
 		uint64_t nKV = mrObj->map(misc->nprocs, map_pushSets, misc);
