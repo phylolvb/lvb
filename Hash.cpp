@@ -175,7 +175,7 @@ void PrintHashTree(Dataptr MSA, FILE *const stream, const TREESTACK_TREE_BRANCH 
 
 }
 
-long HashCurrentTree()
+unsigned long HashCurrentTree()
 {
 string line;
 ifstream myfile ("PrintCurrentTopologyForHash");
@@ -183,7 +183,7 @@ ifstream myfile ("PrintCurrentTopologyForHash");
 FILE *printhashvalue = fopen("PrintAllHashValues", "a+");
 
 string str;
-long str_hash = 0;
+unsigned long str_hash = 0;
 
 if (myfile.is_open())
 {
