@@ -150,8 +150,6 @@ typedef struct
     TREESTACK_TREE *stack;	/* pointer to first element in stack */
 } TREESTACK;
 
-static vector<long> hashstackvector;
-
 /* simulated annealing parameters */
 #define MAXACCEPT_MIN 5L		/* minimum value for maxaccept */
 #define MAXACCEPT_MAX 5L		/* maximum value for maxaccept */
@@ -273,10 +271,8 @@ void LogTime();
 void StartTime();
 bool LogFileExists(const char *filename);
 double StartingTemperature(Dataptr, const TREESTACK_TREE_BRANCH *const, Parameters rcstruct, long, Lvb_bool);
-void CallPrintHashTree (Dataptr, FILE *const, const TREESTACK_TREE_BRANCH *const, const long);
-unsigned long HashCurrentTree();
-long TopologyHashing(Dataptr, TREESTACK *, const TREESTACK_TREE_BRANCH *const, const long, Lvb_bool b_with_sitestate);
 long PushCurrentTreeToStack(Dataptr, TREESTACK *, const TREESTACK_TREE_BRANCH *const, const long, Lvb_bool b_with_sitestate);
+unsigned long HashCurrentTree();
 
 #ifdef LVB_MAPREDUCE
 long Anneal(Dataptr restrict, TREESTACK *, TREESTACK *, const TREESTACK_TREE_BRANCH *const, Parameters rcstruct, long, const double,

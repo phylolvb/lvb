@@ -43,7 +43,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* ========== Treestack.c - TREESTACK Operations ========== */
 
 #include "LVB.h"
-#include "Hash.h"
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <iomanip>
+#include <functional>
+#include <unordered_set>
+#include <vector>
+#include <iterator>
+#include <bits/stdc++.h>
 
 static void TreestackAllocationIncrease(Dataptr restrict MSA, TREESTACK *sp)
 /* increase allocation for tree stack *sp */
@@ -228,17 +236,9 @@ long CompareTreeToTreestack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRA
     long i = 0, new_root = 0;
     static TREESTACK_TREE_BRANCH *copy_2 = NULL;			/* possibly re-rooted tree 2 */
     Lvb_bool b_First = LVB_TRUE;
-
-    #ifdef LVB_HASH
-    unsigned long current_topology_hash = 0;
-    //static vector<long> hashstackvector;
-    #endif
-
-    #ifdef LVB_NP
-    #define MIN_THREAD_SEARCH_SSET		5
-    long slice = 0, slice_tail = 0;
-    Lvb_bool b_find_sitestate = LVB_FALSE;
-    #endif
+    unsigned long current_hash = 0;
+    static vector<long> hashstackvector;
+    vector<long>::iterator VectorSearch;
 
 	/* allocate "local" static heap memory - static - do not free! */
 	if (copy_2 == NULL) copy_2 = treealloc(MSA, b_with_sitestate);
@@ -249,95 +249,67 @@ long CompareTreeToTreestack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRA
 
     /* return before push if not a new topology */
     /* check backwards as similar trees may be discovered together */
+
+    FILE *topologyhash = fopen("PrintTopologyHash", "w");
+        lvb_treeprint(MSA, topologyhash, copy_2, 0);
+    fclose(topologyhash);
+
     if (sp->next == 0){
+        hashstackvector.clear();
     	makesets(MSA, copy_2, new_root /* always root zero */);
-    }
-    #ifdef LVB_NP
-    // Multithreading
-    else{ 
-    	if (sp->next > MIN_THREAD_SEARCH_SSET) slice = sp->next / MSA->n_threads_getplen;
-    	if (sp->next > MIN_THREAD_SEARCH_SSET && slice > 0){
-    		makesets(MSA, copy_2, 0 /* always root zero */);
-    		slice_tail = (sp->next - (slice * MSA->n_threads_getplen));
-    		omp_set_dynamic(0);	  /* disable dinamic threathing */
-    		#pragma omp parallel num_threads(MSA->n_threads_getplen) private(i) shared(slice, slice_tail, b_find_sitestate)
-    		{
-    			int n_count = 0;
-    			int n_end = slice * (omp_get_thread_num() + 1);
-    			int n_begin = slice * omp_get_thread_num();
-    			if (MSA->n_threads_getplen == (omp_get_thread_num() + 1)) n_end += slice_tail;
-    			for (i = n_begin; i < n_end; i++) {
-    				if (setstcmp_with_sitestate2(MSA, sp->stack[i].p_sitestate) == 0){
-						// #pragma omp atomic
-    					b_find_sitestate = LVB_TRUE;
-    					break;
-    				}
-    				if (n_count > 0 && (n_count % 20) == 0 && b_find_sitestate == LVB_TRUE){
-    					break;
-    				}
-    				n_count += 1;
-    			}
-    		}
-    		if (b_find_sitestate == LVB_TRUE) return 0;
-    	}
-    
-    #endif
-    #ifndef LVB_HASH
-    	else{
-    		for (i = sp->next - 1; i >= 0; i--) {
-    			if (TopologyComparison(MSA, sp->stack[i].p_sitestate, copy_2, b_First) == 0) return 0; // If trees are the same, return 0
-    			b_First = LVB_FALSE;
-    		}
-    	}
 
-    #else
-        else{
-        FILE *printalltopologies = fopen("PrintAllTopologies", "a+");
-        FILE *printcurrenttopologyforhash = fopen("PrintCurrentTopologyForHash", "w");
-
-        CallPrintHashTree(MSA, printalltopologies, BranchArray, root);
-        CallPrintHashTree(MSA, printcurrenttopologyforhash, BranchArray, root);
-
-        fclose(printalltopologies);
-        fclose(printcurrenttopologyforhash);
-
-        current_topology_hash = HashCurrentTree();
-
-        if((sp->next == 0))
-	        {
-		        hashstackvector.clear();
-                cout << "CLEAR VECTOR \n" << endl;
-	        }
-
+        current_hash = HashCurrentTree();
+        hashstackvector.push_back(current_hash);
         sort(hashstackvector.begin(), hashstackvector.end());
 
-        if (binary_search(hashstackvector.begin(), hashstackvector.end(), current_topology_hash)) 
-        {           
-            FILE *printreturnstatement = fopen("PrintReturnStatement", "a+");
-            fprintf(printreturnstatement, "HashFound = %lu, Return 0; \n", current_topology_hash);
-            fclose(printreturnstatement);
-            cout << "Hash found = " << current_topology_hash << endl;
-            return 0;
+    } 	else{          
+            FILE *topologyall = fopen("PrintTopologyAll", "a+");
+                lvb_treeprint(MSA, topologyall, copy_2, 0);
+            fclose(topologyall);
+
+            current_hash = HashCurrentTree();
+
+            FILE *decision = fopen("PrintDecision", "a+");
+
+            // decision mechanism
+            if(binary_search(hashstackvector.begin(), hashstackvector.end(), current_hash)) {
+                FILE *topologyfoundhash = fopen("PrintTopologyFoundHASH", "a+");
+                    fprintf(topologyfoundhash, "Hash %lu = ", current_hash);
+                    lvb_treeprint(MSA, topologyfoundhash, copy_2, 0);
+                fclose(topologyfoundhash);
+                fprintf(decision, "Hash \n");
+                return 0;
+            }
+
+            FILE *topologypassed = fopen("PrintTopologyPassed", "a+");
+                fprintf(topologypassed, "Hash %lu = ", current_hash);
+                lvb_treeprint(MSA, topologypassed, copy_2, 0);
+            fclose(topologypassed);
+
+            // or
+
+            for (i = sp->next - 1; i >= 0; i--) {
+    		    if (TopologyComparison(MSA, sp->stack[i].p_sitestate, copy_2, b_First) == 0) {
+                    fprintf(decision, "NP \n");
+
+                    FILE *topologyfoundnp = fopen("PrintTopologyFoundNP", "a+");
+                        fprintf(topologyfoundnp, "Hash %lu = ", current_hash);
+                        lvb_treeprint(MSA, topologyfoundnp, copy_2, 0);
+                    fclose(topologyfoundnp);
+
+                    return 0; // If trees are the same, return 0
+                }
+                b_First = LVB_FALSE;
+    		}
+            hashstackvector.push_back(current_hash);
+            sort(hashstackvector.begin(), hashstackvector.end());
+            fclose(decision);
         }
-        hashstackvector.push_back(current_topology_hash);
-        b_First = LVB_FALSE;
-        FILE *printhashadded = fopen("PrintHashAdded", "a+");
-        fprintf(printhashadded, "HashFound = %lu, Return 1; \n", current_topology_hash);
-        cout << "Hash Added = " << current_topology_hash << endl;
-        
-        fclose(printhashadded);
 
     FILE *printvector = fopen("PrintVector", "w");
-
-	for (auto i = hashstackvector.begin(); i !=hashstackvector.end(); i++)
-		fprintf(printvector, "%lu \n", *i);
-	fclose (printvector);
-        }
-    #endif
-
-    #ifdef LVB_NP
-        }
-    #endif
+    for(auto i = hashstackvector.begin(); i != hashstackvector.end(); i++)
+        fprintf(printvector, "%lu \n", *i);
+    fclose(printvector);
 
     /* topology is new so must be pushed */
     lvb_assert(root < MSA->n);
@@ -548,3 +520,34 @@ void ClearTreestack(TREESTACK *sp)
     sp->next = 0;	/* clear stack */
 
 } /* end ClearTreestack() */
+
+unsigned long HashCurrentTree()
+{
+string line;
+ifstream myfile ("PrintTopologyHash");
+
+FILE *printhashvalue = fopen("PrintAllHashValues", "a+");
+
+string str;
+unsigned long str_hash = 0;
+
+if (myfile.is_open())
+{
+    while ( getline (myfile,line))
+    {
+        str = line;
+        str_hash = hash<string>{}(str);
+
+		
+    }
+    myfile.close();
+}
+
+else cout << "Unable to open file";
+
+fprintf(printhashvalue, "%lu\n", str_hash);
+
+fclose(printhashvalue);
+
+return str_hash;
+}
