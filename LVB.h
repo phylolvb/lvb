@@ -273,6 +273,9 @@ bool LogFileExists(const char *filename);
 double StartingTemperature(Dataptr, const TREESTACK_TREE_BRANCH *const, Parameters rcstruct, long, Lvb_bool);
 long PushCurrentTreeToStack(Dataptr, TREESTACK *, const TREESTACK_TREE_BRANCH *const, const long, Lvb_bool b_with_sitestate);
 unsigned long HashCurrentTree();
+long TopologicalHashComparison(Dataptr restrict, const TREESTACK_TREE_BRANCH *const, Lvb_bool, long, vector<long>);
+long HashComparison(long, vector<long>);
+
 
 #ifdef LVB_MAPREDUCE
 long Anneal(Dataptr restrict, TREESTACK *, TREESTACK *, const TREESTACK_TREE_BRANCH *const, Parameters rcstruct, long, const double,
