@@ -1246,9 +1246,17 @@ static void ssarralloc(Dataptr MSA, Objset *nobjset_2)
  * allocated space for setsize objects; assumes nobjset points to the
  * first element of an array with at least nsets elements. */
 {
-    long i; 	/* loop counter */
+    long i; 		/* loop counter */
+    long space;		/* space for object set contents (bytes) */
+    long *memory;	/* memory for the object set contents */
+
+    /* if long int arithmetic will overflow, crash instead */
+    lvb_assert(log_wrapper(MSA->mssz) + log_wrapper(MSA->nsets) + log_wrapper(sizeof(long)) < log_wrapper(LONG_MAX));
+
+    space = MSA->mssz * MSA->nsets * sizeof(long);
+    memory = (long *) alloc(space, "object set arrays");
     for (i = 0; i < MSA->nsets; i++){
-    	nobjset_2[i].set = (long *) alloc(MSA->mssz * sizeof(long), "object set object arrays");
+    	nobjset_2[i].set = &(memory[MSA->mssz * i]);
     	nobjset_2[i].cnt = UNSET;
     }
 
