@@ -1,7 +1,7 @@
 /* LVB
 
 (c) Copyright 2003-2012 by Daniel Barker
-(c) Copyright 2013, 2014 by Daniel Barker and 
+(c) Copyright 2013, 2014 by Daniel Barker and
 Maximilian Strobl
 (c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
 (c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
@@ -12,7 +12,7 @@ Fernando Guntoro, Maximilian Strobl and Chris Wood.
 Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
 
 All rights reserved.
- 
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
@@ -60,7 +60,7 @@ static void TreestackAllocationIncrease(Dataptr restrict MSA, TREESTACK *sp)
 //    long to_copy = MSA->mssz * sizeof(int);
 
     sp->size++;
- 
+
     /* allocate for stack itself */
     if (sp->stack == NULL)	/* 1st call, stack does not exist */
     {
@@ -90,7 +90,7 @@ static void TreestackAllocationIncrease(Dataptr restrict MSA, TREESTACK *sp)
     	}
 
     }
- 
+
 } /* end TreestackAllocationIncrease() */
 
 long PushCurrentTreeToStack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRANCH *const BranchArray, const long root, Lvb_bool b_with_sitestate)
@@ -100,13 +100,13 @@ long PushCurrentTreeToStack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRA
     if (sp->next == sp->size) TreestackAllocationIncrease(MSA, sp);
     treecopy(MSA, sp->stack[sp->next].tree, BranchArray, b_with_sitestate);
     sp->stack[sp->next].root = root;
-  
+
     /* need to copy the sitestate_2 to the sp->stack[sp->next].sitestate  */
     copy_sitestate(MSA, sp->stack[sp->next].p_sitestate);
-    sp->next++;   
+    sp->next++;
 
     return 1;
- 
+
 } /* end PushCurrentTreeToStack() */
 
 /**********
@@ -169,7 +169,7 @@ Returns a new, empty tree stack.
 
 =cut
 
-**********/ 
+**********/
 
 TREESTACK CreateNewTreestack(void)
 {
@@ -252,35 +252,42 @@ long CompareTreeToTreestack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRA
     /* check backwards as similar trees may be discovered together */
 
     if (sp->next == 0){
-        hashstackvector.clear();
-    	makesets(MSA, copy_2, new_root /* always root zero */);
+     	makesets(MSA, copy_2, new_root /* always root zero */);
 
-        FILE *topologyhash = fopen("PrintTopologyHash", "w");
-            lvb_treeprint(MSA, topologyhash, copy_2, 0);
-        fclose(topologyhash);
+      ifstream file;
+      file.open("PrintObjectset");
 
-        current_hash = HashCurrentTree();
-        hashstackvector.push_back(current_hash);
-    } 	else{          
-            // decision mechanism
-            
-            if(TopologicalHashComparison(MSA, copy_2, b_First, current_hash_ptr, hashstackvector) == 0) return 0;
+      stringstream strStream;
+      strStream << file.rdbuf();
+      string str = strStream.str();
 
-            hashstackvector.push_back(current_hash);
-            sort(hashstackvector.begin(), hashstackvector.end());
+      // cout << str << endl;
 
-            // or
+      FILE* printstring = fopen("PrintObjectsetstring","w");
 
+      fprintf(printstring, "%s", str.c_str());
+
+      fclose(printstring);
+
+    } 	else{
             for (i = sp->next - 1; i >= 0; i--) {
     		    if (TopologyComparison(MSA, sp->stack[i].p_sitestate, copy_2, b_First) == 0) return 0; // If trees are the same, return 0
                 b_First = LVB_FALSE;
-    		}
-        }
+                ifstream file;
+                file.open("PrintObjectset");
 
-    FILE *printvector = fopen("PrintVector", "w");
-    for(auto i = hashstackvector.begin(); i != hashstackvector.end(); i++)
-        fprintf(printvector, "%lu \n", *i);
-    fclose(printvector);
+                stringstream strStream;
+                strStream << file.rdbuf();
+                string str = strStream.str();
+
+                FILE* printstring = fopen("PrintObjectsetstring","w");
+
+                fprintf(printstring, "%s", str.c_str());
+
+                fclose(printstring);
+
+        }
+        }
 
     /* topology is new so must be pushed */
     lvb_assert(root < MSA->n);
@@ -297,7 +304,7 @@ long CompareTreeToTreestack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRA
 =head2 SYNOPSIS
 
     long PullTreefromTreestack(TREESTACK_TREE_BRANCH *BranchArray, long *root, TREESTACK *sp);
-    
+
 =head2 DESCRIPTION
 
 Pop a tree off a tree stack.
@@ -400,14 +407,14 @@ int PrintTreestack(Dataptr MSA, TREESTACK *sp, FILE *const outfp, Lvb_bool onera
 
     void FreeTreestackMemory(TREESTACK *sp);
 
-=head2 DESCRIPTION 
+=head2 DESCRIPTION
 
 Clear a tree stack and deallocate dynamically allocated heap
 memory associated with it.
 
 =head2 PARAMETERS
 
-=head3 INOUT 
+=head3 INOUT
 
 =over 4
 
@@ -421,7 +428,7 @@ The stack to be emptied and deallocated.
 
 None.
 
-=cut    
+=cut
 
 **********/
 
@@ -448,7 +455,7 @@ void FreeTreestackMemory(Dataptr restrict MSA, TREESTACK *sp)
     sp->next = 0;
     sp->size = 0;
     sp->stack = NULL;
- 
+
 } /* end bstfree() */
 
 /**********
@@ -504,7 +511,7 @@ if (myfile.is_open())
     while ( getline (myfile,line))
     {
         str = line;
-        str_hash = hash<string>{}(str);		
+        str_hash = hash<string>{}(str);
     }
     myfile.close();
 }
@@ -530,6 +537,6 @@ long TopologicalHashComparison(Dataptr MSA, const TREESTACK_TREE_BRANCH *const t
 
 long HashComparison(long current_hash, vector<long> &hashstackvector) {
     if(find(hashstackvector.begin(), hashstackvector.end(), current_hash) != hashstackvector.end()) return 0;
-    
+
     return 1;
 }

@@ -260,6 +260,7 @@ long words_per_row(const long);
 int count(TREESTACK_TREE_BRANCH *const, int);
 int addtoarray(TREESTACK_TREE_BRANCH *const, int, int *, int);
 void dump_objset_to_screen(Dataptr MSA, Objset *oset_1);
+void dump_objset_to_file(Dataptr MSA, Objset *oset_1);
 void copy_sitestate(Dataptr restrict MSA, Objset *p_sitestate_1);
 void DNAToBinary(Dataptr restrict, Lvb_bit_length **);
 void makesets(Dataptr restrict, const TREESTACK_TREE_BRANCH *const tree_2, const long root);

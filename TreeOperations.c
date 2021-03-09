@@ -1,7 +1,7 @@
 /* LVB
 
 (c) Copyright 2003-2012 by Daniel Barker
-(c) Copyright 2013, 2014 by Daniel Barker and 
+(c) Copyright 2013, 2014 by Daniel Barker and
 Maximilian Strobl
 (c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
 (c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
@@ -12,7 +12,7 @@ Fernando Guntoro, Maximilian Strobl and Chris Wood.
 Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
 
 All rights reserved.
- 
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
@@ -43,6 +43,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* ========== TreeOperations.c - tree operations ========== */
 
 #include "TreeOperations.h"
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <iomanip>
+#include <functional>
+#include <unordered_set>
+#include <vector>
+#include <iterator>
+#include <bits/stdc++.h>
 
 void nodeclear(TREESTACK_TREE_BRANCH *const BranchArray, const long brnch)
 /* Initialize all scalars in branch brnch to UNSET or zero as appropriate,
@@ -120,7 +129,7 @@ void mutate_deterministic(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const des
     v = tree[u].parent;
     a = tree[u].left;
     b = tree[u].right;
- 
+
     if (tree[v].left == u) c = tree[v].right;
     else c = tree[v].left;
 
@@ -165,7 +174,7 @@ void mutate_nni(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const desttree, con
     v = tree[u].parent;
     a = tree[u].left;
     b = tree[u].right;
- 
+
     if (tree[v].left == u) c = tree[v].right;
     else c = tree[v].left;
 
@@ -318,14 +327,14 @@ void mutate_tbr(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const desttree, con
     long src_sister;			/* sister of branch to move */
     TREESTACK_TREE_BRANCH *tree;			/* destination tree */
 
-		long oldroot;	
+		long oldroot;
 		long current;							/* current branch */
 		long parnt;								/* parent of current branch */
 		long sister = UNSET;					/* sister of current branch */
 		long oldsister = UNSET;
 		long tempsister = UNSET;
 		long previous = UNSET;							/* previous branch */
-		long newroot;	
+		long newroot;
 		static int *oldparent = NULL;			/* element i was old static parent of i */
 
     /* for ease of reading, make alias of desttree, tree */
@@ -409,8 +418,8 @@ void mutate_tbr(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const desttree, con
 		for (current = 0; current < MSA->numberofpossiblebranches; current++)
 	    	oldparent[current] = tree[current].parent;
 
-     		addtoarray(tree, src, arr, 0);		
-		
+     		addtoarray(tree, src, arr, 0);
+
 		 do {
 		newroot = arr[randpint(size - 1)];
     } while (newroot == tree[oldroot].left || newroot == tree[oldroot].right);
@@ -419,22 +428,22 @@ void mutate_tbr(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const desttree, con
 		parnt = tree[newroot].parent;
 		if (tree[parnt].left == newroot) sister = tree[parnt].right;
 		else if (tree[parnt].right == newroot) sister = tree[parnt].left;
-		
+
 		tree[parnt].parent = previous;
 		tree[parnt].left = oldparent[parnt];
 		tree[parnt].right = newroot;
-		
+
 		oldsister = sister;
 		previous = parnt;
 		current = tree[parnt].left;
 		lvb_assert(current != UNSET);
 
 		/* loop for changing nodes between the newroot and oldroot */
-		
+
 		while (current != oldroot) {
 			mid_nodes[i] = current;
 			i++;
-			
+
 			parnt = oldparent[current];
 
 			if (tree[current].left == previous) tempsister = tree[current].right;
@@ -446,12 +455,12 @@ void mutate_tbr(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const desttree, con
 			tree[current].left = parnt;
 			tree[parnt].parent = current;
 			tree[oldsister].parent = current;
-			
+
 			oldsister = tempsister;
 			previous = current;
 			current = parnt;
 		}
-		
+
 		/* updating the oldroot */
 		tree[oldroot].parent = previous;
 		if (tree[current].left == tree[oldroot].parent) tree[oldroot].left = oldsister;
@@ -469,7 +478,7 @@ void mutate_tbr(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const desttree, con
 		make_dirty_below(MSA, tree, oldroot);
 		if (i > 0) {
 			int j;
-			for (j = i-1; j >= 0; j--) {	
+			for (j = i-1; j >= 0; j--) {
     				make_dirty_below(MSA, tree, mid_nodes[j]);
 			}
 		}
@@ -479,8 +488,8 @@ void mutate_tbr(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *const desttree, con
 	if (parents_par != root){
 	 	make_dirty_below(MSA, tree, parents_par);
 	}
-	
-	
+
+
 	free(arr);
 	free(mid_nodes);
 } /* end mutate_tbr() */
@@ -1107,7 +1116,6 @@ long TopologyComparison(Dataptr MSA, Objset *sitestate_1, const TREESTACK_TREE_B
 //	b_First = LVB_TRUE;
     if (b_First == LVB_TRUE) makesets(MSA, tree_2, 0 /* always root zero */);
     return setstcmp(MSA, sitestate_1, sitestate_2, b_First /* this one is the static */);
-
 } /* end TopologyComparison() */
 
 static long setstcmp(Dataptr MSA, Objset *const oset_1, Objset *const oset_2, Lvb_bool b_First) /* this one is the static */
@@ -1154,6 +1162,16 @@ void dump_objset_to_screen(Dataptr MSA, Objset *oset_1){
 		printf("\n");
 	}
 	printf("\n");
+}
+
+void dump_objset_to_file(Dataptr MSA, Objset *oset_1){
+	FILE *objset = fopen("PrintObjectset","w");
+	for (int i = 0; i < MSA->nsets; i++){
+		fprintf(objset,"%d    %ld    ", i, oset_1[i].cnt);
+		for (int x = 0; x < oset_1[i].cnt; x++) fprintf(objset,"%ld   ", oset_1[i].set[x]);
+		fprintf(objset,"\n");
+	}
+	fclose(objset);
 }
 
 void dump_objset_to_screen_sitestate_2(Dataptr MSA){
@@ -1239,12 +1257,16 @@ void makesets(Dataptr MSA, const TREESTACK_TREE_BRANCH *const tree_2, const long
 
     fillsets(MSA, sitestate_2, tree_2, root);
     Sort(MSA, sitestate_2, MSA->nsets);
+
+    dump_objset_to_file(MSA, sitestate_2);
 } /* end makesets() */
 
 static void ssarralloc(Dataptr MSA, Objset *nobjset_2)
 /* Fill nobjset[0..nsets-1] with pointers each pointing to newly
  * allocated space for setsize objects; assumes nobjset points to the
- * first element of an array with at least nsets elements. */
+ * first element of an array with at least nsets elements.
+ * Now allocates contiguous memory
+ */
 {
     long i; 		/* loop counter */
     long space;		/* space for object set contents (bytes) */
@@ -1262,7 +1284,7 @@ static void ssarralloc(Dataptr MSA, Objset *nobjset_2)
 
 } /* end ssarralloc() */
 
-#ifdef LVB_MAPREDUCE  
+#ifdef LVB_MAPREDUCE
 
 	void print_sets(Dataptr MSA, TREESTACK *sp, MISC *misc)
 	{
