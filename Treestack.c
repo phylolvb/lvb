@@ -249,29 +249,15 @@ long CompareTreeToTreestack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRA
     /* return before push if not a new topology */
     /* check backwards as similar trees may be discovered together */
 
-    #define LVB_HASH
     if (sp->next == 0){
       hashstackvector.clear();
      	makesets(MSA, copy_2, new_root /* always root zero */);
       current_hash = HashCurrentSiteStates();
-      hashstackvector.push_back(current_hash);
-      cout << "1st iter: " << current_hash << endl;
-
-      FILE* printhash = fopen("PrintHash","a+");
-        fprintf(printhash, "1st iter: %lu \n", current_hash);
-      fclose(printhash);
     } else{
-            #ifdef LVB_HASH
-
-            if(TopologicalHashComparison(MSA, copy_2, hashstackvector, current_hash) == 0) return 0;
-
-            #else
             for (i = sp->next - 1; i >= 0; i--) {
-    		    if (TopologyComparison(MSA, sp->stack[i].p_sitestate, copy_2, b_First) == 0) return 0; // If trees are the same, return 0
+    		    if (TopologyComparison(MSA, sp->stack[i].p_sitestate, copy_2, b_First, current_hash) == 0) return 0; // If trees are the same, return 0
                 b_First = LVB_FALSE;
               }
-
-            #endif
           }
     hashstackvector.push_back(current_hash);
     sort(hashstackvector.begin(), hashstackvector.end());
@@ -502,6 +488,10 @@ unsigned long HashCurrentSiteStates()
 
   unsigned long str_hash = hash<string>{}(str);
 
+  FILE *printallhash = fopen("PrintAllHashes", "a+");
+    fprintf(printallhash, "%lu \n", str_hash);
+  fclose(printallhash);
+
   return str_hash;
 }
 
@@ -514,14 +504,12 @@ long TopologicalHashComparison(Dataptr MSA, const TREESTACK_TREE_BRANCH *const t
       fprintf(printhash, "%lu \n", current_hash);
     fclose(printhash);
 
-    for (unsigned long i = 0; i <= hashstackvector.size(); i++ ){
+    for (unsigned long i = hashstackvector.size(); i >= 0; i-- ){
       if (current_hash == hashstackvector[i]) {
         cout << "HashFOUND: " << current_hash << "VS " << hashstackvector[i] << endl;
-      }
         return 0;
-
+      }
     }
-
   return 1;
 }
 

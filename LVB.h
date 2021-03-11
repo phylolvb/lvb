@@ -265,7 +265,7 @@ void copy_sitestate(Dataptr restrict MSA, Objset *p_sitestate_1);
 void DNAToBinary(Dataptr restrict, Lvb_bit_length **);
 void makesets(Dataptr restrict, const TREESTACK_TREE_BRANCH *const tree_2, const long root);
 long setstcmp_with_sitestate2(Dataptr MSA, Objset *const oset_1);
-long TopologyComparison(Dataptr restrict, Objset *, const TREESTACK_TREE_BRANCH *const, Lvb_bool b_first);
+long TopologyComparison(Dataptr restrict, Objset *, const TREESTACK_TREE_BRANCH *const, Lvb_bool b_first, unsigned long&);
 void PrintLVBCopyright();
 void PrintLVBInfo();
 void LogTime();

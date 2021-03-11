@@ -1109,12 +1109,15 @@ static void cr_uxe(FILE *const stream, const char *const msg)
 
 	} /* end ur_print() */
 
-long TopologyComparison(Dataptr MSA, Objset *sitestate_1, const TREESTACK_TREE_BRANCH *const tree_2, Lvb_bool b_First)
+long TopologyComparison(Dataptr MSA, Objset *sitestate_1, const TREESTACK_TREE_BRANCH *const tree_2, Lvb_bool b_First, unsigned long& current_hash)
 /* return 0 if the topology of tree_1 (of root root_1) is the same as
  * that of tree_2 (of root root_2), or non-zero if different */
 {
 //	b_First = LVB_TRUE;
-    if (b_First == LVB_TRUE) makesets(MSA, tree_2, 0 /* always root zero */);
+    if (b_First == LVB_TRUE) {
+      makesets(MSA, tree_2, 0 /* always root zero */);
+      current_hash = HashCurrentSiteStates();
+    }
     return setstcmp(MSA, sitestate_1, sitestate_2, b_First /* this one is the static */);
 } /* end TopologyComparison() */
 
@@ -1166,12 +1169,19 @@ void dump_objset_to_screen(Dataptr MSA, Objset *oset_1){
 
 void dump_objset_to_file(Dataptr MSA, Objset *oset_1){
 	FILE *objset = fopen("PrintObjectset","w");
+  FILE *allobjset = fopen("PrintAllObjectset","a+");
 	for (int i = 0; i < MSA->nsets; i++){
 		fprintf(objset,"%d    %ld    ", i, oset_1[i].cnt);
-		for (int x = 0; x < oset_1[i].cnt; x++) fprintf(objset,"%ld   ", oset_1[i].set[x]);
+    fprintf(allobjset,"%d    %ld    ", i, oset_1[i].cnt);
+		for (int x = 0; x < oset_1[i].cnt; x++){
+      fprintf(objset,"%ld   ", oset_1[i].set[x]);
+      fprintf(allobjset,"%ld   ", oset_1[i].set[x]);
+    }
 		fprintf(objset,"\n");
+    fprintf(allobjset,"\n");
 	}
 	fclose(objset);
+  fclose(allobjset);
 }
 
 void dump_objset_to_screen_sitestate_2(Dataptr MSA){
