@@ -254,13 +254,21 @@ long CompareTreeToTreestack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRA
      	makesets(MSA, copy_2, new_root /* always root zero */);
       current_hash = HashCurrentSiteStates();
     } else{
+            #define LVB_HASH
+            #ifdef LVB_HASH
+            for (i = hashstackvector.size() - 1; i >= 0; i--) {
+            if (TopologicalHashComparison(MSA, hashstackvector.at(i), copy_2, b_First, current_hash) == 0) return 0;
+                b_First = LVB_FALSE;
+              }
+            #else
             for (i = sp->next - 1; i >= 0; i--) {
     		    if (TopologyComparison(MSA, sp->stack[i].p_sitestate, copy_2, b_First, current_hash) == 0) return 0; // If trees are the same, return 0
                 b_First = LVB_FALSE;
               }
+            #endif
           }
     hashstackvector.push_back(current_hash);
-    sort(hashstackvector.begin(), hashstackvector.end());
+    //sort(hashstackvector.begin(), hashstackvector.end());
 
     FILE *printvector = fopen("PrintVector", "w");
     for(auto i = hashstackvector.begin(); i != hashstackvector.end(); i++)
@@ -496,21 +504,19 @@ unsigned long HashCurrentSiteStates()
 }
 
 //if hash != return 1, else return 0
-long TopologicalHashComparison(Dataptr MSA, const TREESTACK_TREE_BRANCH *const tree_2, vector<unsigned long> hashstackvector, unsigned long current_hash) {
-    makesets(MSA, tree_2, 0);
+long TopologicalHashComparison(Dataptr MSA, unsigned long stored_hash, const TREESTACK_TREE_BRANCH *const tree_2, Lvb_bool b_First, unsigned long& current_hash) {
+  if (b_First == LVB_TRUE) {
+    makesets(MSA, tree_2, 0 /* always root zero */);
     current_hash = HashCurrentSiteStates();
 
-    FILE* printhash = fopen("PrintHash","a+");
-      fprintf(printhash, "%lu \n", current_hash);
-    fclose(printhash);
+    // cout << stored_hash << " VS " << current_hash << endl;
+  }
+  return HashComparison(stored_hash, current_hash);
+}
 
-    for (unsigned long i = hashstackvector.size(); i >= 0; i-- ){
-      if (current_hash == hashstackvector[i]) {
-        cout << "HashFOUND: " << current_hash << "VS " << hashstackvector[i] << endl;
-        return 0;
-      }
-    }
-  return 1;
+long HashComparison(unsigned long stored_hash, unsigned long current_hash) {
+    if (stored_hash != current_hash) return 1;
+    return 0;
 }
 
 /*
@@ -546,12 +552,6 @@ long TopologicalHashComparison(Dataptr MSA, const TREESTACK_TREE_BRANCH *const t
     *current_hash = HashCurrentTree();
 
     if (HashComparison(*current_hash, hashstackvector) == 0) return 0;
-
-    return 1;
-}
-
-long HashComparison(long current_hash, vector<long> &hashstackvector) {
-    if(find(hashstackvector.begin(), hashstackvector.end(), current_hash) != hashstackvector.end()) return 0;
 
     return 1;
 }

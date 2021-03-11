@@ -275,8 +275,9 @@ double StartingTemperature(Dataptr, const TREESTACK_TREE_BRANCH *const, Paramete
 long PushCurrentTreeToStack(Dataptr, TREESTACK *, const TREESTACK_TREE_BRANCH *const, const long, Lvb_bool b_with_sitestate);
 
 
-long TopologicalHashComparison(Dataptr restrict, const TREESTACK_TREE_BRANCH *const, vector <unsigned long>, unsigned long);
+long TopologicalHashComparison(Dataptr restrict, unsigned long, const TREESTACK_TREE_BRANCH *const, Lvb_bool b_first, unsigned long&);
 unsigned long HashCurrentSiteStates();
+long HashComparison(unsigned long, unsigned long);
 
 #ifdef LVB_MAPREDUCE
 long Anneal(Dataptr restrict, TREESTACK *, TREESTACK *, const TREESTACK_TREE_BRANCH *const, Parameters rcstruct, long, const double,
