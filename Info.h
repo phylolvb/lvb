@@ -49,6 +49,7 @@ using namespace std;
 #define PROGNAM "LVB "
 #define LVB_VERSION "4.0"
 #define LVB_MAPREDUCE_VERSION "MapReduce Multicore version "
+#define LVB_HASH_VERSION "Hash version "
 #define LVB_RELEASE_DATE "February 2019"
 #define LVB_WIKI "github.com/phylolvb/lvb"
 

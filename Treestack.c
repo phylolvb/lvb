@@ -254,7 +254,6 @@ long CompareTreeToTreestack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRA
      	makesets(MSA, copy_2, new_root /* always root zero */);
       current_hash = HashCurrentSiteStates();
     } else{
-            #define LVB_HASH
             #ifdef LVB_HASH
             for (i = hashstackvector.size() - 1; i >= 0; i--) {
             if (TopologicalHashComparison(MSA, hashstackvector.at(i), copy_2, b_First, current_hash) == 0) return 0;

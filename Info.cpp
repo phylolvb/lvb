@@ -45,8 +45,10 @@ void PrintLVBInfo() {
   cout << "==============================================="
           "=================================\n\n";
   cout << "LVB v." << LVB_VERSION << " ";
-  #ifdef LVB_MAPREDUCE  
+  #ifdef LVB_MAPREDUCE
     cout << LVB_MAPREDUCE_VERSION;
+  #elif LVB_HASH
+    cout << LVB_HASH_VERSION;
   #endif
   cout << "built for Linux 64-bit \n";
 
