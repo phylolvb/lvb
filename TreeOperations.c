@@ -1269,13 +1269,10 @@ void makesets(Dataptr MSA, const TREESTACK_TREE_BRANCH *const tree_2, const long
 
     fillsets(MSA, sitestate_2, tree_2, root);
     Sort(MSA, sitestate_2, MSA->nsets);
-<<<<<<< HEAD
-=======
 
     #ifdef LVB_HASH
       dump_objset_to_file(MSA, sitestate_2);
     #endif
->>>>>>> dev
 } /* end makesets() */
 
 static void ssarralloc(Dataptr MSA, Objset *nobjset_2)
