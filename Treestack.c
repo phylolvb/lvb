@@ -250,12 +250,14 @@ long CompareTreeToTreestack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRA
     /* check backwards as similar trees may be discovered together */
 
     if (sp->next == 0){
-      hashstackvector.clear();
      	makesets(MSA, copy_2, new_root /* always root zero */);
+      #ifdef LVB_HASH
+      hashstackvector.clear();
       current_hash = HashCurrentSiteStates();
+      #endif
     } else{
             #ifdef LVB_HASH
-            for (i = hashstackvector.size() - 1; i >= 0; i--) {
+            for (i = sp->next - 1; i >= 0; i--) {
             if (TopologicalHashComparison(MSA, hashstackvector.at(i), copy_2, b_First, current_hash) == 0) return 0;
                 b_First = LVB_FALSE;
               }
@@ -266,13 +268,9 @@ long CompareTreeToTreestack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRA
               }
             #endif
           }
-    hashstackvector.push_back(current_hash);
-    //sort(hashstackvector.begin(), hashstackvector.end());
-
-    FILE *printvector = fopen("PrintVector", "w");
-    for(auto i = hashstackvector.begin(); i != hashstackvector.end(); i++)
-        fprintf(printvector, "%lu \n", *i);
-    fclose(printvector);
+    #ifdef LVB_HASH
+      hashstackvector.push_back(current_hash);
+    #endif
 
     /* topology is new so must be pushed */
     lvb_assert(root < MSA->n);

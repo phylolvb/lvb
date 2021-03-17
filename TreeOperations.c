@@ -1116,7 +1116,9 @@ long TopologyComparison(Dataptr MSA, Objset *sitestate_1, const TREESTACK_TREE_B
 //	b_First = LVB_TRUE;
     if (b_First == LVB_TRUE) {
       makesets(MSA, tree_2, 0 /* always root zero */);
+      #ifdef LVB_HASH
       current_hash = HashCurrentSiteStates();
+      #endif
     }
     return setstcmp(MSA, sitestate_1, sitestate_2, b_First /* this one is the static */);
 } /* end TopologyComparison() */
@@ -1268,7 +1270,9 @@ void makesets(Dataptr MSA, const TREESTACK_TREE_BRANCH *const tree_2, const long
     fillsets(MSA, sitestate_2, tree_2, root);
     Sort(MSA, sitestate_2, MSA->nsets);
 
-    dump_objset_to_file(MSA, sitestate_2);
+    #ifdef LVB_HASH
+      dump_objset_to_file(MSA, sitestate_2);
+    #endif
 } /* end makesets() */
 
 static void ssarralloc(Dataptr MSA, Objset *nobjset_2)
