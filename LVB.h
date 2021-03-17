@@ -8,7 +8,7 @@ and Chris Wood
 (c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Chang Sik Kim,
 Maximilian Strobl and Martyn Winn
 All rights reserved.
- 
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
@@ -150,8 +150,6 @@ typedef struct
     TREESTACK_TREE *stack;	/* pointer to first element in stack */
 } TREESTACK;
 
-static vector<long> hashstackvector;
-
 /* simulated annealing parameters */
 #define MAXACCEPT_MIN 5L		/* minimum value for maxaccept */
 #define MAXACCEPT_MAX 5L		/* maximum value for maxaccept */
@@ -262,21 +260,24 @@ long words_per_row(const long);
 int count(TREESTACK_TREE_BRANCH *const, int);
 int addtoarray(TREESTACK_TREE_BRANCH *const, int, int *, int);
 void dump_objset_to_screen(Dataptr MSA, Objset *oset_1);
+void dump_objset_to_file(Dataptr MSA, Objset *oset_1);
 void copy_sitestate(Dataptr restrict MSA, Objset *p_sitestate_1);
 void DNAToBinary(Dataptr restrict, Lvb_bit_length **);
 void makesets(Dataptr restrict, const TREESTACK_TREE_BRANCH *const tree_2, const long root);
 long setstcmp_with_sitestate2(Dataptr MSA, Objset *const oset_1);
-long TopologyComparison(Dataptr restrict, Objset *, const TREESTACK_TREE_BRANCH *const, Lvb_bool b_first);
+long TopologyComparison(Dataptr restrict, Objset *, const TREESTACK_TREE_BRANCH *const, Lvb_bool b_first, unsigned long&);
 void PrintLVBCopyright();
 void PrintLVBInfo();
 void LogTime();
 void StartTime();
 bool LogFileExists(const char *filename);
 double StartingTemperature(Dataptr, const TREESTACK_TREE_BRANCH *const, Parameters rcstruct, long, Lvb_bool);
-void CallPrintHashTree (Dataptr, FILE *const, const TREESTACK_TREE_BRANCH *const, const long);
-long HashCurrentTree();
-long TopologyHashing(Dataptr, TREESTACK *, const TREESTACK_TREE_BRANCH *const, const long, Lvb_bool b_with_sitestate);
 long PushCurrentTreeToStack(Dataptr, TREESTACK *, const TREESTACK_TREE_BRANCH *const, const long, Lvb_bool b_with_sitestate);
+
+
+long TopologicalHashComparison(Dataptr restrict, unsigned long, const TREESTACK_TREE_BRANCH *const, Lvb_bool b_first, unsigned long&);
+unsigned long HashCurrentSiteStates();
+long HashComparison(unsigned long, unsigned long);
 
 #ifdef LVB_MAPREDUCE
 long Anneal(Dataptr restrict, TREESTACK *, TREESTACK *, const TREESTACK_TREE_BRANCH *const, Parameters rcstruct, long, const double,
