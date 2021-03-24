@@ -39,12 +39,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== Admin.h - Interface for Admin.c ========== */
+/* ========== Admin.h - interface for Admin.c ========== */
 
-#ifndef ADMIN_H_
-#define ADMIN_H_
+#ifndef LVB_ADMIN_H_
+#define LVB_ADMIN_H_
 
 void functionality_check(void);
 void lvb_initialize(void);
 
-#endif  /* ADMIN_H_ */
+#endif  /* LVB_ADMIN_H_ */

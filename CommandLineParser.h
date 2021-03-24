@@ -1,7 +1,7 @@
 /* LVB
 
 (c) Copyright 2003-2012 by Daniel Barker
-(c) Copyright 2013, 2014 by Daniel Barker and 
+(c) Copyright 2013, 2014 by Daniel Barker and
 Maximilian Strobl
 (c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
 (c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
@@ -12,7 +12,7 @@ Fernando Guntoro, Maximilian Strobl and Chris Wood.
 Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
 
 All rights reserved.
- 
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
@@ -42,8 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== CommandLineParser.h - interface for CommandLineParser.cpp ========== */
 
-#ifndef READFILE_H_
-#define READFILE_H_
+#ifndef LVB_COMMANDLINEPARSER_H_
+#define LVB_COMMANDLINEPARSER_H_
 
 #include "MSAInput.h"
 #include <stdio.h>
@@ -66,4 +66,4 @@ using namespace std;
 void phylip_mat_dims_in_external(char *file_name, int n_file_type, long *species_ptr, long *sites_ptr, int *max_length_name);
 long brcnt(long n); /* return number of branches in unrooted binary tree structure containing n tips */
 
-#endif /* READFILE_H_ */
+#endif /* LVB_COMMANDLINEPARSER_H_ */

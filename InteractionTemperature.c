@@ -36,15 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/**********
-
-=head1 NAME
-
-InteractionTemperature.c - decide which processes continue their search
-
-=cut
-
-*********/
+/* ========== InteractionTemperature.c - MPI process management ========== */
 
 #include "LVB.h"
 

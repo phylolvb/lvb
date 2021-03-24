@@ -39,8 +39,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#ifndef INFO_H_
-#define INFO_H_
+/* ========== Info.h - interface for Info.cpp ========== */
+
+#ifndef LVB_INFO_H_
+#define LVB_INFO_H_
 
 #include <iostream>
 
@@ -56,4 +58,4 @@ using namespace std;
 void PrintLVBCopyright();
 void PrintLVBInfo();
 
-#endif  // INFO_H_
+#endif  // LVB_INFO_H_

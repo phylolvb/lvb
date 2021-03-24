@@ -36,7 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ********** LVB.h - main header for lvb ********** */
+/* ========== LVB.h - main header for lvb ========== */
 
 #ifndef LVB_LVB_H
 #define LVB_LVB_H

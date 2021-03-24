@@ -38,8 +38,11 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
-#ifndef LOG_FILE_H_
-#define LOG_FILE_H_
+
+/* ========== LogFile.h - interface for LogFile.c ========== */
+
+#ifndef LVB_LOG_FILE_H_
+#define LVB_LOG_FILE_H_
 
 #include <stdbool.h>
 #include "LVB.h"
@@ -54,4 +57,4 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 bool LogFileExists(const char *filename);
 
-#endif  // LOG_FILE_H_
+#endif  // LVB_LOG_FILE_H_

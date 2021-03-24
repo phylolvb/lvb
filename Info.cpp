@@ -39,6 +39,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
+/* ========== Info.cpp - LVB version info ========== */
+
 #include "Info.h"
 
 void PrintLVBInfo() {
