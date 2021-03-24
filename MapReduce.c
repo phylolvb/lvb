@@ -36,6 +36,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
+/* ========== MapReduce.c - mapreduce functions ========== */
+
 	#include "LVB.h"
 
 	void map_clean(uint64_t itask, char *key, int keybytes, char *value, int valuebytes, KeyValue *kv, void *ptr)
@@ -63,7 +65,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 			macro_mr = (MapReduce *) (valuebytes);
 			totalnvalues = macro_mr->multivalue_blocks(macro_nblocks);
 		}
-		/* cerr << "totalnvalues 2 = " << totalnvalues << endl; */ 
+		/* cerr << "totalnvalues 2 = " << totalnvalues << endl; */
 
 		for (int macro_iblock = 0; macro_iblock < macro_nblocks; macro_iblock++) {
 			if (macro_mr)
@@ -85,7 +87,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 		   if (check == 1) {
 				value = multivalue;
-				/* cerr << "value 3 0 = " << *value << endl; */ 
+				/* cerr << "value 3 0 = " << *value << endl; */
 				for (int i=0; i<nvalues; i++) {
 					ID = *(int *) value;
 					misc->count[ID]++;
@@ -152,4 +154,3 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		}
 
 	}
- 

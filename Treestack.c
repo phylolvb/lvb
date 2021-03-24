@@ -40,7 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== Treestack.c - TREESTACK Operations ========== */
+/* ========== Treestack.c - treestack Operations ========== */
 
 #include "LVB.h"
 #include <iostream>

@@ -9,7 +9,7 @@ and Chris Wood.
 Fernando Guntoro, Maximilian Strobl and Chris Wood.
 (c) Copyright 2020 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
 Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
- 
+
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,8 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
+
+/* ========== Clock.c - clock and timing functions ========== */
 
 #include "Clock.h"
 

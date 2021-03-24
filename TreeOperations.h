@@ -41,14 +41,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== TreeOperations.c - Interface for TreeOperations.c ========== */
 
-#ifndef TROPS_H_
-#define TROPS_H_
+#ifndef LVB_TREEOPERATIONS_H_
+#define LVB_TREEOPERATIONS_H_
 
 #include "LVB.h"
 
 #define CLADESEP ","	/* clade separator for trees */
 
-#ifdef LVB_MAPREDUCE  
+#ifdef LVB_MAPREDUCE
 
 void map_pushSets(int itask, KeyValue *kv, void *ptr);
 static Objset sitestate_1[MAX_N - 3] = { { NULL, 0 } };
@@ -56,7 +56,7 @@ static Objset sitestate_1[MAX_N - 3] = { { NULL, 0 } };
 #endif
 
 /* object sets for tree comparison */
-static Objset sitestate_2[MAX_N - 3] = { { NULL, 0 } };  
+static Objset sitestate_2[MAX_N - 3] = { { NULL, 0 } };
 
 static void cr_bpnc(const TREESTACK_TREE_BRANCH *const BranchArray, const long branch);
 static void cr_chaf(const TREESTACK_TREE_BRANCH *const BranchArray, const long destination, const long newchild);
@@ -74,4 +74,4 @@ static long setstcmp(Dataptr restrict, Objset *const oset_1, Objset *const oset_
 static void Sort(Dataptr MSA, Objset *const oset_2, const long nels);
 static void ssarralloc(Dataptr restrict MSA, Objset *nobjset_2);
 
-#endif  /* TROPS_H_ */
+#endif  /* LVB_TREEOPERATIONS_H_ */

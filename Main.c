@@ -1,7 +1,7 @@
 /* LVB
 
 (c) Copyright 2003-2012 by Daniel Barker
-(c) Copyright 2013, 2014 by Daniel Barker and 
+(c) Copyright 2013, 2014 by Daniel Barker and
 Maximilian Strobl
 (c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
 (c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
@@ -12,7 +12,7 @@ Fernando Guntoro, Maximilian Strobl and Chris Wood.
 Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
 
 All rights reserved.
- 
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
@@ -40,7 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== Main.c - LVB ========== */
+/* ========== Main.c ========== */
 
 #include "Admin.h"
 #include "LVB.h"
@@ -76,7 +76,7 @@ static void writeinf(Parameters prms, Dataptr MSA, int argc, char **argv)
 {
 	struct utsname buffer;
 	errno = 0;
-	if (uname(&buffer) !=0) 
+	if (uname(&buffer) !=0)
 	{
 		perror("uname");
 		exit(EXIT_FAILURE);
@@ -117,7 +117,7 @@ static void writeinf(Parameters prms, Dataptr MSA, int argc, char **argv)
 	printf("  Processes            %d\n", n_process);
 	#endif
 	printf("  PThreads:            %d\n", prms.n_processors_available);
-	printf("\n================================================================================\n");	
+	printf("\n================================================================================\n");
 	printf("\nInitialising search: \n");
 }
 
@@ -177,14 +177,14 @@ static long getsoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb
      * files.  */
     long cyc = 0;	/* current cycle number */
     long start = 0;	/* current random (re)start number */
- 
+
     /* dynamic "local" heap memory */
     tree = treealloc(MSA, LVB_TRUE);
 
     /* Allocation of the initial encoded MSA is non-contiguous because
      * this MSA isn't used much, so any performance penalty won't matter. */
     enc_mat = (Lvb_bit_length **) malloc((MSA->n) * sizeof(Lvb_bit_length *));
-    for (i = 0; i < MSA->n; i++) 
+    for (i = 0; i < MSA->n; i++)
 		enc_mat[i] = (Lvb_bit_length *) alloc(MSA->bytes, "state sets");
     DNAToBinary(MSA, enc_mat);
 
@@ -196,18 +196,18 @@ static long getsoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb
     if (rcstruct.verbose == LVB_TRUE) {
 		sumfp = clnopen(SUMFNAM, "w");
 		fprintf(sumfp, "StartNo\tCycleNo\tCycInit\tCycBest\tCycTrees\n");
-    } 
+    }
     else{
         sumfp = NULL;
     }
-	
+
     /* determine starting temperature */
     PullRandomTree(MSA, tree);	/* initialise required variables */
     ss_init(MSA, tree, enc_mat);
     initroot = 0;
 
 	t0 = StartingTemperature(MSA, tree, rcstruct, initroot, log_progress);
-	
+
     PullRandomTree(MSA, tree);	/* begin from scratch */
     ss_init(MSA, tree, enc_mat);
     initroot = 0;
@@ -226,7 +226,7 @@ static long getsoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb
 		free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
 		logtree1(MSA, tree, start, cyc, initroot);
     }
-	
+
 	#ifdef LVB_MAPREDUCE
 		MPI_Barrier(MPI_COMM_WORLD);
 		/* find solution(s) */
@@ -283,18 +283,18 @@ static long getsoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb
 
 	#else
 	    /* find solution(s) */
-    treelength = Anneal(MSA, &bstack_overall, &stack_treevo, tree, rcstruct, initroot, t0, maxaccept, 
+    treelength = Anneal(MSA, &bstack_overall, &stack_treevo, tree, rcstruct, initroot, t0, maxaccept,
     maxpropose, maxfail, stdout, iter_p, log_progress);
     PullTreefromTreestack(MSA, tree, &initroot, &bstack_overall, LVB_FALSE);
 
 	CompareTreeToTreestack(MSA, &bstack_overall, tree, initroot, LVB_FALSE);
-    
+
     //treelength = deterministic_hillclimb(MSA, &bstack_overall, tree, rcstruct, initroot, stdout,
 	//			iter_p, log_progress);
 
 	#endif
 
-	/* log this cycle's solution and its details 
+	/* log this cycle's solution and its details
 	 * NOTE: There are no cycles anymore in the current version
      * of LVB. The code bellow is purely to keep the output consistent
      * with that of previous versions. */
@@ -375,7 +375,7 @@ int main(int argc, char **argv)
 
 		MPI_Comm_rank(MPI_COMM_WORLD,&misc.rank);
 		MPI_Comm_size(MPI_COMM_WORLD,&misc.nprocs);
-		
+
 		MapReduce *mrTreeStack = new MapReduce(MPI_COMM_WORLD);
 		mrTreeStack->memsize = 1024;
 		mrTreeStack->verbosity = 0;
@@ -392,7 +392,7 @@ int main(int argc, char **argv)
     PrintLVBCopyright();
 	PrintLVBInfo();
 
-    /* start timer */ 
+    /* start timer */
     clock_t Start, End;
     double Overall_Time_taken;
 
@@ -408,9 +408,9 @@ int main(int argc, char **argv)
 
     /* "file-local" dynamic heap memory: set up best tree stacks, need to be by thread */
 	bstack_overall = CreateNewTreestack();
-	if(rcstruct.algorithm_selection ==2) 
+	if(rcstruct.algorithm_selection ==2)
     stack_treevo = CreateNewTreestack();
-        
+
     matchange(MSA, rcstruct);	/* cut columns */
 	#ifdef LVB_MAPREDUCE
     writeinf(rcstruct, MSA, argc, argv, misc.nprocs);
@@ -430,7 +430,7 @@ int main(int argc, char **argv)
 	treEvo = (FILE *) alloc(sizeof(FILE), "alloc FILE");
     if(rcstruct.algorithm_selection ==2)
     treEvo = fopen ("treEvo.tre","w");
-		iter = 0;     
+		iter = 0;
 		#ifdef LVB_MAPREDUCE
 		final_length = getsoln(MSA, rcstruct, &iter, log_progress, &misc, mrTreeStack, mrBuffer);
 	    if (misc.rank == 0) {
@@ -440,9 +440,9 @@ int main(int argc, char **argv)
 		#else
 		final_length = getsoln(MSA, rcstruct, &iter, log_progress);
 		trees_output = PrintTreestack(MSA, &bstack_overall, outtreefp, LVB_FALSE);
-		
+
 		#endif
-		
+
 		trees_output_total += trees_output;
         if(rcstruct.algorithm_selection ==2)
 		PrintTreestack(MSA, &stack_treevo, treEvo, LVB_FALSE);
@@ -457,8 +457,8 @@ int main(int argc, char **argv)
 
    if(rcstruct.algorithm_selection ==2)
     fclose(treEvo);
-	
-	
+
+
 	clnclose(outtreefp, rcstruct.file_name_out);
 
     End = clock();
@@ -479,10 +479,10 @@ int main(int argc, char **argv)
 		fprintf (logfile, "%s\t%ld\t%ld\t%ld\t%.2lf\n", LVB_IMPLEMENTATION, iter, trees_output_total, final_length, Overall_Time_taken);
 		fclose(logfile);
 	}
-	
+
 	double consistencyindex = MinimumTreeLength(MSA);
 	double homoplasyindex = 0;
-	
+
 	consistencyindex = consistencyindex/final_length;
 	homoplasyindex = 1 - consistencyindex;
 

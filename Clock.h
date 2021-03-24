@@ -38,8 +38,11 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
-#ifndef CLOCK_H_
-#define CLOCK_H_
+
+/* ========== Clock.h - interface for Clock.c ========== */
+
+#ifndef LVB_CLOCK_H_
+#define LVB_CLOCK_H_
 
 #include "LVB.h"
 
@@ -47,4 +50,4 @@ void LogTime();
 void StartTime();
 void logstim(void);
 
-#endif  // CLOCK_H_
+#endif  // LVB_CLOCK_H_
