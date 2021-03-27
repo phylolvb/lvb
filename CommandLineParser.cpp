@@ -274,7 +274,7 @@ void read_parameters(Parameters *prms, int argc, char **argv){
 				break;
 			case 'p':
 				if (optarg == NULL){
-					fprintf (stderr, "Option -%c requires an argument -p <file name>\n", optopt);
+					fprintf (stderr, "Option -%c requires an argument -p <int>\n", optopt);
 					usage(argv[0]);
 				}
 				prms->n_processors_available = atoi(optarg);

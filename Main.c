@@ -114,9 +114,16 @@ static void writeinf(Parameters prms, Dataptr MSA, int argc, char **argv)
 
 	printf("\nParallelisation Properties: \n");
 	#ifdef LVB_MAPREDUCE
-	printf("  Processes            %d\n", n_process);
+	printf("  Processes:           %d\n", n_process);
 	#endif
-	printf("  PThreads:            %d\n", prms.n_processors_available);
+	printf("  PThreads requested:  %d\n", omp_get_max_threads());
+	printf("  PThread IDs: \n");
+	#pragma omp parallel
+	{
+	printf("                       %d\n", omp_get_thread_num());
+	}
+	
+	//printf("  PThreads:            %d\n", prms.n_processors_available);
 	printf("\n================================================================================\n");
 	printf("\nInitialising search: \n");
 }

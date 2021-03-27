@@ -59,7 +59,7 @@ static void lenlog(FILE *lengthfp, TREESTACK *bstackp, long iteration, long leng
 long deterministic_hillclimb(Dataptr MSA, TREESTACK *bstackp, const TREESTACK_TREE_BRANCH *const inittree,
 	Parameters rcstruct, long root, FILE * const lenfp, long *current_iter, Lvb_bool log_progress, 
 	MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer)
-#else //okay
+#else 
 long deterministic_hillclimb(Dataptr MSA, TREESTACK *bstackp, const TREESTACK_TREE_BRANCH *const inittree,
 		Parameters rcstruct, long root, FILE * const lenfp, long *current_iter, Lvb_bool log_progress)
 #endif
@@ -166,7 +166,7 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *bstackp, const TREESTACK_TR
 						  free(total_count);
 						}
 
-					#else //okay
+					#else 
 					if (deltalen <= 0) {
 					if (deltalen < 0)  /* very best so far */
 					{
@@ -204,7 +204,7 @@ long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
 	const long maxfail, FILE *const lenfp, long *current_iter,
 	Lvb_bool log_progress, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer)
 
-#else //okay
+#else
 long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_TREE_BRANCH *const inittree, Parameters rcstruct,
 	long root, const double t0, const long maxaccept, const long maxpropose,
 	const long maxfail, FILE *const lenfp, long *current_iter,

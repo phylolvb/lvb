@@ -233,9 +233,12 @@ Returns 1 if the tree was pushed, or 0 if not.
 
 long CompareTreeToTreestack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRANCH *const BranchArray, const long root, Lvb_bool b_with_sitestate)
 {
-    long i = 0, new_root = 0;
+#define MIN_THREAD_SEARCH_SSET 5
+
+    long i, slice, slice_tail, new_root = 0;
     static TREESTACK_TREE_BRANCH *copy_2 = NULL;			/* possibly re-rooted tree 2 */
     Lvb_bool b_First = LVB_TRUE;
+    Lvb_bool b_find_sset = LVB_FALSE;
     unsigned long current_hash = 0;
     static vector<unsigned long> hashstackvector;
 
@@ -256,6 +259,30 @@ long CompareTreeToTreestack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRA
       current_hash = HashCurrentSiteStates();
       #endif
     } else{
+    	if (sp->next > MIN_THREAD_SEARCH_SSET) slice = sp->next / MSA->n_threads_getplen;
+    	if (sp->next > MIN_THREAD_SEARCH_SSET && slice > 0){
+    		makesets(MSA, copy_2, 0 /* always root zero */);
+    		slice_tail = (sp->next - (slice * MSA->n_threads_getplen));
+    		omp_set_dynamic(0);	  /* disable dinamic threathing */
+    		#pragma omp parallel num_threads(MSA->n_threads_getplen) private(i) shared(slice, slice_tail, b_find_sset)
+    		{
+    			int n_count = 0;
+    			int n_end = slice * (omp_get_thread_num() + 1);
+    			int n_begin = slice * omp_get_thread_num();
+    			if (MSA->n_threads_getplen == (omp_get_thread_num() + 1)) n_end += slice_tail;
+    			for (i = n_begin; i < n_end; i++) {
+    				if (setstcmp_with_sitestate2(MSA, sp->stack[i].p_sitestate) == 0){
+    					b_find_sset = LVB_TRUE;
+    					break;
+    				}
+    				if (n_count > 0 && (n_count % 20) == 0 && b_find_sset == LVB_TRUE){
+    					break;
+    				}
+    				n_count += 1;
+    			}
+    		}
+    		if (b_find_sset == LVB_TRUE) return 0;
+    	} else{
             #ifdef LVB_HASH
             for (i = sp->next - 1; i >= 0; i--) {
             if (TopologicalHashComparison(MSA, hashstackvector.at(i), copy_2, b_First, current_hash) == 0) return 0;
@@ -268,6 +295,7 @@ long CompareTreeToTreestack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRA
               }
             #endif
           }
+    }
     #ifdef LVB_HASH
       hashstackvector.push_back(current_hash);
     #endif
