@@ -1109,16 +1109,13 @@ static void cr_uxe(FILE *const stream, const char *const msg)
 
 	} /* end ur_print() */
 
-long TopologyComparison(Dataptr MSA, Objset *sitestate_1, const TREESTACK_TREE_BRANCH *const tree_2, Lvb_bool b_First, unsigned long& current_hash)
+long TopologyComparison(Dataptr MSA, Objset *sitestate_1, const TREESTACK_TREE_BRANCH *const tree_2, Lvb_bool b_First)
 /* return 0 if the topology of tree_1 (of root root_1) is the same as
  * that of tree_2 (of root root_2), or non-zero if different */
 {
 //	b_First = LVB_TRUE;
     if (b_First == LVB_TRUE) {
       makesets(MSA, tree_2, 0 /* always root zero */);
-      #ifdef LVB_HASH
-      current_hash = HashCurrentSiteStates();
-      #endif
     }
     return setstcmp(MSA, sitestate_1, sitestate_2, b_First /* this one is the static */);
 } /* end TopologyComparison() */
