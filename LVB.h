@@ -254,7 +254,6 @@ void FreeTreestackMemory(Dataptr restrict MSA, TREESTACK *);
 TREESTACK CreateNewTreestack(void);
 long PullTreefromTreestack(Dataptr, TREESTACK_TREE_BRANCH *, long *, TREESTACK *, Lvb_bool b_with_sitestate);
 long CompareTreeToTreestack(Dataptr, TREESTACK *, const TREESTACK_TREE_BRANCH *const, const long, Lvb_bool b_with_sitestate);
-long CompareHashTreeToHashstack(Dataptr, TREESTACK *, const TREESTACK_TREE_BRANCH *const, const long, Lvb_bool b_with_sitestate);
 int PrintTreestack(Dataptr, TREESTACK *, FILE *const, Lvb_bool onerandom);
 void SwapTrees(TREESTACK_TREE_BRANCH **const, long *const, TREESTACK_TREE_BRANCH **const, long *const);
 long words_per_row(const long);
@@ -274,11 +273,6 @@ void StartTime();
 bool LogFileExists(const char *filename);
 double StartingTemperature(Dataptr, const TREESTACK_TREE_BRANCH *const, Parameters rcstruct, long, Lvb_bool);
 long PushCurrentTreeToStack(Dataptr, TREESTACK *, const TREESTACK_TREE_BRANCH *const, const long, Lvb_bool b_with_sitestate);
-
-
-long TopologicalHashComparison(Dataptr restrict, unsigned long, const TREESTACK_TREE_BRANCH *const, Lvb_bool b_first, unsigned long&);
-unsigned long HashCurrentSiteStates();
-long HashComparison(unsigned long, unsigned long);
 
 #ifdef LVB_MAPREDUCE
 long Anneal(Dataptr restrict, TREESTACK *, TREESTACK *, const TREESTACK_TREE_BRANCH *const, Parameters rcstruct, long, const double,

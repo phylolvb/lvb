@@ -43,6 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* ========== Main.c ========== */
 
 #include "Admin.h"
+#include "Hash.h"
 #include "LVB.h"
 
 static TREESTACK bstack_overall;	/* overall best tree stack */
@@ -117,10 +118,10 @@ static void writeinf(Parameters prms, Dataptr MSA, int argc, char **argv)
 	printf("  Processes:           %d\n", n_process);
 	#endif
 	printf("  PThreads requested:  %d\n", omp_get_max_threads());
-	printf("  PThread IDs: \n");
+	printf("  PThread IDs:         ");
 	#pragma omp parallel
 	{
-	printf("                       %d\n", omp_get_thread_num());
+	printf("%d ", omp_get_thread_num());
 	}
 	
 	//printf("  PThreads:            %d\n", prms.n_processors_available);
