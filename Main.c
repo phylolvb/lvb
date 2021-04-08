@@ -43,7 +43,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* ========== Main.c ========== */
 
 #include "Admin.h"
+#include "Clock.h"
+#include "DataOperations.h"
 #include "Hash.h"
+#include "Info.h"
+#include "LogFile.h"
 #include "LVB.h"
 
 static TREESTACK bstack_overall;	/* overall best tree stack */

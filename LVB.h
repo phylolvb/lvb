@@ -58,7 +58,6 @@ using namespace std;
 #include <sys/utsname.h>
 #include <time.h>
 
-#include "Clock.h"
 #include "DataStructure.h"
 #include "LogFile.h"
 #include "MyMaths.h"
@@ -209,7 +208,6 @@ void crash(const char *const, ...);
 void dnapars_wrapper(void);
 char *f2str(FILE *const);
 Lvb_bool file_exists(const char *const);
-long MinimumTreeLength(const Dataptr);
 void getparam(Parameters *, int argc, char **argv);
 long getplen(Dataptr restrict, TREESTACK_TREE_BRANCH *, Parameters rcstruct, const long, long *restrict p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs);
 void alloc_memory_to_getplen(Dataptr MSA, long **p_todo_arr, long **p_todo_arr_sum_changes, int **p_runs);
@@ -259,18 +257,11 @@ void SwapTrees(TREESTACK_TREE_BRANCH **const, long *const, TREESTACK_TREE_BRANCH
 long words_per_row(const long);
 int count(TREESTACK_TREE_BRANCH *const, int);
 int addtoarray(TREESTACK_TREE_BRANCH *const, int, int *, int);
-void dump_objset_to_screen(Dataptr MSA, Objset *oset_1);
-void dump_objset_to_file(Dataptr MSA, Objset *oset_1);
 void copy_sitestate(Dataptr restrict MSA, Objset *p_sitestate_1);
 void DNAToBinary(Dataptr restrict, Lvb_bit_length **);
 void makesets(Dataptr restrict, const TREESTACK_TREE_BRANCH *const tree_2, const long root);
 long setstcmp_with_sitestate2(Dataptr MSA, Objset *const oset_1);
 long TopologyComparison(Dataptr restrict, Objset *, const TREESTACK_TREE_BRANCH *const, Lvb_bool b_first);
-void PrintLVBCopyright();
-void PrintLVBInfo();
-void LogTime();
-void StartTime();
-bool LogFileExists(const char *filename);
 double StartingTemperature(Dataptr, const TREESTACK_TREE_BRANCH *const, Parameters rcstruct, long, Lvb_bool);
 long PushCurrentTreeToStack(Dataptr, TREESTACK *, const TREESTACK_TREE_BRANCH *const, const long, Lvb_bool b_with_sitestate);
 
@@ -296,8 +287,6 @@ void defaults_params(Parameters *const prms);
 long deterministic_hillclimb(Dataptr, TREESTACK *, const TREESTACK_TREE_BRANCH *const, Parameters rcstruct,
 	long, FILE * const, long *, Lvb_bool);
 void dump_stack_to_screen(Dataptr MSA, TREESTACK *sp);
-void dump_objset_to_screen_sitestate_2(Dataptr MSA);
-
 
 #endif
 

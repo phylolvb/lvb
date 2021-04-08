@@ -74,4 +74,8 @@ static long setstcmp(Dataptr restrict, Objset *const oset_1, Objset *const oset_
 static void Sort(Dataptr MSA, Objset *const oset_2, const long nels);
 static void ssarralloc(Dataptr restrict MSA, Objset *nobjset_2);
 
+void dump_objset_to_screen(Dataptr MSA, Objset *oset_1);
+void dump_objset_to_file(Dataptr MSA, Objset *oset_1);
+void dump_objset_to_screen_sitestate_2(Dataptr MSA);
+
 #endif  /* LVB_TREEOPERATIONS_H_ */

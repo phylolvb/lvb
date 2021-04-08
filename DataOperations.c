@@ -42,6 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== DataOperations.c - MSA operations ========== */
 
+#include "DataOperations.h"
 #include "LVB.h"
 
 static long constchar(Dataptr restrict MSA, Lvb_bool *const togo, const Lvb_bool verbose);

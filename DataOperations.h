@@ -41,3 +41,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /* ========== DataOperations.h - interface for DataOperations.c ========== */
+
+#ifndef LVB_DATAOPERATIONS_H_
+#define LVB_DATAOPERATIONS_H_
+
+#include "LVB.h"
+
+long MinimumTreeLength(const Dataptr);
+
+#endif

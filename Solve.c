@@ -42,6 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== Solve.c - solving functions ========== */
 
+#include "DataOperations.h"
 #include "LVB.h"
 #include "Solve.h"
 

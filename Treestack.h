@@ -41,3 +41,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /* ========== Treestack.h - interface for Treestack.c ========== */
+
+#ifndef LVB_TREESTACK_H_
+#define LVB_TREESTACK_H_
+
+#include "LVB.h"
+
+#endif
