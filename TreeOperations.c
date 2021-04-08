@@ -43,15 +43,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* ========== TreeOperations.c - tree operations ========== */
 
 #include "TreeOperations.h"
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <iomanip>
-#include <functional>
-#include <unordered_set>
-#include <vector>
-#include <iterator>
-#include <bits/stdc++.h>
 
 void nodeclear(TREESTACK_TREE_BRANCH *const BranchArray, const long brnch)
 /* Initialize all scalars in branch brnch to UNSET or zero as appropriate,
