@@ -58,5 +58,6 @@ long TopologicalHashComparison(Dataptr restrict, unsigned long, const TREESTACK_
 unsigned long HashCurrentSiteStates();
 long HashComparison(unsigned long, unsigned long);
 long CompareHashTreeToHashstack(Dataptr, TREESTACK *, const TREESTACK_TREE_BRANCH *const, const long, Lvb_bool b_with_sitestate);
+long ConvertSiteSetToString(Dataptr MSA, Objset *oset_1);
 
 #endif

@@ -43,6 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* ========== TreeOperations.c - tree operations ========== */
 
 #include "TreeOperations.h"
+#include "Hash.h"
 
 void nodeclear(TREESTACK_TREE_BRANCH *const BranchArray, const long brnch)
 /* Initialize all scalars in branch brnch to UNSET or zero as appropriate,
@@ -1260,6 +1261,7 @@ void makesets(Dataptr MSA, const TREESTACK_TREE_BRANCH *const tree_2, const long
 
     #ifdef LVB_HASH
       dump_objset_to_file(MSA, sitestate_2);
+	  ConvertSiteSetToString(MSA, sitestate_2);
     #endif
 } /* end makesets() */
 

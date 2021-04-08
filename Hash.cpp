@@ -112,3 +112,23 @@ long HashComparison(unsigned long stored_hash, unsigned long current_hash) {
     if (stored_hash != current_hash) return 1;
     return 0;
 }
+
+long ConvertSiteSetToString(Dataptr MSA, Objset *oset_1)
+{
+  ostringstream os;
+	for (int i = 0; i < MSA->nsets; i++){
+		os << i << " " << oset_1[i].cnt << " ";
+		for (int x = 0; x < oset_1[i].cnt; x++) 
+    os << oset_1[i].set[x] << " ";
+		os << endl;
+	}
+  
+  string str(os.str());
+  cout << str << endl;;
+
+  FILE *printsset = fopen("PrintSSetString", "a+");
+    fprintf(printsset, "%s \n", str.c_str());
+    fclose(printsset); 
+
+  return 0;
+}
