@@ -50,6 +50,8 @@ long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE
     static TREESTACK_TREE_BRANCH *copy_2 = NULL;			/* possibly re-rooted tree 2 */
     Lvb_bool b_First = LVB_TRUE;
     unsigned long current_hash = 0;
+    string currentsitestates;
+    unsigned long currentsitestateshash = 0;
     static vector<unsigned long> hashstackvector;
 
 	/* allocate "local" static heap memory - static - do not free! */
@@ -60,12 +62,16 @@ long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE
     }
 
     if (sp->next == 0){
-     	makehashsets(MSA, copy_2, new_root /* always root zero */);
+     	currentsitestates = makehashsets(MSA, copy_2, new_root /* always root zero */);
         hashstackvector.clear();
         current_hash = HashCurrentSiteStates();
+        currentsitestateshash = HashSiteSet(currentsitestates);
+    FILE *printsitestate = fopen("PrintSiteStatesp=0", "w");
+      fprintf(printsitestate, "%s \n", currentsitestates.c_str());
+    fclose(printsitestate);
     } else{
             for (i = sp->next - 1; i >= 0; i--) {
-            if (TopologicalHashComparison(MSA, hashstackvector.at(i), copy_2, b_First, current_hash) == 0) return 0;
+            if (TopologicalHashComparison(MSA, hashstackvector.at(i), copy_2, b_First, current_hash, currentsitestates, currentsitestateshash) == 0) return 0;
                 b_First = LVB_FALSE;
               }
           }
@@ -98,10 +104,11 @@ unsigned long HashCurrentSiteStates()
 }
 
 //if hash != return 1, else return 0
-long TopologicalHashComparison(Dataptr MSA, unsigned long stored_hash, const TREESTACK_TREE_BRANCH *const tree_2, Lvb_bool b_First, unsigned long& current_hash) {
+long TopologicalHashComparison(Dataptr MSA, unsigned long stored_hash, const TREESTACK_TREE_BRANCH *const tree_2, Lvb_bool b_First, unsigned long& current_hash, string currentsitestates, unsigned long currentsitestateshash) {
   if (b_First == LVB_TRUE) {
-    makehashsets(MSA, tree_2, 0 /* always root zero */);
+    currentsitestates = makehashsets(MSA, tree_2, 0 /* always root zero */);
     current_hash = HashCurrentSiteStates();
+    currentsitestateshash = HashSiteSet(currentsitestates);
 
     // cout << stored_hash << " VS " << current_hash << endl;
   }
@@ -117,9 +124,9 @@ string ConvertSiteSetToString(Dataptr MSA, Objset *oset_1)
 {
   ostringstream os;
 	for (int i = 0; i < MSA->nsets; i++){
-		os << i << " " << oset_1[i].cnt << " ";
+		os << i << "    " << oset_1[i].cnt << "    ";
 		for (int x = 0; x < oset_1[i].cnt; x++) 
-    os << oset_1[i].set[x] << " ";
+    os << oset_1[i].set[x] << "   ";
 		os << endl;
 	}
   
@@ -127,8 +134,19 @@ string ConvertSiteSetToString(Dataptr MSA, Objset *oset_1)
   // cout << sitesetstr << endl;;
 
   FILE *printsset = fopen("PrintSSetString", "a+");
-    fprintf(printsset, "%s \n", sitesetstr.c_str());
+    fprintf(printsset, "%s\n", sitesetstr.c_str());
     fclose(printsset); 
 
   return sitesetstr;
+}
+
+unsigned long HashSiteSet(string currentsiteset)
+{
+  unsigned long str_hash = hash<string>{}(currentsiteset);
+
+  FILE *printsshash = fopen("PrintSSHash", "a+");
+    fprintf(printsshash, "%lu \n", str_hash);
+  fclose(printsshash);
+
+  return str_hash;
 }
