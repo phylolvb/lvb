@@ -1259,10 +1259,6 @@ void makesets(Dataptr MSA, const TREESTACK_TREE_BRANCH *const tree_2, const long
     fillsets(MSA, sitestate_2, tree_2, root);
     Sort(MSA, sitestate_2, MSA->nsets);
 
-    #ifdef LVB_HASH
-      dump_objset_to_file(MSA, sitestate_2);
-	  ConvertSiteSetToString(MSA, sitestate_2);
-    #endif
 } /* end makesets() */
 
 static void ssarralloc(Dataptr MSA, Objset *nobjset_2)
@@ -1481,3 +1477,29 @@ void ss_init(Dataptr MSA, TREESTACK_TREE_BRANCH *tree, Lvb_bit_length **enc_mat)
     for (i = MSA->n; i < MSA->numberofpossiblebranches; i++) tree[i].sitestate[0] = 0U;
 
 } /* end ss_init() */
+
+#ifdef LVB_HASH
+
+void makehashsets(Dataptr MSA, const TREESTACK_TREE_BRANCH *const tree_2, const long root)
+/* fill static sitestate_1 and static sitestate_2 with arrays of object sets for
+ * tree_1 and tree_2 (of root_1 and root_2 respectively), and return
+ * the extent of each array;
+ * the trees must have the same object in the root branch;
+ * arrays will be overwritten on subsequent calls */
+{
+    if (sitestate_2[0].set == NULL){	/* first call, allocate memory  to the static sitestate_2*/
+		ssarralloc(MSA, sitestate_2);
+    }
+
+    fillsets(MSA, sitestate_2, tree_2, root);
+    Sort(MSA, sitestate_2, MSA->nsets);
+
+	  string sitestatesetstring_ptr;
+    
+	  dump_objset_to_file(MSA, sitestate_2);
+	  sitestatesetstring_ptr = ConvertSiteSetToString(MSA, sitestate_2);
+
+	  cout << sitestatesetstring_ptr << endl;
+} /* end makehashsets() */
+
+#endif

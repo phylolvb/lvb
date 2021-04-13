@@ -60,7 +60,7 @@ long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE
     }
 
     if (sp->next == 0){
-     	makesets(MSA, copy_2, new_root /* always root zero */);
+     	makehashsets(MSA, copy_2, new_root /* always root zero */);
         hashstackvector.clear();
         current_hash = HashCurrentSiteStates();
     } else{
@@ -100,7 +100,7 @@ unsigned long HashCurrentSiteStates()
 //if hash != return 1, else return 0
 long TopologicalHashComparison(Dataptr MSA, unsigned long stored_hash, const TREESTACK_TREE_BRANCH *const tree_2, Lvb_bool b_First, unsigned long& current_hash) {
   if (b_First == LVB_TRUE) {
-    makesets(MSA, tree_2, 0 /* always root zero */);
+    makehashsets(MSA, tree_2, 0 /* always root zero */);
     current_hash = HashCurrentSiteStates();
 
     // cout << stored_hash << " VS " << current_hash << endl;
@@ -113,7 +113,7 @@ long HashComparison(unsigned long stored_hash, unsigned long current_hash) {
     return 0;
 }
 
-long ConvertSiteSetToString(Dataptr MSA, Objset *oset_1)
+string ConvertSiteSetToString(Dataptr MSA, Objset *oset_1)
 {
   ostringstream os;
 	for (int i = 0; i < MSA->nsets; i++){
@@ -123,12 +123,12 @@ long ConvertSiteSetToString(Dataptr MSA, Objset *oset_1)
 		os << endl;
 	}
   
-  string str(os.str());
-  cout << str << endl;;
+  string sitesetstr(os.str());
+  // cout << sitesetstr << endl;;
 
   FILE *printsset = fopen("PrintSSetString", "a+");
-    fprintf(printsset, "%s \n", str.c_str());
+    fprintf(printsset, "%s \n", sitesetstr.c_str());
     fclose(printsset); 
 
-  return 0;
+  return sitesetstr;
 }
