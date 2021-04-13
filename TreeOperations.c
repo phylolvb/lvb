@@ -1493,15 +1493,12 @@ string makehashsets(Dataptr MSA, const TREESTACK_TREE_BRANCH *const tree_2, cons
 
     fillsets(MSA, sitestate_2, tree_2, root);
     Sort(MSA, sitestate_2, MSA->nsets);
-
-	  string sitestatesetstring_ptr;
     
 	  dump_objset_to_file(MSA, sitestate_2);
-	  sitestatesetstring_ptr = ConvertSiteSetToString(MSA, sitestate_2);
 
 	  //cout << sitestatesetstring_ptr << endl;
 
-	return sitestatesetstring_ptr;
+	return ConvertSiteSetToString(MSA, sitestate_2);
 } /* end makehashsets() */
 
 #endif
