@@ -43,15 +43,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* ========== TreeOperations.c - tree operations ========== */
 
 #include "TreeOperations.h"
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <iomanip>
-#include <functional>
-#include <unordered_set>
-#include <vector>
-#include <iterator>
-#include <bits/stdc++.h>
+#include "Hash.h"
 
 void nodeclear(TREESTACK_TREE_BRANCH *const BranchArray, const long brnch)
 /* Initialize all scalars in branch brnch to UNSET or zero as appropriate,
@@ -1116,9 +1108,6 @@ long TopologyComparison(Dataptr MSA, Objset *sitestate_1, const TREESTACK_TREE_B
 //	b_First = LVB_TRUE;
     if (b_First == LVB_TRUE) {
       makesets(MSA, tree_2, 0 /* always root zero */);
-      #ifdef LVB_HASH
-      current_hash = HashCurrentSiteStates();
-      #endif
     }
     return setstcmp(MSA, sitestate_1, sitestate_2, b_First /* this one is the static */);
 } /* end TopologyComparison() */
@@ -1270,9 +1259,6 @@ void makesets(Dataptr MSA, const TREESTACK_TREE_BRANCH *const tree_2, const long
     fillsets(MSA, sitestate_2, tree_2, root);
     Sort(MSA, sitestate_2, MSA->nsets);
 
-    #ifdef LVB_HASH
-      dump_objset_to_file(MSA, sitestate_2);
-    #endif
 } /* end makesets() */
 
 static void ssarralloc(Dataptr MSA, Objset *nobjset_2)
@@ -1491,3 +1477,24 @@ void ss_init(Dataptr MSA, TREESTACK_TREE_BRANCH *tree, Lvb_bit_length **enc_mat)
     for (i = MSA->n; i < MSA->numberofpossiblebranches; i++) tree[i].sitestate[0] = 0U;
 
 } /* end ss_init() */
+
+#ifdef LVB_HASH
+
+string MakeHashSet(Dataptr MSA, const TREESTACK_TREE_BRANCH *const tree_2, const long root)
+/* fill static sitestate_1 and static sitestate_2 with arrays of object sets for
+ * tree_1 and tree_2 (of root_1 and root_2 respectively), and return
+ * the extent of each array;
+ * the trees must have the same object in the root branch;
+ * arrays will be overwritten on subsequent calls */
+{
+    if (sitestate_2[0].set == NULL){	/* first call, allocate memory  to the static sitestate_2*/
+		ssarralloc(MSA, sitestate_2);
+    }
+
+    fillsets(MSA, sitestate_2, tree_2, root);
+    Sort(MSA, sitestate_2, MSA->nsets);
+
+	return ConvertSiteSetToString(MSA, sitestate_2);
+} /* end MakeHashSet() */
+
+#endif

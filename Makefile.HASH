@@ -116,6 +116,7 @@ LVB_LIB_OBJS = Admin.$(OBJ) \
                StartingTemperature.$(OBJ) \
 			   Info.$(OBJ) \
 			   LogFile.$(OBJ) \
+			   Hash.$(OBJ) \
                MemoryOperations.$(OBJ) \
                MyMaths.$(OBJ) \
                RandomNumberGenerator.$(OBJ) \

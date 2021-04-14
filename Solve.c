@@ -42,7 +42,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== Solve.c - solving functions ========== */
 
+#include "DataOperations.h"
 #include "LVB.h"
+#include "Solve.h"
 
 static void lenlog(FILE *lengthfp, TREESTACK *bstackp, long iteration, long length, double temperature)
 /* write a message to file pointer lengthfp; iteration gives current iteration;
@@ -59,7 +61,7 @@ static void lenlog(FILE *lengthfp, TREESTACK *bstackp, long iteration, long leng
 long deterministic_hillclimb(Dataptr MSA, TREESTACK *bstackp, const TREESTACK_TREE_BRANCH *const inittree,
 	Parameters rcstruct, long root, FILE * const lenfp, long *current_iter, Lvb_bool log_progress, 
 	MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer)
-#else //okay
+#else 
 long deterministic_hillclimb(Dataptr MSA, TREESTACK *bstackp, const TREESTACK_TREE_BRANCH *const inittree,
 		Parameters rcstruct, long root, FILE * const lenfp, long *current_iter, Lvb_bool log_progress)
 #endif
@@ -166,14 +168,18 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *bstackp, const TREESTACK_TR
 						  free(total_count);
 						}
 
-					#else //okay
+					#else 
 					if (deltalen <= 0) {
 					if (deltalen < 0)  /* very best so far */
 					{
 						ClearTreestack(bstackp);
 						len = lendash;
 					}
-						if (CompareTreeToTreestack(MSA, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1) 
+						#ifdef LVB_HASH
+							if (CompareHashTreeToHashstack(MSA, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1) 
+						#else
+							if (CompareTreeToTreestack(MSA, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1) 
+						#endif
 					{
 						newtree = LVB_TRUE;
 						SwapTrees(&p_current_tree, &root, &p_proposed_tree, &rootdash);
@@ -204,7 +210,7 @@ long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
 	const long maxfail, FILE *const lenfp, long *current_iter,
 	Lvb_bool log_progress, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer)
 
-#else //okay
+#else
 long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_TREE_BRANCH *const inittree, Parameters rcstruct,
 	long root, const double t0, const long maxaccept, const long maxpropose,
 	const long maxfail, FILE *const lenfp, long *current_iter,
@@ -273,7 +279,12 @@ long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
     lvb_assert( ((float) t >= (float) LVB_EPS) && (t <= 1.0) && (grad_geom >= LVB_EPS) && (grad_linear >= LVB_EPS));
 
     lenbest = len;
+
+	#ifdef LVB_HASH
+		CompareHashTreeToHashstack(MSA, bstackp, inittree, root, LVB_FALSE);	/* init. tree initially best */
+	#else
 		CompareTreeToTreestack(MSA, bstackp, inittree, root, LVB_FALSE);	/* init. tree initially best */  
+	#endif
 
 	double trops_counter[3] = {1,1,1};
 	double trops_probs[3] = {0,0,0};
@@ -449,7 +460,11 @@ long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
 				if (lendash < lenbest) {
 					ClearTreestack(bstackp);	/* discard old bests */
 				}
-					if(CompareTreeToTreestack(MSA, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1)
+					#ifdef LVB_HASH
+						if(CompareHashTreeToHashstack(MSA, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1)
+					#else
+						if(CompareTreeToTreestack(MSA, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1)
+					#endif
 				{
 					accepted++;
 				}

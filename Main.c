@@ -43,6 +43,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* ========== Main.c ========== */
 
 #include "Admin.h"
+#include "Clock.h"
+#include "DataOperations.h"
+#include "Hash.h"
+#include "Info.h"
+#include "LogFile.h"
 #include "LVB.h"
 
 static TREESTACK bstack_overall;	/* overall best tree stack */
@@ -114,9 +119,16 @@ static void writeinf(Parameters prms, Dataptr MSA, int argc, char **argv)
 
 	printf("\nParallelisation Properties: \n");
 	#ifdef LVB_MAPREDUCE
-	printf("  Processes            %d\n", n_process);
+	printf("  Processes:           %d\n", n_process);
 	#endif
-	printf("  PThreads:            %d\n", prms.n_processors_available);
+	printf("  PThreads requested:  %d\n", omp_get_max_threads());
+	printf("  PThread IDs:         ");
+	#pragma omp parallel
+	{
+	printf("%d ", omp_get_thread_num());
+	}
+
+	//printf("  PThreads:            %d\n", prms.n_processors_available);
 	printf("\n================================================================================\n");
 	printf("\nInitialising search: \n");
 }
@@ -287,7 +299,11 @@ static long getsoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb
     maxpropose, maxfail, stdout, iter_p, log_progress);
     PullTreefromTreestack(MSA, tree, &initroot, &bstack_overall, LVB_FALSE);
 
-	CompareTreeToTreestack(MSA, &bstack_overall, tree, initroot, LVB_FALSE);
+	#ifdef LVB_HASH
+		CompareHashTreeToHashstack(MSA, &bstack_overall, tree, initroot, LVB_FALSE);
+	#else
+		CompareTreeToTreestack(MSA, &bstack_overall, tree, initroot, LVB_FALSE);
+	#endif
 
     //treelength = deterministic_hillclimb(MSA, &bstack_overall, tree, rcstruct, initroot, stdout,
 	//			iter_p, log_progress);
