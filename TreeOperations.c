@@ -1480,7 +1480,7 @@ void ss_init(Dataptr MSA, TREESTACK_TREE_BRANCH *tree, Lvb_bit_length **enc_mat)
 
 #ifdef LVB_HASH
 
-string makehashsets(Dataptr MSA, const TREESTACK_TREE_BRANCH *const tree_2, const long root)
+string MakeHashSet(Dataptr MSA, const TREESTACK_TREE_BRANCH *const tree_2, const long root)
 /* fill static sitestate_1 and static sitestate_2 with arrays of object sets for
  * tree_1 and tree_2 (of root_1 and root_2 respectively), and return
  * the extent of each array;
@@ -1493,12 +1493,8 @@ string makehashsets(Dataptr MSA, const TREESTACK_TREE_BRANCH *const tree_2, cons
 
     fillsets(MSA, sitestate_2, tree_2, root);
     Sort(MSA, sitestate_2, MSA->nsets);
-    
-	  dump_objset_to_file(MSA, sitestate_2);
-
-	  //cout << sitestatesetstring_ptr << endl;
 
 	return ConvertSiteSetToString(MSA, sitestate_2);
-} /* end makehashsets() */
+} /* end MakeHashSet() */
 
 #endif

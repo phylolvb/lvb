@@ -54,12 +54,12 @@ using namespace std;
 
 #include "LVB.h"
 
-long TopologicalHashComparison(Dataptr restrict, unsigned long, const TREESTACK_TREE_BRANCH *const, Lvb_bool b_first, unsigned long&, string, unsigned long&);
-unsigned long HashCurrentSiteStates();
-long HashComparison(unsigned long, unsigned long, unsigned long);
+long TopologicalHashComparison(Dataptr restrict, unsigned long, const TREESTACK_TREE_BRANCH *const, Lvb_bool b_first, string, unsigned long&);
+unsigned long Hashcurrent_site_states();
+long HashComparison(unsigned long, unsigned long);
 long CompareHashTreeToHashstack(Dataptr, TREESTACK *, const TREESTACK_TREE_BRANCH *const, const long, Lvb_bool b_with_sitestate);
 string ConvertSiteSetToString(Dataptr MSA, Objset *oset_1);
-string makehashsets(Dataptr restrict, const TREESTACK_TREE_BRANCH *const tree_2, const long root);
+string MakeHashSet(Dataptr restrict, const TREESTACK_TREE_BRANCH *const tree_2, const long root);
 unsigned long HashSiteSet(string);
 
 #endif
