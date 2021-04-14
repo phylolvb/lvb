@@ -127,7 +127,7 @@ static void writeinf(Parameters prms, Dataptr MSA, int argc, char **argv)
 	{
 	printf("%d ", omp_get_thread_num());
 	}
-
+	
 	//printf("  PThreads:            %d\n", prms.n_processors_available);
 	printf("\n================================================================================\n");
 	printf("\nInitialising search: \n");
