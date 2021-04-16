@@ -1481,11 +1481,9 @@ void ss_init(Dataptr MSA, TREESTACK_TREE_BRANCH *tree, Lvb_bit_length **enc_mat)
 #ifdef LVB_HASH
 
 string MakeHashSet(Dataptr MSA, const TREESTACK_TREE_BRANCH *const tree_2, const long root)
-/* fill static sitestate_1 and static sitestate_2 with arrays of object sets for
- * tree_1 and tree_2 (of root_1 and root_2 respectively), and return
- * the extent of each array;
- * the trees must have the same object in the root branch;
- * arrays will be overwritten on subsequent calls */
+/* fill static sitestate_2 with arrays of object sets for
+ * tree_2, and return sitestate_2 string 
+ * arrays and strings overwritten on subsequent calls */
 {
     if (sitestate_2[0].set == NULL){	/* first call, allocate memory  to the static sitestate_2*/
 		ssarralloc(MSA, sitestate_2);
