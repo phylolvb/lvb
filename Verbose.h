@@ -1,7 +1,8 @@
 /* LVB
 
 (c) Copyright 2003-2012 by Daniel Barker
-(c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl
+(c) Copyright 2013, 2014 by Daniel Barker and
+Maximilian Strobl
 (c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
 (c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
 and Chris Wood.
@@ -39,23 +40,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== Info.h - interface for Info.cpp ========== */
+/* ========== Verbose.h - interface for Verbose.cpp ========== */
 
-#ifndef LVB_INFO_H_
-#define LVB_INFO_H_
+#ifndef LVB_VERBOSE_H_
+#define LVB_VERBOSE_H_
 
-#include <iostream>
+#include "LVB.h"
 
-using namespace std;
+void PrintInitialTree(Dataptr, const TREESTACK_TREE_BRANCH *const, const long, const long, long);
+void CheckStandardOutput(void);
+void PrintStartMessage(long, long);
 
-#define PROGNAM "LVB "
-#define LVB_VERSION "4.0"
-#define LVB_MAPREDUCE_VERSION "MapReduce Multicore version "
-#define LVB_HASH_VERSION "Hash version "
-#define LVB_RELEASE_DATE "February 2019"
-#define LVB_WIKI "github.com/phylolvb/lvb"
-
-void PrintLVBCopyright();
-void PrintLVBInfo();
-
-#endif  // LVB_INFO_H_
+#endif

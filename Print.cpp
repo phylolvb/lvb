@@ -39,32 +39,32 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== Info.cpp - LVB version info ========== */
+/* ========== Print.cpp - Print functions ========== */
 
-#include "Info.h"
+#include "Print.h"
 
 void PrintLVBInfo() {
-  cout << "==============================================="
+  std::cout << "==============================================="
           "=================================\n\n";
-  cout << "LVB v." << LVB_VERSION << " ";
+  std::cout << "LVB v." << LVB_VERSION << " ";
   #ifdef LVB_MAPREDUCE
-    cout << LVB_MAPREDUCE_VERSION;
+    std::cout << LVB_MAPREDUCE_VERSION;
   #elif LVB_HASH
-    cout << LVB_HASH_VERSION;
+    std::cout << LVB_HASH_VERSION;
   #endif
-  cout << "built for Linux 64-bit \n";
+  std::cout << "built for Linux 64-bit \n";
 
-  cout << "Released: " << LVB_RELEASE_DATE " by the Barker Lab\n"
+  std::cout << "Released: " << LVB_RELEASE_DATE " by the Barker Lab\n"
   "Developed by: Joseph Guscott and Daniel Barker\n"
   "For help, see the GitHub Wiki page at: " << LVB_WIKI "\n"
   "Please send any questions to joseph.guscott@ed.ac.uk"
   " or daniel.barker@ed.ac.uk\n\n";
-  cout << "==============================================="
+  std::cout << "==============================================="
           "=================================\n\n";
 }
 
 void PrintLVBCopyright() {
-  cout << "(c) Copyright 2003-2012 by Daniel Barker\n"
+  std::cout << "(c) Copyright 2003-2012 by Daniel Barker\n"
   "(c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl\n"
   "(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro\n"
   "and Maximilian Strobl\n"
@@ -105,4 +105,18 @@ void PrintLVBCopyright() {
   "STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)\n"
   "ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF\n"
   "ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n\n";
+}
+
+void PrintOutput(long iter, long trees_output_total, long final_length, double consistencyindex, double homoplasyindex, double Overall_Time_taken, char *file_name_out) {
+	
+	printf("\nSearch Complete\n");
+	printf("\n================================================================================\n");
+	printf("\nSearch Results:\n");
+	printf("  Rearrangements evaluated: %ld\n", iter);
+	printf("  Topologies recovered:     %ld\n", trees_output_total);
+	printf("  Tree score:               %ld\n", final_length);
+	printf("  Consistency index:        %.2lf\n", consistencyindex);
+	printf("  Homoplasy index:          %.2lf\n", homoplasyindex);
+	printf("  Total runtime (seconds):  %.2lf\n", Overall_Time_taken);
+	printf("\nAll topologies written to '%s'\n", file_name_out);
 }

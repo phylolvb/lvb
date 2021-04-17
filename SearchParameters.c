@@ -42,9 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== SearchParameters.c - get and set configurable parameters ========== */
 
-#include "LVB.h"
-#include "CommandLineParser.h"
-#include <unistd.h>
+#include "SearchParameters.h"
 
 /* it is in CommandLineParser.cpp library */
 void read_parameters(Parameters *prms, int argc, char **argv);
@@ -97,3 +95,66 @@ void getparam(Parameters *prms, int argc, char **argv)
 	read_parameters(prms, argc, argv);
 
 } /* end getparam() */
+
+#ifdef LVB_MAPREDUCE
+void writeinf(Parameters prms, Dataptr MSA, int argc, char **argv, int n_process)
+
+#else
+void writeinf(Parameters prms, Dataptr MSA, int argc, char **argv)
+
+#endif
+/* write initial details to standard output */
+{
+	struct utsname buffer;
+	errno = 0;
+	if (uname(&buffer) !=0)
+	{
+		perror("uname");
+		exit(EXIT_FAILURE);
+	}
+
+	printf("Executing: ");
+	printf("' ");
+	for (int i = 0; i < argc; ++i)
+	printf("%s ", argv[i]);
+	printf("' at: ");
+	LogTime();
+	printf("\n");
+
+	printf("Analysis Properties: \n");
+	printf("  Alignment:          '%s'\n", prms.file_name_in);
+	printf("  MSA format:          ");
+	if (prms.n_file_format == FORMAT_PHYLIP) printf("PHYLIP\n");
+    else if (prms.n_file_format == FORMAT_FASTA) printf("FASTA\n");
+    else if (prms.n_file_format == FORMAT_NEXUS) printf("NEXUS\n");
+    else if (prms.n_file_format == FORMAT_CLUSTAL) printf("CLUSTAL\n");
+    else{
+    	fprintf (stderr, "Error, input format file not recognized\n");
+    	abort();
+    }
+
+	printf("  MSA size:            %ld x %ld\n", MSA->n, MSA->original_m);
+	printf("  Seed:                %d\n", prms.seed);
+	printf("  Cooling schedule:    ");
+    if(prms.cooling_schedule == 0) printf("GEOMETRIC\n");
+    else printf("LINEAR\n");
+	printf("  Algorithm: ");
+    if(prms.algorithm_selection == 0) printf("          0 (SN)\n");
+    else if(prms.algorithm_selection == 1) printf("          1 (SEQ-TNS)\n");
+    else if(prms.algorithm_selection == 2) printf("          2 (PBS)\n");
+
+	printf("\nParallelisation Properties: \n");
+	#ifdef LVB_MAPREDUCE
+	printf("  Processes:           %d\n", n_process);
+	#endif
+	printf("  PThreads requested:  %d\n", omp_get_max_threads());
+	printf("  PThread IDs:         ");
+	#pragma omp parallel
+	{
+	printf("%d ", omp_get_thread_num());
+	}
+	
+	//printf("  PThreads:            %d\n", prms.n_processors_available);
+	printf("\n================================================================================\n");
+	printf("\nInitialising search: \n");
+}

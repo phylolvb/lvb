@@ -114,7 +114,7 @@ LVB_LIB_OBJS = Admin.$(OBJ) \
                FileOperations.$(OBJ) \
                SearchParameters.$(OBJ) \
                StartingTemperature.$(OBJ) \
-			   Info.$(OBJ) \
+			   Print.$(OBJ) \
 			   LogFile.$(OBJ) \
                MemoryOperations.$(OBJ) \
                MyMaths.$(OBJ) \
@@ -124,6 +124,7 @@ LVB_LIB_OBJS = Admin.$(OBJ) \
                Sops.$(OBJ) \
 			   Treestack.$(OBJ) \
                TreeOperations.$(OBJ) \
+			   Verbose.$(OBJ) \
                Wrapper.$(OBJ)
 
 LVB_READ_FILE_OBJS = 	$(LVB_READ_FILE_DIR)MSAInput.$(OBJ) \

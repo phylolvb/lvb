@@ -41,3 +41,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /* ========== TreeEvaluation.h - interface for TreeEvaluation.c ========== */
+
+#ifndef LVB_TREEEVALUATION_H
+#define LVB_TREEEVALUATION_H
+
+#include "LVB.h"
+
+// void PrintOutput(long, long, long, double, double, double, string);
+
+#endif

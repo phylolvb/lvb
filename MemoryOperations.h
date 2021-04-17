@@ -41,3 +41,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /* ========== MemoryOperations.h - interface for MemoryOperations.c ========== */
+
+#ifndef LVB_MEMORYOPERATIONS_H
+#define LVB_MEMORYOPERATIONS_H
+
+#include "LVB.h"
+
+void calc_distribution_processors(Dataptr, Parameters rcstruct);
+
+#endif

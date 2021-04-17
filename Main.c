@@ -46,110 +46,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Clock.h"
 #include "DataOperations.h"
 #include "Hash.h"
-#include "Info.h"
+#include "Print.h"
 #include "LogFile.h"
 #include "LVB.h"
+#include "MemoryOperations.h"
+#include "SearchParameters.h"
+#include "Verbose.h"
 
 static TREESTACK bstack_overall;	/* overall best tree stack */
 static TREESTACK stack_treevo;
-
-static void check_stdout(void)
-/* Flush standard output, and crash verbosely on error. */
-{
-    if (fflush(stdout) == EOF)
-        crash("write error on standard output");	/* may not work! */
-    if (ferror(stdout))
-    	crash("file error on standard output");		/* may not work! */
-}	/* end check_stdout() */
-
-static void smessg(long start, long cycle)
-/* print cycle start message */
-{
-    // printf("Beginning cycle \n\n");
-    check_stdout();
-
-} /* end smessg() */
-
-#ifdef LVB_MAPREDUCE
-static void writeinf(Parameters prms, Dataptr MSA, int argc, char **argv, int n_process)
-
-#else
-static void writeinf(Parameters prms, Dataptr MSA, int argc, char **argv)
-
-#endif
-/* write initial details to standard output */
-{
-	struct utsname buffer;
-	errno = 0;
-	if (uname(&buffer) !=0)
-	{
-		perror("uname");
-		exit(EXIT_FAILURE);
-	}
-
-	printf("Executing: ");
-	printf("' ");
-	for (int i = 0; i < argc; ++i)
-	printf("%s ", argv[i]);
-	printf("' at: ");
-	LogTime();
-	printf("\n");
-
-	printf("Analysis Properties: \n");
-	printf("  Alignment:          '%s'\n", prms.file_name_in);
-	printf("  MSA format:          ");
-	if (prms.n_file_format == FORMAT_PHYLIP) printf("PHYLIP\n");
-    else if (prms.n_file_format == FORMAT_FASTA) printf("FASTA\n");
-    else if (prms.n_file_format == FORMAT_NEXUS) printf("NEXUS\n");
-    else if (prms.n_file_format == FORMAT_CLUSTAL) printf("CLUSTAL\n");
-    else{
-    	fprintf (stderr, "Error, input format file not recognized\n");
-    	abort();
-    }
-
-	printf("  MSA size:            %ld x %ld\n", MSA->n, MSA->original_m);
-	printf("  Seed:                %d\n", prms.seed);
-	printf("  Cooling schedule:    ");
-    if(prms.cooling_schedule == 0) printf("GEOMETRIC\n");
-    else printf("LINEAR\n");
-	printf("  Algorithm: ");
-    if(prms.algorithm_selection == 0) printf("          0 (SN)\n");
-    else if(prms.algorithm_selection == 1) printf("          1 (SEQ-TNS)\n");
-    else if(prms.algorithm_selection == 2) printf("          2 (PBS)\n");
-
-	printf("\nParallelisation Properties: \n");
-	#ifdef LVB_MAPREDUCE
-	printf("  Processes:           %d\n", n_process);
-	#endif
-	printf("  PThreads requested:  %d\n", omp_get_max_threads());
-	printf("  PThread IDs:         ");
-	#pragma omp parallel
-	{
-	printf("%d ", omp_get_thread_num());
-	}
-	
-	//printf("  PThreads:            %d\n", prms.n_processors_available);
-	printf("\n================================================================================\n");
-	printf("\nInitialising search: \n");
-}
-
-
-static void logtree1(Dataptr MSA, const TREESTACK_TREE_BRANCH *const BranchArray, const long start, const long cycle, long root)
-/* log initial tree for cycle cycle of start start (in BranchArray) to outfp */
-{
-    static char outfnam[LVB_FNAMSIZE]; 	/* current file name */
-    int fnamlen;			/* length of current file name */
-    FILE *outfp;			/* output file */
-
-    fnamlen = sprintf(outfnam, "%s_start%ld_cycle%ld", TREE1FNAM, start, cycle);
-    lvb_assert(fnamlen < LVB_FNAMSIZE);	/* shut door if horse bolted */
-
-    /* create tree file */
-    outfp = clnopen(outfnam, "w");
-    lvb_treeprint(MSA, outfp, BranchArray, root);
-    clnclose(outfp, outfnam);
-
-} /* end logtree1() */
 
 #ifdef LVB_MAPREDUCE
 static long getsoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool log_progress,
@@ -159,7 +64,7 @@ static long getsoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb
 
 #endif
 /* get and output solution(s) according to parameters in rcstruct;
- * return length of shortest tree(s) found, using weights in weight_arr */
+ * return length of shortest tree(s) found */
 {
     static char fnam[LVB_FNAMSIZE];	/* current file name */
     long fnamlen;			/* length of current file name */
@@ -224,8 +129,8 @@ static long getsoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb
     ss_init(MSA, tree, enc_mat);
     initroot = 0;
 
-    if (rcstruct.verbose) smessg(start, cyc);
-    	check_stdout();
+    if (rcstruct.verbose) PrintStartMessage(start, cyc);
+    	CheckStandardOutput();
 
     /* start cycles's entry in sum file
      * NOTE: There are no cycles anymore in the current version
@@ -236,7 +141,7 @@ static long getsoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb
         alloc_memory_to_getplen(MSA, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
 		fprintf(sumfp, "%ld\t%ld\t%ld\t", start, cyc, getplen(MSA, tree, rcstruct, initroot, p_todo_arr, p_todo_arr_sum_changes, p_runs));
 		free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-		logtree1(MSA, tree, start, cyc, initroot);
+		PrintInitialTree(MSA, tree, start, cyc, initroot);
     }
 
 	#ifdef LVB_MAPREDUCE
@@ -332,7 +237,7 @@ static long getsoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb
 
 
     if (rcstruct.verbose == LVB_TRUE) // printf("Ending start %ld cycle %ld\n", start, cyc);
-    check_stdout();
+    CheckStandardOutput();
 
     if (rcstruct.verbose == LVB_TRUE) clnclose(sumfp, SUMFNAM);
     /* "local" dynamic heap memory */
@@ -344,30 +249,7 @@ static long getsoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb
 
 } /* end getsoln() */
 
-/* set the number of processors to use */
-void calc_distribution_processors(Dataptr MSA, Parameters rcstruct){
-	int n_threads_temp = 0;
-	if (MSA->nwords > MINIMUM_SIZE_NUMBER_WORDS_TO_ACTIVATE_THREADING){
-		do{
-			n_threads_temp ++;
-			MSA->n_slice_size_getplen = MSA->nwords / n_threads_temp;
-		}while (MSA->n_slice_size_getplen > MINIMUM_WORDS_PER_SLICE_GETPLEN && n_threads_temp != rcstruct.n_processors_available);
-
-		if (MSA->n_slice_size_getplen > MINIMUM_WORDS_PER_SLICE_GETPLEN){
-			MSA->n_slice_size_getplen = MSA->nwords / n_threads_temp;
-			MSA->n_threads_getplen = n_threads_temp;
-		}
-		else{
-			MSA->n_threads_getplen = n_threads_temp - 1;
-			MSA->n_slice_size_getplen = MSA->nwords / MSA->n_threads_getplen;
-		}
-	}
-	else{
-		MSA->n_threads_getplen = 1; /* need to pass for 1 thread because the number of words is to low */
-	}
-	// only to protect
-	if (MSA->n_threads_getplen < 1) MSA->n_threads_getplen = 1;
-}
+/* ----------------------------------------------------------------------------------------------------------------------------------------- */
 
 int main(int argc, char **argv)
 {
@@ -481,20 +363,7 @@ int main(int argc, char **argv)
 
 	Overall_Time_taken = ((double) (End - Start)) /CLOCKS_PER_SEC;
 
-	if (LogFileExists ("logfile.tsv"))
-	{
-		FILE * logfile;
-    	logfile = fopen ("logfile.tsv","a+");
-		fprintf (logfile, "%s\t%ld\t%ld\t%ld\t%.2lf\n", LVB_IMPLEMENTATION, iter, trees_output_total, final_length, Overall_Time_taken);
-		fclose(logfile);
-	}
-	else {
-		FILE * logfile;
-	    logfile = fopen ("logfile.tsv","a+");
-		fprintf (logfile, "Implementation\tRearrangements\tTopologies\tScore\tRuntime\n");
-		fprintf (logfile, "%s\t%ld\t%ld\t%ld\t%.2lf\n", LVB_IMPLEMENTATION, iter, trees_output_total, final_length, Overall_Time_taken);
-		fclose(logfile);
-	}
+	PrintLogFile(iter, trees_output_total, final_length, Overall_Time_taken);
 
 	double consistencyindex = MinimumTreeLength(MSA);
 	double homoplasyindex = 0;
@@ -502,17 +371,7 @@ int main(int argc, char **argv)
 	consistencyindex = consistencyindex/final_length;
 	homoplasyindex = 1 - consistencyindex;
 
-	printf("\nSearch Complete\n");
-	printf("\n================================================================================\n");
-	printf("\nSearch Results:\n");
-	printf("  Rearrangements evaluated: %ld\n", iter);
-	printf("  Topologies recovered:     %ld\n", trees_output_total);
-	printf("  Tree score:               %ld\n", final_length);
-	printf("  Consistency index:        %.2lf\n", consistencyindex);
-	printf("  Homoplasy index:          %.2lf\n", homoplasyindex);
-	printf("  Total runtime (seconds):  %.2lf\n", Overall_Time_taken);
-	printf("\nAll topologies written to '%s'\n", rcstruct.file_name_out);
-
+	PrintOutput(iter, trees_output_total, final_length, consistencyindex, homoplasyindex, Overall_Time_taken, rcstruct.file_name_out);
 
 	/* "file-local" dynamic heap memory */
     if (rcstruct.algorithm_selection ==2)

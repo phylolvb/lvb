@@ -40,25 +40,40 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== RandomNumberGenerator.h - interface for RandomNumberGenerator.c ========== */
+/* ========== Verbose.cpp - verbose functions ========== */
 
-#ifndef LVB_RANDOMNUMBERGENERATOR_H
-#define LVB_RANDOMNUMBERGENERATOR_H
+#include "Verbose.h"
 
-#include "LVB.h"
+void PrintInitialTree(Dataptr MSA, const TREESTACK_TREE_BRANCH *const BranchArray, const long start, const long cycle, long root)
+/* log initial tree for cycle cycle of start start (in BranchArray) to outfp */
+{
+    static char outfnam[LVB_FNAMSIZE]; 	/* current file name */
+    int fnamlen;			/* length of current file name */
+    FILE *outfp;			/* output file */
 
-#include <float.h>
-#include <limits.h>
+    fnamlen = sprintf(outfnam, "%s_start%ld_cycle%ld", TREE1FNAM, start, cycle);
+    lvb_assert(fnamlen < LVB_FNAMSIZE);	/* shut door if horse bolted */
 
-/* set max. random number seed value suitable for rinit() */
-#if 900000001L > INT_MAX
-#error LVB WARNING: type int not suitable, try with a 32-bit or larger system
-#else
-#define MAX_SEED 900000000
-#endif  /* if 900000001L > INT_MAX */
+    /* create tree file */
+    outfp = clnopen(outfnam, "w");
+    lvb_treeprint(MSA, outfp, BranchArray, root);
+    clnclose(outfp, outfnam);
 
-/* external uni functions */
-double uni(void);
-void rinit(int ijkl);
+} /* end PrintInitialTree() */
 
-#endif
+void CheckStandardOutput(void)
+/* Flush standard output, and crash verbosely on error. */
+{
+    if (fflush(stdout) == EOF)
+        crash("write error on standard output");	/* may not work! */
+    if (ferror(stdout))
+    	crash("file error on standard output");		/* may not work! */
+}	/* end CheckStandardOutput() */
+
+void PrintStartMessage(long start, long cycle)
+/* print cycle start message */
+{
+    // printf("Beginning cycle \n\n");
+    CheckStandardOutput();
+
+} /* end PrintStartMessage() */

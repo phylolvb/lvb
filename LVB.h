@@ -42,7 +42,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define LVB_LVB_H
 
 #include <vector>
-using namespace std;
 
 #include <ctype.h>
 #include <errno.h>
@@ -71,7 +70,6 @@ using namespace std;
 	#include "MapReduce.h"
 
 	using namespace MAPREDUCE_NS;
-	using namespace std;
 	#define __STDC_LIMIT_MACROS
 #endif
 

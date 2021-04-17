@@ -1,8 +1,7 @@
 /* LVB
 
 (c) Copyright 2003-2012 by Daniel Barker
-(c) Copyright 2013, 2014 by Daniel Barker and
-Maximilian Strobl
+(c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl
 (c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
 (c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
 and Chris Wood.
@@ -40,25 +39,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== RandomNumberGenerator.h - interface for RandomNumberGenerator.c ========== */
+/* ========== Print.h - interface for Print.cpp ========== */
 
-#ifndef LVB_RANDOMNUMBERGENERATOR_H
-#define LVB_RANDOMNUMBERGENERATOR_H
+#ifndef LVB_INFO_H_
+#define LVB_INFO_H_
 
-#include "LVB.h"
+#include <iostream>
 
-#include <float.h>
-#include <limits.h>
+#define PROGNAM "LVB "
+#define LVB_VERSION "4.0"
+#define LVB_MAPREDUCE_VERSION "MapReduce Multicore version "
+#define LVB_HASH_VERSION "Hash version "
+#define LVB_RELEASE_DATE "February 2019"
+#define LVB_WIKI "github.com/phylolvb/lvb"
 
-/* set max. random number seed value suitable for rinit() */
-#if 900000001L > INT_MAX
-#error LVB WARNING: type int not suitable, try with a 32-bit or larger system
-#else
-#define MAX_SEED 900000000
-#endif  /* if 900000001L > INT_MAX */
+void PrintLVBCopyright();
+void PrintLVBInfo();
+void PrintOutput(long, long, long, double, double, double, char *);
 
-/* external uni functions */
-double uni(void);
-void rinit(int ijkl);
-
-#endif
+#endif  // LVB_INFO_H_
