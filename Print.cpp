@@ -39,9 +39,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== Info.cpp - LVB version info ========== */
+/* ========== Print.cpp - Print functions ========== */
 
-#include "Info.h"
+#include "Print.h"
 
 void PrintLVBInfo() {
   std::cout << "==============================================="
@@ -105,4 +105,18 @@ void PrintLVBCopyright() {
   "STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)\n"
   "ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF\n"
   "ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n\n";
+}
+
+void PrintOutput(long iter, long trees_output_total, long final_length, double consistencyindex, double homoplasyindex, double Overall_Time_taken, char *file_name_out) {
+	
+	printf("\nSearch Complete\n");
+	printf("\n================================================================================\n");
+	printf("\nSearch Results:\n");
+	printf("  Rearrangements evaluated: %ld\n", iter);
+	printf("  Topologies recovered:     %ld\n", trees_output_total);
+	printf("  Tree score:               %ld\n", final_length);
+	printf("  Consistency index:        %.2lf\n", consistencyindex);
+	printf("  Homoplasy index:          %.2lf\n", homoplasyindex);
+	printf("  Total runtime (seconds):  %.2lf\n", Overall_Time_taken);
+	printf("\nAll topologies written to '%s'\n", file_name_out);
 }

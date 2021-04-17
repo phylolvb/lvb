@@ -39,7 +39,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== Info.h - interface for Info.cpp ========== */
+/* ========== Print.h - interface for Print.cpp ========== */
 
 #ifndef LVB_INFO_H_
 #define LVB_INFO_H_
@@ -55,5 +55,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void PrintLVBCopyright();
 void PrintLVBInfo();
+void PrintOutput(long, long, long, double, double, double, char *);
 
 #endif  // LVB_INFO_H_

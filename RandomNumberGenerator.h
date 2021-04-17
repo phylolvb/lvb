@@ -42,6 +42,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== RandomNumberGenerator.h - interface for RandomNumberGenerator.c ========== */
 
+#ifndef LVB_RANDOMNUMBERGENERATOR_H
+#define LVB_RANDOMNUMBERGENERATOR_H
+
 #include "LVB.h"
 
 #include <float.h>
@@ -57,3 +60,5 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* external uni functions */
 double uni(void);
 void rinit(int ijkl);
+
+#endif

@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Clock.h"
 #include "DataOperations.h"
 #include "Hash.h"
-#include "Info.h"
+#include "Print.h"
 #include "LogFile.h"
 #include "LVB.h"
 #include "MemoryOperations.h"
@@ -371,19 +371,7 @@ int main(int argc, char **argv)
 	consistencyindex = consistencyindex/final_length;
 	homoplasyindex = 1 - consistencyindex;
 
-	// PrintOutput
-
-	printf("\nSearch Complete\n");
-	printf("\n================================================================================\n");
-	printf("\nSearch Results:\n");
-	printf("  Rearrangements evaluated: %ld\n", iter);
-	printf("  Topologies recovered:     %ld\n", trees_output_total);
-	printf("  Tree score:               %ld\n", final_length);
-	printf("  Consistency index:        %.2lf\n", consistencyindex);
-	printf("  Homoplasy index:          %.2lf\n", homoplasyindex);
-	printf("  Total runtime (seconds):  %.2lf\n", Overall_Time_taken);
-	printf("\nAll topologies written to '%s'\n", rcstruct.file_name_out);
-
+	PrintOutput(iter, trees_output_total, final_length, consistencyindex, homoplasyindex, Overall_Time_taken, rcstruct.file_name_out);
 
 	/* "file-local" dynamic heap memory */
     if (rcstruct.algorithm_selection ==2)

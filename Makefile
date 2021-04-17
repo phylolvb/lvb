@@ -114,7 +114,7 @@ LVB_LIB_OBJS = Admin.$(OBJ) \
                FileOperations.$(OBJ) \
                SearchParameters.$(OBJ) \
                StartingTemperature.$(OBJ) \
-			   Info.$(OBJ) \
+			   Print.$(OBJ) \
 			   LogFile.$(OBJ) \
                MemoryOperations.$(OBJ) \
                MyMaths.$(OBJ) \
