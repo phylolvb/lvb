@@ -126,3 +126,28 @@ void free_memory_to_getplen(long **p_todo_arr, long **p_todo_arr_sum_changes, in
 	free(*p_todo_arr_sum_changes);
 	free(*p_runs);
 }
+
+/* set the number of processors to use */
+void calc_distribution_processors(Dataptr MSA, Parameters rcstruct){
+	int n_threads_temp = 0;
+	if (MSA->nwords > MINIMUM_SIZE_NUMBER_WORDS_TO_ACTIVATE_THREADING){
+		do{
+			n_threads_temp ++;
+			MSA->n_slice_size_getplen = MSA->nwords / n_threads_temp;
+		}while (MSA->n_slice_size_getplen > MINIMUM_WORDS_PER_SLICE_GETPLEN && n_threads_temp != rcstruct.n_processors_available);
+
+		if (MSA->n_slice_size_getplen > MINIMUM_WORDS_PER_SLICE_GETPLEN){
+			MSA->n_slice_size_getplen = MSA->nwords / n_threads_temp;
+			MSA->n_threads_getplen = n_threads_temp;
+		}
+		else{
+			MSA->n_threads_getplen = n_threads_temp - 1;
+			MSA->n_slice_size_getplen = MSA->nwords / MSA->n_threads_getplen;
+		}
+	}
+	else{
+		MSA->n_threads_getplen = 1; /* need to pass for 1 thread because the number of words is to low */
+	}
+	// only to protect
+	if (MSA->n_threads_getplen < 1) MSA->n_threads_getplen = 1;
+}

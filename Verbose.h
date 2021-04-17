@@ -40,22 +40,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== SearchParameters.h - interface for SearchParameters.c ========== */
+/* ========== Verbose.h - interface for Verbose.cpp ========== */
 
-#ifndef LVB_SEARCHPARAMETERS_H_
-#define LVB_SEARCHPARAMETERS_H_
-
-
-#include <unistd.h>
+#ifndef LVB_VERBOSE_H_
+#define LVB_VERBOSE_H_
 
 #include "LVB.h"
-#include "Clock.h"
-#include "CommandLineParser.h"
 
-#ifdef LVB_MAPREDUCE
-    void writeinf(Parameters rcstruct, Dataptr restrict, int, char**, int);
-#else
-	void writeinf(Parameters rcstruct, Dataptr restrict, int, char**);
-#endif
+void PrintInitialTree(Dataptr, const TREESTACK_TREE_BRANCH *const, const long, const long, long);
+void CheckStandardOutput(void);
+void PrintStartMessage(long, long);
 
 #endif

@@ -56,5 +56,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 bool LogFileExists(const char *filename);
+void PrintLogFile(long, long, long, double);
 
 #endif  // LVB_LOG_FILE_H_

@@ -42,7 +42,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* ========== Admin.c - LVB library data and administration ========== */
 
 #include "Admin.h"
-#include "LVB.h" 
 
 void functionality_check(void)
 {

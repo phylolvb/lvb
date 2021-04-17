@@ -44,6 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef LVB_ADMIN_H_
 #define LVB_ADMIN_H_
 
+#include "LVB.h" 
+
 void functionality_check(void);
 void lvb_initialize(void);
 
