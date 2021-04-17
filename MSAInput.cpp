@@ -67,7 +67,7 @@ CReadFiles::~CReadFiles() {
 	// TODO Auto-generated destructor stub
 }
 
-bool CReadFiles::is_file_exist(std::string file_name)
+bool CReadFiles::is_file_exist(string file_name)
 {
 	if (FILE *file = fopen(file_name.c_str(), "r")) {
 		fclose(file);
@@ -75,7 +75,7 @@ bool CReadFiles::is_file_exist(std::string file_name)
 	} else { return false; }
 }
 
-int CReadFiles::exit_error(int ierr, std::string sz_error)
+int CReadFiles::exit_error(int ierr, string sz_error)
 {
 	if (ierr == 1) cout << "FATAL ERROR: " << sz_error << endl;
 	else cout << "Warning: " << sz_error << endl;
@@ -85,48 +85,48 @@ int CReadFiles::exit_error(int ierr, std::string sz_error)
 	return 0;
 }
 
-std::string CReadFiles::trim(std::string const& str)
+string CReadFiles::trim(string const& str)
 {
 	string sz_return = str;
-	for (std::vector<char >::iterator it = vect_trim_char.begin(); it != vect_trim_char.end(); ++it){
+	for (vector<char >::iterator it = vect_trim_char.begin(); it != vect_trim_char.end(); ++it){
 		sz_return = trim(sz_return, *it);
 	}
     return sz_return;
 }
 
-std::string CReadFiles::trim(std::string const& str, char c_char)
+string CReadFiles::trim(string const& str, char c_char)
 {
-    std::size_t first = str.find_first_not_of(c_char);
-    if(first == std::string::npos) return "";
-    std::size_t last  = str.find_last_not_of(c_char);
+    size_t first = str.find_first_not_of(c_char);
+    if(first == string::npos) return "";
+    size_t last  = str.find_last_not_of(c_char);
     return str.substr(first, last-first+1);
 }
 
-std::vector<std::string> &CReadFiles::split(const std::string &s, char delim, std::vector<std::string> &elems) {
-    std::stringstream ss(s); std::string item;
-    while (std::getline(ss, item, delim)) {
+vector<string> &CReadFiles::split(const string &s, char delim, vector<string> &elems) {
+    stringstream ss(s); string item;
+    while (getline(ss, item, delim)) {
         elems.push_back(item);
     }
     return elems;
 }
 
-std::vector<std::string> CReadFiles::split(const std::string &s, char delim) {
-    std::vector<std::string> elems, vect_out;
+vector<string> CReadFiles::split(const string &s, char delim) {
+    vector<string> elems, vect_out;
     split(s, delim, elems);
-    for (std::vector<std::string>::iterator it = elems.begin() ; it != elems.end(); ++it) vect_out.push_back(trim(*it));
+    for (vector<string>::iterator it = elems.begin() ; it != elems.end(); ++it) vect_out.push_back(trim(*it));
     return elems;
 }
 
 int CReadFiles::read_clustal(int filetype)
 {
-	std::string sz_line = "";
-	std::vector< std::string > lst_strings;
+	string sz_line = "";
+	vector< string > lst_strings;
 	int header = 0, length = 0, n_count_sequence = 0;
 	bool b_is_name_seq = false;
 
 	ifstream filein;
 	filein.open(sz_file_name.c_str());
-	while (std::getline(filein, sz_line)) {
+	while (getline(filein, sz_line)) {
 
 		length = (int) sz_line.length();
 		if (header == 0 && length > 1 && filetype == 1) {
@@ -179,7 +179,7 @@ int CReadFiles::read_clustal(int filetype)
 	return 0;
 }
 
-bool CReadFiles::is_only_one_sequence_in_array(std::vector< std::string > lst_strings){
+bool CReadFiles::is_only_one_sequence_in_array(vector< string > lst_strings){
 
 	int n_number_seqs = 0;
 	for (int i = 0; i < (int) lst_strings.size(); ++i){
@@ -189,7 +189,7 @@ bool CReadFiles::is_only_one_sequence_in_array(std::vector< std::string > lst_st
 	return false;
 }
 
-std::string CReadFiles::get_string_from_list(std::vector< std::string > lst_strings, bool b_last_one){
+string CReadFiles::get_string_from_list(vector< string > lst_strings, bool b_last_one){
 
 	int n_last_one_with_sequence = -1;
 	for (int i = (int) lst_strings.size() - 1; i > -1; --i){
@@ -205,7 +205,7 @@ std::string CReadFiles::get_string_from_list(std::vector< std::string > lst_stri
 	if (b_last_one) return "";
 
 	//// test the first one
-	std::string sz_return = "";
+	string sz_return = "";
 	for (int i = 0; i < n_last_one_with_sequence; ++i){
 		if ((int) lst_strings[i].length() > 0){
 			if ((int) sz_return.length() > 0) sz_return += " ";
@@ -254,19 +254,19 @@ int CReadFiles::read_phylip()
 
 	//// get the number of sequences and length of sequences...
 	int n_seqs = 0, n_length_seq = 0, n_count_line = 0, length;
-	std::string sz_line = "", error;
+	string sz_line = "", error;
 	bool b_is_start_read = false;
 
 	ifstream filein;
 	filein.open(sz_file_name.c_str());
-	while (std::getline(filein, sz_line)) {
+	while (getline(filein, sz_line)) {
 
 		sz_line = trim(sz_line);
 		if (sz_line.empty()) continue;
 
 		/// try to get the number of sequences and its length
 		if (n_seqs == 0 && n_length_seq == 0){
-			int scan_value = std::sscanf(sz_line.c_str(), "%d%d", &n_seqs, &n_length_seq);
+			int scan_value = sscanf(sz_line.c_str(), "%d%d", &n_seqs, &n_length_seq);
 			if (scan_value != 2){
 				n_seqs = 0;
 				n_length_seq = 0;
@@ -356,10 +356,10 @@ int CReadFiles::read_phylip()
 }
 
 
-std::string CReadFiles::clean_phylip_dna_sequence(std::string sz_sequence){
+string CReadFiles::clean_phylip_dna_sequence(string sz_sequence){
 	char chars[] = "0123456789 ";
 	for (unsigned int i = 0; i < strlen(chars); ++i){
-		sz_sequence.erase (std::remove(sz_sequence.begin(), sz_sequence.end(), chars[i]), sz_sequence.end());
+		sz_sequence.erase (remove(sz_sequence.begin(), sz_sequence.end(), chars[i]), sz_sequence.end());
 	}
 	return sz_sequence;
 }
@@ -367,19 +367,19 @@ std::string CReadFiles::clean_phylip_dna_sequence(std::string sz_sequence){
 
 bool CReadFiles::is_phylip_interleaved(){
 
-	std::string sz_line;
+	string sz_line;
 	int n_seqs = 0, n_length_seq = 0;
 	bool b_is_start_read = false, b_empty_line = false;
 	int n_total_lines = 0;
 	ifstream filein;
 	filein.open(sz_file_name.c_str());
-	while (std::getline(filein, sz_line)) {
+	while (getline(filein, sz_line)) {
 
 		sz_line = trim(sz_line);
 		if (sz_line.empty() && !b_is_start_read) continue;
 
 		if (n_seqs == 0 && n_length_seq == 0){
-			int scan_value = std::sscanf( sz_line.c_str(), "%d%d", &n_seqs, &n_length_seq);
+			int scan_value = sscanf( sz_line.c_str(), "%d%d", &n_seqs, &n_length_seq);
 			if (scan_value != 2){
 				n_seqs = 0;
 				n_length_seq = 0;
@@ -411,19 +411,19 @@ bool CReadFiles::is_phylip_interleaved(){
 
 bool CReadFiles::is_phylip_line_sequential(int &n_total_lines){
 
-	std::string sz_line;
+	string sz_line;
 	int n_seqs = 0, n_length_seq = 0;
 	bool b_is_start_read = false;
 	n_total_lines = 0;
 	ifstream filein;
 	filein.open(sz_file_name.c_str());
-	while (std::getline(filein, sz_line)) {
+	while (getline(filein, sz_line)) {
 
 		sz_line = trim(sz_line);
 		if (sz_line.empty() && !b_is_start_read) continue;
 
 		if (n_seqs == 0 && n_length_seq == 0){
-			int scan_value = std::sscanf( sz_line.c_str(), "%d%d", &n_seqs, &n_length_seq);
+			int scan_value = sscanf( sz_line.c_str(), "%d%d", &n_seqs, &n_length_seq);
 			if (scan_value != 2){
 				n_seqs = 0;
 				n_length_seq = 0;
@@ -450,13 +450,13 @@ bool CReadFiles::is_phylip_line_sequential(int &n_total_lines){
 
 int CReadFiles::read_fasta()
 {
-	std::string sz_line = "";
+	string sz_line = "";
 	int n_count_sequence = -1;
 
 	ifstream filein;
 	filein.open(sz_file_name.c_str());
 	// line by line
-	while (std::getline(filein, sz_line)) {
+	while (getline(filein, sz_line)) {
 
 		sz_line = trim(sz_line);
 		if (b_debug) cout << sz_line << endl;
@@ -476,13 +476,13 @@ int CReadFiles::read_fasta()
 
 /// get the dimensions of nexus files...
 // dimensions ntax=10 nchar=705;
-void CReadFiles::get_dimensions_nexus_format(std::string sz_line, int &n_seqs, int &n_length_seq){
+void CReadFiles::get_dimensions_nexus_format(string sz_line, int &n_seqs, int &n_length_seq){
 
 	n_seqs = 0;
 	n_length_seq = 0;
-	int scan_value = std::sscanf( sz_line.c_str(), "dimensions ntax=%d nchar=%d;", &n_seqs, &n_length_seq);
+	int scan_value = sscanf( sz_line.c_str(), "dimensions ntax=%d nchar=%d;", &n_seqs, &n_length_seq);
 	if (scan_value == 0){
-		std::sscanf( sz_line.c_str(), "dimensions nchar=%d ntax=%d;", &n_seqs, &n_length_seq);
+		sscanf( sz_line.c_str(), "dimensions nchar=%d ntax=%d;", &n_seqs, &n_length_seq);
 	}
 }
 
@@ -492,18 +492,18 @@ int CReadFiles::read_nexus()
 
 	//// get the number of sequences and length of sequences...
 	int n_seqs = 0, n_length_seq = 0;
-	std::string sz_line = "", error;
-	std::vector< std::string > lst_strings;
+	string sz_line = "", error;
+	vector< string > lst_strings;
 	bool b_is_start_read = false;
 
-	std::string sz_dimensions = "dimensions";
-	std::string sz_matix = "matrix";
+	string sz_dimensions = "dimensions";
+	string sz_matix = "matrix";
 	ifstream filein;
 	filein.open(sz_file_name.c_str());
 	bool b_is_name_seq = false;
 	int n_count_sequence = 0;
 
-	while (std::getline(filein, sz_line)) {
+	while (getline(filein, sz_line)) {
 
 		sz_line = trim(sz_line);
 		if (sz_line.empty()) continue;
@@ -574,7 +574,7 @@ int CReadFiles::read_nexus()
 
 
 int CReadFiles::clean_data(){
-	std::string error;
+	string error;
 
 	/// test if the file exist
 	if (!is_file_exist(sz_file_name)){
@@ -609,9 +609,9 @@ int CReadFiles::clean_data(){
 }
 
 
-int CReadFiles::read_file(std::string sz_file_name_temp, int n_file_type){
+int CReadFiles::read_file(string sz_file_name_temp, int n_file_type){
 
-	std::string error;
+	string error;
 	int filetype = 0, n_error_code = EXIT_SUCCESS;
 	sz_file_name = sz_file_name_temp;
 
@@ -680,10 +680,10 @@ int CReadFiles::read_file(std::string sz_file_name_temp, int n_file_type){
 	/// check the chars available to read
 	unsigned int n_max_seq = get_length_sequences();
 	for (unsigned int i = 0; i < lst_sequences.size(); i++){
-		std::transform(lst_sequences[i].begin(), lst_sequences[i].end(), lst_sequences[i].begin(), ::toupper);	// make ti upper case
+		transform(lst_sequences[i].begin(), lst_sequences[i].end(), lst_sequences[i].begin(), ::toupper);	// make ti upper case
 		for(unsigned int x = 0; x < n_max_seq; x++){
 			if (sz_accept_chars.find(get_char_sequences(i, x)) == string::npos){
-				std::string a = "This char is not allowed (";
+				string a = "This char is not allowed (";
 				a += get_char_sequences(i, x);
 				a += ")\nThe char is in this line: ";
 				a += lst_names_seq[i].c_str();
@@ -700,11 +700,11 @@ int CReadFiles::read_file(std::string sz_file_name_temp, int n_file_type){
 	return EXIT_SUCCESS;
 }
 
-void CReadFiles::save_file(std::string file_name_out){
+void CReadFiles::save_file(string file_name_out){
 
 	//// save sequences....
 	cout << "save sequences..." << endl;
-	std::string sz_out;
+	string sz_out;
 	int n_line_size = 60;
 	FILE *fileout = fopen(file_name_out.c_str(), "w");
 	for (unsigned int i = 0; i < lst_sequences.size(); i++){

@@ -1480,7 +1480,7 @@ void ss_init(Dataptr MSA, TREESTACK_TREE_BRANCH *tree, Lvb_bit_length **enc_mat)
 
 #ifdef LVB_HASH
 
-string MakeHashSet(Dataptr MSA, const TREESTACK_TREE_BRANCH *const tree_2, const long root)
+std::string MakeHashSet(Dataptr MSA, const TREESTACK_TREE_BRANCH *const tree_2, const long root)
 /* fill static sitestate_2 with arrays of object sets for
  * tree_2, and return sitestate_2 string 
  * arrays and strings overwritten on subsequent calls */

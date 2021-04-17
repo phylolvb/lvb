@@ -49,9 +49,9 @@ long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE
     long i = 0, new_root = 0;
     static TREESTACK_TREE_BRANCH *copy_2 = NULL;			/* possibly re-rooted tree 2 */
     Lvb_bool b_First = LVB_TRUE;
-    string current_site_states;
+    std::string current_site_states;
     unsigned long current_site_states_hash = 0;
-    static vector<unsigned long> hashstackvector;
+    static std::vector<unsigned long> hashstackvector;
 
 	/* allocate "local" static heap memory - static - do not free! */
 	if (copy_2 == NULL) copy_2 = treealloc(MSA, b_with_sitestate);
@@ -82,7 +82,7 @@ long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE
 } /* end CompareHashTreeToHashstack() */
 
  /*if hash != return 1, else return 0 */
-long TopologicalHashComparison(Dataptr MSA, unsigned long stored_hash, const TREESTACK_TREE_BRANCH *const tree_2, Lvb_bool b_First, string current_site_states, unsigned long& current_site_states_hash) {
+long TopologicalHashComparison(Dataptr MSA, unsigned long stored_hash, const TREESTACK_TREE_BRANCH *const tree_2, Lvb_bool b_First, std::string current_site_states, unsigned long& current_site_states_hash) {
   if (b_First == LVB_TRUE) {
     current_site_states = MakeHashSet(MSA, tree_2, 0); /* make sset and return sset as string */
     current_site_states_hash = HashSiteSet(current_site_states); /* hash sset string */
@@ -96,22 +96,22 @@ long HashComparison(unsigned long stored_hash, unsigned long current_site_states
 }
 
 /* convert sset to string (called from TreeOperations.c) */
-string ConvertSiteSetToString(Dataptr MSA, Objset *oset_1)
+std::string ConvertSiteSetToString(Dataptr MSA, Objset *oset_1)
 {
-  ostringstream os;
+  std::ostringstream os;
 	for (int i = 0; i < MSA->nsets; i++){
 		os << i << "    " << oset_1[i].cnt << "    ";
 		for (int x = 0; x < oset_1[i].cnt; x++) 
     os << oset_1[i].set[x] << "   ";
-		os << endl;
+		os << std::endl;
 	}
   
-  string sitesetstr(os.str());
+  std::string sitesetstr(os.str());
   return sitesetstr;
 }
 
-unsigned long HashSiteSet(string currentsiteset)
+unsigned long HashSiteSet(std::string currentsiteset)
 {
-  unsigned long str_hash = hash<string>{}(currentsiteset);
+  unsigned long str_hash = std::hash<std::string>{}(currentsiteset);
   return str_hash;
 }

@@ -46,8 +46,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <iostream>
 
-using namespace std;
-
 #define PROGNAM "LVB "
 #define LVB_VERSION "4.0"
 #define LVB_MAPREDUCE_VERSION "MapReduce Multicore version "

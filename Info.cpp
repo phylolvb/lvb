@@ -44,27 +44,27 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Info.h"
 
 void PrintLVBInfo() {
-  cout << "==============================================="
+  std::cout << "==============================================="
           "=================================\n\n";
-  cout << "LVB v." << LVB_VERSION << " ";
+  std::cout << "LVB v." << LVB_VERSION << " ";
   #ifdef LVB_MAPREDUCE
-    cout << LVB_MAPREDUCE_VERSION;
+    std::cout << LVB_MAPREDUCE_VERSION;
   #elif LVB_HASH
-    cout << LVB_HASH_VERSION;
+    std::cout << LVB_HASH_VERSION;
   #endif
-  cout << "built for Linux 64-bit \n";
+  std::cout << "built for Linux 64-bit \n";
 
-  cout << "Released: " << LVB_RELEASE_DATE " by the Barker Lab\n"
+  std::cout << "Released: " << LVB_RELEASE_DATE " by the Barker Lab\n"
   "Developed by: Joseph Guscott and Daniel Barker\n"
   "For help, see the GitHub Wiki page at: " << LVB_WIKI "\n"
   "Please send any questions to joseph.guscott@ed.ac.uk"
   " or daniel.barker@ed.ac.uk\n\n";
-  cout << "==============================================="
+  std::cout << "==============================================="
           "=================================\n\n";
 }
 
 void PrintLVBCopyright() {
-  cout << "(c) Copyright 2003-2012 by Daniel Barker\n"
+  std::cout << "(c) Copyright 2003-2012 by Daniel Barker\n"
   "(c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl\n"
   "(c) Copyright 2014 by Daniel Barker, Miguel Pinheiro\n"
   "and Maximilian Strobl\n"

@@ -70,9 +70,9 @@ public:
 
 public:
 	/// this is because some compilers has a problem with to_string method
-	template < typename T > std::string to_string_( const T& n )
+	template < typename T > string to_string_( const T& n )
 	{
-		std::ostringstream stm ;
+		ostringstream stm ;
 		stm << n ;
 		return stm.str() ;
 	}
@@ -80,11 +80,11 @@ public:
 public:
 	CReadFiles();
 	virtual ~CReadFiles();
-	static int exit_error(int ierr, std::string sz_error);
-	static bool is_file_exist(std::string file_name);
+	static int exit_error(int ierr, string sz_error);
+	static bool is_file_exist(string file_name);
 
-	void save_file(std::string sz_file_name_temp);
-	int read_file(std::string file_name_out, int n_file_type);
+	void save_file(string sz_file_name_temp);
+	int read_file(string file_name_out, int n_file_type);
 	unsigned int get_length_sequences() {
 		if ((int) lst_sequences.size() > 0) return lst_sequences[0].length();
 		return 0;
@@ -97,12 +97,12 @@ public:
 
 /// data structure
 private:
-	std::vector< std::string > lst_sequences;
-	std::vector< std::string > lst_names_seq;
-	std::string sz_extension;			/// extension of the file
-	std::string sz_file_name;			/// file name possible all path
-	std::string sz_only_file_name;			/// only yhe file name
-	std::string sz_accept_chars;			// chars to pass on filter
+	vector< string > lst_sequences;
+	vector< string > lst_names_seq;
+	string sz_extension;			/// extension of the file
+	string sz_file_name;			/// file name possible all path
+	string sz_only_file_name;			/// only yhe file name
+	string sz_accept_chars;			// chars to pass on filter
 	int n_max_length_name_seq;
 
 	int clean_data();
@@ -114,29 +114,29 @@ private:
 	int read_fasta();
 	int read_nexus();
 
-	bool is_only_one_sequence_in_array(std::vector< std::string > lst_strings);
-	std::string get_string_from_list(std::vector< std::string > lst_strings, bool b_last_one);
+	bool is_only_one_sequence_in_array(vector< string > lst_strings);
+	string get_string_from_list(vector< string > lst_strings, bool b_last_one);
 
-	std::string trim(std::string const& str);
-	std::string trim(std::string const& str, char c_char);
-	std::vector<std::string> split(const std::string &s, char delim);
-	std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems);
+	string trim(string const& str);
+	string trim(string const& str, char c_char);
+	vector<string> split(const string &s, char delim);
+	vector<string> &split(const string &s, char delim, vector<string> &elems);
 
 	/// methods used in phylip files
 	bool is_phylip_interleaved();
 	bool is_phylip_line_sequential(int &n_total_lines);
-	std::string clean_phylip_dna_sequence(std::string sz_sequence);
+	string clean_phylip_dna_sequence(string sz_sequence);
 
 	/// used for phylip files, is the max length of the namess
 	int n_nmlngth_phylip_names;
-	std::string sz_phylip_accept_chars;
+	string sz_phylip_accept_chars;
 
 	//// trim chars form the strings
-	std::vector<char> vect_trim_char;
+	vector<char> vect_trim_char;
 	bool b_debug;
 
 	/// members for nexus format
-	void get_dimensions_nexus_format(std::string sz_line, int &n_seqs, int &n_length_seq);
+	void get_dimensions_nexus_format(string sz_line, int &n_seqs, int &n_length_seq);
 
 };
 
