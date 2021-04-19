@@ -41,3 +41,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /* ========== InteractionTemperature.h - interface for InteractionTemperature.c ========== */
+
+#ifndef LVB_INTERACTIONTEMPERATURE_H_
+#define LVB_INTERACTIONTEMPEARTURE_H_
+
+#endif

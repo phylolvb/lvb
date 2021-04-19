@@ -41,3 +41,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /* ========== Wrapper.h - interface for Wrapper.c ========== */
+
+#ifndef LVB_WRAPPER_H_
+#define LVB_WRAPPER_H_
+
+#endif

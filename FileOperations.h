@@ -41,3 +41,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /* ========== FileOperations.h - interface for FileOperations.c ========== */
+
+#ifndef LVB_FILEOPERATIONS_H_
+#define LVB_FILEOPERATIONS_H_
+
+#endif

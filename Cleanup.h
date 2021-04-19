@@ -41,3 +41,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /* ========== Cleanup.h - interface for Cleanup.c ========== */
+
+#ifndef LVB_CLEANUP_H_
+#define LVB_CLEANUP_H_
+
+#endif

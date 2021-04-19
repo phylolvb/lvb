@@ -41,3 +41,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /* ========== StartingTemperature.h - interface for StartingTemperature.c ========== */
+
+#ifndef LVB_STARTINGTEMPERATURE_H_
+#define LVB_STARTINGTEMPERATURE_H_
+
+#endif

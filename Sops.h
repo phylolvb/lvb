@@ -41,3 +41,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 /* ========== Sops.h - interface for Sops.c ========== */
+
+#ifndef LVB_SOPS_H_
+#define LVB_SOPS_H_
+
+#endif

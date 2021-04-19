@@ -41,8 +41,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== Print.h - interface for Print.cpp ========== */
 
-#ifndef LVB_INFO_H_
-#define LVB_INFO_H_
+#ifndef LVB_PRINT_H_
+#define LVB_PRINT_H_
 
 #include <iostream>
 
