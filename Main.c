@@ -70,23 +70,22 @@ int main(int argc, char **argv)
 
 	#ifdef LVB_MAPREDUCE
 
-		/* MapReduce version */
-		MPI_Init(&argc,&argv);
+	MPI_Init(&argc,&argv);
 
-		MISC misc;
+	MISC misc;
 
-		MPI_Comm_rank(MPI_COMM_WORLD,&misc.rank);
-		MPI_Comm_size(MPI_COMM_WORLD,&misc.nprocs);
+	MPI_Comm_rank(MPI_COMM_WORLD,&misc.rank);
+	MPI_Comm_size(MPI_COMM_WORLD,&misc.nprocs);
 
-		MapReduce *mrTreeStack = new MapReduce(MPI_COMM_WORLD);
-		mrTreeStack->memsize = 1024;
-		mrTreeStack->verbosity = 0;
-		mrTreeStack->timer = 0;
+	MapReduce *mrTreeStack = new MapReduce(MPI_COMM_WORLD);
+	mrTreeStack->memsize = 1024;
+	mrTreeStack->verbosity = 0;
+	mrTreeStack->timer = 0;
 
-		MapReduce *mrBuffer = new MapReduce(MPI_COMM_WORLD);
-		mrBuffer->memsize = 1024;
-		mrBuffer->verbosity = 0;
-		mrBuffer->timer = 0;
+	MapReduce *mrBuffer = new MapReduce(MPI_COMM_WORLD);
+	mrBuffer->memsize = 1024;
+	mrBuffer->verbosity = 0;
+	mrBuffer->timer = 0;
 
 	#endif
 
@@ -96,7 +95,7 @@ int main(int argc, char **argv)
 
     /* start timer */
     clock_t Start, End;
-    double Overall_Time_taken;
+    double overall_time_taken;
 
     Start = clock();
     lvb_initialize();
@@ -132,50 +131,49 @@ int main(int argc, char **argv)
 	treEvo = (FILE *) alloc(sizeof(FILE), "alloc FILE");
     if(rcstruct.algorithm_selection ==2)
     treEvo = fopen ("treEvo.tre","w");
-		iter = 0;
-		#ifdef LVB_MAPREDUCE
-		final_length = getsoln(MSA, rcstruct, &iter, log_progress, &misc, mrTreeStack, mrBuffer);
-	    if (misc.rank == 0) {
-	       trees_output = PrintTreestack(MSA, &bstack_overall, outtreefp, LVB_FALSE);
-	    }
-
-		#else
-		final_length = getsoln(MSA, rcstruct, &iter, log_progress);
+	iter = 0;
+	#ifdef LVB_MAPREDUCE
+	final_length = getsoln(MSA, rcstruct, &iter, log_progress, &misc, mrTreeStack, mrBuffer);
+	if (misc.rank == 0) {
 		trees_output = PrintTreestack(MSA, &bstack_overall, outtreefp, LVB_FALSE);
+	}
 
-		#endif
+	#else
+	final_length = getsoln(MSA, rcstruct, &iter, log_progress);
+	trees_output = PrintTreestack(MSA, &bstack_overall, outtreefp, LVB_FALSE);
 
-		trees_output_total += trees_output;
-        if(rcstruct.algorithm_selection ==2)
+	#endif
+
+	trees_output_total += trees_output;
+    if(rcstruct.algorithm_selection ==2)
 		PrintTreestack(MSA, &stack_treevo, treEvo, LVB_FALSE);
-        ClearTreestack(&bstack_overall);
-		printf("--------------------------------------------------------\n");
-		#ifdef LVB_MAPREDUCE
-		/* clean the TreeStack and buffer */
-	    mrTreeStack->map( mrTreeStack, map_clean, NULL );
-	    mrBuffer->map( mrBuffer, map_clean, NULL );
-	    /* END clean the TreeStack and buffer */
-		#endif
+    ClearTreestack(&bstack_overall);
+	printf("--------------------------------------------------------\n");
+	#ifdef LVB_MAPREDUCE
+	/* clean the TreeStack and buffer */
+	mrTreeStack->map( mrTreeStack, map_clean, NULL );
+	mrBuffer->map( mrBuffer, map_clean, NULL );
+	/* END clean the TreeStack and buffer */
+	#endif
 
-   if(rcstruct.algorithm_selection ==2)
+	if(rcstruct.algorithm_selection ==2)
     fclose(treEvo);
-
-
+	
 	clnclose(outtreefp, rcstruct.file_name_out);
 
     End = clock();
 
-	Overall_Time_taken = ((double) (End - Start)) /CLOCKS_PER_SEC;
+	overall_time_taken = ((double) (End - Start)) /CLOCKS_PER_SEC;
 
-	PrintLogFile(iter, trees_output_total, final_length, Overall_Time_taken);
+	PrintLogFile(iter, trees_output_total, final_length, overall_time_taken);
 
-	double consistencyindex = MinimumTreeLength(MSA);
-	double homoplasyindex = 0;
+	double consistency_index = MinimumTreeLength(MSA);
+	double homoplasy_index = 0;
 
-	consistencyindex = consistencyindex/final_length;
-	homoplasyindex = 1 - consistencyindex;
+	consistency_index = consistency_index/final_length;
+	homoplasy_index = 1 - consistency_index;
 
-	PrintOutput(iter, trees_output_total, final_length, consistencyindex, homoplasyindex, Overall_Time_taken, rcstruct.file_name_out);
+	PrintOutput(iter, trees_output_total, final_length, consistency_index, homoplasy_index, overall_time_taken, rcstruct.file_name_out);
 
 	/* "file-local" dynamic heap memory */
     if (rcstruct.algorithm_selection ==2)
@@ -189,12 +187,12 @@ int main(int argc, char **argv)
 
 	#ifdef LVB_MAPREDUCE
 	FreeTreestackMemory(MSA, &bstack_overall);
-	    MPI_Barrier(MPI_COMM_WORLD);
+	MPI_Barrier(MPI_COMM_WORLD);
 
-	    delete mrTreeStack;
-	    delete mrBuffer;
+	delete mrTreeStack;
+	delete mrBuffer;
 
-	    MPI_Finalize();
+	MPI_Finalize();
 	#endif
 
     return val;

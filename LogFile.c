@@ -49,7 +49,7 @@ bool LogFileExists(const char *filename) {
   return (stat (filename, &buffer) == 0);
 }
 
-void PrintLogFile(long iter, long trees_output_total, long final_length, double Overall_Time_taken) {
+void PrintLogFile(long iter, long trees_output_total, long final_length, double overall_time_taken) {
   Lvb_bool logfile_exists = LVB_FALSE;
 
   if (LogFileExists ("logfile.tsv")) {
@@ -63,25 +63,6 @@ void PrintLogFile(long iter, long trees_output_total, long final_length, double 
 	{
     fprintf (logfile, "Implementation\tRearrangements\tTopologies\tScore\tRuntime\n");
   }
-		fprintf (logfile, "%s\t%ld\t%ld\t%ld\t%.2lf\n", LVB_IMPLEMENTATION, iter, trees_output_total, final_length, Overall_Time_taken);
+		fprintf (logfile, "%s\t%ld\t%ld\t%ld\t%.2lf\n", LVB_IMPLEMENTATION, iter, trees_output_total, final_length, overall_time_taken);
 		fclose(logfile);
 }
-
-/*
-void PrintLogFile(long iter, long trees_output_total, long final_length, double Overall_Time_taken) {
-  if (!LogFileExists ("logfile.tsv"))
-	{
-		FILE * logfile;
-    logfile = fopen ("logfile.tsv","a+");
-    fprintf (logfile, "Implementation\tRearrangements\tTopologies\tScore\tRuntime\n");
-		fprintf (logfile, "%s\t%ld\t%ld\t%ld\t%.2lf\n", LVB_IMPLEMENTATION, iter, trees_output_total, final_length, Overall_Time_taken);
-		fclose(logfile);
-	}
-	else {
-		FILE * logfile;
-	  logfile = fopen ("logfile.tsv","a+");
-		fprintf (logfile, "%s\t%ld\t%ld\t%ld\t%.2lf\n", LVB_IMPLEMENTATION, iter, trees_output_total, final_length, Overall_Time_taken);
-		fclose(logfile);
-	}
-}
-*/
