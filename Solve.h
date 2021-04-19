@@ -42,4 +42,19 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== Solve.h - interface for Solve.c ========== */
 
+#ifndef LVB_SOLVE_H
+#define LVB_SOLVE_H
+
 #include "Hash.h"
+
+static TREESTACK bstack_overall;	/* overall best tree stack */
+static TREESTACK stack_treevo;
+
+#ifdef LVB_MAPREDUCE
+long getsoln(Dataptr restrict, Parameters, long *, Lvb_bool, MISC *, MapReduce *, MapReduce *);
+#else
+long getsoln(Dataptr restrict, Parameters, long *, Lvb_bool);
+
+#endif
+
+#endif
