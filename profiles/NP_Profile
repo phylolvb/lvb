@@ -1,0 +1,331 @@
+index % time    self  children    called     name
+                                                 <spontaneous>
+[1]    100.0    0.00    1.50                 getsoln(data*, Parameters, long*, Lvb_bool) [1]
+                0.00    1.45       1/1           Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool) [2]
+                0.00    0.05       1/1           StartingTemperature(data*, TREESTACK_TREE_BRANCH const*, Parameters, long, Lvb_bool) [7]
+                0.00    0.00       1/1037        CompareTreeToTreestack(data*, TREESTACK*, TREESTACK_TREE_BRANCH const*, long, Lvb_bool) [8]
+                0.00    0.00     100/10959       alloc(unsigned long, char const*) [30]
+                0.00    0.00       2/2           PullRandomTree(data*, TREESTACK_TREE_BRANCH*) [46]
+                0.00    0.00       2/2           ss_init(data*, TREESTACK_TREE_BRANCH*, unsigned long**) [50]
+                0.00    0.00       1/61          treealloc(data*, Lvb_bool) [41]
+                0.00    0.00       1/1           DNAToBinary(data*, unsigned long**) [59]
+                0.00    0.00       1/1           CheckStandardOutput() [60]
+                0.00    0.00       1/1           PullTreefromTreestack(data*, TREESTACK_TREE_BRANCH*, long*, TREESTACK*, Lvb_bool) [61]
+-----------------------------------------------
+                0.00    1.45       1/1           getsoln(data*, Parameters, long*, Lvb_bool) [1]
+[2]     96.9    0.00    1.45       1         Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool) [2]
+                1.18    0.00  354051/366498      getplen(data*, TREESTACK_TREE_BRANCH*, Parameters, long, long*, long*, int*) [3]
+                0.10    0.00  102800/102800      mutate_tbr(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, long) [4]
+                0.07    0.00  125946/132066      mutate_nni(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, long) [5]
+                0.05    0.00  125304/131304      mutate_spr(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, long) [6]
+                0.00    0.04    1036/1037        CompareTreeToTreestack(data*, TREESTACK*, TREESTACK_TREE_BRANCH const*, long, Lvb_bool) [8]
+                0.02    0.00  656139/797811      uni() [10]
+                0.00    0.00  147747/156476      exp_wrapper(double) [26]
+                0.00    0.00   93508/97381       SwapTrees(TREESTACK_TREE_BRANCH**, long*, TREESTACK_TREE_BRANCH**, long*) [28]
+                0.00    0.00     509/509         ClearTreestack(TREESTACK*) [36]
+                0.00    0.00     354/474         arbreroot(data*, TREESTACK_TREE_BRANCH*, long) [37]
+                0.00    0.00     297/297         pow_wrapper(double, double) [39]
+                0.00    0.00       3/8           log_wrapper(double) [45]
+                0.00    0.00       2/61          treealloc(data*, Lvb_bool) [41]
+                0.00    0.00       1/1845        treecopy(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, Lvb_bool) [32]
+                0.00    0.00       1/2           alloc_memory_to_getplen(data*, long**, long**, int**) [49]
+                0.00    0.00       1/2           free_memory_to_getplen(long**, long**, int**) [48]
+-----------------------------------------------
+                0.00    0.00     326/366498      CompareTreeToTreestack(data*, TREESTACK*, TREESTACK_TREE_BRANCH const*, long, Lvb_bool) [8]
+                0.04    0.00   12121/366498      StartingTemperature(data*, TREESTACK_TREE_BRANCH const*, Parameters, long, Lvb_bool) [7]
+                1.18    0.00  354051/366498      Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool) [2]
+[3]     81.3    1.22    0.00  366498         getplen(data*, TREESTACK_TREE_BRANCH*, Parameters, long, long*, long*, int*) [3]
+                0.00    0.00    8026/8026        setstcmp_with_sitestate2(data*, Objset*) [31]
+-----------------------------------------------
+                0.10    0.00  102800/102800      Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool) [2]
+[4]      6.7    0.10    0.00  102800         mutate_tbr(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, long) [4]
+                0.00    0.00  322441/798993      randpint(long) [25]
+                0.00    0.00  102800/102800      count(TREESTACK_TREE_BRANCH*, int) [27]
+                0.00    0.00   36459/36459       addtoarray(TREESTACK_TREE_BRANCH*, int, int*, int) [29]
+                0.00    0.00       1/10959       alloc(unsigned long, char const*) [30]
+-----------------------------------------------
+                0.00    0.00    6120/132066      StartingTemperature(data*, TREESTACK_TREE_BRANCH const*, Parameters, long, Lvb_bool) [7]
+                0.07    0.00  125946/132066      Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool) [2]
+[5]      4.9    0.07    0.00  132066         mutate_nni(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, long) [5]
+                0.00    0.00  132066/797811      uni() [10]
+                0.00    0.00  132066/798993      randpint(long) [25]
+-----------------------------------------------
+                0.00    0.00    6000/131304      StartingTemperature(data*, TREESTACK_TREE_BRANCH const*, Parameters, long, Lvb_bool) [7]
+                0.05    0.00  125304/131304      Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool) [2]
+[6]      3.3    0.05    0.00  131304         mutate_spr(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, long) [6]
+                0.00    0.00  342396/798993      randpint(long) [25]
+-----------------------------------------------
+                0.00    0.05       1/1           getsoln(data*, Parameters, long*, Lvb_bool) [1]
+[7]      3.1    0.00    0.05       1         StartingTemperature(data*, TREESTACK_TREE_BRANCH const*, Parameters, long, Lvb_bool) [7]
+                0.04    0.00   12121/366498      getplen(data*, TREESTACK_TREE_BRANCH*, Parameters, long, long*, long*, int*) [3]
+                0.00    0.00    6120/132066      mutate_nni(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, long) [5]
+                0.00    0.00    6000/131304      mutate_spr(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, long) [6]
+                0.00    0.00    9606/797811      uni() [10]
+                0.00    0.00    8729/156476      exp_wrapper(double) [26]
+                0.00    0.00    3873/97381       SwapTrees(TREESTACK_TREE_BRANCH**, long*, TREESTACK_TREE_BRANCH**, long*) [28]
+                0.00    0.00     120/474         arbreroot(data*, TREESTACK_TREE_BRANCH*, long) [37]
+                0.00    0.00       2/61          treealloc(data*, Lvb_bool) [41]
+                0.00    0.00       1/8           log_wrapper(double) [45]
+                0.00    0.00       1/1845        treecopy(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, Lvb_bool) [32]
+                0.00    0.00       1/2           alloc_memory_to_getplen(data*, long**, long**, int**) [49]
+                0.00    0.00       1/2           MinimumTreeLength(data*) [47]
+                0.00    0.00       1/2           free_memory_to_getplen(long**, long**, int**) [48]
+-----------------------------------------------
+                0.00    0.00       1/1037        getsoln(data*, Parameters, long*, Lvb_bool) [1]
+                0.00    0.04    1036/1037        Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool) [2]
+[8]      2.7    0.00    0.04    1037         CompareTreeToTreestack(data*, TREESTACK*, TREESTACK_TREE_BRANCH const*, long, Lvb_bool) [8]
+                0.00    0.03     836/1037        makesets(data*, TREESTACK_TREE_BRANCH const*, long) [9]
+                0.00    0.01     307/307         TopologyComparison(data*, Objset*, TREESTACK_TREE_BRANCH const*, Lvb_bool) [14]
+                0.00    0.00     326/366498      getplen(data*, TREESTACK_TREE_BRANCH*, Parameters, long, long*, long*, int*) [3]
+                0.00    0.00    1037/1845        treecopy(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, Lvb_bool) [32]
+                0.00    0.00    1012/1542        lvb_reroot(data*, TREESTACK_TREE_BRANCH*, long, long, Lvb_bool) [33]
+                0.00    0.00     751/751         PushCurrentTreeToStack(data*, TREESTACK*, TREESTACK_TREE_BRANCH const*, long, Lvb_bool) [35]
+                0.00    0.00       1/10959       alloc(unsigned long, char const*) [30]
+                0.00    0.00       1/61          treealloc(data*, Lvb_bool) [41]
+-----------------------------------------------
+                0.00    0.01     201/1037        TopologyComparison(data*, Objset*, TREESTACK_TREE_BRANCH const*, Lvb_bool) [14]
+                0.00    0.03     836/1037        CompareTreeToTreestack(data*, TREESTACK*, TREESTACK_TREE_BRANCH const*, long, Lvb_bool) [8]
+[9]      2.7    0.00    0.04    1037         makesets(data*, TREESTACK_TREE_BRANCH const*, long) [9]
+                0.01    0.01    1037/1037        fillsets(data*, Objset*, TREESTACK_TREE_BRANCH const*, long) [12]
+                0.02    0.00    1037/1037        sort_array(long*, int, int) [11]
+                0.00    0.00       4/8           log_wrapper(double) [45]
+                0.00    0.00       1/10959       alloc(unsigned long, char const*) [30]
+-----------------------------------------------
+                0.00    0.00    9606/797811      StartingTemperature(data*, TREESTACK_TREE_BRANCH const*, Parameters, long, Lvb_bool) [7]
+                0.00    0.00  132066/797811      mutate_nni(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, long) [5]
+                0.02    0.00  656139/797811      Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool) [2]
+[10]     1.3    0.02    0.00  797811         uni() [10]
+-----------------------------------------------
+                              112113             sort_array(long*, int, int) [11]
+                0.02    0.00    1037/1037        makesets(data*, TREESTACK_TREE_BRANCH const*, long) [9]
+[11]     1.3    0.02    0.00    1037+112113  sort_array(long*, int, int) [11]
+                              112113             sort_array(long*, int, int) [11]
+-----------------------------------------------
+                              102467             fillsets(data*, Objset*, TREESTACK_TREE_BRANCH const*, long) [12]
+                0.01    0.01    1037/1037        makesets(data*, TREESTACK_TREE_BRANCH const*, long) [9]
+[12]     1.3    0.01    0.01    1037+102467  fillsets(data*, Objset*, TREESTACK_TREE_BRANCH const*, long) [12]
+                0.01    0.00  100589/100589      realgetobjs(data*, TREESTACK_TREE_BRANCH const*, long, long*, long*) [13]
+                              102467             fillsets(data*, Objset*, TREESTACK_TREE_BRANCH const*, long) [12]
+-----------------------------------------------
+                               36727             realgetobjs(data*, TREESTACK_TREE_BRANCH const*, long, long*, long*) [13]
+                0.01    0.00  100589/100589      fillsets(data*, Objset*, TREESTACK_TREE_BRANCH const*, long) [12]
+[13]     0.7    0.01    0.00  100589+36727   realgetobjs(data*, TREESTACK_TREE_BRANCH const*, long, long*, long*) [13]
+                               36727             realgetobjs(data*, TREESTACK_TREE_BRANCH const*, long, long*, long*) [13]
+-----------------------------------------------
+                0.00    0.01     307/307         CompareTreeToTreestack(data*, TREESTACK*, TREESTACK_TREE_BRANCH const*, long, Lvb_bool) [8]
+[14]     0.5    0.00    0.01     307         TopologyComparison(data*, Objset*, TREESTACK_TREE_BRANCH const*, Lvb_bool) [14]
+                0.00    0.01     201/1037        makesets(data*, TREESTACK_TREE_BRANCH const*, long) [9]
+-----------------------------------------------
+                0.00    0.00       1/1           phylip_dna_matrin(char*, int, data*) [87]
+[15]     0.0    0.00    0.00       1         read_file [15]
+                0.00    0.00       1/1           CReadFiles::CReadFiles() [70]
+                0.00    0.00       1/1           CReadFiles::read_file(std::string, int) [69]
+                0.00    0.00       1/1           CReadFiles::~CReadFiles() [71]
+-----------------------------------------------
+                0.00    0.00     478/798993      arbreroot(data*, TREESTACK_TREE_BRANCH*, long) [37]
+                0.00    0.00    1612/798993      PullRandomTree(data*, TREESTACK_TREE_BRANCH*) [46]
+                0.00    0.00  132066/798993      mutate_nni(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, long) [5]
+                0.00    0.00  322441/798993      mutate_tbr(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, long) [4]
+                0.00    0.00  342396/798993      mutate_spr(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, long) [6]
+[25]     0.0    0.00    0.00  798993         randpint(long) [25]
+-----------------------------------------------
+                0.00    0.00    8729/156476      StartingTemperature(data*, TREESTACK_TREE_BRANCH const*, Parameters, long, Lvb_bool) [7]
+                0.00    0.00  147747/156476      Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool) [2]
+[26]     0.0    0.00    0.00  156476         exp_wrapper(double) [26]
+-----------------------------------------------
+                               38638             count(TREESTACK_TREE_BRANCH*, int) [27]
+                0.00    0.00  102800/102800      mutate_tbr(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, long) [4]
+[27]     0.0    0.00    0.00  102800+38638   count(TREESTACK_TREE_BRANCH*, int) [27]
+                               38638             count(TREESTACK_TREE_BRANCH*, int) [27]
+-----------------------------------------------
+                0.00    0.00    3873/97381       StartingTemperature(data*, TREESTACK_TREE_BRANCH const*, Parameters, long, Lvb_bool) [7]
+                0.00    0.00   93508/97381       Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool) [2]
+[28]     0.0    0.00    0.00   97381         SwapTrees(TREESTACK_TREE_BRANCH**, long*, TREESTACK_TREE_BRANCH**, long*) [28]
+-----------------------------------------------
+                               38638             addtoarray(TREESTACK_TREE_BRANCH*, int, int*, int) [29]
+                0.00    0.00   36459/36459       mutate_tbr(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, long) [4]
+[29]     0.0    0.00    0.00   36459+38638   addtoarray(TREESTACK_TREE_BRANCH*, int, int*, int) [29]
+                               38638             addtoarray(TREESTACK_TREE_BRANCH*, int, int*, int) [29]
+-----------------------------------------------
+                0.00    0.00       1/10959       CompareTreeToTreestack(data*, TREESTACK*, TREESTACK_TREE_BRANCH const*, long, Lvb_bool) [8]
+                0.00    0.00       1/10959       PrintTreestack(data*, TREESTACK*, _IO_FILE*, Lvb_bool) [80]
+                0.00    0.00       1/10959       mutate_tbr(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, long) [4]
+                0.00    0.00       1/10959       lvb_reroot(data*, TREESTACK_TREE_BRANCH*, long, long, Lvb_bool) [33]
+                0.00    0.00       1/10959       makesets(data*, TREESTACK_TREE_BRANCH const*, long) [9]
+                0.00    0.00       5/10959       treealloc(data*, Lvb_bool) [41]
+                0.00    0.00     100/10959       getsoln(data*, Parameters, long*, Lvb_bool) [1]
+                0.00    0.00     102/10959       matchange(data*, Parameters) [119]
+                0.00    0.00     109/10959       PushCurrentTreeToStack(data*, TREESTACK*, TREESTACK_TREE_BRANCH const*, long, Lvb_bool) [35]
+                0.00    0.00    5238/10959       copy_sitestate(data*, Objset*) [34]
+                0.00    0.00    5400/10959       ur_print(data*, _IO_FILE*, TREESTACK_TREE_BRANCH const*, long) [43]
+[30]     0.0    0.00    0.00   10959         alloc(unsigned long, char const*) [30]
+-----------------------------------------------
+                0.00    0.00    8026/8026        getplen(data*, TREESTACK_TREE_BRANCH*, Parameters, long, long*, long*, int*) [3]
+[31]     0.0    0.00    0.00    8026         setstcmp_with_sitestate2(data*, Objset*) [31]
+-----------------------------------------------
+                0.00    0.00       1/1845        Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool) [2]
+                0.00    0.00       1/1845        StartingTemperature(data*, TREESTACK_TREE_BRANCH const*, Parameters, long, Lvb_bool) [7]
+                0.00    0.00       1/1845        PullTreefromTreestack(data*, TREESTACK_TREE_BRANCH*, long*, TREESTACK*, Lvb_bool) [61]
+                0.00    0.00      54/1845        PrintTreestack(data*, TREESTACK*, _IO_FILE*, Lvb_bool) [80]
+                0.00    0.00     751/1845        PushCurrentTreeToStack(data*, TREESTACK*, TREESTACK_TREE_BRANCH const*, long, Lvb_bool) [35]
+                0.00    0.00    1037/1845        CompareTreeToTreestack(data*, TREESTACK*, TREESTACK_TREE_BRANCH const*, long, Lvb_bool) [8]
+[32]     0.0    0.00    0.00    1845         treecopy(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, Lvb_bool) [32]
+-----------------------------------------------
+                0.00    0.00       2/1542        PullRandomTree(data*, TREESTACK_TREE_BRANCH*) [46]
+                0.00    0.00      54/1542        PrintTreestack(data*, TREESTACK*, _IO_FILE*, Lvb_bool) [80]
+                0.00    0.00     474/1542        arbreroot(data*, TREESTACK_TREE_BRANCH*, long) [37]
+                0.00    0.00    1012/1542        CompareTreeToTreestack(data*, TREESTACK*, TREESTACK_TREE_BRANCH const*, long, Lvb_bool) [8]
+[33]     0.0    0.00    0.00    1542         lvb_reroot(data*, TREESTACK_TREE_BRANCH*, long, long, Lvb_bool) [33]
+                0.00    0.00       1/10959       alloc(unsigned long, char const*) [30]
+-----------------------------------------------
+                0.00    0.00     751/751         PushCurrentTreeToStack(data*, TREESTACK*, TREESTACK_TREE_BRANCH const*, long, Lvb_bool) [35]
+[34]     0.0    0.00    0.00     751         copy_sitestate(data*, Objset*) [34]
+                0.00    0.00    5238/10959       alloc(unsigned long, char const*) [30]
+-----------------------------------------------
+                0.00    0.00     751/751         CompareTreeToTreestack(data*, TREESTACK*, TREESTACK_TREE_BRANCH const*, long, Lvb_bool) [8]
+[35]     0.0    0.00    0.00     751         PushCurrentTreeToStack(data*, TREESTACK*, TREESTACK_TREE_BRANCH const*, long, Lvb_bool) [35]
+                0.00    0.00     751/1845        treecopy(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, Lvb_bool) [32]
+                0.00    0.00     751/751         copy_sitestate(data*, Objset*) [34]
+                0.00    0.00     109/10959       alloc(unsigned long, char const*) [30]
+                0.00    0.00      54/61          treealloc(data*, Lvb_bool) [41]
+-----------------------------------------------
+                0.00    0.00     509/509         Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool) [2]
+[36]     0.0    0.00    0.00     509         ClearTreestack(TREESTACK*) [36]
+-----------------------------------------------
+                0.00    0.00     120/474         StartingTemperature(data*, TREESTACK_TREE_BRANCH const*, Parameters, long, Lvb_bool) [7]
+                0.00    0.00     354/474         Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool) [2]
+[37]     0.0    0.00    0.00     474         arbreroot(data*, TREESTACK_TREE_BRANCH*, long) [37]
+                0.00    0.00     478/798993      randpint(long) [25]
+                0.00    0.00     474/1542        lvb_reroot(data*, TREESTACK_TREE_BRANCH*, long, long, Lvb_bool) [33]
+-----------------------------------------------
+                0.00    0.00     101/403         CReadFiles::is_phylip_interleaved() [67]
+                0.00    0.00     101/403         CReadFiles::is_phylip_line_sequential(int&) [68]
+                0.00    0.00     201/403         CReadFiles::read_phylip() [66]
+[38]     0.0    0.00    0.00     403         CReadFiles::trim(std::string const&) [38]
+-----------------------------------------------
+                0.00    0.00     297/297         Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool) [2]
+[39]     0.0    0.00    0.00     297         pow_wrapper(double, double) [39]
+-----------------------------------------------
+                0.00    0.00     100/100         CReadFiles::read_phylip() [66]
+[40]     0.0    0.00    0.00     100         CReadFiles::clean_phylip_dna_sequence(std::string) [40]
+-----------------------------------------------
+                0.00    0.00       1/61          getsoln(data*, Parameters, long*, Lvb_bool) [1]
+                0.00    0.00       1/61          CompareTreeToTreestack(data*, TREESTACK*, TREESTACK_TREE_BRANCH const*, long, Lvb_bool) [8]
+                0.00    0.00       1/61          PrintTreestack(data*, TREESTACK*, _IO_FILE*, Lvb_bool) [80]
+                0.00    0.00       2/61          Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool) [2]
+                0.00    0.00       2/61          StartingTemperature(data*, TREESTACK_TREE_BRANCH const*, Parameters, long, Lvb_bool) [7]
+                0.00    0.00      54/61          PushCurrentTreeToStack(data*, TREESTACK*, TREESTACK_TREE_BRANCH const*, long, Lvb_bool) [35]
+[41]     0.0    0.00    0.00      61         treealloc(data*, Lvb_bool) [41]
+                0.00    0.00       5/10959       alloc(unsigned long, char const*) [30]
+-----------------------------------------------
+                0.00    0.00      54/54          PrintTreestack(data*, TREESTACK*, _IO_FILE*, Lvb_bool) [80]
+[42]     0.0    0.00    0.00      54         lvb_treeprint(data*, _IO_FILE*, TREESTACK_TREE_BRANCH const*, long) [42]
+-----------------------------------------------
+                               10584             ur_print(data*, _IO_FILE*, TREESTACK_TREE_BRANCH const*, long) [43]
+                0.00    0.00      54/54          PrintTreestack(data*, TREESTACK*, _IO_FILE*, Lvb_bool) [80]
+[43]     0.0    0.00    0.00      54+10584   ur_print(data*, _IO_FILE*, TREESTACK_TREE_BRANCH const*, long) [43]
+                0.00    0.00    5400/10959       alloc(unsigned long, char const*) [30]
+                               10584             ur_print(data*, _IO_FILE*, TREESTACK_TREE_BRANCH const*, long) [43]
+-----------------------------------------------
+                0.00    0.00      16/16          CReadFiles::read_phylip() [66]
+[44]     0.0    0.00    0.00      16         void std::vector<std::string, std::allocator<std::string> >::_M_emplace_back_aux<std::string>(std::string&&) [44]
+-----------------------------------------------
+                0.00    0.00       1/8           StartingTemperature(data*, TREESTACK_TREE_BRANCH const*, Parameters, long, Lvb_bool) [7]
+                0.00    0.00       3/8           Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool) [2]
+                0.00    0.00       4/8           makesets(data*, TREESTACK_TREE_BRANCH const*, long) [9]
+[45]     0.0    0.00    0.00       8         log_wrapper(double) [45]
+-----------------------------------------------
+                0.00    0.00       2/2           getsoln(data*, Parameters, long*, Lvb_bool) [1]
+[46]     0.0    0.00    0.00       2         PullRandomTree(data*, TREESTACK_TREE_BRANCH*) [46]
+                0.00    0.00    1612/798993      randpint(long) [25]
+                0.00    0.00       2/1542        lvb_reroot(data*, TREESTACK_TREE_BRANCH*, long, long, Lvb_bool) [33]
+-----------------------------------------------
+                0.00    0.00       1/2           matchange(data*, Parameters) [119]
+                0.00    0.00       1/2           StartingTemperature(data*, TREESTACK_TREE_BRANCH const*, Parameters, long, Lvb_bool) [7]
+[47]     0.0    0.00    0.00       2         MinimumTreeLength(data*) [47]
+-----------------------------------------------
+                0.00    0.00       1/2           Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool) [2]
+                0.00    0.00       1/2           StartingTemperature(data*, TREESTACK_TREE_BRANCH const*, Parameters, long, Lvb_bool) [7]
+[48]     0.0    0.00    0.00       2         free_memory_to_getplen(long**, long**, int**) [48]
+-----------------------------------------------
+                0.00    0.00       1/2           Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool) [2]
+                0.00    0.00       1/2           StartingTemperature(data*, TREESTACK_TREE_BRANCH const*, Parameters, long, Lvb_bool) [7]
+[49]     0.0    0.00    0.00       2         alloc_memory_to_getplen(data*, long**, long**, int**) [49]
+-----------------------------------------------
+                0.00    0.00       2/2           getsoln(data*, Parameters, long*, Lvb_bool) [1]
+[50]     0.0    0.00    0.00       2         ss_init(data*, TREESTACK_TREE_BRANCH*, unsigned long**) [50]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [147]
+[51]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z12PrintLVBInfov [51]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [147]
+[52]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z15defaults_paramsP10Parameters [52]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [147]
+[53]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z17phylip_dna_matrinPciP4data [53]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [147]
+[54]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z23deterministic_hillclimbP4dataP9TREESTACKPK21TREESTACK_TREE_BRANCH10ParameterslP8_IO_FILEPl8Lvb_bool [54]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [147]
+[55]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z9nodeclearP21TREESTACK_TREE_BRANCHl [55]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [147]
+[56]     0.0    0.00    0.00       1         _GLOBAL__sub_I__ZN10CReadFilesC2Ev [56]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [147]
+[57]     0.0    0.00    0.00       1         _GLOBAL__sub_I_read_file [57]
+-----------------------------------------------
+                0.00    0.00       1/1           matchange(data*, Parameters) [119]
+[58]     0.0    0.00    0.00       1         tree_bytes(data*) [58]
+-----------------------------------------------
+                0.00    0.00       1/1           getsoln(data*, Parameters, long*, Lvb_bool) [1]
+[59]     0.0    0.00    0.00       1         DNAToBinary(data*, unsigned long**) [59]
+-----------------------------------------------
+                0.00    0.00       1/1           getsoln(data*, Parameters, long*, Lvb_bool) [1]
+[60]     0.0    0.00    0.00       1         CheckStandardOutput() [60]
+-----------------------------------------------
+                0.00    0.00       1/1           getsoln(data*, Parameters, long*, Lvb_bool) [1]
+[61]     0.0    0.00    0.00       1         PullTreefromTreestack(data*, TREESTACK_TREE_BRANCH*, long*, TREESTACK*, Lvb_bool) [61]
+                0.00    0.00       1/1845        treecopy(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, Lvb_bool) [32]
+-----------------------------------------------
+                0.00    0.00       1/1           matchange(data*, Parameters) [119]
+[62]     0.0    0.00    0.00       1         tree_bytes_without_sitestate(data*) [62]
+-----------------------------------------------
+                0.00    0.00       1/1           writeinf(Parameters, data*, int, char**) [116]
+[63]     0.0    0.00    0.00       1         f2str(_IO_FILE*) [63]
+-----------------------------------------------
+                0.00    0.00       1/1           writeinf(Parameters, data*, int, char**) [116]
+[64]     0.0    0.00    0.00       1         LogTime() [64]
+-----------------------------------------------
+                0.00    0.00       1/1           CReadFiles::read_file(std::string, int) [69]
+[65]     0.0    0.00    0.00       1         CReadFiles::clean_data() [65]
+-----------------------------------------------
+                0.00    0.00       1/1           CReadFiles::read_file(std::string, int) [69]
+[66]     0.0    0.00    0.00       1         CReadFiles::read_phylip() [66]
+                0.00    0.00     201/403         CReadFiles::trim(std::string const&) [38]
+                0.00    0.00     100/100         CReadFiles::clean_phylip_dna_sequence(std::string) [40]
+                0.00    0.00      16/16          void std::vector<std::string, std::allocator<std::string> >::_M_emplace_back_aux<std::string>(std::string&&) [44]
+                0.00    0.00       1/1           CReadFiles::is_phylip_interleaved() [67]
+                0.00    0.00       1/1           CReadFiles::is_phylip_line_sequential(int&) [68]
+-----------------------------------------------
+                0.00    0.00       1/1           CReadFiles::read_phylip() [66]
+[67]     0.0    0.00    0.00       1         CReadFiles::is_phylip_interleaved() [67]
+                0.00    0.00     101/403         CReadFiles::trim(std::string const&) [38]
+-----------------------------------------------
+                0.00    0.00       1/1           CReadFiles::read_phylip() [66]
+[68]     0.0    0.00    0.00       1         CReadFiles::is_phylip_line_sequential(int&) [68]
+                0.00    0.00     101/403         CReadFiles::trim(std::string const&) [38]
+-----------------------------------------------
+                0.00    0.00       1/1           read_file [15]
+[69]     0.0    0.00    0.00       1         CReadFiles::read_file(std::string, int) [69]
+                0.00    0.00       1/1           CReadFiles::clean_data() [65]
+                0.00    0.00       1/1           CReadFiles::read_phylip() [66]
+-----------------------------------------------
+                0.00    0.00       1/1           read_file [15]
+[70]     0.0    0.00    0.00       1         CReadFiles::CReadFiles() [70]
+-----------------------------------------------
+                0.00    0.00       1/1           read_file [15]
+[71]     0.0    0.00    0.00       1         CReadFiles::~CReadFiles() [71]
+-----------------------------------------------
+
