@@ -51,7 +51,7 @@ C<errno> or its return value.
 
 **********/
 
-#include "LVB.h"
+#include "MyMaths.h"
 
 /**********
 

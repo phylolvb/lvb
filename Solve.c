@@ -42,11 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== Solve.c - solving functions ========== */
 
-#include "DataOperations.h"
-#include "LVB.h"
 #include "Solve.h"
-#include "Print.h"
-#include "Verbose.h"
 
 static void lenlog(FILE *lengthfp, TREESTACK *bstackp, long iteration, long length, double temperature)
 /* write a message to file pointer lengthfp; iteration gives current iteration;

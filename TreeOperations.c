@@ -43,7 +43,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* ========== TreeOperations.c - tree operations ========== */
 
 #include "TreeOperations.h"
-#include "Hash.h"
 
 void nodeclear(TREESTACK_TREE_BRANCH *const BranchArray, const long brnch)
 /* Initialize all scalars in branch brnch to UNSET or zero as appropriate,
@@ -593,7 +592,7 @@ long arbreroot(Dataptr MSA, TREESTACK_TREE_BRANCH *const tree, const long oldroo
 
 } /* end arbreroot() */
 
-static long getsister(const TREESTACK_TREE_BRANCH *const BranchArray, const long branch)
+long getsister(const TREESTACK_TREE_BRANCH *const BranchArray, const long branch)
 /* return number of sister of branch branch in tree in BranchArray, or UNSET if
  * branch has none */
 {
@@ -625,7 +624,7 @@ long childadd(TREESTACK_TREE_BRANCH *const tree, const long destination, const l
 
 } /* end childadd() */
 
-static void cr_chaf(const TREESTACK_TREE_BRANCH *const BranchArray, const long destination, const long newchild)
+void cr_chaf(const TREESTACK_TREE_BRANCH *const BranchArray, const long destination, const long newchild)
 /* crash because we want to add branch newchild to the children of
  * branch destination in tree in BranchArray, but it already has two so
  * there is no room */
@@ -638,7 +637,7 @@ static void cr_chaf(const TREESTACK_TREE_BRANCH *const BranchArray, const long d
 
 } /* end cr_chaf() */
 
-static void cr_bpnc(const TREESTACK_TREE_BRANCH *const BranchArray, const long branch)
+void cr_bpnc(const TREESTACK_TREE_BRANCH *const BranchArray, const long branch)
 /* crash because branch branch in tree in BranchArray is not connected to
  * its parent, i.e. it is not a child of the branch it claims as
  * parent, according to that 'parent's' record of its own children */
@@ -742,7 +741,7 @@ static void wherever_was_now_say(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *co
 
 } /* end wherever_was_now_say() */
 
-static void tree_make_canonical(Dataptr MSA, TREESTACK_TREE_BRANCH *const BranchArray, long *currentbranchobject)
+void tree_make_canonical(Dataptr MSA, TREESTACK_TREE_BRANCH *const BranchArray, long *currentbranchobject)
 /* ensure that objects 0, 1, 2, ... n-1 are associated with branches 0, 1, 2,
  * ... n-1, respectively; currentbranchobject indicates for each branch the currently
  * assigned object or UNSET for internal branches */
@@ -852,7 +851,7 @@ TREESTACK_TREE_BRANCH *treealloc(Dataptr restrict MSA, Lvb_bool b_with_sitestate
 
 } /* end treealloc() */
 
-static Lvb_bool *GenerateRandomTopology(Dataptr MSA, TREESTACK_TREE_BRANCH *const BranchArray, const long nobjs)
+Lvb_bool *GenerateRandomTopology(Dataptr MSA, TREESTACK_TREE_BRANCH *const BranchArray, const long nobjs)
 /* fill BranchArray with tree of random topology, where BranchArray[0] is root;
  * return static array where element i is LVB_TRUE if BranchArray[i] is a
  * leaf or LVB_FALSE if it is not; this array will be overwritten in
@@ -907,7 +906,7 @@ static Lvb_bool *GenerateRandomTopology(Dataptr MSA, TREESTACK_TREE_BRANCH *cons
 
 } /* end GenerateRandomTopology() */
 
-static long *randleaf(Dataptr MSA, TREESTACK_TREE_BRANCH *const BranchArray, const Lvb_bool *const leafmask, const long objs)
+long *randleaf(Dataptr MSA, TREESTACK_TREE_BRANCH *const BranchArray, const Lvb_bool *const leafmask, const long objs)
 /* randomly assign objects numbered 0 to objs - 1 to leaves of tree in
  * BranchArray; leaves in BranchArray must be indicated by corresponding
  * LVB_TRUEs in leafmask; returns static array of object numbers, where
@@ -1017,7 +1016,7 @@ void treedump_screen(Dataptr MSA, const TREESTACK_TREE_BRANCH *const tree)
 
 } /* end treedump() */
 
-static void cr_uxe(FILE *const stream, const char *const msg)
+void cr_uxe(FILE *const stream, const char *const msg)
 /* crash because of problem on file stream, with message consisting of
  * "FATAL ERROR: ", then "file error " if the error indicator for
  * stream is set or "unexpected end of file " if not, then "when ",
@@ -1038,7 +1037,7 @@ static void cr_uxe(FILE *const stream, const char *const msg)
 		ur_print(MSA, stream, BranchArray, root);
 	} /* end lvb_treeprint() */
 
-	static void ur_print(Dataptr MSA, FILE *const stream, const TREESTACK_TREE_BRANCH *const BranchArray, const long root)
+	void ur_print(Dataptr MSA, FILE *const stream, const TREESTACK_TREE_BRANCH *const BranchArray, const long root)
 	/* send tree in BranchArray, of root root, to file pointed to by stream in
 	 * unrooted form */
 	{
@@ -1112,7 +1111,7 @@ long TopologyComparison(Dataptr MSA, Objset *sitestate_1, const TREESTACK_TREE_B
     return setstcmp(MSA, sitestate_1, sitestate_2, b_First /* this one is the static */);
 } /* end TopologyComparison() */
 
-static long setstcmp(Dataptr MSA, Objset *const oset_1, Objset *const oset_2, Lvb_bool b_First) /* this one is the static */
+long setstcmp(Dataptr MSA, Objset *const oset_1, Objset *const oset_2, Lvb_bool b_First) /* this one is the static */
 /* return 0 if the same sets of objects are in oset_1 and oset_2,
  * and non-zero otherwise */
 {
@@ -1202,7 +1201,7 @@ void sort_array(long *p_array, int n_left, int n_rigth){
 	if (l_hold < n_rigth) sort_array(p_array, l_hold, n_rigth);
 }
 
-static void Sort(Dataptr MSA, Objset *const oset_2, const long nels)
+void Sort(Dataptr MSA, Objset *const oset_2, const long nels)
 /* sort the nels object sets in oset so that each is in order, and sort oset so
  * that the sets themselves are in order of size and content */
 {
@@ -1216,7 +1215,7 @@ static void Sort(Dataptr MSA, Objset *const oset_2, const long nels)
    	qsort(oset_2, (size_t) nels, sizeof(Objset), osetcmp);
 } /* end sort() */
 
-static int osetcmp(const void *oset1, const void *oset2)
+int osetcmp(const void *oset1, const void *oset2)
 /* comparison function for object sets (type Objset):
  * return negative if *oset1 is a smaller set of objects than *oset2 or
  * is the same size but with a list of elements that compares lower;
@@ -1261,7 +1260,7 @@ void makesets(Dataptr MSA, const TREESTACK_TREE_BRANCH *const tree_2, const long
 
 } /* end makesets() */
 
-static void ssarralloc(Dataptr MSA, Objset *nobjset_2)
+void ssarralloc(Dataptr MSA, Objset *nobjset_2)
 /* Fill nobjset[0..nsets-1] with pointers each pointing to newly
  * allocated space for setsize objects; assumes nobjset points to the
  * first element of an array with at least nsets elements.
@@ -1398,7 +1397,7 @@ static void ssarralloc(Dataptr MSA, Objset *nobjset_2)
 
 #endif
 
-static void fillsets(Dataptr MSA, Objset *const sstruct, const TREESTACK_TREE_BRANCH *const tree, const long root)
+void fillsets(Dataptr MSA, Objset *const sstruct, const TREESTACK_TREE_BRANCH *const tree, const long root)
 /* fill object sets in sstruct with all sets of objects in tree tree,
  * descended from but not including root and not including sets of one
  * object */
@@ -1429,7 +1428,7 @@ static void fillsets(Dataptr MSA, Objset *const sstruct, const TREESTACK_TREE_BR
 
 } /* end fillsets */
 
-static void getobjs(Dataptr MSA, const TREESTACK_TREE_BRANCH *const BranchArray, const long root,
+void getobjs(Dataptr MSA, const TREESTACK_TREE_BRANCH *const BranchArray, const long root,
  long *const objarr, long *const cnt)
 /* fill objarr (which must be large enough) with numbers of all objects
  * in the tree in BranchArray in the clade starting at branch root;
@@ -1441,7 +1440,7 @@ static void getobjs(Dataptr MSA, const TREESTACK_TREE_BRANCH *const BranchArray,
 
 } /* end getobjs() */
 
-static void realgetobjs(Dataptr MSA, const TREESTACK_TREE_BRANCH *const BranchArray, const long root,
+void realgetobjs(Dataptr MSA, const TREESTACK_TREE_BRANCH *const BranchArray, const long root,
  long *const objarr, long *const cnt)
 /* fill objarr (which must be large enough) with numbers of all objects
  * in the tree in BranchArray in the clade starting at branch root;

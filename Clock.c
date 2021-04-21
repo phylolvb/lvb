@@ -67,10 +67,3 @@ void LogTime() {
   strftime(buffer, 26, "%H:%M", tm_info);
   puts(buffer);
 }
-
-void logstim(void) {
-  time_t tim;
-
-  tim = time(NULL);
-  printf("Starting at: %s\n", ctime(&tim));
-}

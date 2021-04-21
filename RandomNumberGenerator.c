@@ -60,7 +60,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *		not callable from Fortran (yet)
  */
 
-#include "LVB.h"
+#include "RandomNumberGenerator.h"
 
 static void rstart(int i, int j, int k, int l);
 

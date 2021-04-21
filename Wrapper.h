@@ -45,4 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef LVB_WRAPPER_H_
 #define LVB_WRAPPER_H_
 
+#include "LVB.h"
+#include "CommandLineParser.h"
+
 #endif

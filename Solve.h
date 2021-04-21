@@ -45,7 +45,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef LVB_SOLVE_H
 #define LVB_SOLVE_H
 
+#include "DataOperations.h"
 #include "Hash.h"
+#include "LVB.h"
+#include "Print.h"
+#include "Verbose.h"
 
 static TREESTACK bstack_overall;	/* overall best tree stack */
 static TREESTACK stack_treevo;

@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== TreeEvaluation.c - tree evaluation ========== */
 
-#include "LVB.h"
+#include "TreeEvaluation.h"
 
 long getplen(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *BranchArray, Parameters rcstruct, const long root, 
 		long *restrict p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs)

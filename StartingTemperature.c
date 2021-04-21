@@ -42,8 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== StartingTemperature.c - determine starting temperature ========== */
 
-#include "DataOperations.h"
-#include "LVB.h"
+#include "StartingTemperature.h"
 
 double StartingTemperature(Dataptr MSA, const TREESTACK_TREE_BRANCH *const inittree, Parameters rcstruct, long root,
 	Lvb_bool log_progress)

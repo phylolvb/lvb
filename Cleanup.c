@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== Cleanup.c - prepare for exit ========== */
 
-#include "LVB.h"
+#include "Cleanup.h"
 
 Lvb_bool cleanup(void)
 /* prevent apparent memory leaks to help debugging, log end time; return

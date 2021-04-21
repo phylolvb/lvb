@@ -38,7 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== InteractionTemperature.c - MPI process management ========== */
 
-#include "LVB.h"
+#include "InteractionTemperature.h"
 
 	/* release memory to the structrure */
 	IterationTemperature *get_alloc_main_calc_iterations(void){

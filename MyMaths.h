@@ -42,10 +42,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== MyMaths.h - interface for MyMaths.c ========== */
 
-#include "LVB.h"
-
 #ifndef LVB_MYMATHS_H
 #define LVB_MYMATHS_H
+
+#include "LVB.h"
 
 double exp_wrapper(double) /*@globals errno@*/ /*@modifies nothing@*/ ;
 double log_wrapper(double) /*@globals errno@*/ /*@modifies nothing@*/ ;

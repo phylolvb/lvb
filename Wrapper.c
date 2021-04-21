@@ -42,8 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== Wrapper.c - LVB to PHYLIP interface ========== */
 
-#include "LVB.h"
-#include "CommandLineParser.h"
+#include "Wrapper.h"
 
 void phylip_dna_matrin(char *p_file_name, int n_file_format, Dataptr lvbmat)
 {

@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== Treestack.c - treestack Operations ========== */
 
-#include "LVB.h"
+#include "Treestack.h"
 
 static void TreestackAllocationIncrease(Dataptr restrict MSA, TREESTACK *sp)
 /* increase allocation for tree stack *sp */

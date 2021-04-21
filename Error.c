@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== Error.c - error functions ========== */
 
-#include "LVB.h"
+#include "Error.h"
 
 /**********
 

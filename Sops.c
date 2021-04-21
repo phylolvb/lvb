@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== Sops.c - string manipulation functions ========== */
 
-#include "LVB.h"
+#include "Sops.h"
 
 enum { SAME, DIFFERENT };	/* strings same or different */
 

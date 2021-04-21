@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== MemoryOperations.c - basic memory operation ========== */
 
-#include "LVB.h"
+#include "MemoryOperations.h"
 
 /**********
 

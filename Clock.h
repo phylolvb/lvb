@@ -48,6 +48,5 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void LogTime();
 void StartTime();
-void logstim(void);
 
 #endif  // LVB_CLOCK_H_
