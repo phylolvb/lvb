@@ -1,0 +1,143 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - lcov.info - lvb/Wrapper.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">lvb</a> - Wrapper.c<span style="font-size: 80%;"> (source / <a href="Wrapper.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">lcov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntryMed">81.8 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2021-04-21 09:12:45</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntryMed">75.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* LVB</a>
+<span class="lineNum">       2 </span>            : 
+<span class="lineNum">       3 </span>            : (c) Copyright 2003-2012 by Daniel Barker
+<span class="lineNum">       4 </span>            : (c) Copyright 2013, 2014 by Daniel Barker and
+<span class="lineNum">       5 </span>            : Maximilian Strobl
+<span class="lineNum">       6 </span>            : (c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
+<span class="lineNum">       7 </span>            : (c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
+<span class="lineNum">       8 </span>            : and Chris Wood.
+<span class="lineNum">       9 </span>            : (c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
+<span class="lineNum">      10 </span>            : Fernando Guntoro, Maximilian Strobl and Chris Wood.
+<span class="lineNum">      11 </span>            : (c) Copyright 2020 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
+<span class="lineNum">      12 </span>            : Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
+<span class="lineNum">      13 </span>            : 
+<span class="lineNum">      14 </span>            : All rights reserved.
+<span class="lineNum">      15 </span>            : 
+<span class="lineNum">      16 </span>            : Redistribution and use in source and binary forms, with or without
+<span class="lineNum">      17 </span>            : modification, are permitted provided that the following conditions are met:
+<span class="lineNum">      18 </span>            : 
+<span class="lineNum">      19 </span>            : 1. Redistributions of source code must retain the above copyright notice, this
+<span class="lineNum">      20 </span>            : list of conditions and the following disclaimer.
+<span class="lineNum">      21 </span>            : 
+<span class="lineNum">      22 </span>            : 2. Redistributions in binary form must reproduce the above copyright notice,
+<span class="lineNum">      23 </span>            : this list of conditions and the following disclaimer in the documentation
+<span class="lineNum">      24 </span>            : and/or other materials provided with the distribution.
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : 3. Neither the name of the copyright holder nor the names of its contributors
+<span class="lineNum">      27 </span>            : may be used to endorse or promote products derived from this software without
+<span class="lineNum">      28 </span>            : specific prior written permission.
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND
+<span class="lineNum">      31 </span>            : ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+<span class="lineNum">      32 </span>            : WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+<span class="lineNum">      33 </span>            : DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+<span class="lineNum">      34 </span>            : FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+<span class="lineNum">      35 </span>            : DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+<span class="lineNum">      36 </span>            : SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+<span class="lineNum">      37 </span>            : CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+<span class="lineNum">      38 </span>            : OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+<span class="lineNum">      39 </span>            : OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span>            : */
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            : /* ========== Wrapper.c - LVB to PHYLIP interface ========== */
+<span class="lineNum">      44 </span>            : 
+<span class="lineNum">      45 </span>            : #include &quot;LVB.h&quot;
+<a name="46"><span class="lineNum">      46 </span>            : #include &quot;CommandLineParser.h&quot;</a>
+<span class="lineNum">      47 </span>            : 
+<span class="lineNum">      48 </span><span class="lineCov">          1 : void phylip_dna_matrin(char *p_file_name, int n_file_format, Dataptr lvbmat)</span>
+<span class="lineNum">      49 </span>            : {
+<span class="lineNum">      50 </span><span class="lineCov">          1 :         read_file(p_file_name, n_file_format, lvbmat);</span>
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span>            :     /* check number of sequences is in range for LVB */
+<span class="lineNum">      53 </span><span class="lineCov">          1 :     if (lvbmat-&gt;n &lt; MIN_N) crash(&quot;The data matrix must have at least %ld sequences.&quot;, MIN_N);</span>
+<span class="lineNum">      54 </span><span class="lineCov">          1 :     else if (lvbmat-&gt;n &gt; MAX_N) crash(&quot;The data matrix must have no more than %ld sequences.&quot;, MAX_N);</span>
+<span class="lineNum">      55 </span>            :     /* check number of sites is in range for LVB */
+<span class="lineNum">      56 </span><span class="lineCov">          1 :     else if (lvbmat-&gt;m &lt; MIN_M) crash(&quot;The data matrix must have at least %ld sites.&quot;, MIN_M);</span>
+<span class="lineNum">      57 </span><span class="lineCov">          1 :     else if (lvbmat-&gt;m &gt; MAX_M) crash(&quot;The data matrix must have no more than %ld sites.&quot;, MAX_M);</span>
+<span class="lineNum">      58 </span>            : 
+<span class="lineNum">      59 </span>            :     /* maximum number of object sets per tree */
+<span class="lineNum">      60 </span><span class="lineCov">          1 :     lvb_assert (lvbmat-&gt;nsets &lt;= (MAX_N - 3));</span>
+<span class="lineNum">      61 </span>            : 
+<a name="62"><span class="lineNum">      62 </span><span class="lineCov">          1 : } /* end phylip_dna_matrin() */</span></a>
+<span class="lineNum">      63 </span>            : 
+<span class="lineNum">      64 </span><span class="lineNoCov">          0 : void phylip_mat_dims_in(char *p_file_name, int n_file_format, long *species_ptr, long *sites_ptr, int *max_length_name){</span>
+<a name="65"><span class="lineNum">      65 </span>            : </a>
+<span class="lineNum">      66 </span><span class="lineNoCov">          0 :         phylip_mat_dims_in_external(p_file_name, n_file_format, species_ptr, sites_ptr, max_length_name);</span>
+<span class="lineNum">      67 </span><span class="lineCov">          3 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

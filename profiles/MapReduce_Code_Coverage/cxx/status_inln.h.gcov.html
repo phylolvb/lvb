@@ -1,0 +1,181 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - lcov.info - cxx/status_inln.h</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">cxx</a> - status_inln.h<span style="font-size: 80%;"> (source / <a href="status_inln.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">lcov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">33</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2021-04-21 09:25:29</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // -*- c++ -*-</a>
+<span class="lineNum">       2 </span>            : // 
+<span class="lineNum">       3 </span>            : // Copyright (c) 2004-2005 The Trustees of Indiana University and Indiana
+<span class="lineNum">       4 </span>            : //                         University Research and Technology
+<span class="lineNum">       5 </span>            : //                         Corporation.  All rights reserved.
+<span class="lineNum">       6 </span>            : // Copyright (c) 2004-2005 The University of Tennessee and The University
+<span class="lineNum">       7 </span>            : //                         of Tennessee Research Foundation.  All rights
+<span class="lineNum">       8 </span>            : //                         reserved.
+<span class="lineNum">       9 </span>            : // Copyright (c) 2004-2005 High Performance Computing Center Stuttgart, 
+<span class="lineNum">      10 </span>            : //                         University of Stuttgart.  All rights reserved.
+<span class="lineNum">      11 </span>            : // Copyright (c) 2004-2005 The Regents of the University of California.
+<span class="lineNum">      12 </span>            : //                         All rights reserved.
+<span class="lineNum">      13 </span>            : // Copyright (c) 2006      Cisco Systems, Inc.  All rights reserved.
+<span class="lineNum">      14 </span>            : // $COPYRIGHT$
+<span class="lineNum">      15 </span>            : // 
+<span class="lineNum">      16 </span>            : // Additional copyrights may follow
+<span class="lineNum">      17 </span>            : // 
+<span class="lineNum">      18 </span>            : // $HEADER$
+<span class="lineNum">      19 </span>            : //
+<span class="lineNum">      20 </span>            : 
+<span class="lineNum">      21 </span>            : //
+<span class="lineNum">      22 </span>            : // Point-to-Point Communication
+<span class="lineNum">      23 </span>            : //
+<a name="24"><span class="lineNum">      24 </span>            : </a>
+<span class="lineNum">      25 </span>            : inline int
+<span class="lineNum">      26 </span><span class="lineNoCov">          0 : MPI::Status::Get_count(const MPI::Datatype&amp; datatype) const</span>
+<span class="lineNum">      27 </span>            : {
+<span class="lineNum">      28 </span>            :   int count;
+<span class="lineNum">      29 </span><span class="lineNoCov">          0 :   (void)MPI_Get_count(const_cast&lt;MPI_Status*&gt;(&amp;mpi_status), datatype, &amp;count);</span>
+<span class="lineNum">      30 </span><span class="lineNoCov">          0 :   return count;</span>
+<span class="lineNum">      31 </span>            : }
+<a name="32"><span class="lineNum">      32 </span>            : </a>
+<span class="lineNum">      33 </span>            : inline bool
+<span class="lineNum">      34 </span><span class="lineNoCov">          0 : MPI::Status::Is_cancelled() const</span>
+<span class="lineNum">      35 </span>            : {
+<span class="lineNum">      36 </span>            :   int t;
+<span class="lineNum">      37 </span><span class="lineNoCov">          0 :   (void)MPI_Test_cancelled(const_cast&lt;MPI_Status*&gt;(&amp;mpi_status), &amp;t);</span>
+<span class="lineNum">      38 </span><span class="lineNoCov">          0 :   return OPAL_INT_TO_BOOL(t);</span>
+<span class="lineNum">      39 </span>            : }
+<a name="40"><span class="lineNum">      40 </span>            : </a>
+<span class="lineNum">      41 </span>            : inline int
+<span class="lineNum">      42 </span><span class="lineNoCov">          0 : MPI::Status::Get_elements(const MPI::Datatype&amp; datatype) const</span>
+<span class="lineNum">      43 </span>            : {
+<span class="lineNum">      44 </span>            :   int count;
+<span class="lineNum">      45 </span><span class="lineNoCov">          0 :   (void)MPI_Get_elements(const_cast&lt;MPI_Status*&gt;(&amp;mpi_status), datatype, &amp;count);</span>
+<span class="lineNum">      46 </span><span class="lineNoCov">          0 :   return count;</span>
+<span class="lineNum">      47 </span>            : }
+<span class="lineNum">      48 </span>            : 
+<span class="lineNum">      49 </span>            : //
+<span class="lineNum">      50 </span>            : // Status Access
+<a name="51"><span class="lineNum">      51 </span>            : //</a>
+<span class="lineNum">      52 </span>            : inline int
+<span class="lineNum">      53 </span><span class="lineNoCov">          0 : MPI::Status::Get_source() const</span>
+<span class="lineNum">      54 </span>            : {
+<span class="lineNum">      55 </span>            :   int source;
+<span class="lineNum">      56 </span><span class="lineNoCov">          0 :   source = mpi_status.MPI_SOURCE;</span>
+<span class="lineNum">      57 </span><span class="lineNoCov">          0 :   return source;</span>
+<span class="lineNum">      58 </span>            : }
+<a name="59"><span class="lineNum">      59 </span>            : </a>
+<span class="lineNum">      60 </span>            : inline void
+<span class="lineNum">      61 </span><span class="lineNoCov">          0 : MPI::Status::Set_source(int source)</span>
+<span class="lineNum">      62 </span>            : {
+<span class="lineNum">      63 </span><span class="lineNoCov">          0 :   mpi_status.MPI_SOURCE = source;</span>
+<span class="lineNum">      64 </span><span class="lineNoCov">          0 : }</span>
+<a name="65"><span class="lineNum">      65 </span>            : </a>
+<span class="lineNum">      66 </span>            : inline int
+<span class="lineNum">      67 </span><span class="lineNoCov">          0 : MPI::Status::Get_tag() const</span>
+<span class="lineNum">      68 </span>            : {
+<span class="lineNum">      69 </span>            :   int tag;
+<span class="lineNum">      70 </span><span class="lineNoCov">          0 :   tag = mpi_status.MPI_TAG;</span>
+<span class="lineNum">      71 </span><span class="lineNoCov">          0 :   return tag;</span>
+<span class="lineNum">      72 </span>            : }
+<a name="73"><span class="lineNum">      73 </span>            : </a>
+<span class="lineNum">      74 </span>            : inline void
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 : MPI::Status::Set_tag(int tag)</span>
+<span class="lineNum">      76 </span>            : {
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 :   mpi_status.MPI_TAG = tag;</span>
+<span class="lineNum">      78 </span><span class="lineNoCov">          0 : }</span>
+<a name="79"><span class="lineNum">      79 </span>            : </a>
+<span class="lineNum">      80 </span>            : inline int
+<span class="lineNum">      81 </span><span class="lineNoCov">          0 : MPI::Status::Get_error() const</span>
+<span class="lineNum">      82 </span>            : {
+<span class="lineNum">      83 </span>            :   int error;
+<span class="lineNum">      84 </span><span class="lineNoCov">          0 :   error = mpi_status.MPI_ERROR;</span>
+<span class="lineNum">      85 </span><span class="lineNoCov">          0 :   return error;</span>
+<span class="lineNum">      86 </span>            : }
+<a name="87"><span class="lineNum">      87 </span>            : </a>
+<span class="lineNum">      88 </span>            : inline void
+<span class="lineNum">      89 </span><span class="lineNoCov">          0 : MPI::Status::Set_error(int error)</span>
+<span class="lineNum">      90 </span>            : {
+<span class="lineNum">      91 </span><span class="lineNoCov">          0 :   mpi_status.MPI_ERROR = error;</span>
+<span class="lineNum">      92 </span><span class="lineNoCov">          0 : }</span>
+<a name="93"><span class="lineNum">      93 </span>            : </a>
+<span class="lineNum">      94 </span>            : inline void
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 : MPI::Status::Set_elements(const MPI::Datatype&amp; datatype, int count)</span>
+<span class="lineNum">      96 </span>            : {
+<span class="lineNum">      97 </span><span class="lineNoCov">          0 :     MPI_Status_set_elements(&amp;mpi_status, datatype, count);</span>
+<span class="lineNum">      98 </span><span class="lineNoCov">          0 : }</span>
+<a name="99"><span class="lineNum">      99 </span>            : </a>
+<span class="lineNum">     100 </span>            : inline void
+<span class="lineNum">     101 </span><span class="lineNoCov">          0 : MPI::Status::Set_cancelled(bool flag)</span>
+<span class="lineNum">     102 </span>            : {
+<span class="lineNum">     103 </span><span class="lineNoCov">          0 :     MPI_Status_set_cancelled(&amp;mpi_status, (int) flag);</span>
+<span class="lineNum">     104 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     105 </span>            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

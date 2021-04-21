@@ -1,0 +1,219 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - lcov.info - lvb/MSAInput.h</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">lvb</a> - MSAInput.h<span style="font-size: 80%;"> (source / <a href="MSAInput.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">lcov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntryLo">55.6 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2021-04-21 09:12:45</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* LVB</a>
+<span class="lineNum">       2 </span>            : 
+<span class="lineNum">       3 </span>            : (c) Copyright 2003-2012 by Daniel Barker
+<span class="lineNum">       4 </span>            : (c) Copyright 2013, 2014 by Daniel Barker and
+<span class="lineNum">       5 </span>            : Maximilian Strobl
+<span class="lineNum">       6 </span>            : (c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
+<span class="lineNum">       7 </span>            : (c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
+<span class="lineNum">       8 </span>            : and Chris Wood.
+<span class="lineNum">       9 </span>            : (c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
+<span class="lineNum">      10 </span>            : Fernando Guntoro, Maximilian Strobl and Chris Wood.
+<span class="lineNum">      11 </span>            : (c) Copyright 2020 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
+<span class="lineNum">      12 </span>            : Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
+<span class="lineNum">      13 </span>            : 
+<span class="lineNum">      14 </span>            : All rights reserved.
+<span class="lineNum">      15 </span>            : 
+<span class="lineNum">      16 </span>            : Redistribution and use in source and binary forms, with or without
+<span class="lineNum">      17 </span>            : modification, are permitted provided that the following conditions are met:
+<span class="lineNum">      18 </span>            : 
+<span class="lineNum">      19 </span>            : 1. Redistributions of source code must retain the above copyright notice, this
+<span class="lineNum">      20 </span>            : list of conditions and the following disclaimer.
+<span class="lineNum">      21 </span>            : 
+<span class="lineNum">      22 </span>            : 2. Redistributions in binary form must reproduce the above copyright notice,
+<span class="lineNum">      23 </span>            : this list of conditions and the following disclaimer in the documentation
+<span class="lineNum">      24 </span>            : and/or other materials provided with the distribution.
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : 3. Neither the name of the copyright holder nor the names of its contributors
+<span class="lineNum">      27 </span>            : may be used to endorse or promote products derived from this software without
+<span class="lineNum">      28 </span>            : specific prior written permission.
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND
+<span class="lineNum">      31 </span>            : ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+<span class="lineNum">      32 </span>            : WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+<span class="lineNum">      33 </span>            : DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+<span class="lineNum">      34 </span>            : FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+<span class="lineNum">      35 </span>            : DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+<span class="lineNum">      36 </span>            : SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+<span class="lineNum">      37 </span>            : CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+<span class="lineNum">      38 </span>            : OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+<span class="lineNum">      39 </span>            : OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span>            : */
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            : 
+<span class="lineNum">      44 </span>            : /* ========== MSAInput.h - interface for MSAInput.cpp ========== */
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span>            : #ifndef LVB_MSAINPUT_H_
+<span class="lineNum">      47 </span>            : #define LVB_MSAINPUT_H_
+<span class="lineNum">      48 </span>            : 
+<span class="lineNum">      49 </span>            : #include &lt;string&gt;
+<span class="lineNum">      50 </span>            : #include &lt;string.h&gt;
+<span class="lineNum">      51 </span>            : #include &lt;vector&gt;
+<span class="lineNum">      52 </span>            : #include &lt;sstream&gt;
+<span class="lineNum">      53 </span>            : #include &lt;stdlib.h&gt;
+<span class="lineNum">      54 </span>            : #include &lt;iostream&gt;
+<span class="lineNum">      55 </span>            : #include &lt;fstream&gt;
+<span class="lineNum">      56 </span>            : #include &lt;stdio.h&gt;
+<span class="lineNum">      57 </span>            : #include &lt;sstream&gt;
+<span class="lineNum">      58 </span>            : #include &lt;algorithm&gt;
+<span class="lineNum">      59 </span>            : 
+<span class="lineNum">      60 </span>            : using namespace std;
+<span class="lineNum">      61 </span>            : 
+<span class="lineNum">      62 </span>            : class CReadFiles {
+<span class="lineNum">      63 </span>            : 
+<span class="lineNum">      64 </span>            : public:
+<span class="lineNum">      65 </span>            :         static const int FORMAT_PHYLIP_ = 0;
+<span class="lineNum">      66 </span>            :         static const int FORMAT_FASTA_ = 1;
+<span class="lineNum">      67 </span>            :         static const int FORMAT_NEXUS_ = 2;
+<span class="lineNum">      68 </span>            :         static const int FORMAT_CLUSTAL_ = 3;
+<span class="lineNum">      69 </span>            : 
+<span class="lineNum">      70 </span>            : 
+<a name="71"><span class="lineNum">      71 </span>            : public:</a>
+<span class="lineNum">      72 </span>            :         /// this is because some compilers has a problem with to_string method
+<span class="lineNum">      73 </span><span class="lineNoCov">          0 :         template &lt; typename T &gt; string to_string_( const T&amp; n )</span>
+<span class="lineNum">      74 </span>            :         {
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 :                 ostringstream stm ;</span>
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 :                 stm &lt;&lt; n ;</span>
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 :                 return stm.str() ;</span>
+<span class="lineNum">      78 </span>            :         }
+<span class="lineNum">      79 </span>            : 
+<span class="lineNum">      80 </span>            : public:
+<span class="lineNum">      81 </span>            :         CReadFiles();
+<span class="lineNum">      82 </span>            :         virtual ~CReadFiles();
+<span class="lineNum">      83 </span>            :         static int exit_error(int ierr, string sz_error);
+<span class="lineNum">      84 </span>            :         static bool is_file_exist(string file_name);
+<span class="lineNum">      85 </span>            : 
+<span class="lineNum">      86 </span>            :         void save_file(string sz_file_name_temp);
+<span class="lineNum">      87 </span>            :         int read_file(string file_name_out, int n_file_type);
+<span class="lineNum">      88 </span>            :         unsigned int get_length_sequences() {
+<span class="lineNum">      89 </span><span class="lineCov">          5 :                 if ((int) lst_sequences.size() &gt; 0) return lst_sequences[0].length();</span>
+<span class="lineNum">      90 </span>            :                 return 0;
+<span class="lineNum">      91 </span>            :         }
+<span class="lineNum">      92 </span><span class="lineCov">          2 :         int get_number_seqs() { return (int) lst_names_seq.size(); }</span>
+<span class="lineNum">      93 </span>            :         int get_max_length_seq_name(){ return n_max_length_name_seq; }
+<span class="lineNum">      94 </span><span class="lineCov">        922 :         int get_length_seq_name(int n_seq) { return (int) lst_names_seq[n_seq].length(); }</span>
+<span class="lineNum">      95 </span><span class="lineCov">        174 :         char get_char_seq_name(int n_seq, int n_pos_char) { return (char) lst_names_seq[n_seq].at(n_pos_char); }</span>
+<span class="lineNum">      96 </span><span class="lineCov">     400000 :         char get_char_sequences(int n_seq, int n_pos_char) { return (char) lst_sequences[n_seq].at(n_pos_char); }</span>
+<span class="lineNum">      97 </span>            : 
+<span class="lineNum">      98 </span>            : /// data structure
+<span class="lineNum">      99 </span>            : private:
+<span class="lineNum">     100 </span>            :         vector&lt; string &gt; lst_sequences;
+<span class="lineNum">     101 </span>            :         vector&lt; string &gt; lst_names_seq;
+<span class="lineNum">     102 </span>            :         string sz_extension;                    /// extension of the file
+<span class="lineNum">     103 </span>            :         string sz_file_name;                    /// file name possible all path
+<span class="lineNum">     104 </span>            :         string sz_only_file_name;                       /// only yhe file name
+<span class="lineNum">     105 </span>            :         string sz_accept_chars;                 // chars to pass on filter
+<span class="lineNum">     106 </span>            :         int n_max_length_name_seq;
+<span class="lineNum">     107 </span>            : 
+<span class="lineNum">     108 </span>            :         int clean_data();
+<span class="lineNum">     109 </span>            : 
+<span class="lineNum">     110 </span>            : private:
+<span class="lineNum">     111 </span>            :         /// several read file methods
+<span class="lineNum">     112 </span>            :         int read_clustal(int filetype);
+<span class="lineNum">     113 </span>            :         int read_phylip();
+<span class="lineNum">     114 </span>            :         int read_fasta();
+<span class="lineNum">     115 </span>            :         int read_nexus();
+<span class="lineNum">     116 </span>            : 
+<span class="lineNum">     117 </span>            :         bool is_only_one_sequence_in_array(vector&lt; string &gt; lst_strings);
+<span class="lineNum">     118 </span>            :         string get_string_from_list(vector&lt; string &gt; lst_strings, bool b_last_one);
+<span class="lineNum">     119 </span>            : 
+<span class="lineNum">     120 </span>            :         string trim(string const&amp; str);
+<span class="lineNum">     121 </span>            :         string trim(string const&amp; str, char c_char);
+<span class="lineNum">     122 </span>            :         vector&lt;string&gt; split(const string &amp;s, char delim);
+<span class="lineNum">     123 </span>            :         vector&lt;string&gt; &amp;split(const string &amp;s, char delim, vector&lt;string&gt; &amp;elems);
+<span class="lineNum">     124 </span>            : 
+<span class="lineNum">     125 </span>            :         /// methods used in phylip files
+<span class="lineNum">     126 </span>            :         bool is_phylip_interleaved();
+<span class="lineNum">     127 </span>            :         bool is_phylip_line_sequential(int &amp;n_total_lines);
+<span class="lineNum">     128 </span>            :         string clean_phylip_dna_sequence(string sz_sequence);
+<span class="lineNum">     129 </span>            : 
+<span class="lineNum">     130 </span>            :         /// used for phylip files, is the max length of the namess
+<span class="lineNum">     131 </span>            :         int n_nmlngth_phylip_names;
+<span class="lineNum">     132 </span>            :         string sz_phylip_accept_chars;
+<span class="lineNum">     133 </span>            : 
+<span class="lineNum">     134 </span>            :         //// trim chars form the strings
+<span class="lineNum">     135 </span>            :         vector&lt;char&gt; vect_trim_char;
+<span class="lineNum">     136 </span>            :         bool b_debug;
+<span class="lineNum">     137 </span>            : 
+<span class="lineNum">     138 </span>            :         /// members for nexus format
+<span class="lineNum">     139 </span>            :         void get_dimensions_nexus_format(string sz_line, int &amp;n_seqs, int &amp;n_length_seq);
+<span class="lineNum">     140 </span>            : 
+<span class="lineNum">     141 </span>            : };
+<span class="lineNum">     142 </span>            : 
+<span class="lineNum">     143 </span>            : #endif /* LVB_MSAINPUT_H_ */
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,316 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - lcov.info - cxx/intracomm_inln.h</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">cxx</a> - intracomm_inln.h<span style="font-size: 80%;"> (source / <a href="intracomm_inln.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">lcov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">72</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2021-04-21 09:25:29</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // -*- c++ -*-</a>
+<span class="lineNum">       2 </span>            : // 
+<span class="lineNum">       3 </span>            : // Copyright (c) 2004-2005 The Trustees of Indiana University and Indiana
+<span class="lineNum">       4 </span>            : //                         University Research and Technology
+<span class="lineNum">       5 </span>            : //                         Corporation.  All rights reserved.
+<span class="lineNum">       6 </span>            : // Copyright (c) 2004-2005 The University of Tennessee and The University
+<span class="lineNum">       7 </span>            : //                         of Tennessee Research Foundation.  All rights
+<span class="lineNum">       8 </span>            : //                         reserved.
+<span class="lineNum">       9 </span>            : // Copyright (c) 2004-2005 High Performance Computing Center Stuttgart, 
+<span class="lineNum">      10 </span>            : //                         University of Stuttgart.  All rights reserved.
+<span class="lineNum">      11 </span>            : // Copyright (c) 2004-2005 The Regents of the University of California.
+<span class="lineNum">      12 </span>            : //                         All rights reserved.
+<span class="lineNum">      13 </span>            : // Copyright (c) 2006      Cisco Systems, Inc.  All rights reserved.
+<span class="lineNum">      14 </span>            : // Copyright (c) 2007      Sun Microsystems, Inc.  All rights reserved.
+<span class="lineNum">      15 </span>            : // $COPYRIGHT$
+<span class="lineNum">      16 </span>            : // 
+<span class="lineNum">      17 </span>            : // Additional copyrights may follow
+<span class="lineNum">      18 </span>            : // 
+<span class="lineNum">      19 </span>            : // $HEADER$
+<span class="lineNum">      20 </span>            : //
+<a name="21"><span class="lineNum">      21 </span>            : </a>
+<span class="lineNum">      22 </span>            : inline
+<span class="lineNum">      23 </span><span class="lineNoCov">          0 : MPI::Intracomm::Intracomm(MPI_Comm data) {</span>
+<span class="lineNum">      24 </span><span class="lineNoCov">          0 :   int flag = 0;</span>
+<span class="lineNum">      25 </span><span class="lineNoCov">          0 :   if (MPI::Is_initialized() &amp;&amp; (data != MPI_COMM_NULL)) {</span>
+<span class="lineNum">      26 </span><span class="lineNoCov">          0 :     (void)MPI_Comm_test_inter(data, &amp;flag);</span>
+<span class="lineNum">      27 </span><span class="lineNoCov">          0 :     if (flag) {</span>
+<span class="lineNum">      28 </span><span class="lineNoCov">          0 :       mpi_comm = MPI_COMM_NULL;</span>
+<span class="lineNum">      29 </span>            :     } else {
+<span class="lineNum">      30 </span><span class="lineNoCov">          0 :       mpi_comm = data;</span>
+<span class="lineNum">      31 </span>            :     }
+<span class="lineNum">      32 </span>            :   }
+<span class="lineNum">      33 </span>            :   else {
+<span class="lineNum">      34 </span><span class="lineNoCov">          0 :     mpi_comm = data;</span>
+<span class="lineNum">      35 </span>            :   }
+<span class="lineNum">      36 </span><span class="lineNoCov">          0 : }</span>
+<a name="37"><span class="lineNum">      37 </span>            : </a>
+<span class="lineNum">      38 </span>            : inline void
+<span class="lineNum">      39 </span><span class="lineNoCov">          0 : MPI::Intracomm::Scan(const void *sendbuf, void *recvbuf, int count, </span>
+<span class="lineNum">      40 </span><span class="lineNoCov">          0 :      const MPI::Datatype &amp; datatype, const MPI::Op&amp; op) const</span>
+<span class="lineNum">      41 </span>            : {
+<span class="lineNum">      42 </span><span class="lineNoCov">          0 :   (void)MPI_Scan(const_cast&lt;void *&gt;(sendbuf), recvbuf, count, datatype, op, mpi_comm);</span>
+<span class="lineNum">      43 </span><span class="lineNoCov">          0 : }</span>
+<a name="44"><span class="lineNum">      44 </span>            : </a>
+<span class="lineNum">      45 </span>            : inline void
+<span class="lineNum">      46 </span><span class="lineNoCov">          0 : MPI::Intracomm::Exscan(const void *sendbuf, void *recvbuf, int count,</span>
+<span class="lineNum">      47 </span><span class="lineNoCov">          0 :                               const MPI::Datatype &amp; datatype, </span>
+<span class="lineNum">      48 </span><span class="lineNoCov">          0 :                               const MPI::Op&amp; op) const</span>
+<span class="lineNum">      49 </span>            : {
+<span class="lineNum">      50 </span><span class="lineNoCov">          0 :   (void)MPI_Exscan(const_cast&lt;void *&gt;(sendbuf), recvbuf, count, datatype, op, mpi_comm);</span>
+<span class="lineNum">      51 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span>            : inline MPI::Intracomm
+<span class="lineNum">      54 </span>            : MPI::Intracomm::Dup() const
+<span class="lineNum">      55 </span>            : {
+<span class="lineNum">      56 </span>            :   MPI_Comm newcomm;
+<span class="lineNum">      57 </span>            :   (void)MPI_Comm_dup(mpi_comm, &amp;newcomm);
+<span class="lineNum">      58 </span>            :   return newcomm;
+<span class="lineNum">      59 </span>            : }
+<a name="60"><span class="lineNum">      60 </span>            : </a>
+<span class="lineNum">      61 </span>            : inline MPI::Intracomm&amp;
+<span class="lineNum">      62 </span><span class="lineNoCov">          0 : MPI::Intracomm::Clone() const</span>
+<span class="lineNum">      63 </span>            : {
+<span class="lineNum">      64 </span>            :   MPI_Comm newcomm;
+<span class="lineNum">      65 </span><span class="lineNoCov">          0 :   (void)MPI_Comm_dup(mpi_comm, &amp;newcomm);</span>
+<span class="lineNum">      66 </span><span class="lineNoCov">          0 :   MPI::Intracomm* dup = new MPI::Intracomm(newcomm);</span>
+<span class="lineNum">      67 </span><span class="lineNoCov">          0 :   return *dup;</span>
+<span class="lineNum">      68 </span>            : }
+<a name="69"><span class="lineNum">      69 </span>            : </a>
+<span class="lineNum">      70 </span>            : inline MPI::Intracomm
+<span class="lineNum">      71 </span><span class="lineNoCov">          0 : MPI::Intracomm::Create(const MPI::Group&amp; group) const</span>
+<span class="lineNum">      72 </span>            : {
+<span class="lineNum">      73 </span>            :   MPI_Comm newcomm;
+<span class="lineNum">      74 </span><span class="lineNoCov">          0 :   (void)MPI_Comm_create(mpi_comm, group, &amp;newcomm);</span>
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 :   return newcomm;</span>
+<span class="lineNum">      76 </span>            : }
+<a name="77"><span class="lineNum">      77 </span>            : </a>
+<span class="lineNum">      78 </span>            : inline MPI::Intracomm
+<span class="lineNum">      79 </span><span class="lineNoCov">          0 : MPI::Intracomm::Split(int color, int key) const</span>
+<span class="lineNum">      80 </span>            : {
+<span class="lineNum">      81 </span>            :   MPI_Comm newcomm;
+<span class="lineNum">      82 </span><span class="lineNoCov">          0 :   (void)MPI_Comm_split(mpi_comm, color, key, &amp;newcomm);</span>
+<span class="lineNum">      83 </span><span class="lineNoCov">          0 :   return newcomm;</span>
+<span class="lineNum">      84 </span>            : }
+<span class="lineNum">      85 </span>            : 
+<span class="lineNum">      86 </span>            : 
+<a name="87"><span class="lineNum">      87 </span>            : </a>
+<span class="lineNum">      88 </span>            : inline MPI::Intercomm
+<span class="lineNum">      89 </span><span class="lineNoCov">          0 : MPI::Intracomm::Create_intercomm(int local_leader,</span>
+<span class="lineNum">      90 </span>            :                                         const MPI::Comm&amp; peer_comm,
+<span class="lineNum">      91 </span>            :                                         int remote_leader, int tag) const
+<span class="lineNum">      92 </span>            : {
+<span class="lineNum">      93 </span>            :   MPI_Comm newintercomm;
+<span class="lineNum">      94 </span>            :   (void)MPI_Intercomm_create(mpi_comm, local_leader, peer_comm,
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 :                              remote_leader, tag, &amp;newintercomm); </span>
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 :   return newintercomm;</span>
+<span class="lineNum">      97 </span>            : }
+<a name="98"><span class="lineNum">      98 </span>            : </a>
+<span class="lineNum">      99 </span>            : inline MPI::Cartcomm
+<span class="lineNum">     100 </span><span class="lineNoCov">          0 : MPI::Intracomm::Create_cart(int ndims, const int dims[],</span>
+<span class="lineNum">     101 </span>            :                                    const bool periods[], bool reorder) const
+<span class="lineNum">     102 </span>            : {
+<span class="lineNum">     103 </span><span class="lineNoCov">          0 :   int *int_periods = new int [ndims];</span>
+<span class="lineNum">     104 </span><span class="lineNoCov">          0 :   for (int i=0; i&lt;ndims; i++)</span>
+<span class="lineNum">     105 </span><span class="lineNoCov">          0 :     int_periods[i] = (int) periods[i];</span>
+<span class="lineNum">     106 </span>            :   
+<span class="lineNum">     107 </span>            :   MPI_Comm newcomm;
+<span class="lineNum">     108 </span>            :   (void)MPI_Cart_create(mpi_comm, ndims, const_cast&lt;int *&gt;(dims), 
+<span class="lineNum">     109 </span><span class="lineNoCov">          0 :                       int_periods, (int)reorder, &amp;newcomm);</span>
+<span class="lineNum">     110 </span><span class="lineNoCov">          0 :   delete [] int_periods;</span>
+<span class="lineNum">     111 </span><span class="lineNoCov">          0 :   return newcomm;</span>
+<span class="lineNum">     112 </span>            : }
+<a name="113"><span class="lineNum">     113 </span>            : </a>
+<span class="lineNum">     114 </span>            : inline MPI::Graphcomm
+<span class="lineNum">     115 </span><span class="lineNoCov">          0 : MPI::Intracomm::Create_graph(int nnodes, const int index[],</span>
+<span class="lineNum">     116 </span>            :                                     const int edges[], bool reorder) const
+<span class="lineNum">     117 </span>            : {
+<span class="lineNum">     118 </span>            :   MPI_Comm newcomm;
+<span class="lineNum">     119 </span>            :   (void)MPI_Graph_create(mpi_comm, nnodes, const_cast&lt;int *&gt;(index), 
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 :                          const_cast&lt;int *&gt;(edges), (int)reorder, &amp;newcomm);</span>
+<span class="lineNum">     121 </span><span class="lineNoCov">          0 :   return newcomm;</span>
+<span class="lineNum">     122 </span>            : }
+<span class="lineNum">     123 </span>            : 
+<span class="lineNum">     124 </span>            : 
+<span class="lineNum">     125 </span>            : //
+<span class="lineNum">     126 </span>            : // Process Creation and Management
+<span class="lineNum">     127 </span>            : //
+<a name="128"><span class="lineNum">     128 </span>            : </a>
+<span class="lineNum">     129 </span>            : inline MPI::Intercomm
+<span class="lineNum">     130 </span><span class="lineNoCov">          0 : MPI::Intracomm::Accept(const char* port_name, </span>
+<span class="lineNum">     131 </span><span class="lineNoCov">          0 :                               const MPI::Info&amp; info,</span>
+<span class="lineNum">     132 </span>            :                               int root) const
+<span class="lineNum">     133 </span>            : {
+<span class="lineNum">     134 </span>            :   MPI_Comm newcomm;
+<span class="lineNum">     135 </span>            :   (void) MPI_Comm_accept(const_cast&lt;char *&gt;(port_name), info, root, mpi_comm,
+<span class="lineNum">     136 </span><span class="lineNoCov">          0 :                          &amp;newcomm);</span>
+<span class="lineNum">     137 </span><span class="lineNoCov">          0 :   return newcomm;</span>
+<span class="lineNum">     138 </span>            : }
+<span class="lineNum">     139 </span>            : 
+<a name="140"><span class="lineNum">     140 </span>            : </a>
+<span class="lineNum">     141 </span>            : inline MPI::Intercomm
+<span class="lineNum">     142 </span><span class="lineNoCov">          0 : MPI::Intracomm::Connect(const char* port_name,</span>
+<span class="lineNum">     143 </span><span class="lineNoCov">          0 :                                const MPI::Info&amp; info,</span>
+<span class="lineNum">     144 </span>            :                                int root) const
+<span class="lineNum">     145 </span>            : {
+<span class="lineNum">     146 </span>            :   MPI_Comm newcomm;
+<span class="lineNum">     147 </span>            :   (void) MPI_Comm_connect(const_cast&lt;char *&gt;(port_name), info, root, mpi_comm,
+<span class="lineNum">     148 </span><span class="lineNoCov">          0 :                           &amp;newcomm);</span>
+<span class="lineNum">     149 </span><span class="lineNoCov">          0 :   return newcomm;</span>
+<span class="lineNum">     150 </span>            : }
+<span class="lineNum">     151 </span>            : 
+<a name="152"><span class="lineNum">     152 </span>            : </a>
+<span class="lineNum">     153 </span>            : inline MPI::Intercomm
+<span class="lineNum">     154 </span><span class="lineNoCov">          0 : MPI::Intracomm::Spawn(const char* command, const char* argv[],</span>
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :                              int maxprocs, const MPI::Info&amp; info, </span>
+<span class="lineNum">     156 </span>            :                              int root) const
+<span class="lineNum">     157 </span>            : {
+<span class="lineNum">     158 </span>            :   MPI_Comm newcomm;
+<span class="lineNum">     159 </span>            :   (void) MPI_Comm_spawn(const_cast&lt;char *&gt;(command), const_cast&lt;char **&gt;(argv), maxprocs,
+<span class="lineNum">     160 </span>            :                         info, root, mpi_comm, &amp;newcomm, 
+<span class="lineNum">     161 </span><span class="lineNoCov">          0 :                         (int *)MPI_ERRCODES_IGNORE);</span>
+<span class="lineNum">     162 </span><span class="lineNoCov">          0 :   return newcomm;</span>
+<span class="lineNum">     163 </span>            : }
+<span class="lineNum">     164 </span>            : 
+<a name="165"><span class="lineNum">     165 </span>            : </a>
+<span class="lineNum">     166 </span>            : inline MPI::Intercomm
+<span class="lineNum">     167 </span><span class="lineNoCov">          0 : MPI::Intracomm::Spawn(const char* command, const char* argv[],</span>
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 :                              int maxprocs, const MPI::Info&amp; info,</span>
+<span class="lineNum">     169 </span>            :                              int root, int array_of_errcodes[]) const
+<span class="lineNum">     170 </span>            : {
+<span class="lineNum">     171 </span>            :   MPI_Comm newcomm;
+<span class="lineNum">     172 </span>            :   (void) MPI_Comm_spawn(const_cast&lt;char *&gt;(command), const_cast&lt;char **&gt;(argv), maxprocs,
+<span class="lineNum">     173 </span>            :                         info, root, mpi_comm, &amp;newcomm, 
+<span class="lineNum">     174 </span><span class="lineNoCov">          0 :                         array_of_errcodes);</span>
+<span class="lineNum">     175 </span><span class="lineNoCov">          0 :   return newcomm;</span>
+<span class="lineNum">     176 </span>            : }
+<span class="lineNum">     177 </span>            : 
+<a name="178"><span class="lineNum">     178 </span>            : </a>
+<span class="lineNum">     179 </span>            : inline MPI::Intercomm
+<span class="lineNum">     180 </span><span class="lineNoCov">          0 : MPI::Intracomm::Spawn_multiple(int count, </span>
+<span class="lineNum">     181 </span>            :                                       const char* array_of_commands[],
+<span class="lineNum">     182 </span>            :                                       const char** array_of_argv[],
+<span class="lineNum">     183 </span>            :                                       const int array_of_maxprocs[],
+<span class="lineNum">     184 </span>            :                                       const Info array_of_info[], int root)
+<span class="lineNum">     185 </span>            : {
+<span class="lineNum">     186 </span>            :   MPI_Comm newcomm;
+<span class="lineNum">     187 </span>            :   MPI_Info *const array_of_mpi_info = 
+<span class="lineNum">     188 </span><span class="lineNoCov">          0 :       convert_info_to_mpi_info(count, array_of_info);</span>
+<span class="lineNum">     189 </span>            : 
+<span class="lineNum">     190 </span>            :   MPI_Comm_spawn_multiple(count, const_cast&lt;char **&gt;(array_of_commands), 
+<span class="lineNum">     191 </span>            :                           const_cast&lt;char ***&gt;(array_of_argv), 
+<span class="lineNum">     192 </span>            :                           const_cast&lt;int *&gt;(array_of_maxprocs),
+<span class="lineNum">     193 </span>            :                           array_of_mpi_info, root,
+<span class="lineNum">     194 </span><span class="lineNoCov">          0 :                           mpi_comm, &amp;newcomm, (int *)MPI_ERRCODES_IGNORE);</span>
+<span class="lineNum">     195 </span><span class="lineNoCov">          0 :   delete[] array_of_mpi_info;</span>
+<span class="lineNum">     196 </span><span class="lineNoCov">          0 :   return newcomm;</span>
+<span class="lineNum">     197 </span>            : }
+<a name="198"><span class="lineNum">     198 </span>            : </a>
+<span class="lineNum">     199 </span>            : inline MPI_Info *
+<span class="lineNum">     200 </span><span class="lineNoCov">          0 : MPI::Intracomm::convert_info_to_mpi_info(int p_nbr, const Info p_info_tbl[])</span>
+<span class="lineNum">     201 </span>            : {
+<span class="lineNum">     202 </span><span class="lineNoCov">          0 :    MPI_Info *const mpi_info_tbl = new MPI_Info [p_nbr];</span>
+<span class="lineNum">     203 </span>            : 
+<span class="lineNum">     204 </span><span class="lineNoCov">          0 :    for (int i_tbl=0; i_tbl &lt; p_nbr; i_tbl++) {</span>
+<span class="lineNum">     205 </span><span class="lineNoCov">          0 :        mpi_info_tbl[i_tbl] = p_info_tbl[i_tbl];</span>
+<span class="lineNum">     206 </span>            :    }
+<span class="lineNum">     207 </span>            : 
+<span class="lineNum">     208 </span><span class="lineNoCov">          0 :    return mpi_info_tbl;</span>
+<span class="lineNum">     209 </span>            : }
+<a name="210"><span class="lineNum">     210 </span>            : </a>
+<span class="lineNum">     211 </span>            : inline MPI::Intercomm
+<span class="lineNum">     212 </span><span class="lineNoCov">          0 : MPI::Intracomm::Spawn_multiple(int count,</span>
+<span class="lineNum">     213 </span>            :                                       const char* array_of_commands[],
+<span class="lineNum">     214 </span>            :                                       const char** array_of_argv[],
+<span class="lineNum">     215 </span>            :                                       const int array_of_maxprocs[],
+<span class="lineNum">     216 </span>            :                                       const Info array_of_info[], int root,
+<span class="lineNum">     217 </span>            :                                       int array_of_errcodes[])
+<span class="lineNum">     218 </span>            : {
+<span class="lineNum">     219 </span>            :   MPI_Comm newcomm;
+<span class="lineNum">     220 </span>            :   MPI_Info *const array_of_mpi_info = 
+<span class="lineNum">     221 </span><span class="lineNoCov">          0 :       convert_info_to_mpi_info(count, array_of_info);</span>
+<span class="lineNum">     222 </span>            : 
+<span class="lineNum">     223 </span>            :   MPI_Comm_spawn_multiple(count, const_cast&lt;char **&gt;(array_of_commands), 
+<span class="lineNum">     224 </span>            :                           const_cast&lt;char ***&gt;(array_of_argv), 
+<span class="lineNum">     225 </span>            :                           const_cast&lt;int *&gt;(array_of_maxprocs),
+<span class="lineNum">     226 </span>            :                           array_of_mpi_info, root,
+<span class="lineNum">     227 </span><span class="lineNoCov">          0 :                           mpi_comm, &amp;newcomm, array_of_errcodes);</span>
+<span class="lineNum">     228 </span><span class="lineNoCov">          0 :   delete[] array_of_mpi_info;</span>
+<span class="lineNum">     229 </span><span class="lineNoCov">          0 :   return newcomm;</span>
+<span class="lineNum">     230 </span>            : }
+<span class="lineNum">     231 </span>            : 
+<span class="lineNum">     232 </span>            : 
+<span class="lineNum">     233 </span>            : 
+<span class="lineNum">     234 </span>            : 
+<span class="lineNum">     235 </span>            : 
+<span class="lineNum">     236 </span>            : 
+<span class="lineNum">     237 </span>            : 
+<span class="lineNum">     238 </span>            : 
+<span class="lineNum">     239 </span>            : 
+<span class="lineNum">     240 </span>            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

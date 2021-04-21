@@ -1,0 +1,796 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - lcov.info - /home/s1880345/Documents/github/lvb/MSAInput.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">home/s1880345/Documents/github/lvb</a> - MSAInput.cpp<span style="font-size: 80%;"> (source / <a href="MSAInput.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">lcov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">141</td>
+            <td class="headerCovTableEntry">354</td>
+            <td class="headerCovTableEntryLo">39.8 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2021-04-21 09:25:29</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">13</td>
+            <td class="headerCovTableEntry">24</td>
+            <td class="headerCovTableEntryLo">54.2 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* LVB</a>
+<span class="lineNum">       2 </span>            : 
+<span class="lineNum">       3 </span>            : (c) Copyright 2003-2012 by Daniel Barker
+<span class="lineNum">       4 </span>            : (c) Copyright 2013, 2014 by Daniel Barker and
+<span class="lineNum">       5 </span>            : Maximilian Strobl
+<span class="lineNum">       6 </span>            : (c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
+<span class="lineNum">       7 </span>            : (c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
+<span class="lineNum">       8 </span>            : and Chris Wood.
+<span class="lineNum">       9 </span>            : (c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
+<span class="lineNum">      10 </span>            : Fernando Guntoro, Maximilian Strobl and Chris Wood.
+<span class="lineNum">      11 </span>            : (c) Copyright 2020 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
+<span class="lineNum">      12 </span>            : Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
+<span class="lineNum">      13 </span>            : 
+<span class="lineNum">      14 </span>            : All rights reserved.
+<span class="lineNum">      15 </span>            : 
+<span class="lineNum">      16 </span>            : Redistribution and use in source and binary forms, with or without
+<span class="lineNum">      17 </span>            : modification, are permitted provided that the following conditions are met:
+<span class="lineNum">      18 </span>            : 
+<span class="lineNum">      19 </span>            : 1. Redistributions of source code must retain the above copyright notice, this
+<span class="lineNum">      20 </span>            : list of conditions and the following disclaimer.
+<span class="lineNum">      21 </span>            : 
+<span class="lineNum">      22 </span>            : 2. Redistributions in binary form must reproduce the above copyright notice,
+<span class="lineNum">      23 </span>            : this list of conditions and the following disclaimer in the documentation
+<span class="lineNum">      24 </span>            : and/or other materials provided with the distribution.
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : 3. Neither the name of the copyright holder nor the names of its contributors
+<span class="lineNum">      27 </span>            : may be used to endorse or promote products derived from this software without
+<span class="lineNum">      28 </span>            : specific prior written permission.
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND
+<span class="lineNum">      31 </span>            : ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+<span class="lineNum">      32 </span>            : WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+<span class="lineNum">      33 </span>            : DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+<span class="lineNum">      34 </span>            : FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+<span class="lineNum">      35 </span>            : DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+<span class="lineNum">      36 </span>            : SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+<span class="lineNum">      37 </span>            : CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+<span class="lineNum">      38 </span>            : OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+<span class="lineNum">      39 </span>            : OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span>            : */
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            : /* ========== MSAInput.cpp - MSA inputs ========== */
+<span class="lineNum">      44 </span>            : 
+<span class="lineNum">      45 </span>            : #include &quot;MSAInput.h&quot;
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span><span class="lineCov">          8 : CReadFiles::CReadFiles() {</span>
+<span class="lineNum">      48 </span>            : 
+<span class="lineNum">      49 </span>            :         //// trim chars form the strings
+<span class="lineNum">      50 </span><span class="lineCov">          2 :         vect_trim_char.push_back('\n');</span>
+<span class="lineNum">      51 </span><span class="lineCov">          2 :         vect_trim_char.push_back('\r');</span>
+<span class="lineNum">      52 </span><span class="lineCov">          2 :         vect_trim_char.push_back('\n');</span>
+<span class="lineNum">      53 </span>            : //      vect_trim_char.push_back('\t');
+<span class="lineNum">      54 </span><span class="lineCov">          2 :         vect_trim_char.push_back(' ');</span>
+<span class="lineNum">      55 </span>            : 
+<span class="lineNum">      56 </span>            :         /// these lines are getted from phylip code version 3.695 at 18-Jun-2014
+<span class="lineNum">      57 </span>            :         /// src/phylip.h:#define nmlngth         10   /* number of characters in species name    */
+<span class="lineNum">      58 </span>            :         /// src/phylip.h:#define MAXNCH          20   /* must be greater than or equal to nmlngth */
+<span class="lineNum">      59 </span><span class="lineCov">          1 :         n_nmlngth_phylip_names = 10;</span>
+<span class="lineNum">      60 </span><span class="lineCov">          1 :         sz_phylip_accept_chars = &quot;ABCDEFGHIKLMNPQRSTVWXYZabcdefghiklmnpqrstvwxyz*?-&quot;;</span>
+<span class="lineNum">      61 </span><span class="lineCov">          1 :         sz_accept_chars = &quot;ACGTUYRWSKMBDHVNX?O-&quot;;</span>
+<span class="lineNum">      62 </span><span class="lineCov">          1 :         n_max_length_name_seq = 0;</span>
+<span class="lineNum">      63 </span><span class="lineCov">          1 :         b_debug = false;                /// print some messages</span>
+<a name="64"><span class="lineNum">      64 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">      65 </span>            : 
+<span class="lineNum">      66 </span><span class="lineCov">          7 : CReadFiles::~CReadFiles() {</span>
+<span class="lineNum">      67 </span>            :         // TODO Auto-generated destructor stub
+<span class="lineNum">      68 </span><span class="lineCov">          1 : }</span>
+<span class="lineNum">      69 </span>            : 
+<span class="lineNum">      70 </span><span class="lineCov">          1 : bool CReadFiles::is_file_exist(string file_name)</span>
+<span class="lineNum">      71 </span>            : {
+<span class="lineNum">      72 </span><span class="lineCov">          1 :         if (FILE *file = fopen(file_name.c_str(), &quot;r&quot;)) {</span>
+<span class="lineNum">      73 </span><span class="lineCov">          1 :                 fclose(file);</span>
+<span class="lineNum">      74 </span><span class="lineCov">          1 :                 return true;</span>
+<span class="lineNum">      75 </span>            :         } else { return false; }
+<span class="lineNum">      76 </span>            : }
+<span class="lineNum">      77 </span>            : 
+<span class="lineNum">      78 </span><span class="lineNoCov">          0 : int CReadFiles::exit_error(int ierr, string sz_error)</span>
+<span class="lineNum">      79 </span>            : {
+<span class="lineNum">      80 </span><span class="lineNoCov">          0 :         if (ierr == 1) cout &lt;&lt; &quot;FATAL ERROR: &quot; &lt;&lt; sz_error &lt;&lt; endl;</span>
+<span class="lineNum">      81 </span><span class="lineNoCov">          0 :         else cout &lt;&lt; &quot;Warning: &quot; &lt;&lt; sz_error &lt;&lt; endl;</span>
+<span class="lineNum">      82 </span>            : 
+<span class="lineNum">      83 </span>            :         /* Exit if necessary */
+<span class="lineNum">      84 </span><span class="lineNoCov">          0 :         if (ierr==1 || ierr==-1) { return 1; }</span>
+<span class="lineNum">      85 </span><span class="lineNoCov">          0 :         return 0;</span>
+<span class="lineNum">      86 </span>            : }
+<span class="lineNum">      87 </span>            : 
+<span class="lineNum">      88 </span><span class="lineCov">        403 : string CReadFiles::trim(string const&amp; str)</span>
+<span class="lineNum">      89 </span>            : {
+<span class="lineNum">      90 </span><span class="lineCov">        403 :         string sz_return = str;</span>
+<span class="lineNum">      91 </span><span class="lineCov">       6851 :         for (vector&lt;char &gt;::iterator it = vect_trim_char.begin(); it != vect_trim_char.end(); ++it){</span>
+<span class="lineNum">      92 </span><span class="lineCov">       3224 :                 sz_return = trim(sz_return, *it);</span>
+<span class="lineNum">      93 </span>            :         }
+<span class="lineNum">      94 </span><span class="lineCov">        403 :     return sz_return;</span>
+<a name="95"><span class="lineNum">      95 </span>            : }</a>
+<span class="lineNum">      96 </span>            : 
+<span class="lineNum">      97 </span><span class="lineCov">       1612 : string CReadFiles::trim(string const&amp; str, char c_char)</span>
+<span class="lineNum">      98 </span>            : {
+<span class="lineNum">      99 </span><span class="lineCov">       1612 :     size_t first = str.find_first_not_of(c_char);</span>
+<span class="lineNum">     100 </span><span class="lineCov">       1612 :     if(first == string::npos) return &quot;&quot;;</span>
+<span class="lineNum">     101 </span><span class="lineCov">       1612 :     size_t last  = str.find_last_not_of(c_char);</span>
+<span class="lineNum">     102 </span><span class="lineCov">       1612 :     return str.substr(first, last-first+1);</span>
+<span class="lineNum">     103 </span>            : }
+<span class="lineNum">     104 </span>            : 
+<span class="lineNum">     105 </span><span class="lineNoCov">          0 : vector&lt;string&gt; &amp;CReadFiles::split(const string &amp;s, char delim, vector&lt;string&gt; &amp;elems) {</span>
+<span class="lineNum">     106 </span><span class="lineNoCov">          0 :     stringstream ss(s); string item;</span>
+<span class="lineNum">     107 </span><span class="lineNoCov">          0 :     while (getline(ss, item, delim)) {</span>
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 :         elems.push_back(item);</span>
+<span class="lineNum">     109 </span>            :     }
+<span class="lineNum">     110 </span><span class="lineNoCov">          0 :     return elems;</span>
+<span class="lineNum">     111 </span>            : }
+<span class="lineNum">     112 </span>            : 
+<span class="lineNum">     113 </span><span class="lineNoCov">          0 : vector&lt;string&gt; CReadFiles::split(const string &amp;s, char delim) {</span>
+<span class="lineNum">     114 </span><span class="lineNoCov">          0 :     vector&lt;string&gt; elems, vect_out;</span>
+<span class="lineNum">     115 </span><span class="lineNoCov">          0 :     split(s, delim, elems);</span>
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 :     for (vector&lt;string&gt;::iterator it = elems.begin() ; it != elems.end(); ++it) vect_out.push_back(trim(*it));</span>
+<span class="lineNum">     117 </span><span class="lineNoCov">          0 :     return elems;</span>
+<span class="lineNum">     118 </span>            : }
+<span class="lineNum">     119 </span>            : 
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 : int CReadFiles::read_clustal(int filetype)</span>
+<span class="lineNum">     121 </span>            : {
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :         string sz_line = &quot;&quot;;</span>
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :         vector&lt; string &gt; lst_strings;</span>
+<span class="lineNum">     124 </span><span class="lineNoCov">          0 :         int header = 0, length = 0, n_count_sequence = 0;</span>
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :         bool b_is_name_seq = false;</span>
+<span class="lineNum">     126 </span>            : 
+<span class="lineNum">     127 </span><span class="lineNoCov">          0 :         ifstream filein;</span>
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 :         filein.open(sz_file_name.c_str());</span>
+<span class="lineNum">     129 </span><span class="lineNoCov">          0 :         while (getline(filein, sz_line)) {</span>
+<span class="lineNum">     130 </span>            : 
+<span class="lineNum">     131 </span><span class="lineNoCov">          0 :                 length = (int) sz_line.length();</span>
+<span class="lineNum">     132 </span><span class="lineNoCov">          0 :                 if (header == 0 &amp;&amp; length &gt; 1 &amp;&amp; filetype == 1) {</span>
+<span class="lineNum">     133 </span><span class="lineNoCov">          0 :                   if ((int) sz_line.find(&quot;CLUSTAL&quot;) != -1){</span>
+<span class="lineNum">     134 </span><span class="lineNoCov">          0 :                           header = 1;</span>
+<span class="lineNum">     135 </span><span class="lineNoCov">          0 :                           continue;</span>
+<span class="lineNum">     136 </span>            :                   }
+<span class="lineNum">     137 </span>            :                 }
+<span class="lineNum">     138 </span><span class="lineNoCov">          0 :                 else if (header == 0 &amp;&amp; length &gt; 1 &amp;&amp; filetype == 2) {</span>
+<span class="lineNum">     139 </span><span class="lineNoCov">          0 :                   if ((int) sz_line.find(&quot;//&quot;) != -1){</span>
+<span class="lineNum">     140 </span><span class="lineNoCov">          0 :                           header = 1;</span>
+<span class="lineNum">     141 </span><span class="lineNoCov">          0 :                           continue;</span>
+<span class="lineNum">     142 </span>            :                   }
+<span class="lineNum">     143 </span>            :                 }
+<span class="lineNum">     144 </span><span class="lineNoCov">          0 :                 else if(length &gt; 0 and header == 1) { /// header is here now</span>
+<span class="lineNum">     145 </span>            : 
+<span class="lineNum">     146 </span><span class="lineNoCov">          0 :                         lst_strings = split(sz_line, ' ');</span>
+<span class="lineNum">     147 </span><span class="lineNoCov">          0 :                         if ((int) lst_strings.size() == 0) continue; /// nothing to do</span>
+<span class="lineNum">     148 </span>            : 
+<span class="lineNum">     149 </span><span class="lineNoCov">          0 :                         if (is_only_one_sequence_in_array(lst_strings) || lst_strings[0].empty()){</span>
+<span class="lineNum">     150 </span>            :                                 /// escape for the **** **************.*********.**.*************** ***
+<span class="lineNum">     151 </span><span class="lineNoCov">          0 :                                 if (! b_is_name_seq){</span>
+<span class="lineNum">     152 </span>            :                                         b_is_name_seq = true;
+<span class="lineNum">     153 </span>            :                                         continue;
+<span class="lineNum">     154 </span>            :                                 }
+<span class="lineNum">     155 </span>            :                                 /// escape for the **** **************.*********.**.********** ********
+<span class="lineNum">     156 </span><span class="lineNoCov">          0 :                                 if (n_count_sequence == (int) lst_names_seq.size()){</span>
+<span class="lineNum">     157 </span>            :                                         n_count_sequence = 0;
+<span class="lineNum">     158 </span>            :                                         continue;
+<span class="lineNum">     159 </span>            :                                 }
+<span class="lineNum">     160 </span>            :                         }
+<span class="lineNum">     161 </span><span class="lineNoCov">          0 :                         if (! b_is_name_seq){</span>
+<span class="lineNum">     162 </span><span class="lineNoCov">          0 :                                 if ((int) lst_strings.size() &gt; 1){</span>
+<span class="lineNum">     163 </span><span class="lineNoCov">          0 :                                         lst_names_seq.push_back(get_string_from_list(lst_strings, false));</span>
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 :                                         lst_sequences.push_back(get_string_from_list(lst_strings, true));</span>
+<span class="lineNum">     165 </span>            :                                 }
+<span class="lineNum">     166 </span>            :                         }
+<span class="lineNum">     167 </span>            :                         else{
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 :                                 if (n_count_sequence &gt;= (int) lst_sequences.size()) return exit_error(1, &quot;Some problem reading the file.&quot;);</span>
+<span class="lineNum">     169 </span><span class="lineNoCov">          0 :                                 lst_sequences[n_count_sequence] += get_string_from_list(lst_strings, true);</span>
+<span class="lineNum">     170 </span><span class="lineNoCov">          0 :                                 n_count_sequence ++;</span>
+<span class="lineNum">     171 </span>            :                         }
+<span class="lineNum">     172 </span>            :                 }
+<span class="lineNum">     173 </span>            :                 else{
+<span class="lineNum">     174 </span><span class="lineNoCov">          0 :                         n_count_sequence = 0;</span>
+<span class="lineNum">     175 </span><span class="lineNoCov">          0 :                         if ((int) lst_names_seq.size() &gt; 0) b_is_name_seq = true;</span>
+<span class="lineNum">     176 </span>            :                 }
+<span class="lineNum">     177 </span>            :         }
+<span class="lineNum">     178 </span><span class="lineNoCov">          0 :         filein.close();</span>
+<span class="lineNum">     179 </span>            :         return 0;
+<span class="lineNum">     180 </span>            : }
+<span class="lineNum">     181 </span>            : 
+<span class="lineNum">     182 </span><span class="lineNoCov">          0 : bool CReadFiles::is_only_one_sequence_in_array(vector&lt; string &gt; lst_strings){</span>
+<span class="lineNum">     183 </span>            : 
+<span class="lineNum">     184 </span><span class="lineNoCov">          0 :         int n_number_seqs = 0;</span>
+<span class="lineNum">     185 </span><span class="lineNoCov">          0 :         for (int i = 0; i &lt; (int) lst_strings.size(); ++i){</span>
+<span class="lineNum">     186 </span><span class="lineNoCov">          0 :                 if ((int) lst_strings[i].length() &gt; 0) n_number_seqs += 1;</span>
+<span class="lineNum">     187 </span>            :         }
+<span class="lineNum">     188 </span><span class="lineNoCov">          0 :         if (n_number_seqs == 1) return true;</span>
+<span class="lineNum">     189 </span><span class="lineNoCov">          0 :         return false;</span>
+<span class="lineNum">     190 </span>            : }
+<span class="lineNum">     191 </span>            : 
+<span class="lineNum">     192 </span><span class="lineNoCov">          0 : string CReadFiles::get_string_from_list(vector&lt; string &gt; lst_strings, bool b_last_one){</span>
+<span class="lineNum">     193 </span>            : 
+<span class="lineNum">     194 </span><span class="lineNoCov">          0 :         int n_last_one_with_sequence = -1;</span>
+<span class="lineNum">     195 </span><span class="lineNoCov">          0 :         for (int i = (int) lst_strings.size() - 1; i &gt; -1; --i){</span>
+<span class="lineNum">     196 </span><span class="lineNoCov">          0 :                 if ((int) lst_strings[i].length() &gt; 0){</span>
+<span class="lineNum">     197 </span><span class="lineNoCov">          0 :                         if (b_last_one){</span>
+<span class="lineNum">     198 </span><span class="lineNoCov">          0 :                                 if (b_debug) cout &lt;&lt; &quot;last seq: &quot; &lt;&lt; lst_strings[i] &lt;&lt; endl;</span>
+<span class="lineNum">     199 </span><span class="lineNoCov">          0 :                                 return lst_strings[i];</span>
+<span class="lineNum">     200 </span>            :                         }
+<span class="lineNum">     201 </span>            :                         n_last_one_with_sequence = i;
+<span class="lineNum">     202 </span>            :                         break;
+<span class="lineNum">     203 </span>            :                 }
+<span class="lineNum">     204 </span>            :         }
+<span class="lineNum">     205 </span><span class="lineNoCov">          0 :         if (b_last_one) return &quot;&quot;;</span>
+<span class="lineNum">     206 </span>            : 
+<span class="lineNum">     207 </span>            :         //// test the first one
+<span class="lineNum">     208 </span><span class="lineNoCov">          0 :         string sz_return = &quot;&quot;;</span>
+<span class="lineNum">     209 </span><span class="lineNoCov">          0 :         for (int i = 0; i &lt; n_last_one_with_sequence; ++i){</span>
+<span class="lineNum">     210 </span><span class="lineNoCov">          0 :                 if ((int) lst_strings[i].length() &gt; 0){</span>
+<span class="lineNum">     211 </span><span class="lineNoCov">          0 :                         if ((int) sz_return.length() &gt; 0) sz_return += &quot; &quot;;</span>
+<span class="lineNum">     212 </span><span class="lineNoCov">          0 :                         sz_return += lst_strings[i];</span>
+<span class="lineNum">     213 </span>            :                 }
+<span class="lineNum">     214 </span>            :         }
+<span class="lineNum">     215 </span><span class="lineNoCov">          0 :         if (b_debug) cout &lt;&lt; &quot;first seq: &quot; &lt;&lt; sz_return &lt;&lt; endl;</span>
+<span class="lineNum">     216 </span>            :         return sz_return;
+<span class="lineNum">     217 </span>            : }
+<span class="lineNum">     218 </span>            : 
+<span class="lineNum">     219 </span>            : /// these lines are getted from phylip code version 3.695 at 18-Jun-2014
+<span class="lineNum">     220 </span>            : /// src/phylip.h:#define nmlngth         10   /* number of characters in species name    */
+<span class="lineNum">     221 </span>            : /// src/phylip.h:#define MAXNCH          20   /* must be greater than or equal to nmlngth */
+<span class="lineNum">     222 </span>            : /// need to remove numbers from the sequences...
+<span class="lineNum">     223 </span><span class="lineCov">          1 : int CReadFiles::read_phylip()</span>
+<span class="lineNum">     224 </span>            : {
+<span class="lineNum">     225 </span>            : /// interleaved example, examples from the phylip web site
+<span class="lineNum">     226 </span>            : //        5    42
+<span class="lineNum">     227 </span>            : //      Turkey    AAGCTNGGGC ATTTCAGGGT
+<span class="lineNum">     228 </span>            : //      Salmo gairAAGCCTTGGC AGTGCAGGGT
+<span class="lineNum">     229 </span>            : //      H. SapiensACCGGTTGGC CGTTCAGGGT
+<span class="lineNum">     230 </span>            : //      Chimp     AAACCCTTGC CGTTACGCTT
+<span class="lineNum">     231 </span>            : //      Gorilla   AAACCCTTGC CGGTACGCTT
+<span class="lineNum">     232 </span>            : //
+<span class="lineNum">     233 </span>            : //      GAGCCCGGGC AATACAGGGT AT
+<span class="lineNum">     234 </span>            : //      GAGCCGTGGC CGGGCACGGT AT
+<span class="lineNum">     235 </span>            : //      ACAGGTTGGC CGTTCAGGGT AA
+<span class="lineNum">     236 </span>            : //      AAACCGAGGC CGGGACACTC AT
+<span class="lineNum">     237 </span>            : //      AAACCATTGC CGGTACGCTT AA
+<span class="lineNum">     238 </span><span class="lineCov">          1 :         bool b_is_interlevead = is_phylip_interleaved();</span>
+<span class="lineNum">     239 </span>            : 
+<span class="lineNum">     240 </span>            : /// interleaved sequential example, examples from the phylip web site
+<span class="lineNum">     241 </span>            : //      5    42
+<span class="lineNum">     242 </span>            : //      Turkey    AAGCTNGGGC ATTTCAGGGT
+<span class="lineNum">     243 </span>            : //      GAGCCCGGGC AATACAGGGT AT
+<span class="lineNum">     244 </span>            : //      Salmo gairAAGCCTTGGC AGTGCAGGGT
+<span class="lineNum">     245 </span>            : //      GAGCCGTGGC CGGGCACGGT AT
+<span class="lineNum">     246 </span>            : //      H. SapiensACCGGTTGGC CGTTCAGGGT
+<span class="lineNum">     247 </span>            : //      ACAGGTTGGC CGTTCAGGGT AA
+<span class="lineNum">     248 </span>            : //      Chimp     AAACCCTTGC CGTTACGCTT
+<span class="lineNum">     249 </span>            : //      AAACCGAGGC CGGGACACTC AT
+<span class="lineNum">     250 </span>            : //      Gorilla   AAACCCTTGC CGGTACGCTT
+<span class="lineNum">     251 </span>            : //      AAACCATTGC CGGTACGCTT AA
+<span class="lineNum">     252 </span>            :         int n_total_lines;
+<span class="lineNum">     253 </span><span class="lineCov">          1 :         bool b_is_line_sequencial = is_phylip_line_sequential(n_total_lines);</span>
+<span class="lineNum">     254 </span>            : 
+<span class="lineNum">     255 </span>            :         //// get the number of sequences and length of sequences...
+<span class="lineNum">     256 </span><span class="lineCov">          1 :         int n_seqs = 0, n_length_seq = 0, n_count_line = 0, length;</span>
+<span class="lineNum">     257 </span><span class="lineCov">          1 :         string sz_line = &quot;&quot;, error;</span>
+<span class="lineNum">     258 </span><span class="lineCov">          1 :         bool b_is_start_read = false;</span>
+<span class="lineNum">     259 </span>            : 
+<span class="lineNum">     260 </span><span class="lineCov">          2 :         ifstream filein;</span>
+<span class="lineNum">     261 </span><span class="lineCov">          2 :         filein.open(sz_file_name.c_str());</span>
+<span class="lineNum">     262 </span><span class="lineCov">        204 :         while (getline(filein, sz_line)) {</span>
+<span class="lineNum">     263 </span>            : 
+<span class="lineNum">     264 </span><span class="lineCov">        202 :                 sz_line = trim(sz_line);</span>
+<span class="lineNum">     265 </span><span class="lineCov">        101 :                 if (sz_line.empty()) continue;</span>
+<span class="lineNum">     266 </span>            : 
+<span class="lineNum">     267 </span>            :                 /// try to get the number of sequences and its length
+<span class="lineNum">     268 </span><span class="lineCov">        101 :                 if (n_seqs == 0 &amp;&amp; n_length_seq == 0){</span>
+<span class="lineNum">     269 </span><span class="lineCov">          1 :                         int scan_value = sscanf(sz_line.c_str(), &quot;%d%d&quot;, &amp;n_seqs, &amp;n_length_seq);</span>
+<span class="lineNum">     270 </span><span class="lineCov">          1 :                         if (scan_value != 2){</span>
+<span class="lineNum">     271 </span><span class="lineNoCov">          0 :                                 n_seqs = 0;</span>
+<span class="lineNum">     272 </span><span class="lineNoCov">          0 :                                 n_length_seq = 0;</span>
+<span class="lineNum">     273 </span>            :                         }
+<span class="lineNum">     274 </span>            :                         continue;
+<span class="lineNum">     275 </span>            :                 }
+<span class="lineNum">     276 </span>            : 
+<span class="lineNum">     277 </span><span class="lineCov">        100 :                 length = (int) sz_line.length();</span>
+<span class="lineNum">     278 </span><span class="lineCov">        100 :                 if(b_is_interlevead || (!b_is_line_sequencial &amp;&amp; !b_is_interlevead)){</span>
+<span class="lineNum">     279 </span><span class="lineCov">        100 :                         if (!b_is_start_read){</span>
+<span class="lineNum">     280 </span><span class="lineCov">          2 :                                 if (sz_phylip_accept_chars.find(sz_line[length - 1]) != string::npos) b_is_start_read = true;</span>
+<span class="lineNum">     281 </span>            :                                 else continue;
+<span class="lineNum">     282 </span>            :                         }
+<span class="lineNum">     283 </span>            : 
+<span class="lineNum">     284 </span><span class="lineCov">        202 :                         if ((int)lst_names_seq.size() &lt; n_seqs){             ///</span>
+<span class="lineNum">     285 </span>            :                                 /// the clustal put other headers in phylip format sometimes...
+<span class="lineNum">     286 </span><span class="lineCov">        100 :                                 if (length &lt; n_nmlngth_phylip_names){</span>
+<span class="lineNum">     287 </span><span class="lineNoCov">          0 :                                         error = &quot;Failed to open alignment file: &quot; + sz_file_name + &quot;\nThis line has less than &quot; + to_string_(n_nmlngth_phylip_names) + &quot; chars...&quot;;</span>
+<span class="lineNum">     288 </span><span class="lineNoCov">          0 :                                         return exit_error(1, error);</span>
+<span class="lineNum">     289 </span>            :                                 }
+<span class="lineNum">     290 </span><span class="lineCov">        300 :                                 lst_names_seq.push_back(trim(sz_line.substr(0, n_nmlngth_phylip_names)));</span>
+<span class="lineNum">     291 </span><span class="lineCov">        604 :                                 lst_sequences.push_back(sz_line.substr(n_nmlngth_phylip_names, (int) sz_line.length() -  n_nmlngth_phylip_names));</span>
+<span class="lineNum">     292 </span>            :                         }
+<span class="lineNum">     293 </span>            :                         else{
+<span class="lineNum">     294 </span><span class="lineNoCov">          0 :                                 if (sz_line.empty()) continue;</span>
+<span class="lineNum">     295 </span><span class="lineNoCov">          0 :                                 lst_sequences[n_count_line] += sz_line;</span>
+<span class="lineNum">     296 </span><span class="lineNoCov">          0 :                                 n_count_line += 1;</span>
+<span class="lineNum">     297 </span><span class="lineNoCov">          0 :                                 if (n_count_line == n_seqs) n_count_line = 0;</span>
+<span class="lineNum">     298 </span>            :                         }
+<span class="lineNum">     299 </span>            :                 }
+<span class="lineNum">     300 </span><span class="lineNoCov">          0 :                 else if (b_is_line_sequencial){</span>
+<span class="lineNum">     301 </span><span class="lineNoCov">          0 :                         if (!b_is_start_read){</span>
+<span class="lineNum">     302 </span><span class="lineNoCov">          0 :                                 if (sz_phylip_accept_chars.find(sz_line[length - 1]) != string::npos) b_is_start_read = true;</span>
+<span class="lineNum">     303 </span>            :                                 else continue;
+<span class="lineNum">     304 </span>            :                         }
+<span class="lineNum">     305 </span>            : 
+<span class="lineNum">     306 </span>            : 
+<span class="lineNum">     307 </span><span class="lineNoCov">          0 :                         if (n_count_line == 0){         ///</span>
+<span class="lineNum">     308 </span>            :                                 /// the clustal put other headers in phylip format sometimes...
+<span class="lineNum">     309 </span><span class="lineNoCov">          0 :                                 if (length &lt; n_nmlngth_phylip_names){</span>
+<span class="lineNum">     310 </span><span class="lineNoCov">          0 :                                         error = &quot;Failed to open alignment file: &quot; + sz_file_name + &quot;\nThis line has less than &quot; + to_string_(n_nmlngth_phylip_names) + &quot; chars...&quot;;</span>
+<span class="lineNum">     311 </span><span class="lineNoCov">          0 :                                         return exit_error(1, error);</span>
+<span class="lineNum">     312 </span>            :                                 }
+<span class="lineNum">     313 </span><span class="lineNoCov">          0 :                                 lst_names_seq.push_back(trim(sz_line.substr(0, n_nmlngth_phylip_names)));</span>
+<span class="lineNum">     314 </span><span class="lineNoCov">          0 :                                 lst_sequences.push_back(sz_line.substr(n_nmlngth_phylip_names, (int) sz_line.length() -  n_nmlngth_phylip_names));</span>
+<span class="lineNum">     315 </span><span class="lineNoCov">          0 :                                 if ((int) lst_names_seq.size() &gt; n_seqs){</span>
+<span class="lineNum">     316 </span>            :                                         error = &quot;There are more sequences than the predict ones. Please, check the file.&quot;;
+<span class="lineNum">     317 </span><span class="lineNoCov">          0 :                                         return exit_error(1, error);</span>
+<span class="lineNum">     318 </span>            :                                 }
+<span class="lineNum">     319 </span><span class="lineNoCov">          0 :                                 n_count_line += 1;</span>
+<span class="lineNum">     320 </span>            :                         }
+<span class="lineNum">     321 </span>            :                         else{
+<span class="lineNum">     322 </span><span class="lineNoCov">          0 :                                 lst_sequences[(int) lst_sequences.size() - 1] += sz_line;</span>
+<span class="lineNum">     323 </span><span class="lineNoCov">          0 :                                 n_count_line += 1;</span>
+<span class="lineNum">     324 </span><span class="lineNoCov">          0 :                                 if ((n_total_lines / n_seqs) == n_count_line) n_count_line = 0;</span>
+<span class="lineNum">     325 </span>            :                         }
+<span class="lineNum">     326 </span>            :                 }
+<span class="lineNum">     327 </span>            :                 /// try to find the first line with sequence data...
+<span class="lineNum">     328 </span>            :         }
+<span class="lineNum">     329 </span>            : 
+<span class="lineNum">     330 </span>            : 
+<span class="lineNum">     331 </span><span class="lineCov">          1 :         if (n_seqs == 0){</span>
+<span class="lineNum">     332 </span>            :                 error = &quot;Some problem reading the file. Please, check the file format.\nMore information in http://evolution.genetics.washington.edu/phylip/doc/sequence.html&quot;;
+<span class="lineNum">     333 </span><span class="lineNoCov">          0 :                 filein.close();</span>
+<span class="lineNum">     334 </span><span class="lineNoCov">          0 :                 return exit_error(1, error);</span>
+<span class="lineNum">     335 </span>            :         }
+<span class="lineNum">     336 </span><span class="lineCov">          7 :         if ((int) lst_names_seq.size() != (int) lst_sequences.size()){</span>
+<span class="lineNum">     337 </span>            :                 error = &quot;The number of sequences read are different from the number of name samples.&quot;;
+<span class="lineNum">     338 </span><span class="lineNoCov">          0 :                 return exit_error(1, error);</span>
+<span class="lineNum">     339 </span>            :         }
+<span class="lineNum">     340 </span>            : 
+<span class="lineNum">     341 </span>            :         /// clean the numbers and spaces...
+<span class="lineNum">     342 </span><span class="lineCov">          1 :         if ((int) lst_names_seq.size() != n_seqs){</span>
+<span class="lineNum">     343 </span><span class="lineNoCov">          0 :                 error = &quot;The file has a different number of sequences.\nRead: &quot; + to_string_((int) lst_names_seq.size()) + &quot;\nIn the header: &quot; + to_string_(n_seqs);</span>
+<span class="lineNum">     344 </span><span class="lineNoCov">          0 :                 return exit_error(1, error);</span>
+<span class="lineNum">     345 </span>            :         }
+<span class="lineNum">     346 </span><span class="lineCov">        403 :         for(int i = 0; i &lt; (int) lst_sequences.size(); i++){</span>
+<span class="lineNum">     347 </span><span class="lineCov">        600 :                 lst_sequences[i] = clean_phylip_dna_sequence(lst_sequences[i]);</span>
+<span class="lineNum">     348 </span><span class="lineCov">        400 :                 if ((int) lst_sequences[i].size() != n_length_seq){</span>
+<span class="lineNum">     349 </span><span class="lineNoCov">          0 :                         cout &lt;&lt; lst_sequences[i] &lt;&lt; endl;</span>
+<span class="lineNum">     350 </span><span class="lineNoCov">          0 :                         error = &quot;This sequence &quot; + lst_names_seq[i] + &quot; has a different length &quot; + to_string_((int) lst_sequences[i].size()) + &quot; from the one read in the header: &quot; + to_string_(n_length_seq);</span>
+<span class="lineNum">     351 </span><span class="lineNoCov">          0 :                         return exit_error(1, error);</span>
+<span class="lineNum">     352 </span>            :                 }
+<span class="lineNum">     353 </span>            :         }
+<span class="lineNum">     354 </span><span class="lineCov">          1 :         filein.close();</span>
+<span class="lineNum">     355 </span>            :         return 0;
+<span class="lineNum">     356 </span>            : }
+<span class="lineNum">     357 </span>            : 
+<span class="lineNum">     358 </span>            : 
+<span class="lineNum">     359 </span><span class="lineCov">        100 : string CReadFiles::clean_phylip_dna_sequence(string sz_sequence){</span>
+<span class="lineNum">     360 </span><span class="lineCov">        100 :         char chars[] = &quot;0123456789 &quot;;</span>
+<span class="lineNum">     361 </span><span class="lineCov">       1200 :         for (unsigned int i = 0; i &lt; strlen(chars); ++i){</span>
+<span class="lineNum">     362 </span><span class="lineCov">       2200 :                 sz_sequence.erase (remove(sz_sequence.begin(), sz_sequence.end(), chars[i]), sz_sequence.end());</span>
+<span class="lineNum">     363 </span>            :         }
+<span class="lineNum">     364 </span><span class="lineCov">        100 :         return sz_sequence;</span>
+<span class="lineNum">     365 </span>            : }
+<span class="lineNum">     366 </span>            : 
+<span class="lineNum">     367 </span>            : 
+<span class="lineNum">     368 </span><span class="lineCov">          1 : bool CReadFiles::is_phylip_interleaved(){</span>
+<span class="lineNum">     369 </span>            : 
+<span class="lineNum">     370 </span>            :         string sz_line;
+<span class="lineNum">     371 </span><span class="lineCov">          1 :         int n_seqs = 0, n_length_seq = 0;</span>
+<span class="lineNum">     372 </span><span class="lineCov">          1 :         bool b_is_start_read = false, b_empty_line = false;</span>
+<span class="lineNum">     373 </span><span class="lineCov">          1 :         int n_total_lines = 0;</span>
+<span class="lineNum">     374 </span><span class="lineCov">          2 :         ifstream filein;</span>
+<span class="lineNum">     375 </span><span class="lineCov">          2 :         filein.open(sz_file_name.c_str());</span>
+<span class="lineNum">     376 </span><span class="lineCov">        204 :         while (getline(filein, sz_line)) {</span>
+<span class="lineNum">     377 </span>            : 
+<span class="lineNum">     378 </span><span class="lineCov">        202 :                 sz_line = trim(sz_line);</span>
+<span class="lineNum">     379 </span><span class="lineCov">        101 :                 if (sz_line.empty() &amp;&amp; !b_is_start_read) continue;</span>
+<span class="lineNum">     380 </span>            : 
+<span class="lineNum">     381 </span><span class="lineCov">        101 :                 if (n_seqs == 0 &amp;&amp; n_length_seq == 0){</span>
+<span class="lineNum">     382 </span><span class="lineCov">          1 :                         int scan_value = sscanf( sz_line.c_str(), &quot;%d%d&quot;, &amp;n_seqs, &amp;n_length_seq);</span>
+<span class="lineNum">     383 </span><span class="lineCov">          1 :                         if (scan_value != 2){</span>
+<span class="lineNum">     384 </span><span class="lineNoCov">          0 :                                 n_seqs = 0;</span>
+<span class="lineNum">     385 </span><span class="lineNoCov">          0 :                                 n_length_seq = 0;</span>
+<span class="lineNum">     386 </span>            :                         }
+<span class="lineNum">     387 </span>            :                         continue;
+<span class="lineNum">     388 </span>            :                 }
+<span class="lineNum">     389 </span><span class="lineCov">        100 :                 if (!b_is_start_read){</span>
+<span class="lineNum">     390 </span><span class="lineCov">          2 :                         if (sz_phylip_accept_chars.find(sz_line[sz_line.length() - 1]) != string::npos){</span>
+<span class="lineNum">     391 </span><span class="lineCov">          1 :                                 b_is_start_read = true;</span>
+<span class="lineNum">     392 </span><span class="lineCov">          1 :                                 n_total_lines += 1;</span>
+<span class="lineNum">     393 </span><span class="lineCov">          1 :                                 continue;</span>
+<span class="lineNum">     394 </span>            :                         }
+<span class="lineNum">     395 </span>            :                         else continue;
+<span class="lineNum">     396 </span>            :                 }
+<span class="lineNum">     397 </span><span class="lineCov">         99 :                 if (b_is_start_read &amp;&amp; sz_line.empty()){</span>
+<span class="lineNum">     398 </span>            :                         b_empty_line = true;
+<span class="lineNum">     399 </span>            :                         continue;
+<span class="lineNum">     400 </span>            :                 }
+<span class="lineNum">     401 </span><span class="lineCov">         99 :                 else if (b_is_start_read &amp;&amp; !b_empty_line){</span>
+<span class="lineNum">     402 </span>            :                         n_total_lines += 1;
+<span class="lineNum">     403 </span>            :                 }
+<span class="lineNum">     404 </span><span class="lineNoCov">          0 :                 else if (b_is_start_read &amp;&amp; b_empty_line){</span>
+<span class="lineNum">     405 </span>            :                         return true;
+<span class="lineNum">     406 </span>            :                 }
+<span class="lineNum">     407 </span>            :         }
+<span class="lineNum">     408 </span>            :         return false;
+<span class="lineNum">     409 </span>            : }
+<span class="lineNum">     410 </span>            : 
+<span class="lineNum">     411 </span>            : 
+<span class="lineNum">     412 </span><span class="lineCov">          1 : bool CReadFiles::is_phylip_line_sequential(int &amp;n_total_lines){</span>
+<span class="lineNum">     413 </span>            : 
+<span class="lineNum">     414 </span>            :         string sz_line;
+<span class="lineNum">     415 </span><span class="lineCov">          1 :         int n_seqs = 0, n_length_seq = 0;</span>
+<span class="lineNum">     416 </span><span class="lineCov">          1 :         bool b_is_start_read = false;</span>
+<span class="lineNum">     417 </span><span class="lineCov">          1 :         n_total_lines = 0;</span>
+<span class="lineNum">     418 </span><span class="lineCov">          2 :         ifstream filein;</span>
+<span class="lineNum">     419 </span><span class="lineCov">          2 :         filein.open(sz_file_name.c_str());</span>
+<span class="lineNum">     420 </span><span class="lineCov">        204 :         while (getline(filein, sz_line)) {</span>
+<span class="lineNum">     421 </span>            : 
+<span class="lineNum">     422 </span><span class="lineCov">        202 :                 sz_line = trim(sz_line);</span>
+<span class="lineNum">     423 </span><span class="lineCov">        101 :                 if (sz_line.empty() &amp;&amp; !b_is_start_read) continue;</span>
+<span class="lineNum">     424 </span>            : 
+<span class="lineNum">     425 </span><span class="lineCov">        101 :                 if (n_seqs == 0 &amp;&amp; n_length_seq == 0){</span>
+<span class="lineNum">     426 </span><span class="lineCov">          1 :                         int scan_value = sscanf( sz_line.c_str(), &quot;%d%d&quot;, &amp;n_seqs, &amp;n_length_seq);</span>
+<span class="lineNum">     427 </span><span class="lineCov">          1 :                         if (scan_value != 2){</span>
+<span class="lineNum">     428 </span><span class="lineNoCov">          0 :                                 n_seqs = 0;</span>
+<span class="lineNum">     429 </span><span class="lineNoCov">          0 :                                 n_length_seq = 0;</span>
+<span class="lineNum">     430 </span>            :                         }
+<span class="lineNum">     431 </span>            :                         continue;
+<span class="lineNum">     432 </span>            :                 }
+<span class="lineNum">     433 </span><span class="lineCov">        100 :                 if (!b_is_start_read){</span>
+<span class="lineNum">     434 </span><span class="lineCov">          2 :                         if (sz_phylip_accept_chars.find(sz_line[sz_line.length() - 1]) != string::npos){</span>
+<span class="lineNum">     435 </span><span class="lineCov">          1 :                                 b_is_start_read = true;</span>
+<span class="lineNum">     436 </span><span class="lineCov">          1 :                                 n_total_lines += 1;</span>
+<span class="lineNum">     437 </span><span class="lineCov">          1 :                                 continue;</span>
+<span class="lineNum">     438 </span>            :                         }
+<span class="lineNum">     439 </span>            :                         else continue;
+<span class="lineNum">     440 </span>            :                 }
+<span class="lineNum">     441 </span><span class="lineCov">         99 :                 if (b_is_start_read &amp;&amp; !sz_line.empty()) n_total_lines += 1;</span>
+<span class="lineNum">     442 </span><span class="lineCov">         99 :                 if (sz_line.empty() &amp;&amp; n_total_lines == n_seqs) return false;</span>
+<span class="lineNum">     443 </span>            :         }
+<span class="lineNum">     444 </span>            : 
+<span class="lineNum">     445 </span><span class="lineCov">          1 :         if (n_seqs &gt; 0 &amp;&amp; n_length_seq &gt; 0 &amp;&amp; (n_total_lines % n_seqs) == 0 &amp;&amp; n_total_lines &gt; n_seqs) return true;</span>
+<span class="lineNum">     446 </span><span class="lineCov">          1 :         return false;</span>
+<span class="lineNum">     447 </span>            : }
+<span class="lineNum">     448 </span>            : 
+<span class="lineNum">     449 </span>            : 
+<span class="lineNum">     450 </span>            : 
+<span class="lineNum">     451 </span><span class="lineNoCov">          0 : int CReadFiles::read_fasta()</span>
+<span class="lineNum">     452 </span>            : {
+<span class="lineNum">     453 </span><span class="lineNoCov">          0 :         string sz_line = &quot;&quot;;</span>
+<span class="lineNum">     454 </span><span class="lineNoCov">          0 :         int n_count_sequence = -1;</span>
+<span class="lineNum">     455 </span>            : 
+<span class="lineNum">     456 </span><span class="lineNoCov">          0 :         ifstream filein;</span>
+<span class="lineNum">     457 </span><span class="lineNoCov">          0 :         filein.open(sz_file_name.c_str());</span>
+<span class="lineNum">     458 </span>            :         // line by line
+<span class="lineNum">     459 </span><span class="lineNoCov">          0 :         while (getline(filein, sz_line)) {</span>
+<span class="lineNum">     460 </span>            : 
+<span class="lineNum">     461 </span><span class="lineNoCov">          0 :                 sz_line = trim(sz_line);</span>
+<span class="lineNum">     462 </span><span class="lineNoCov">          0 :                 if (b_debug) cout &lt;&lt; sz_line &lt;&lt; endl;</span>
+<span class="lineNum">     463 </span><span class="lineNoCov">          0 :                 if ((int) sz_line.length() == 0) continue;</span>
+<span class="lineNum">     464 </span><span class="lineNoCov">          0 :                 if (sz_line[0] == '&gt;'){</span>
+<span class="lineNum">     465 </span><span class="lineNoCov">          0 :                         lst_names_seq.push_back(sz_line.substr(1, sz_line.size() - 1));</span>
+<span class="lineNum">     466 </span><span class="lineNoCov">          0 :                         n_count_sequence += 1;</span>
+<span class="lineNum">     467 </span>            :                 }
+<span class="lineNum">     468 </span>            :                 else{
+<span class="lineNum">     469 </span><span class="lineNoCov">          0 :                         if (n_count_sequence == (int) lst_sequences.size()) lst_sequences.push_back(sz_line);</span>
+<span class="lineNum">     470 </span><span class="lineNoCov">          0 :                         else lst_sequences[n_count_sequence] += sz_line;</span>
+<span class="lineNum">     471 </span>            :                 }
+<span class="lineNum">     472 </span>            :         }
+<span class="lineNum">     473 </span><span class="lineNoCov">          0 :         filein.close();</span>
+<span class="lineNum">     474 </span><span class="lineNoCov">          0 :         return 0;</span>
+<span class="lineNum">     475 </span>            : }
+<span class="lineNum">     476 </span>            : 
+<span class="lineNum">     477 </span>            : /// get the dimensions of nexus files...
+<span class="lineNum">     478 </span>            : // dimensions ntax=10 nchar=705;
+<span class="lineNum">     479 </span><span class="lineNoCov">          0 : void CReadFiles::get_dimensions_nexus_format(string sz_line, int &amp;n_seqs, int &amp;n_length_seq){</span>
+<span class="lineNum">     480 </span>            : 
+<span class="lineNum">     481 </span><span class="lineNoCov">          0 :         n_seqs = 0;</span>
+<span class="lineNum">     482 </span><span class="lineNoCov">          0 :         n_length_seq = 0;</span>
+<span class="lineNum">     483 </span><span class="lineNoCov">          0 :         int scan_value = sscanf( sz_line.c_str(), &quot;dimensions ntax=%d nchar=%d;&quot;, &amp;n_seqs, &amp;n_length_seq);</span>
+<span class="lineNum">     484 </span><span class="lineNoCov">          0 :         if (scan_value == 0){</span>
+<span class="lineNum">     485 </span><span class="lineNoCov">          0 :                 sscanf( sz_line.c_str(), &quot;dimensions nchar=%d ntax=%d;&quot;, &amp;n_seqs, &amp;n_length_seq);</span>
+<span class="lineNum">     486 </span>            :         }
+<span class="lineNum">     487 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     488 </span>            : 
+<span class="lineNum">     489 </span>            : /// read nexus format
+<span class="lineNum">     490 </span><span class="lineNoCov">          0 : int CReadFiles::read_nexus()</span>
+<span class="lineNum">     491 </span>            : {
+<span class="lineNum">     492 </span>            : 
+<span class="lineNum">     493 </span>            :         //// get the number of sequences and length of sequences...
+<span class="lineNum">     494 </span><span class="lineNoCov">          0 :         int n_seqs = 0, n_length_seq = 0;</span>
+<span class="lineNum">     495 </span><span class="lineNoCov">          0 :         string sz_line = &quot;&quot;, error;</span>
+<span class="lineNum">     496 </span><span class="lineNoCov">          0 :         vector&lt; string &gt; lst_strings;</span>
+<span class="lineNum">     497 </span><span class="lineNoCov">          0 :         bool b_is_start_read = false;</span>
+<span class="lineNum">     498 </span>            : 
+<span class="lineNum">     499 </span><span class="lineNoCov">          0 :         string sz_dimensions = &quot;dimensions&quot;;</span>
+<span class="lineNum">     500 </span><span class="lineNoCov">          0 :         string sz_matix = &quot;matrix&quot;;</span>
+<span class="lineNum">     501 </span><span class="lineNoCov">          0 :         ifstream filein;</span>
+<span class="lineNum">     502 </span><span class="lineNoCov">          0 :         filein.open(sz_file_name.c_str());</span>
+<span class="lineNum">     503 </span>            :         bool b_is_name_seq = false;
+<span class="lineNum">     504 </span>            :         int n_count_sequence = 0;
+<span class="lineNum">     505 </span>            : 
+<span class="lineNum">     506 </span><span class="lineNoCov">          0 :         while (getline(filein, sz_line)) {</span>
+<span class="lineNum">     507 </span>            : 
+<span class="lineNum">     508 </span><span class="lineNoCov">          0 :                 sz_line = trim(sz_line);</span>
+<span class="lineNum">     509 </span><span class="lineNoCov">          0 :                 if (sz_line.empty()) continue;</span>
+<span class="lineNum">     510 </span>            : 
+<span class="lineNum">     511 </span><span class="lineNoCov">          0 :                 if (sz_line.find(sz_dimensions) != string::npos){</span>
+<span class="lineNum">     512 </span><span class="lineNoCov">          0 :                         get_dimensions_nexus_format(sz_line, n_seqs, n_length_seq);</span>
+<span class="lineNum">     513 </span><span class="lineNoCov">          0 :                         if (n_seqs == 0 || n_length_seq == 0){</span>
+<span class="lineNum">     514 </span><span class="lineNoCov">          0 :                                 error = &quot;Wans't possible to get the dimensions of the matrix.\nLine: &quot; + sz_line;</span>
+<span class="lineNum">     515 </span><span class="lineNoCov">          0 :                                 return exit_error(1, error);</span>
+<span class="lineNum">     516 </span>            :                         }
+<span class="lineNum">     517 </span>            :                 }
+<span class="lineNum">     518 </span><span class="lineNoCov">          0 :                 if (sz_line.find(sz_matix) != string::npos){</span>
+<span class="lineNum">     519 </span>            :                         b_is_start_read = true;
+<span class="lineNum">     520 </span>            :                         continue;
+<span class="lineNum">     521 </span>            :                 }
+<span class="lineNum">     522 </span>            : 
+<span class="lineNum">     523 </span><span class="lineNoCov">          0 :                 if (b_is_start_read){</span>
+<span class="lineNum">     524 </span><span class="lineNoCov">          0 :                         if (sz_line.find(&quot;;&quot;) != string::npos){</span>
+<span class="lineNum">     525 </span>            :                                 b_is_start_read = false;        // end of reading
+<span class="lineNum">     526 </span>            :                                 continue;
+<span class="lineNum">     527 </span>            :                         }
+<span class="lineNum">     528 </span>            : 
+<span class="lineNum">     529 </span><span class="lineNoCov">          0 :                         lst_strings = split(sz_line, ' ');</span>
+<span class="lineNum">     530 </span><span class="lineNoCov">          0 :                         if ((int) lst_strings.size() == 0) continue; /// nothing to do</span>
+<span class="lineNum">     531 </span>            : 
+<span class="lineNum">     532 </span><span class="lineNoCov">          0 :                         if (! b_is_name_seq){</span>
+<span class="lineNum">     533 </span><span class="lineNoCov">          0 :                                 if ((int) lst_strings.size() &gt; 1){</span>
+<span class="lineNum">     534 </span><span class="lineNoCov">          0 :                                         lst_names_seq.push_back(get_string_from_list(lst_strings, false));</span>
+<span class="lineNum">     535 </span><span class="lineNoCov">          0 :                                         lst_sequences.push_back(get_string_from_list(lst_strings, true));</span>
+<span class="lineNum">     536 </span>            :                                 }
+<span class="lineNum">     537 </span><span class="lineNoCov">          0 :                                 if ((int) lst_names_seq.size() == n_seqs) b_is_name_seq = true;</span>
+<span class="lineNum">     538 </span>            :                         }
+<span class="lineNum">     539 </span>            :                         else{
+<span class="lineNum">     540 </span><span class="lineNoCov">          0 :                                 if (n_count_sequence &gt;= (int) lst_sequences.size()) return exit_error(1, &quot;Some problem reading the file.&quot;);</span>
+<span class="lineNum">     541 </span><span class="lineNoCov">          0 :                                 lst_sequences[n_count_sequence] += get_string_from_list(lst_strings, true);</span>
+<span class="lineNum">     542 </span>            :                                 //cout &lt;&lt; lst_sequences[n_count_sequence].length() &lt;&lt; endl;
+<span class="lineNum">     543 </span><span class="lineNoCov">          0 :                                 n_count_sequence ++;</span>
+<span class="lineNum">     544 </span><span class="lineNoCov">          0 :                                 if (n_count_sequence == n_seqs) n_count_sequence = 0;</span>
+<span class="lineNum">     545 </span>            :                         }
+<span class="lineNum">     546 </span>            :                 }
+<span class="lineNum">     547 </span>            :         }
+<span class="lineNum">     548 </span>            : 
+<span class="lineNum">     549 </span>            : 
+<span class="lineNum">     550 </span><span class="lineNoCov">          0 :         if (n_seqs == 0){</span>
+<span class="lineNum">     551 </span>            :                 error = &quot;Some problem reading the file. Please, check the file format.\nMore information in http://evolution.genetics.washington.edu/phylip/doc/sequence.html&quot;;
+<span class="lineNum">     552 </span><span class="lineNoCov">          0 :                 filein.close();</span>
+<span class="lineNum">     553 </span><span class="lineNoCov">          0 :                 return exit_error(1, error);</span>
+<span class="lineNum">     554 </span>            :         }
+<span class="lineNum">     555 </span><span class="lineNoCov">          0 :         if ((int) lst_names_seq.size() != (int) lst_sequences.size()){</span>
+<span class="lineNum">     556 </span>            :                 error = &quot;The number of sequences read are different from the number of name samples.&quot;;
+<span class="lineNum">     557 </span><span class="lineNoCov">          0 :                 return exit_error(1, error);</span>
+<span class="lineNum">     558 </span>            :         }
+<span class="lineNum">     559 </span>            : 
+<span class="lineNum">     560 </span>            :         /// clean the numbers and spaces...
+<span class="lineNum">     561 </span><span class="lineNoCov">          0 :         if ((int) lst_names_seq.size() != n_seqs){</span>
+<span class="lineNum">     562 </span><span class="lineNoCov">          0 :                 error = &quot;The file has a different number of sequences.\nRead: &quot; + to_string_((int) lst_names_seq.size()) + &quot;\nIn the header: &quot; + to_string_(n_seqs);</span>
+<span class="lineNum">     563 </span><span class="lineNoCov">          0 :                 return exit_error(1, error);</span>
+<span class="lineNum">     564 </span>            :         }
+<span class="lineNum">     565 </span><span class="lineNoCov">          0 :         for(int i = 0; i &lt; (int) lst_sequences.size(); i++){</span>
+<span class="lineNum">     566 </span><span class="lineNoCov">          0 :                 if ((int) lst_sequences[i].size() != n_length_seq){</span>
+<span class="lineNum">     567 </span><span class="lineNoCov">          0 :                         error = &quot;This sequence &quot; + lst_names_seq[i] + &quot; has a different length &quot; + to_string_((int) lst_sequences[i].size()) + &quot; from the one read in the header: &quot; + to_string_(n_length_seq);</span>
+<span class="lineNum">     568 </span><span class="lineNoCov">          0 :                         return exit_error(1, error);</span>
+<span class="lineNum">     569 </span>            :                 }
+<span class="lineNum">     570 </span>            :         }
+<span class="lineNum">     571 </span><span class="lineNoCov">          0 :         filein.close();</span>
+<span class="lineNum">     572 </span>            :         return 0;
+<span class="lineNum">     573 </span>            : }
+<span class="lineNum">     574 </span>            : 
+<span class="lineNum">     575 </span>            : 
+<span class="lineNum">     576 </span><span class="lineCov">          1 : int CReadFiles::clean_data(){</span>
+<span class="lineNum">     577 </span>            :         string error;
+<span class="lineNum">     578 </span>            : 
+<span class="lineNum">     579 </span>            :         /// test if the file exist
+<span class="lineNum">     580 </span><span class="lineCov">          2 :         if (!is_file_exist(sz_file_name)){</span>
+<span class="lineNum">     581 </span><span class="lineNoCov">          0 :                 error = &quot;File doesn't exist: &quot; + sz_file_name;</span>
+<span class="lineNum">     582 </span><span class="lineNoCov">          0 :                 return exit_error(1, error);</span>
+<span class="lineNum">     583 </span>            :         }
+<span class="lineNum">     584 </span>            : 
+<span class="lineNum">     585 </span><span class="lineCov">          2 :         ifstream filein;</span>
+<span class="lineNum">     586 </span><span class="lineCov">          2 :         filein.open(sz_file_name.c_str());</span>
+<span class="lineNum">     587 </span><span class="lineCov">          1 :         if (!filein.good()){</span>
+<span class="lineNum">     588 </span><span class="lineNoCov">          0 :                 error = &quot;Failed to open alignment file: &quot; + sz_file_name;</span>
+<span class="lineNum">     589 </span><span class="lineNoCov">          0 :                 return exit_error(1, error);</span>
+<span class="lineNum">     590 </span>            :         }
+<span class="lineNum">     591 </span><span class="lineCov">          1 :         filein.close();</span>
+<span class="lineNum">     592 </span>            : 
+<span class="lineNum">     593 </span><span class="lineCov">          1 :         lst_sequences.clear();</span>
+<span class="lineNum">     594 </span><span class="lineCov">          1 :         lst_names_seq.clear();</span>
+<span class="lineNum">     595 </span><span class="lineCov">          1 :         n_max_length_name_seq = 0;</span>
+<span class="lineNum">     596 </span>            : 
+<span class="lineNum">     597 </span>            :         /// get the extension from the file name
+<span class="lineNum">     598 </span>            :         // linux and mac
+<span class="lineNum">     599 </span><span class="lineCov">          1 :         if (sz_file_name.find_last_of(&quot;/&quot;) != string::npos){</span>
+<span class="lineNum">     600 </span><span class="lineCov">          3 :                 sz_only_file_name = sz_file_name.substr(sz_file_name.find_last_of(&quot;/&quot;) + 1, sz_file_name.length() - sz_file_name.find_last_of(&quot;/&quot;));</span>
+<span class="lineNum">     601 </span>            :         }
+<span class="lineNum">     602 </span><span class="lineNoCov">          0 :         else sz_only_file_name = sz_file_name;</span>
+<span class="lineNum">     603 </span>            : 
+<span class="lineNum">     604 </span>            : 
+<span class="lineNum">     605 </span><span class="lineCov">          1 :         if (sz_only_file_name.find_last_of(&quot;.&quot;) != string::npos)</span>
+<span class="lineNum">     606 </span><span class="lineCov">          3 :                 sz_extension = sz_only_file_name.substr(sz_only_file_name.find_last_of(&quot;.&quot;) + 1, sz_only_file_name.length() - sz_only_file_name.find_last_of(&quot;.&quot;));</span>
+<span class="lineNum">     607 </span><span class="lineNoCov">          0 :         else sz_extension = &quot;&quot;;</span>
+<span class="lineNum">     608 </span>            :         return 0;
+<span class="lineNum">     609 </span>            : }
+<span class="lineNum">     610 </span>            : 
+<span class="lineNum">     611 </span>            : 
+<span class="lineNum">     612 </span><span class="lineCov">          1 : int CReadFiles::read_file(string sz_file_name_temp, int n_file_type){</span>
+<span class="lineNum">     613 </span>            : 
+<span class="lineNum">     614 </span>            :         string error;
+<span class="lineNum">     615 </span><span class="lineCov">          1 :         int filetype = 0, n_error_code = EXIT_SUCCESS;</span>
+<span class="lineNum">     616 </span><span class="lineCov">          1 :         sz_file_name = sz_file_name_temp;</span>
+<span class="lineNum">     617 </span>            : 
+<span class="lineNum">     618 </span>            :         //// setup initial data...
+<span class="lineNum">     619 </span><span class="lineCov">          1 :         n_error_code = clean_data();</span>
+<span class="lineNum">     620 </span><span class="lineCov">          1 :         if (n_error_code != EXIT_SUCCESS) return n_error_code;</span>
+<span class="lineNum">     621 </span>            : 
+<span class="lineNum">     622 </span><span class="lineCov">          1 :         if (n_file_type == CReadFiles::FORMAT_CLUSTAL_) {           // Clustal format</span>
+<span class="lineNum">     623 </span><span class="lineNoCov">          0 :                 filetype=1;</span>
+<span class="lineNum">     624 </span><span class="lineNoCov">          0 :                 n_error_code = read_clustal(filetype);</span>
+<span class="lineNum">     625 </span><span class="lineNoCov">          0 :                 if (n_error_code != EXIT_SUCCESS) return n_error_code;</span>
+<span class="lineNum">     626 </span>            :         }
+<span class="lineNum">     627 </span><span class="lineCov">          1 :         else if (n_file_type == CReadFiles::FORMAT_PHYLIP_) {          // Phylip format</span>
+<span class="lineNum">     628 </span><span class="lineCov">          1 :                 n_error_code = read_phylip();</span>
+<span class="lineNum">     629 </span><span class="lineCov">          1 :                 if (n_error_code != EXIT_SUCCESS) return n_error_code;</span>
+<span class="lineNum">     630 </span>            :         }
+<span class="lineNum">     631 </span><span class="lineNoCov">          0 :         else if (n_file_type == CReadFiles::FORMAT_FASTA_) {          // Fasta format</span>
+<span class="lineNum">     632 </span><span class="lineNoCov">          0 :                 n_error_code = read_fasta();</span>
+<span class="lineNum">     633 </span><span class="lineNoCov">          0 :                 if (n_error_code != EXIT_SUCCESS) return n_error_code;</span>
+<span class="lineNum">     634 </span>            :         }
+<span class="lineNum">     635 </span>            : 
+<span class="lineNum">     636 </span><span class="lineNoCov">          0 :         else if (n_file_type == CReadFiles::FORMAT_NEXUS_) {          // nexus format</span>
+<span class="lineNum">     637 </span><span class="lineNoCov">          0 :                 n_error_code = read_nexus();</span>
+<span class="lineNum">     638 </span><span class="lineNoCov">          0 :                 if (n_error_code != EXIT_SUCCESS) return n_error_code;</span>
+<span class="lineNum">     639 </span>            :         }
+<span class="lineNum">     640 </span>            :         else {
+<span class="lineNum">     641 </span><span class="lineNoCov">          0 :                 error = &quot;Unrecognized file...&quot; + sz_file_name;</span>
+<span class="lineNum">     642 </span><span class="lineNoCov">          0 :                 return exit_error(1, error);</span>
+<span class="lineNum">     643 </span>            :         }
+<span class="lineNum">     644 </span>            : 
+<span class="lineNum">     645 </span>            : 
+<span class="lineNum">     646 </span><span class="lineCov">          1 :         if (b_debug) cout &lt;&lt; &quot;testing sequences...&quot; &lt;&lt; endl;</span>
+<span class="lineNum">     647 </span>            :         /// test if there is any sequence in the arrays, need to have more than one
+<span class="lineNum">     648 </span><span class="lineCov">        703 :         if ((int) lst_sequences.size() &lt; 2){</span>
+<span class="lineNum">     649 </span><span class="lineNoCov">          0 :                 if ((int) lst_sequences.size() == 0){</span>
+<span class="lineNum">     650 </span><span class="lineNoCov">          0 :                         error = &quot;Zero sequences were read from the file: &quot; + sz_file_name;</span>
+<span class="lineNum">     651 </span><span class="lineNoCov">          0 :                         return exit_error(1, error);</span>
+<span class="lineNum">     652 </span>            :                 }
+<span class="lineNum">     653 </span><span class="lineNoCov">          0 :                 error = &quot;Only one sequence was read from the file: &quot; + sz_file_name;</span>
+<span class="lineNum">     654 </span><span class="lineNoCov">          0 :                 return exit_error(1, error);</span>
+<span class="lineNum">     655 </span>            :         }
+<span class="lineNum">     656 </span>            : 
+<span class="lineNum">     657 </span>            :         /// test the length of the two arrays
+<span class="lineNum">     658 </span><span class="lineCov">          2 :         if (lst_sequences.size() != lst_names_seq.size()){</span>
+<span class="lineNum">     659 </span><span class="lineNoCov">          0 :                 error = &quot;Something wrong with the file.\nThe number of sequences names are different from the number of sequences in the file: &quot; + sz_file_name;</span>
+<span class="lineNum">     660 </span><span class="lineNoCov">          0 :                 return exit_error(1, error);</span>
+<span class="lineNum">     661 </span>            :         }
+<span class="lineNum">     662 </span>            : 
+<span class="lineNum">     663 </span>            :         /// get the max length of size name
+<span class="lineNum">     664 </span><span class="lineCov">          1 :         n_max_length_name_seq = 0;</span>
+<span class="lineNum">     665 </span><span class="lineCov">        200 :         for (unsigned int i = 1; i &lt; lst_names_seq.size(); i++){</span>
+<span class="lineNum">     666 </span><span class="lineCov">        297 :                 if ((int) lst_names_seq[i].length() &gt; n_max_length_name_seq) n_max_length_name_seq = (int) lst_names_seq[i].length();</span>
+<span class="lineNum">     667 </span>            :         }
+<span class="lineNum">     668 </span>            : 
+<span class="lineNum">     669 </span>            :         /// test the size of the sequences, must be equal for all of them
+<span class="lineNum">     670 </span><span class="lineCov">          2 :         unsigned int n_max_size = lst_sequences[0].length();</span>
+<span class="lineNum">     671 </span><span class="lineCov">          1 :         if (b_debug) cout &lt;&lt; lst_names_seq[0] &lt;&lt; &quot;: &quot; &lt;&lt; n_max_size &lt;&lt; endl;</span>
+<span class="lineNum">     672 </span><span class="lineCov">        399 :         for (unsigned int i = 1; i &lt; lst_sequences.size(); i++){</span>
+<span class="lineNum">     673 </span><span class="lineCov">         99 :                 if (b_debug) cout &lt;&lt; lst_names_seq[i] &lt;&lt; &quot;: &quot; &lt;&lt; lst_sequences[i].length() &lt;&lt; endl;</span>
+<span class="lineNum">     674 </span><span class="lineCov">        396 :                 if (lst_sequences[i].length() != n_max_size){</span>
+<span class="lineNum">     675 </span><span class="lineNoCov">          0 :                         error = &quot;Something wrong with the file.\nThe sequence lengths are different in the file: &quot; + sz_file_name;</span>
+<span class="lineNum">     676 </span><span class="lineNoCov">          0 :                         return exit_error(1, error);</span>
+<span class="lineNum">     677 </span>            :                 }
+<span class="lineNum">     678 </span>            :         }
+<span class="lineNum">     679 </span>            : 
+<span class="lineNum">     680 </span>            :         /// check the chars available to read
+<span class="lineNum">     681 </span><span class="lineCov">          1 :         unsigned int n_max_seq = get_length_sequences();</span>
+<span class="lineNum">     682 </span><span class="lineCov">        404 :         for (unsigned int i = 0; i &lt; lst_sequences.size(); i++){</span>
+<span class="lineNum">     683 </span><span class="lineCov">        700 :                 transform(lst_sequences[i].begin(), lst_sequences[i].end(), lst_sequences[i].begin(), ::toupper);       // make ti upper case</span>
+<span class="lineNum">     684 </span><span class="lineCov">     100000 :                 for(unsigned int x = 0; x &lt; n_max_seq; x++){</span>
+<span class="lineNum">     685 </span><span class="lineCov">     200000 :                         if (sz_accept_chars.find(get_char_sequences(i, x)) == string::npos){</span>
+<span class="lineNum">     686 </span><span class="lineNoCov">          0 :                                 string a = &quot;This char is not allowed (&quot;;</span>
+<span class="lineNum">     687 </span><span class="lineNoCov">          0 :                                 a += get_char_sequences(i, x);</span>
+<span class="lineNum">     688 </span>            :                                 a += &quot;)\nThe char is in this line: &quot;;
+<span class="lineNum">     689 </span><span class="lineNoCov">          0 :                                 a += lst_names_seq[i].c_str();</span>
+<span class="lineNum">     690 </span>            :                                 a += &quot;: &quot;;
+<span class="lineNum">     691 </span><span class="lineNoCov">          0 :                                 a += lst_sequences[i].c_str();</span>
+<span class="lineNum">     692 </span>            :                                 a += &quot;\n&quot;;
+<span class="lineNum">     693 </span><span class="lineNoCov">          0 :                                 return exit_error(1, a.c_str());</span>
+<span class="lineNum">     694 </span>            :                         }
+<span class="lineNum">     695 </span>            :                 }
+<span class="lineNum">     696 </span>            : 
+<span class="lineNum">     697 </span>            :         }
+<span class="lineNum">     698 </span>            : 
+<span class="lineNum">     699 </span><span class="lineCov">          1 :         if (b_debug) cout &lt;&lt; &quot;Read: &quot; &lt;&lt; lst_names_seq.size() &lt;&lt; &quot; sequences with size &quot; &lt;&lt; lst_sequences.size() &lt;&lt; endl;</span>
+<span class="lineNum">     700 </span>            :         return EXIT_SUCCESS;
+<span class="lineNum">     701 </span>            : }
+<span class="lineNum">     702 </span>            : 
+<span class="lineNum">     703 </span><span class="lineNoCov">          0 : void CReadFiles::save_file(string file_name_out){</span>
+<span class="lineNum">     704 </span>            : 
+<span class="lineNum">     705 </span>            :         //// save sequences....
+<span class="lineNum">     706 </span><span class="lineNoCov">          0 :         cout &lt;&lt; &quot;save sequences...&quot; &lt;&lt; endl;</span>
+<span class="lineNum">     707 </span>            :         string sz_out;
+<span class="lineNum">     708 </span><span class="lineNoCov">          0 :         int n_line_size = 60;</span>
+<span class="lineNum">     709 </span><span class="lineNoCov">          0 :         FILE *fileout = fopen(file_name_out.c_str(), &quot;w&quot;);</span>
+<span class="lineNum">     710 </span><span class="lineNoCov">          0 :         for (unsigned int i = 0; i &lt; lst_sequences.size(); i++){</span>
+<span class="lineNum">     711 </span><span class="lineNoCov">          0 :                 sz_out = &quot;&gt;&quot; + lst_names_seq[i] + &quot;\n&quot;;</span>
+<span class="lineNum">     712 </span><span class="lineNoCov">          0 :                 fprintf(fileout, &quot;%s&quot;, sz_out.c_str());</span>
+<span class="lineNum">     713 </span>            :                 /// print the sequences
+<span class="lineNum">     714 </span><span class="lineNoCov">          0 :                 for (unsigned int x = 0; x &lt; lst_sequences[i].size(); x += n_line_size){</span>
+<span class="lineNum">     715 </span><span class="lineNoCov">          0 :                         sz_out = lst_sequences[i].substr(x, n_line_size) + &quot;\n&quot;;</span>
+<span class="lineNum">     716 </span><span class="lineNoCov">          0 :                         fprintf(fileout, &quot;%s&quot;, sz_out.c_str());</span>
+<span class="lineNum">     717 </span>            :                 }
+<a name="718"><span class="lineNum">     718 </span>            :         }</a>
+<span class="lineNum">     719 </span><span class="lineNoCov">          0 :         fclose(fileout);</span>
+<span class="lineNum">     720 </span><span class="lineCov">          3 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
