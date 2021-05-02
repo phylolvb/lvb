@@ -40,7 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include <LVB.h>
+#include "src/LVB.h"
 
 /* check log_wrapper crashes verbosely on domain error */
 

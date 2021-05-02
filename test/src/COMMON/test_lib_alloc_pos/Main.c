@@ -34,7 +34,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "LVB.h"
+#include "src/LVB.h"
 
 /* An array of TEST_ALLOC_LONGS long ints is allocated and the
  * test expects this allocation to succeed. */

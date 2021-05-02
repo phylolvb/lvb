@@ -40,7 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include "LVB.h"
+#include "src/LVB.h"
 
 /* Positive test that a simple (one line per sequence) MSA may be
  * read, both as a sequential and as an interleaved MSA. Example is

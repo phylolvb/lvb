@@ -40,7 +40,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-#include <LVB.h>
+#include "src/LVB.h"
 
 /* test for crash() */
 
