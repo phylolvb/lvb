@@ -1,6 +1,5 @@
-LVB
+LVB - Phylogenetic Software Package
 ---
-Phylogenetic Software Package
 
 [![](https://img.shields.io/badge/Build-Passing-brightgreen)](https://github.com/phylolvb/lvb/releases/tag/3.5)
 [![](https://img.shields.io/badge/Core%20Tests-Passing-brightgreen)]()
