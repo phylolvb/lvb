@@ -1,2 +1,8 @@
 ### Compiled Object Files ###
 *.o
+
+### Compiled Static Libraries ###
+*.a
+
+### Profile Information ###
+profile/

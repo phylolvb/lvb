@@ -82,7 +82,7 @@ void defaults_params(Parameters *const prms)
     strcpy(prms->file_name_in, "infile");
     strcpy(prms->file_name_out, OUTTREEFNAM);
     prms->n_file_format = FORMAT_PHYLIP;
-    prms->n_processors_available = 1;
+    prms->n_processors_available = omp_get_max_threads();
 
 } /* end defaults_params() */
 
@@ -147,14 +147,18 @@ void writeinf(Parameters prms, Dataptr MSA, int argc, char **argv)
 	#ifdef LVB_MAPREDUCE
 	printf("  Processes:           %d\n", n_process);
 	#endif
-	printf("  PThreads requested:  %d\n", omp_get_max_threads());
-	printf("  PThread IDs:         ");
-	#pragma omp parallel
-	{
-	printf("%d ", omp_get_thread_num());
+
+	if(prms.n_processors_available != omp_get_max_threads()) {
+		printf("  PThreads:            %d\n", prms.n_processors_available);
+	} else {
+		printf("  PThreads:  %d\n", omp_get_max_threads());
+		printf("  PThread IDs:         ");
+		#pragma omp parallel
+		{
+			printf("%d ", omp_get_thread_num());
+		}
 	}
-	
-	//printf("  PThreads:            %d\n", prms.n_processors_available);
+		
 	printf("\n================================================================================\n");
 	printf("\nInitialising search: \n");
 }
