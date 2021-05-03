@@ -9,6 +9,10 @@ LVB - Phylogenetic Software Package
 
 Currently under development by the [*Barker Lab Group*](https://www.ed.ac.uk/profile/daniel-barker) at the University of Edinburgh.
 
+Current Developers:\
+[*Joseph Guscott*](https://github.com/josephguscott)\
+[*Daniel Barker*](https://www.ed.ac.uk/profile/daniel-barker)
+
 ---
 
 Introduction
