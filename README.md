@@ -24,6 +24,21 @@ http://LVB.bio.ed.ac.uk
 
 ---
 
+Installation
+---
+
+Method 1:
+- git clone https://github.com/phylolvb/lvb -b dev
+
+- git submodule init
+
+- git submodule update
+
+Method2:
+- git clone --recurse-submodules https://github.com/phylolvb/lvb -b dev
+
+---
+
 Version History
 ---
 *4.0*\
