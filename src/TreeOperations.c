@@ -1494,4 +1494,19 @@ std::string MakeHashSet(Dataptr MSA, const TREESTACK_TREE_BRANCH *const tree_2, 
 	return ConvertSiteSetToString(MSA, sitestate_2);
 } /* end MakeHashSet() */
 
+/* convert sset to string (called from TreeOperations.c) */
+std::string ConvertSiteSetToString(Dataptr MSA, Objset *oset_1)
+{
+  std::ostringstream os;
+	for (int i = 0; i < MSA->nsets; i++){
+		os << i << "    " << oset_1[i].cnt << "    ";
+		for (int x = 0; x < oset_1[i].cnt; x++) 
+    os << oset_1[i].set[x] << "   ";
+		os << std::endl;
+	}
+  
+  std::string sitesetstr(os.str());
+  return sitesetstr;
+}
+
 #endif

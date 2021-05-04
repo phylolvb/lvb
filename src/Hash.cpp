@@ -95,21 +95,6 @@ long HashComparison(unsigned long stored_hash, unsigned long current_site_states
     return 0;
 }
 
-/* convert sset to string (called from TreeOperations.c) */
-std::string ConvertSiteSetToString(Dataptr MSA, Objset *oset_1)
-{
-  std::ostringstream os;
-	for (int i = 0; i < MSA->nsets; i++){
-		os << i << "    " << oset_1[i].cnt << "    ";
-		for (int x = 0; x < oset_1[i].cnt; x++) 
-    os << oset_1[i].set[x] << "   ";
-		os << std::endl;
-	}
-  
-  std::string sitesetstr(os.str());
-  return sitesetstr;
-}
-
 unsigned long HashSiteSet(std::string currentsiteset)
 {
   unsigned long str_hash = std::hash<std::string>{}(currentsiteset);
