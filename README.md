@@ -27,14 +27,14 @@ http://LVB.bio.ed.ac.uk
 Installation
 ---
 
-Method 1:
+Method 1: initialise and update beagle3 to @ a05c94f
 - git clone https://github.com/phylolvb/lvb -b dev
 
 - git submodule init
 
 - git submodule update
 
-Method2:
+Method 2: initialise and update recursively
 - git clone --recurse-submodules https://github.com/phylolvb/lvb -b dev
 
 ---
