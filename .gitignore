@@ -3,6 +3,3 @@
 
 ### Compiled Static Libraries ###
 *.a
-
-### Profile Information ###
-profile/
