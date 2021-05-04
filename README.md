@@ -27,15 +27,38 @@ http://LVB.bio.ed.ac.uk
 Installation
 ---
 
-Method 1: initialise and update beagle3 to @ a05c94f
-- git clone https://github.com/phylolvb/lvb -b dev
+***Downloading source code:***
 
-- git submodule init
+Method 1: initialise and update beagle3
+~~~~
+git clone https://github.com/phylolvb/lvb -b dev
 
-- git submodule update
+git submodule init
+
+git submodule update
+~~~~
 
 Method 2: initialise and update recursively
-- git clone --recurse-submodules https://github.com/phylolvb/lvb -b dev
+~~~~
+git clone --recurse-submodules https://github.com/phylolvb/lvb -b dev
+~~~~
+
+***Building LVB:***
+
+Serial version:
+~~~~
+make
+~~~~
+
+Hash version:
+~~~~
+make -f Makefile.HASH
+~~~~
+
+MapReduce version:
+~~~~
+make -f Makefile.MAPREDUCE
+~~~~
 
 ---
 
