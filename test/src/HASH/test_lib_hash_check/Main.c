@@ -42,10 +42,51 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "src/LVB.h"
 
-/* positive test for cistrcmp() */
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <iomanip>
+#include <functional>
+#include <unordered_set>
+#include <vector>
+#include <iterator>
+#include <bits/stdc++.h>
+
+using namespace std;
+
+unsigned long HashCurrentTree()
+    {
+        string line;
+        ifstream myfile ("sitestates");
+        string str;
+        unsigned long test_hash_from_file = 0;
+
+    if (myfile.is_open())
+    {
+        while ( getline (myfile,line))
+        {
+            str = line;
+            test_hash_from_file = hash<string>{}(str);
+        }
+        myfile.close();
+    }
+
+    else cout << "Unable to open file";
+
+    return test_hash_from_file;
+    }
 
 int main(void)
 {
-    printf("test passed\n");
+
+    const unsigned long test_hash = 17934988915447438835U;
+    unsigned long test_hash_from_file = HashCurrentTree();    
+
+    if(test_hash == test_hash_from_file) {
+        printf("test passed\n");
+    } else {
+        printf("test failed\n");
+    }
+   
     return 0;
 }

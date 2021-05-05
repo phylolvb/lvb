@@ -39,10 +39,9 @@
 
 # run testprog.exe
 $output = `./testprog.exe`;
-$status = $?;
 
 # check output
-if ((!($output =~ "FATAL ERROR")) && ($status == 0))
+if (($output !~ "FATAL ERROR") && ($output =~ "test passed"))
 {
     print "test passed\n";
 }
