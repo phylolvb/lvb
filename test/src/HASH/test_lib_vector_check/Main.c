@@ -42,10 +42,43 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "src/LVB.h"
 
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <iomanip>
+#include <functional>
+#include <unordered_set>
+#include <vector>
+#include <iterator>
+#include <bits/stdc++.h>
+
+using namespace std;
+
 /* positive test for cistrcmp() */
 
 int main(void)
 {
-    printf("test passed\n");
+
+    const unsigned long test_hash_1 = 179349889;
+    const unsigned long test_hash_2 = 782364598;
+    bool hash_found_1 = false;
+    bool hash_found_2 = false;
+
+    static vector<unsigned long> testvector = {357435487, 158374413, 873543581, 179349889, 357431354, 574318349};
+
+    for(int i = 0; i < testvector.size(); i++) {
+        if(test_hash_1 == testvector.at(i)) hash_found_1 = true; /* test_hash_1 located at position 3*/
+    }
+
+    for(int i = 0; i < testvector.size(); i++) {
+        if(test_hash_2 == testvector.at(i)) hash_found_2 = true; /* test_hash_2 not located in test_vector */
+    }
+
+    if(hash_found_1 == true && hash_found_2 == false) {
+        printf("test passed\n");
+    } else {
+        printf("test failed\n");
+    }
+
     return 0;
 }
