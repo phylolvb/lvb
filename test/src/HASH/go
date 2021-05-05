@@ -172,7 +172,7 @@ else
 }
 
 # run the tests and log the results
-print "\nRUNNING TESTS ON LVB ...\n";
+print "\nRUNNING HASH TESTS:\n";
 $failed_cnt = 0;
 @failed_tests = ();
 foreach $test_dir (@test_dirs)
