@@ -44,6 +44,11 @@ Method 2: initialise and update recursively
 git clone --recurse-submodules https://github.com/phylolvb/lvb -b dev
 ~~~~
 
+Method 3: download without libraries
+~~~~
+git clone https://github.com/phylolvb/lvb -b dev
+~~~~
+
 ***Building LVB:***
 
 Serial version:
