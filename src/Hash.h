@@ -59,5 +59,6 @@ long CompareHashTreeToHashstack(Dataptr, TREESTACK *, const TREESTACK_TREE_BRANC
 std::string ConvertSiteSetToString(Dataptr MSA, Objset *oset_1);
 std::string MakeHashSet(Dataptr restrict, const TREESTACK_TREE_BRANCH *const tree_2, const long root);
 unsigned long HashSiteSet(std::string);
+void PushToHashTable(std::string, std::string, std::vector<std::vector<std::string>>);
 
 #endif

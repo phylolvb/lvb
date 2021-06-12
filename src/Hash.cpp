@@ -53,28 +53,11 @@ long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE
     unsigned long current_site_states_hash = 0;
     static std::vector<unsigned long> hashstackvector;
     
-    /* Hash table variables */
     std::string key;
-    unsigned long index = 0;
-    
-    static std::vector<std::vector<unsigned long>> hashtable;
+    std::string index; 
+    static std::vector<std::vector<std::string>> hashtable;
 
-    for (int i = 0; i < 3; i++) {
-        std::vector<unsigned long> index_key;
-        for (int j = 0; j < 3; j++) {
-          index_key.push_back(i);
-        }
-        hashtable.push_back(index_key);
-    }
-
-    /* print hash table */
-    /*
-    for (int i = 0; i < hashtable.size(); i++) {
-      for (int j = 0; j < hashtable[i].size(); j++) {
-        std::cout << hashtable[i][j];
-      }
-      std::cout << std::endl;
-    } */
+    PushToHashTable("100","200", hashtable);
 
 	/* allocate "local" static heap memory - static - do not free! */
 	if (copy_2 == NULL) copy_2 = treealloc(MSA, b_with_sitestate);
@@ -126,3 +109,23 @@ unsigned long HashSiteSet(std::string currentsiteset)
   unsigned long str_hash = std::hash<std::string>{}(currentsiteset);
   return str_hash;
 }
+
+void PushToHashTable(std::string index, std::string key, std::vector<std::vector<std::string>> hashtable) {
+    for (int i = 0; i < 3; i++) {
+      std::vector<std::string> index_key;
+      for (int j = 0; j < 1; j++) {
+        index_key.push_back(index);      // index (hash)
+        index_key.push_back(key);      // key(tree)
+      }
+      hashtable.push_back(index_key);
+    }
+
+    /* print hash table */
+    for (int i = 0; i < hashtable.size(); i++) {
+      for (int j = 0; j < hashtable[i].size(); j++) {
+        std::cout << hashtable[i][j];
+      }
+      std::cout << std::endl;
+    }
+}
+   
