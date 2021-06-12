@@ -3,3 +3,5 @@
 
 ### Compiled Static Libraries ###
 *.a
+
+.vscode/

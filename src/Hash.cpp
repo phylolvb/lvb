@@ -52,6 +52,29 @@ long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE
     std::string current_site_states;
     unsigned long current_site_states_hash = 0;
     static std::vector<unsigned long> hashstackvector;
+    
+    /* Hash table variables */
+    std::string key;
+    unsigned long index = 0;
+    
+    static std::vector<std::vector<unsigned long>> hashtable;
+
+    for (int i = 0; i < 3; i++) {
+        std::vector<unsigned long> index_key;
+        for (int j = 0; j < 3; j++) {
+          index_key.push_back(i);
+        }
+        hashtable.push_back(index_key);
+    }
+
+    /* print hash table */
+    /*
+    for (int i = 0; i < hashtable.size(); i++) {
+      for (int j = 0; j < hashtable[i].size(); j++) {
+        std::cout << hashtable[i][j];
+      }
+      std::cout << std::endl;
+    } */
 
 	/* allocate "local" static heap memory - static - do not free! */
 	if (copy_2 == NULL) copy_2 = treealloc(MSA, b_with_sitestate);
@@ -65,6 +88,9 @@ long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE
      	current_site_states = MakeHashSet(MSA, copy_2, new_root); /* make sset and return sset as string */
       hashstackvector.clear();
       current_site_states_hash = HashSiteSet(current_site_states);
+
+      key = current_site_states;
+      index = current_site_states_hash;
     } else{
             for (i = sp->next - 1; i >= 0; i--) {
             if (TopologicalHashComparison(MSA, hashstackvector.at(i), copy_2, b_First, current_site_states, current_site_states_hash) == 0) return 0; /* if current hash matches stored hash, exit */
