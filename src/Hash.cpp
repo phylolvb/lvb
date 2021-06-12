@@ -111,6 +111,9 @@ unsigned long HashSiteSet(std::string currentsiteset)
 }
 
 void PushToHashTable(std::string index, std::string key, std::vector<std::vector<std::string>> hashtable) {
+    
+    FILE * printhashtable = fopen ("src/HashTable","w");   
+    
     for (int i = 0; i < 3; i++) {
       std::vector<std::string> index_key;
       for (int j = 0; j < 1; j++) {
@@ -120,6 +123,9 @@ void PushToHashTable(std::string index, std::string key, std::vector<std::vector
       hashtable.push_back(index_key);
     }
 
+    for(auto i = hashtable.begin(); i != hashtable.end(); i++)
+      fprintf(printhashtable, "%s\t%s\n", index.c_str(), key.c_str());
+
     /* print hash table */
     for (int i = 0; i < hashtable.size(); i++) {
       for (int j = 0; j < hashtable[i].size(); j++) {
@@ -127,5 +133,7 @@ void PushToHashTable(std::string index, std::string key, std::vector<std::vector
       }
       std::cout << std::endl;
     }
+
+    fclose(printhashtable);
 }
    
