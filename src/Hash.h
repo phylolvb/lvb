@@ -53,8 +53,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "LVB.h"
 
-long TopologicalHashComparison(Dataptr restrict, unsigned long, const TREESTACK_TREE_BRANCH *const, Lvb_bool b_first, std::string, unsigned long&);
-long HashComparison(unsigned long, unsigned long);
+long TopologicalHashComparison(Dataptr restrict, unsigned long, const TREESTACK_TREE_BRANCH *const, Lvb_bool, std::string, unsigned long&, const TREESTACK_TREE_BRANCH *const, TREESTACK *);
+long HashComparison(unsigned long, unsigned long, Dataptr restrict, const TREESTACK_TREE_BRANCH *const, TREESTACK *, Lvb_bool);
 long CompareHashTreeToHashstack(Dataptr, TREESTACK *, const TREESTACK_TREE_BRANCH *const, const long, Lvb_bool b_with_sitestate);
 std::string ConvertSiteSetToString(Dataptr MSA, Objset *oset_1);
 std::string MakeHashSet(Dataptr restrict, const TREESTACK_TREE_BRANCH *const tree_2, const long root);
