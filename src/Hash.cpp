@@ -52,12 +52,6 @@ long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE
     std::string current_site_states;
     unsigned long current_site_states_hash = 0;
     static std::vector<unsigned long> hashstackvector;
-    
-    std::string key;
-    std::string index; 
-    static std::vector<std::vector<std::string>> hashtable;
-
-    PushToHashTable("100","200", hashtable);
 
 	/* allocate "local" static heap memory - static - do not free! */
 	if (copy_2 == NULL) copy_2 = treealloc(MSA, b_with_sitestate);
@@ -71,9 +65,6 @@ long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE
      	current_site_states = MakeHashSet(MSA, copy_2, new_root); /* make sset and return sset as string */
       hashstackvector.clear();
       current_site_states_hash = HashSiteSet(current_site_states);
-
-      key = current_site_states;
-      index = current_site_states_hash;
     } else{
             for (i = sp->next - 1; i >= 0; i--) {
             if (TopologicalHashComparison(MSA, hashstackvector.at(i), copy_2, b_First, current_site_states, current_site_states_hash) == 0) return 0; /* if current hash matches stored hash, exit */
@@ -109,31 +100,3 @@ unsigned long HashSiteSet(std::string currentsiteset)
   unsigned long str_hash = std::hash<std::string>{}(currentsiteset);
   return str_hash;
 }
-
-void PushToHashTable(std::string index, std::string key, std::vector<std::vector<std::string>> hashtable) {
-    
-    FILE * printhashtable = fopen ("src/HashTable","w");   
-    
-    for (int i = 0; i < 3; i++) {
-      std::vector<std::string> index_key;
-      for (int j = 0; j < 1; j++) {
-        index_key.push_back(index);      // index (hash)
-        index_key.push_back(key);      // key(tree)
-      }
-      hashtable.push_back(index_key);
-    }
-
-    for(auto i = hashtable.begin(); i != hashtable.end(); i++)
-      fprintf(printhashtable, "%s\t%s\n", index.c_str(), key.c_str());
-
-    /* print hash table */
-    for (int i = 0; i < hashtable.size(); i++) {
-      for (int j = 0; j < hashtable[i].size(); j++) {
-        std::cout << hashtable[i][j];
-      }
-      std::cout << std::endl;
-    }
-
-    fclose(printhashtable);
-}
-   
