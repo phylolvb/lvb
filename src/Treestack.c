@@ -279,6 +279,18 @@ long CompareTreeToTreestack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRA
     lvb_assert(root < MSA->n);
     PushCurrentTreeToStack(MSA, sp, BranchArray, root, b_with_sitestate);
 
+    #ifdef LVB_MAPREDUCE
+    FILE *printnptreestack = fopen("PrintNPTreeStack","a+");
+    PrintTreestack(MSA, sp, printnptreestack, LVB_FALSE); // print stack
+    fclose(printnptreestack);
+
+    #else
+    FILE *printmrtreestack = fopen("PrintMRTreeStack","a+");
+    PrintTreestack(MSA, sp, printmrtreestack, LVB_FALSE); // print stack
+    fclose(printmrtreestack);
+
+    #endif
+
     return 1;
 
 } /* end CompareTreeToTreestack() */

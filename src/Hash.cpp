@@ -67,7 +67,7 @@ long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE
       current_site_states_hash = HashSiteSet(current_site_states);
     } else{
             for (i = sp->next - 1; i >= 0; i--) {
-            if (TopologicalHashComparison(MSA, hashstackvector.at(i), copy_2, b_First, current_site_states, current_site_states_hash, copy_2, sp) == 0) {
+            if (TopologicalHashComparison(MSA, hashstackvector.at(i), copy_2, b_First, current_site_states, current_site_states_hash, copy_2, sp, new_root) == 0) {
               return 0; /* if current hash matches stored hash, exit */
             } 
               b_First = LVB_FALSE;
@@ -79,50 +79,40 @@ long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE
     /* topology is new so must be pushed */
     lvb_assert(root < MSA->n);
     PushCurrentTreeToStack(MSA, sp, BranchArray, root, b_with_sitestate);
+
+    //FILE *printhashtreestack = fopen("PrintHashStack","a+");
+    //PrintTreestack(MSA, sp, printhashtreestack, LVB_FALSE); // print stack
+    //fclose(printhashtreestack);
+
     return 1;
 } /* end CompareHashTreeToHashstack() */
 
  /*if hash != return 1, else return 0 */
 long TopologicalHashComparison(Dataptr MSA, unsigned long stored_hash, const TREESTACK_TREE_BRANCH *const tree_2, Lvb_bool b_First, 
                                 std::string current_site_states, unsigned long& current_site_states_hash, const TREESTACK_TREE_BRANCH *const copy_2,
-                                TREESTACK *sp) {
+                                TREESTACK *sp, long new_root) {
   if (b_First == LVB_TRUE) {
     current_site_states = MakeHashSet(MSA, tree_2, 0); /* make sset and return sset as string */
     current_site_states_hash = HashSiteSet(current_site_states); /* hash sset string */
   }
-  return HashComparison(stored_hash, current_site_states_hash, MSA, copy_2, sp, b_First); 
+  return HashComparison(stored_hash, current_site_states_hash, MSA, copy_2, sp, b_First, new_root); 
 }
 
-long HashComparison(unsigned long stored_hash, unsigned long current_site_states_hash, Dataptr MSA, const TREESTACK_TREE_BRANCH *const copy_2, TREESTACK *sp, Lvb_bool b_First) {
+long HashComparison(unsigned long stored_hash, unsigned long current_site_states_hash, Dataptr MSA, const TREESTACK_TREE_BRANCH *const copy_2,
+                      TREESTACK *sp, Lvb_bool b_First, long new_root) {   
     if (stored_hash == current_site_states_hash) {
-      FILE *printhashcollision = fopen("HashCollisions", "a+");
-      FILE *printhashcollisiontreestack = fopen("HashCollisionsTreestack", "w");
-      FILE *printhashcollisiontree = fopen("HashCollisionsTree", "w");
-      FILE *printhashnocollisiontreestack = fopen("NoHashCollisionsTreestack", "a+");
-      FILE *printhashnocollisiontree = fopen("NoHashCollisionsTree", "w");
-      fprintf(printhashcollision,"%lu == %lu \n", stored_hash, current_site_states_hash);
-    
-      for (long i = sp->next - 1; i >= 0; i--) {
-        b_First = LVB_FALSE;
-    	  if (TopologyComparison(MSA, sp->stack[i].p_sitestate, copy_2, b_First) == 0) {
-          fprintf(printhashcollision,"NO COLLISION \n");
-          PrintTreestack(MSA, sp, printhashnocollisiontreestack, LVB_FALSE); // print stack
-          lvb_treeprint(MSA, printhashnocollisiontree, copy_2, NULL);// print tree
-          return 0; // If trees are the same, return 0
-        } else {
-          fprintf(printhashcollision,"COLLISION DETECTED \n");
-          PrintTreestack(MSA, sp, printhashcollisiontreestack, LVB_FALSE); // print stack
-          lvb_treeprint(MSA, printhashcollisiontree, copy_2, NULL);// print tree
-          return 0;
-        }
-      }
-      fclose(printhashcollision);
-      fclose(printhashcollisiontreestack);
-      fclose(printhashcollisiontree);
-      fclose(printhashnocollisiontreestack);
-      fclose(printhashnocollisiontree);
-    }
+      FILE *printhashcollision = fopen("PrintHashCollision","a+");
+      fprintf(printhashcollision,"%lu = %lu ", stored_hash, current_site_states_hash);
 
+      if (CollisionResolution(MSA, sp, copy_2, b_First) == 0) {
+        fprintf(printhashcollision,"TREE FOUND \n");
+        fclose(printhashcollision);
+
+        return 0;
+      }
+      fprintf(printhashcollision,"TREE NOT FOUND \n");
+      fclose(printhashcollision);
+    }
     if (stored_hash != current_site_states_hash) return 1; // hash not the same
 }
 
@@ -132,6 +122,10 @@ unsigned long HashSiteSet(std::string currentsiteset)
   return str_hash;
 }
 
-long CollisionResolution(Dataptr MSA, TREESTACK *sp) {
-  
+long CollisionResolution(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRANCH *const copy_2, Lvb_bool b_First) {
+  b_First = LVB_FALSE;
+
+  for (long i = sp->next - 1; i >= 0; i--) {
+    if (TopologyComparison(MSA, sp->stack[i].p_sitestate, copy_2, b_First) == 0) return 0; // If trees are the same, return 0 
+  } 
 }
