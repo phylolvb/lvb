@@ -42,14 +42,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== Hash.h - interface for Hash.cpp ========== */
 
-#ifndef LVB_HASH_H_
-#define LVB_HASH_H_
+#ifndef SRC_HASH_H_
+#define SRC_HASH_H_
+
+#include <bits/stdc++.h>
 
 #include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
-#include <bits/stdc++.h>
 
 #include "LVB.h"
 
@@ -62,4 +63,4 @@ std::string MakeHashSet(Dataptr restrict, const TREESTACK_TREE_BRANCH *const tre
 unsigned long HashSiteSet(std::string);
 long CollisionResolution(Dataptr restrict, TREESTACK *, const TREESTACK_TREE_BRANCH *const, Lvb_bool);
 
-#endif
+#endif  // SRC_HASH_H_
