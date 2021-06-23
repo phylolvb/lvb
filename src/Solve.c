@@ -155,13 +155,12 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *bstackp, const TREESTACK_TR
 								misc->SB = 1;
 								tree_setpush(MSA, p_proposed_tree, rootdash, mrBuffer, misc);
 								mrTreeStack->add(mrBuffer);
-							if (CompareTreeToTreestack(MSA, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1) {
+							PushCurrentTreeToStack(MSA, bstackp, p_proposed_tree, rootdash, LVB_FALSE);
 								misc->ID = bstackp->next;
 
 								newtree = LVB_TRUE;
 								SwapTrees(&p_current_tree, &root, &p_proposed_tree, &rootdash);
 							}
-						  }
 						  free(misc->count);
 						  free(total_count);
 						}
@@ -298,6 +297,7 @@ long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
 	}
 		#ifdef LVB_MAPREDUCE  
 		MPI_Bcast(&lenbest,  1, MPI_LONG, 0, MPI_COMM_WORLD);
+		PushCurrentTreeToStack(MSA, bstackp, inittree, root, LVB_FALSE);
 		misc->ID = bstackp->next;
 		misc->SB = 1;
 		tree_setpush(MSA, inittree, root, mrTreeStack, misc);
@@ -389,7 +389,7 @@ long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
 						ClearTreestack(bstackp);
 						mrTreeStack->map( mrTreeStack, map_clean, NULL );
 
-						if (CompareTreeToTreestack(MSA, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1){
+						PushCurrentTreeToStack(MSA, bstackp, p_proposed_tree, rootdash, LVB_FALSE);
 						misc->ID = bstackp->next;
 
 					    misc->SB = 1;
@@ -397,7 +397,6 @@ long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
 
 						accepted++;
 						MPI_Bcast(&accepted,  1, MPI_LONG, 0, MPI_COMM_WORLD);
-						}
 
 						MPI_Barrier(MPI_COMM_WORLD);
 					} else {
@@ -434,7 +433,7 @@ long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
 						MPI_Bcast(&check_cmp, 1, MPI_INT, 0,    MPI_COMM_WORLD);
 						if (check_cmp == 1) {
 
-							if (CompareTreeToTreestack(MSA, bstackp, p_proposed_tree, rootdash, LVB_FALSE) == 1){
+							PushCurrentTreeToStack(MSA, bstackp, p_proposed_tree, rootdash, LVB_FALSE);
 	                                                misc->ID = bstackp->next;
 
 							misc->SB = 1;
@@ -442,7 +441,6 @@ long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
 							mrTreeStack->add(mrBuffer);
 							accepted++;
 							MPI_Bcast(&accepted,  1, MPI_LONG, 0, MPI_COMM_WORLD);
-							}
 						}
 
 						free(misc->count);
@@ -593,11 +591,14 @@ long Anneal(Dataptr MSA, TREESTACK *bstackp, TREESTACK *treevo, const TREESTACK_
 				if (t < DBL_EPSILON || t <= LVB_EPS) t = LVB_EPS;
 			}
 			proposed = 0;
-			accepted = 0;
-			dect = LVB_FALSE;
 		#ifdef LVB_MAPREDUCE  
 		MPI_Bcast(&proposed,  1, MPI_LONG, 0, MPI_COMM_WORLD);
+		accepted = 0;
 		MPI_Bcast(&accepted,  1, MPI_LONG, 0, MPI_COMM_WORLD);
+		dect = LVB_FALSE;
+		#else
+		accepted = 0;
+		dect = LVB_FALSE;
 		#endif
 		if (rcstruct.algorithm_selection == 2)
 			{ w_changes_prop = 0;

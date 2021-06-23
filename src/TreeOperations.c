@@ -1295,6 +1295,8 @@ void ssarralloc(Dataptr MSA, Objset *nobjset_2)
 	   long uggn = MSA->n;
 
 	   long *set;
+	   int nsets = MSA->n - 3;
+       int mssz  = MSA->n - 2;
 	   TREESTACK_TREE_BRANCH *Tree;
 	   Tree = treealloc(MSA, LVB_FALSE);
 	   if (sitestate_2[0].set == NULL)  ssarralloc(MSA, sitestate_2);
