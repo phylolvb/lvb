@@ -59,18 +59,18 @@ Objset sitestate_1[MAX_N - 3] = { { NULL, 0 } };
 /* object sets for tree comparison */
 Objset sitestate_2[MAX_N - 3] = { { NULL, 0 } };
 
-void cr_bpnc(const TREESTACK_TREE_BRANCH *const BranchArray, const long branch);
-void cr_chaf(const TREESTACK_TREE_BRANCH *const BranchArray, const long destination, const long newchild);
+void cr_bpnc(const TREESTACK_TREE_NODES *const BranchArray, const long branch);
+void cr_chaf(const TREESTACK_TREE_NODES *const BranchArray, const long destination, const long newchild);
 void cr_uxe(FILE *const stream, const char *const msg);
-long getsister(const TREESTACK_TREE_BRANCH *const BranchArray, const long branch);
+long getsister(const TREESTACK_TREE_NODES *const BranchArray, const long branch);
 int osetcmp(const void *oset1, const void *oset2);
-void tree_make_canonical(Dataptr restrict, TREESTACK_TREE_BRANCH *const BranchArray, long *currentbranchobject);
-void fillsets(Dataptr, Objset *const sstruct, const TREESTACK_TREE_BRANCH *const tree, const long root);
-void getobjs(Dataptr, const TREESTACK_TREE_BRANCH *const BranchArray, const long root, long *const objarr, long *const cnt);
-long *randleaf(Dataptr, TREESTACK_TREE_BRANCH *const BranchArray, const Lvb_bool *const leafmask, const long objs);
-void realgetobjs(Dataptr, const TREESTACK_TREE_BRANCH *const BranchArray, const long root, long *const objarr, long *const cnt);
-Lvb_bool *GenerateRandomTopology(Dataptr, TREESTACK_TREE_BRANCH *const BranchArray, const long nobjs);
-void ur_print(Dataptr restrict, FILE *const stream, const TREESTACK_TREE_BRANCH *const BranchArray, const long root);
+void tree_make_canonical(Dataptr restrict, TREESTACK_TREE_NODES *const BranchArray, long *currentbranchobject);
+void fillsets(Dataptr, Objset *const sstruct, const TREESTACK_TREE_NODES *const tree, const long root);
+void getobjs(Dataptr, const TREESTACK_TREE_NODES *const BranchArray, const long root, long *const objarr, long *const cnt);
+long *randleaf(Dataptr, TREESTACK_TREE_NODES *const BranchArray, const Lvb_bool *const leafmask, const long objs);
+void realgetobjs(Dataptr, const TREESTACK_TREE_NODES *const BranchArray, const long root, long *const objarr, long *const cnt);
+Lvb_bool *GenerateRandomTopology(Dataptr, TREESTACK_TREE_NODES *const BranchArray, const long nobjs);
+void ur_print(Dataptr restrict, FILE *const stream, const TREESTACK_TREE_NODES *const BranchArray, const long root);
 long setstcmp(Dataptr restrict, Objset *const oset_1, Objset *const oset_2, Lvb_bool b_First);
 void Sort(Dataptr MSA, Objset *const oset_2, const long nels);
 void ssarralloc(Dataptr restrict MSA, Objset *nobjset_2);

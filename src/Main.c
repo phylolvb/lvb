@@ -108,7 +108,7 @@ int main(int argc, char **argv)
     phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, MSA);
 
     /* "file-local" dynamic heap memory: set up best tree stacks, need to be by thread */
-	bstack_overall = CreateNewTreestack();
+	treestack = CreateNewTreestack();
 	if(rcstruct.algorithm_selection ==2)
     stack_treevo = CreateNewTreestack();
 
@@ -135,19 +135,19 @@ int main(int argc, char **argv)
 	#ifdef LVB_MAPREDUCE
 	final_length = getsoln(MSA, rcstruct, &iter, log_progress, &misc, mrTreeStack, mrBuffer);
 	if (misc.rank == 0) {
-		trees_output = PrintTreestack(MSA, &bstack_overall, outtreefp, LVB_FALSE);
+		trees_output = PrintTreestack(MSA, &treestack, outtreefp, LVB_FALSE);
 	}
 
 	#else
 	final_length = getsoln(MSA, rcstruct, &iter, log_progress);
-	trees_output = PrintTreestack(MSA, &bstack_overall, outtreefp, LVB_FALSE);
+	trees_output = PrintTreestack(MSA, &treestack, outtreefp, LVB_FALSE);
 
 	#endif
 
 	trees_output_total += trees_output;
     if(rcstruct.algorithm_selection ==2)
 		PrintTreestack(MSA, &stack_treevo, treEvo, LVB_FALSE);
-    ClearTreestack(&bstack_overall);
+    ClearTreestack(&treestack);
 	printf("--------------------------------------------------------\n");
 	#ifdef LVB_MAPREDUCE
 	/* clean the TreeStack and buffer */
@@ -178,7 +178,7 @@ int main(int argc, char **argv)
 	/* "file-local" dynamic heap memory */
     if (rcstruct.algorithm_selection ==2)
     FreeTreestackMemory(MSA, &stack_treevo);
-	FreeTreestackMemory(MSA, &bstack_overall);
+	FreeTreestackMemory(MSA, &treestack);
     rowfree(MSA);
     free(MSA);
 
@@ -186,7 +186,7 @@ int main(int argc, char **argv)
     else val = EXIT_SUCCESS;
 
 	#ifdef LVB_MAPREDUCE
-	FreeTreestackMemory(MSA, &bstack_overall);
+	FreeTreestackMemory(MSA, &treestack);
 	MPI_Barrier(MPI_COMM_WORLD);
 
 	delete mrTreeStack;

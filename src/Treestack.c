@@ -55,12 +55,12 @@ static void TreestackAllocationIncrease(Dataptr restrict MSA, TREESTACK *sp)
     /* allocate for stack itself */
     if (sp->stack == NULL)	/* 1st call, stack does not exist */
     {
-        sp->stack = (TREESTACK_TREE *) alloc(sp->size * sizeof(TREESTACK_TREE), "initial best tree stack");
+        sp->stack = (TREESTACK_TREES *) alloc(sp->size * sizeof(TREESTACK_TREES), "initial best tree stack");
         sp->next = 0;
         lvb_assert(sp->size == 1);	/* was incremented above */
     }
     else {
-        sp->stack = (TREESTACK_TREE *) realloc(sp->stack, sp->size * sizeof(TREESTACK_TREE));
+        sp->stack = (TREESTACK_TREES *) realloc(sp->stack, sp->size * sizeof(TREESTACK_TREES));
         if (sp->stack == NULL){
             crash("out of memory: cannot increase allocation for best tree stack to %ld elements", sp->size);
         }
@@ -84,7 +84,7 @@ static void TreestackAllocationIncrease(Dataptr restrict MSA, TREESTACK *sp)
 
 } /* end TreestackAllocationIncrease() */
 
-long PushCurrentTreeToStack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRANCH *const BranchArray, const long root, Lvb_bool b_with_sitestate)
+long PushCurrentTreeToStack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_NODES *const BranchArray, const long root, Lvb_bool b_with_sitestate)
 /* push tree in BranchArray (of root root) on to stack *sp */
 {
     lvb_assert(sp->next <= sp->size);
@@ -179,7 +179,7 @@ TREESTACK CreateNewTreestack(void)
 
 =head2 SYNOPSIS
 
-    long CompareTreeToTreestack(TREESTACK *sp, const TREESTACK_TREE_BRANCH *const BranchArray,
+    long CompareTreeToTreestack(TREESTACK *sp, const TREESTACK_TREE_NODES *const BranchArray,
     const long root);
 
 =head2 DESCRIPTION
@@ -222,12 +222,12 @@ Returns 1 if the tree was pushed, or 0 if not.
 
 **********/
 
-long CompareTreeToTreestack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRANCH *const BranchArray, const long root, Lvb_bool b_with_sitestate)
+long CompareTreeToTreestack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_NODES *const BranchArray, const long root, Lvb_bool b_with_sitestate)
 {
 #define MIN_THREAD_SEARCH_SSET 5
 
     long i, slice, slice_tail, new_root = 0;
-    static TREESTACK_TREE_BRANCH *copy_2 = NULL;			/* possibly re-rooted tree 2 */
+    static TREESTACK_TREE_NODES *copy_2 = NULL;			/* possibly re-rooted tree 2 */
     Lvb_bool b_First = LVB_TRUE;
     Lvb_bool b_find_sset = LVB_FALSE;
 
@@ -301,7 +301,7 @@ long CompareTreeToTreestack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRA
 
 =head2 SYNOPSIS
 
-    long PullTreefromTreestack(TREESTACK_TREE_BRANCH *BranchArray, long *root, TREESTACK *sp);
+    long PullTreefromTreestack(TREESTACK_TREE_NODES *BranchArray, long *root, TREESTACK *sp);
 
 =head2 DESCRIPTION
 
@@ -342,7 +342,7 @@ Returns 1 if a tree was popped, or 0 if the stack was empty.
 
 **********/
 
-long PullTreefromTreestack(Dataptr MSA, TREESTACK_TREE_BRANCH *BranchArray, long *root, TREESTACK *sp, Lvb_bool b_with_sitestate)
+long PullTreefromTreestack(Dataptr MSA, TREESTACK_TREE_NODES *BranchArray, long *root, TREESTACK *sp, Lvb_bool b_with_sitestate)
 {
     long val;	/* return value */
 
@@ -368,7 +368,7 @@ int PrintTreestack(Dataptr MSA, TREESTACK *sp, FILE *const outfp, Lvb_bool onera
     int i;			/* loop counter */
     int lower;			/* lowest index of trees to print */
     int upper;			/* 1 + upper index of trees to print */
-    TREESTACK_TREE_BRANCH *BranchArray;		/* current unpacked tree */
+    TREESTACK_TREE_NODES *BranchArray;		/* current unpacked tree */
 
     /* "local" dynamic heap memory */
     BranchArray = treealloc(MSA, LVB_FALSE);

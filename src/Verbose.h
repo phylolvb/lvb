@@ -47,7 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "LVB.h"
 
-void PrintInitialTree(Dataptr, const TREESTACK_TREE_BRANCH *const, const long, const long, long);
+void PrintInitialTree(Dataptr, const TREESTACK_TREE_NODES *const, const long, const long, long);
 void CheckStandardOutput(void);
 void PrintStartMessage(long, long);
 

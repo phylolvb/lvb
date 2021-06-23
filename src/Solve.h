@@ -51,7 +51,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Print.h"
 #include "Verbose.h"
 
-static TREESTACK bstack_overall;	/* overall best tree stack */
+static TREESTACK treestack;	/* overall best tree stack */
 static TREESTACK stack_treevo;
 
 #ifdef LVB_MAPREDUCE

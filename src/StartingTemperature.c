@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "StartingTemperature.h"
 
-double StartingTemperature(Dataptr MSA, const TREESTACK_TREE_BRANCH *const inittree, Parameters rcstruct, long root,
+double StartingTemperature(Dataptr MSA, const TREESTACK_TREE_NODES *const inittree, Parameters rcstruct, long root,
 	Lvb_bool log_progress)
 
 /* Determine the starting temperature for the annealing search
@@ -63,17 +63,17 @@ double StartingTemperature(Dataptr MSA, const TREESTACK_TREE_BRANCH *const initt
 {
 	/* Variables for the generation of transitions (adopted from Anneal()) */
     double deltah;		/* change in energy (1 - C.I.) */
-    long deltalen;		/* change in length with new tree */
+    long tree_length_change;		/* change in length with new tree */
     long iter;		/* iteration of mutate/evaluate loop */
-    long len;			/* length of current tree */
-    long lendash;		/* length of proposed new tree */
+    long current_tree_length;			/* length of current tree */
+    long proposed_tree_length;		/* length of proposed new tree */
     long lenmin;		/* minimum length for any tree */
     double pacc;		/* prob. of accepting new config. */
-    double r_lenmin;		/* minimum length for any tree */
-    long rootdash;		/* root of new configuration */
+    double tree_minimum_length;		/* minimum length for any tree */
+    long proposed_tree_root;		/* root of new configuration */
     double t = LVB_EPS;		/* current temperature */
-    TREESTACK_TREE_BRANCH *x;			/* current configuration */
-    TREESTACK_TREE_BRANCH *xdash;		/* proposed new configuration */
+    TREESTACK_TREE_NODES *x;			/* current configuration */
+    TREESTACK_TREE_NODES *xdash;		/* proposed new configuration */
 
     /* Variables specific to the StartingTemperatureemperature() procedure*/
     int acc_pos_trans = 0;        /* Number of accepted positve transitions */
@@ -93,10 +93,10 @@ double StartingTemperature(Dataptr MSA, const TREESTACK_TREE_BRANCH *const initt
 
     treecopy(MSA, x, inittree, LVB_TRUE);	/* current configuration */
     alloc_memory_to_getplen(MSA, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-    len = getplen(MSA, x, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+    current_tree_length = getplen(MSA, x, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 
 	lenmin = MinimumTreeLength(MSA);
-    r_lenmin = (double) lenmin;
+    tree_minimum_length = (double) lenmin;
 
     /* Log progress to standard output if chosen*/
     // if (log_progress) printf("\nDetermining the Starting Temperature ...\n");
@@ -116,24 +116,24 @@ double StartingTemperature(Dataptr MSA, const TREESTACK_TREE_BRANCH *const initt
 			lvb_assert(t > DBL_EPSILON);
 
 			/* mutation: alternate between the two mutation functions */
-			rootdash = root;
+			proposed_tree_root = root;
 			if (iter & 0x01) mutate_spr(MSA, xdash, x, root);	/* global change */
 			else mutate_nni(MSA, xdash, x, root);	/* local change */
 
-			lendash = getplen(MSA, xdash, rcstruct, rootdash, p_todo_arr, p_todo_arr_sum_changes, p_runs);
-			lvb_assert (lendash >= 1L);
-			deltalen = lendash - len;
-			deltah = (r_lenmin / (double) len) - (r_lenmin / (double) lendash);
+			proposed_tree_length = getplen(MSA, xdash, rcstruct, proposed_tree_root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+			lvb_assert (proposed_tree_length >= 1L);
+			tree_length_change = proposed_tree_length - current_tree_length;
+			deltah = (tree_minimum_length / (double) current_tree_length) - (tree_minimum_length / (double) proposed_tree_length);
 
 			if (deltah > 1.0)	/* MinimumTreeLength() problem with ambiguous sites */
 				deltah = 1.0;
 
 			/* Check whether the change is accepted (Again adopted from Anneal()*/
-			if (deltalen <= 0)	/* accept the change */
+			if (tree_length_change <= 0)	/* accept the change */
 			{
 				/* update current tree and its stats */
-				len = lendash;
-				SwapTrees(&x, &root, &xdash, &rootdash);
+				current_tree_length = proposed_tree_length;
+				SwapTrees(&x, &root, &xdash, &proposed_tree_root);
 			}
 			else {
 				prop_pos_trans++; /* Another positive transition has been generated*/
@@ -151,8 +151,8 @@ double StartingTemperature(Dataptr MSA, const TREESTACK_TREE_BRANCH *const initt
 					pacc = exp_wrapper(-deltah/t);
 					if (uni() < pacc)	/* do accept the change */
 					{
-						len = lendash;
-						SwapTrees(&x, &root, &xdash, &rootdash);
+						current_tree_length = proposed_tree_length;
+						SwapTrees(&x, &root, &xdash, &proposed_tree_root);
 						acc_pos_trans++;  /* The change has been accepted */
 					}
 				}

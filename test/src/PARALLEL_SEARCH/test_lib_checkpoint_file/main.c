@@ -54,7 +54,7 @@ int main(int argc, char **argv)
     Dataptr MSA;					/* data MSA */
     Dataptr MSA;
     long root1;						/* root of tree 1 */
-    TREESTACK_TREE_BRANCH *tree1;					/* first tree to compare */
+    TREESTACK_TREE_NODES *tree1;					/* first tree to compare */
     TREESTACK *tree_checkpoint;		/* tree stack without checkpointing */
 
     MPI_Init(&argc, &argv);

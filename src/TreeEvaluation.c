@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "TreeEvaluation.h"
 
-long getplen(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *BranchArray, Parameters rcstruct, const long root, 
+long getplen(Dataptr restrict MSA, TREESTACK_TREE_NODES *BranchArray, Parameters rcstruct, const long root, 
 		long *restrict p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs)
 {
     long branch;			/* current branch number */
@@ -55,7 +55,7 @@ long getplen(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *BranchArray, Parameter
 	long k;					/* current character number */
     long left;				/* current left child number */
     long right;				/* current right child number */
-    long todo_cnt = 0;			/* count of branches "to do" */
+    long number_of_internal_branches = 0;			/* count of branches "to do" */
     long l_end = 0;
 
     /* calculate state sets and changes where not already known */
@@ -65,7 +65,7 @@ long getplen(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *BranchArray, Parameter
 		memset(p_runs, 0, MSA->n_threads_getplen * (MSA->numberofpossiblebranches - MSA->n) * sizeof(int));
 		for (i = MSA->n; i < MSA->numberofpossiblebranches; i++) {
 			if (BranchArray[i].sitestate[0] == 0U){
-				*(p_todo_arr + todo_cnt++) = i;
+				*(p_todo_arr + number_of_internal_branches++) = i;
 			}
 			else{
 				changes += BranchArray[i].changes;
@@ -88,8 +88,8 @@ long getplen(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *BranchArray, Parameter
 			l_end = MSA->n_slice_size_getplen * (omp_get_thread_num() + 1);
 			if (MSA->n_threads_getplen == (omp_get_thread_num() + 1)) l_end += MSA->nwords - (MSA->n_slice_size_getplen * MSA->n_threads_getplen);
 
-			while (done < todo_cnt) {
-				for (i = 0; i < todo_cnt; i++) {
+			while (done < number_of_internal_branches) {
+				for (i = 0; i < number_of_internal_branches; i++) {
 					branch = *(p_todo_arr + i);
 					if (*(p_runs + ((branch - MSA->n) * MSA->n_threads_getplen) + omp_get_thread_num()) == 0) /* "dirty" */
 					{
@@ -140,12 +140,12 @@ long getplen(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *BranchArray, Parameter
 				ch = LENGTH_WORD - ch;
 				n_changes_temp += ch;
 			}
-			*(p_todo_arr_sum_changes + (todo_cnt * MSA->n_threads_getplen) + omp_get_thread_num()) = n_changes_temp;
+			*(p_todo_arr_sum_changes + (number_of_internal_branches * MSA->n_threads_getplen) + omp_get_thread_num()) = n_changes_temp;
 		}
 
 
 		/* sum the changes */
-		for (i = 0; i < todo_cnt; i++) {
+		for (i = 0; i < number_of_internal_branches; i++) {
 			BranchArray[*(p_todo_arr + i)].changes = *(p_todo_arr_sum_changes + (i * MSA->n_threads_getplen));
 			for(k = 1; k < MSA->n_threads_getplen; k++){
 				BranchArray[*(p_todo_arr + i)].changes += *(p_todo_arr_sum_changes + (i * MSA->n_threads_getplen) + k);
@@ -154,7 +154,7 @@ long getplen(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *BranchArray, Parameter
 		}
 		/* sum the changes to the root */
 		for(k = 0; k < MSA->n_threads_getplen; k++){
-			changes += *(p_todo_arr_sum_changes + (todo_cnt * MSA->n_threads_getplen) + k);
+			changes += *(p_todo_arr_sum_changes + (number_of_internal_branches * MSA->n_threads_getplen) + k);
 		}
 		/* END of threading code */
     }
@@ -168,7 +168,7 @@ long getplen(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *BranchArray, Parameter
 
 		for (i = MSA->n; i < MSA->numberofpossiblebranches; i++) {
 			if (BranchArray[i].sitestate[0] == 0U){
-				*(p_todo_arr + todo_cnt++) = i;
+				*(p_todo_arr + number_of_internal_branches++) = i;
 				BranchArray[i].changes = 0;
 			}
 			else{
@@ -176,8 +176,8 @@ long getplen(Dataptr restrict MSA, TREESTACK_TREE_BRANCH *BranchArray, Parameter
 			}
 		}
 
-		while (done < todo_cnt) {
-			for (i = 0; i < todo_cnt; i++) {
+		while (done < number_of_internal_branches) {
+			for (i = 0; i < number_of_internal_branches; i++) {
 				branch = *(p_todo_arr + i);
 				if (BranchArray[branch].sitestate[0] == 0U)	/* "dirty" */
 				{

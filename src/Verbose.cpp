@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Verbose.h"
 
-void PrintInitialTree(Dataptr MSA, const TREESTACK_TREE_BRANCH *const BranchArray, const long start, const long cycle, long root)
+void PrintInitialTree(Dataptr MSA, const TREESTACK_TREE_NODES *const BranchArray, const long start, const long cycle, long root)
 /* log initial tree for cycle cycle of start start (in BranchArray) to outfp */
 {
     static char outfnam[LVB_FNAMSIZE]; 	/* current file name */
