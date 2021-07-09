@@ -1492,7 +1492,7 @@ std::string MakeHashSet(Dataptr MSA, const TREESTACK_TREE_NODES *const tree_2, c
 
     fillsets(MSA, sitestate_2, tree_2, root);
     Sort(MSA, sitestate_2, MSA->nsets);
-	dump_objset_to_file(MSA, sitestate_2);
+	// dump_objset_to_file(MSA, sitestate_2);
 
 	return ConvertSiteSetToString(MSA, sitestate_2);
 } /* end MakeHashSet() */

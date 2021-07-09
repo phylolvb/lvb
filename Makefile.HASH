@@ -69,13 +69,13 @@ CC = mpic++
 
 # General options
 
-# CFLAGS += -Wall -g -O3 -fopenmp -DLVB_NP -DLVB_HASH -std=c++11
-# CXXFLAGS += -Wall -g -O3 -fopenmp -DLVB_NP -DLVB_HASH -std=c++11
+CFLAGS += -Wall -g -O3 -fopenmp -DLVB_NP -DLVB_HASH -std=c++11
+CXXFLAGS += -Wall -g -O3 -fopenmp -DLVB_NP -DLVB_HASH -std=c++11
 
 # No warnings
 
-CFLAGS += -g -O3 -fopenmp -DLVB_NP -DLVB_HASH -std=c++11
-CXXFLAGS += -g -O3 -fopenmp -DLVB_NP -DLVB_HASH -std=c++11
+# CFLAGS += -g -O3 -fopenmp -DLVB_NP -DLVB_HASH -std=c++11 -ftest-coverage -fprofile-arcs -pg
+# CXXFLAGS += -g -O3 -fopenmp -DLVB_NP -DLVB_HASH -std=c++11 -ftest-coverage -fprofile-arcs -pg
 
 # System-dependent macros - OK for Linux and UNIX-like systems, for others will
 # require change
