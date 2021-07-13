@@ -608,9 +608,9 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 
 		iter++;
 
-		/* if (rcstruct.n_number_max_trees > 0 && treestack_ptr->next >= rcstruct.n_number_max_trees){
+		if (rcstruct.n_number_max_trees > 0 && treestack_ptr->next >= rcstruct.n_number_max_trees){
 			break;
-		} */
+		}
 
 	if (rcstruct.algorithm_selection == 2)
 	{

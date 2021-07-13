@@ -86,4 +86,5 @@ typedef struct
     long verbose;						/* verboseness level */
     char file_name_in[LVB_FNAMSIZE];	/* input file name */
     char file_name_out[LVB_FNAMSIZE];	/* output file name */
+    int n_number_max_trees;             /* number of EPT to be saved */
 } Parameters;

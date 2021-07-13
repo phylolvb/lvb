@@ -83,6 +83,7 @@ void defaults_params(Parameters *const prms)
     strcpy(prms->file_name_out, OUTTREEFNAM);
     prms->n_file_format = FORMAT_PHYLIP;
     prms->n_processors_available = omp_get_max_threads();
+	prms->n_number_max_trees = 0;			/* default, keep all EPT */
 
 } /* end defaults_params() */
 
