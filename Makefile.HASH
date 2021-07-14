@@ -66,6 +66,7 @@ LVB_SRC_DIR = ./src
 ### define compilers and compiler options
 G++ = mpic++
 CC = mpic++
+CXX = mpic++
 
 # General options
 

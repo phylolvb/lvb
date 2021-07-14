@@ -72,6 +72,7 @@ LVB_SRC_DIR = ./src
 ### define a c++ compiler to your platform 
 G++ = mpic++
 CC = mpic++
+CXX = mpic++
 
 # UNCOMMENT THIS FOR 32-BIT LINUX (E.G. OLD INTEL CPUS OR RASPBERRY PI)
 #CFLAGS += -DCOMPILE_32_BITS
