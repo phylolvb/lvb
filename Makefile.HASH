@@ -70,8 +70,8 @@ CXX = mpic++
 
 # General options
 
-CFLAGS += -Wall -g -O3 -fopenmp -DLVB_NP -DLVB_HASH -std=c++11
-CXXFLAGS += -Wall -g -O3 -fopenmp -DLVB_NP -DLVB_HASH -std=c++11
+CFLAGS += -Wall -g -O3 -fopenmp -DLVB_NP -DLVB_HASH -std=c++11 -pg
+CXXFLAGS += -Wall -g -O3 -fopenmp -DLVB_NP -DLVB_HASH -std=c++11 -pg
 
 # No warnings
 

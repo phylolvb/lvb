@@ -91,8 +91,8 @@ CFLAGS += -msse4.2
 
 # No warnings
 
-CFLAGS += -g -O3 -fopenmp  -DLVB_NP -std=c++11
-CXXFLAGS += -g -O3 -fopenmp -DLVB_NP -std=c++11
+CFLAGS += -g -O3 -fopenmp  -DLVB_NP -std=c++11 -pg
+CXXFLAGS += -g -O3 -fopenmp -DLVB_NP -std=c++11 -pg
 
 # System-dependent macros - OK for Linux and UNIX-like systems, for others will
 # require change
