@@ -86,15 +86,20 @@ G++ = mpic++
 CC = mpic++
 CXX = mpic++
 
-# General options
-
-# CFLAGS += -Wall -g -O3 -fopenmp -DLVB_MAPREDUCE -std=c++11
-# CXXFLAGS += -Wall -g -O3 -fopenmp -DLVB_MAPREDUCE -std=c++11
-
 # No warnings
 
-CFLAGS += -g -O3 -fopenmp -DLVB_MAPREDUCE -std=c++11
-CXXFLAGS += -g -O3 -fopenmp -DLVB_MAPREDUCE -std=c++11
+CFLAGS += -g -O3 -fopenmp -DLVB_MAPREDUCE -std=c++11 -pg
+CXXFLAGS += -g -O3 -fopenmp -DLVB_MAPREDUCE -std=c++11 -pg
+
+# Warnings
+
+# CFLAGS += -Wall -g -O3 -fopenmp -DLVB_MAPREDUCE -std=c++11 -pg
+# CXXFLAGS += -Wall -g -O3 -fopenmp -DLVB_MAPREDUCE -std=c++11 -pg
+
+# Profiling
+
+# CFLAGS += -g -O3 -fopenmp -DLVB_MAPREDUCE -std=c++11 -ftest-coverage -fprofile-arcs -pg
+# CXXFLAGS += -g -O3 -fopenmp -DLVB_MAPREDUCE -std=c++11 -ftest-coverage -fprofile-arcs -pg
 
 # System-dependent macros - OK for Linux and UNIX-like systems, for others will
 # require change

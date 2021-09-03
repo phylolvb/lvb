@@ -85,14 +85,21 @@ CFLAGS += -msse4.2
 #CFLAGS += -openmp-link static
 
 # General options
-# CFLAGS += -Wall -g -O3 -std=c99 -fopenmp  -DLVB_NP
-#CFLAGS += -Wall -g -O3 -fopenmp  -DLVB_NP -std=c++11
-#CXXFLAGS += -Wall -g -O3 -fopenmp -DLVB_NP -std=c++11
 
 # No warnings
 
-CFLAGS += -g -O3 -fopenmp  -DLVB_NP -std=c++11 -pg
+CFLAGS += -g -O3 -fopenmp -DLVB_NP -std=c++11 -pg
 CXXFLAGS += -g -O3 -fopenmp -DLVB_NP -std=c++11 -pg
+
+# Warnings
+
+# CFLAGS += -Wall -g -O3 -fopenmp -DLVB_NP -std=c++11 -pg
+# CXXFLAGS += -Wall -g -O3 -fopenmp -DLVB_NP -std=c++11 -pg
+
+# Profiling
+
+# CFLAGS += -g -O3 -fopenmp -DLVB_NP -std=c++11 -ftest-coverage -fprofile-arcs -pg
+# CXXFLAGS += -g -O3 -fopenmp -DLVB_NP -std=c++11 -ftest-coverage -fprofile-arcs -pg
 
 # System-dependent macros - OK for Linux and UNIX-like systems, for others will
 # require change

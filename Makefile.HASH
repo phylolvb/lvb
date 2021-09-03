@@ -68,12 +68,17 @@ G++ = mpic++
 CC = mpic++
 CXX = mpic++
 
-# General options
-
-CFLAGS += -Wall -g -O3 -fopenmp -DLVB_NP -DLVB_HASH -std=c++11 -pg
-CXXFLAGS += -Wall -g -O3 -fopenmp -DLVB_NP -DLVB_HASH -std=c++11 -pg
-
 # No warnings
+
+CFLAGS += -g -O3 -fopenmp -DLVB_NP -DLVB_HASH -std=c++11 -pg
+CXXFLAGS += -g -O3 -fopenmp -DLVB_NP -DLVB_HASH -std=c++11 -pg
+
+# Warnings
+
+# CFLAGS += -Wall -g -O3 -fopenmp -DLVB_NP -DLVB_HASH -std=c++11 -pg
+# CXXFLAGS += -Wall -g -O3 -fopenmp -DLVB_NP -DLVB_HASH -std=c++11 -pg
+
+# Profiling
 
 # CFLAGS += -g -O3 -fopenmp -DLVB_NP -DLVB_HASH -std=c++11 -ftest-coverage -fprofile-arcs -pg
 # CXXFLAGS += -g -O3 -fopenmp -DLVB_NP -DLVB_HASH -std=c++11 -ftest-coverage -fprofile-arcs -pg
