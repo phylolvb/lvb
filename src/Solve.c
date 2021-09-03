@@ -773,7 +773,7 @@ long getsoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool l
 			MPI_Barrier(MPI_COMM_WORLD);
 			MPI_Bcast(&check_cmp, 1, MPI_INT, 0,    MPI_COMM_WORLD);
 			if (check_cmp == 1) {
-			  CompareTreeToTreestack(MSA, &treestack, tree, initroot, LVB_FALSE);
+			//  CompareTreeToTreestack(MSA, &treestack, tree, initroot, LVB_FALSE);
 			  misc->ID = treestack.next;
 				  misc->SB = 1;
 				  tree_setpush(MSA, tree, initroot, mrBuffer, misc);
@@ -783,8 +783,8 @@ long getsoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool l
 			free(misc->count);
 			free(total_count);
 
-			//treelength = deterministic_hillclimb(MSA, &treestack, tree, rcstruct, initroot, stdout,
-			//	iter_p, log_progress, misc, mrTreeStack, mrBuffer);
+			treelength = deterministic_hillclimb(MSA, &treestack, tree, rcstruct, initroot, stdout,
+				iter_p, log_progress, misc, mrTreeStack, mrBuffer);
 		}
 
 	#else
@@ -799,8 +799,8 @@ long getsoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool l
 		CompareTreeToTreestack(MSA, &treestack, tree, initroot, LVB_FALSE);
 	#endif
 
-    //treelength = deterministic_hillclimb(MSA, &treestack, tree, rcstruct, initroot, stdout,
-	//			iter_p, log_progress);
+    treelength = deterministic_hillclimb(MSA, &treestack, tree, rcstruct, initroot, stdout,
+				iter_p, log_progress);
 
 	#endif
 
