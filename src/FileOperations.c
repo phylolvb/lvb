@@ -78,21 +78,18 @@ otherwise.
 
 **********/
 
-Lvb_bool file_exists(const char *const nam)
-{
-    Lvb_bool val;		/* return value */
-    FILE *fp = fopen(nam, "r");	/* store file ptr so can close it */
-	
-    if (fp == NULL)
-	val = LVB_FALSE;
-    else
-    {
-	fclose(fp);
-	val = LVB_TRUE;
-    }
+Lvb_bool file_exists(const char *const nam) {
+Lvb_bool val;  /* return value */
+FILE *fp = fopen(nam, "r");  /* store file ptr so can close it */
 
-    return val;
+if (fp == NULL) {
+val = LVB_FALSE;
+} else {
+  fclose(fp);
+  val = LVB_TRUE;
+}
 
+return val;
 } /* end */
 
 /**********
@@ -132,25 +129,22 @@ Returns a pointer to the newly opened file structure.
 
 **********/
 
-FILE *clnopen(const char *const nam, const char *const mod)
-{
-    FILE *fp;	/* file */
+FILE *clnopen(const char *const nam, const char *const mod) {
+    FILE *fp;  /* file */
 
     fp = fopen(nam, mod);
-    if (fp == NULL)
-    {
-	if (strcmp(mod, "w") == 0)
-	    crash("cannot create file '%s'", nam);
-	else if (strcmp(mod, "r") == 0)
-	    crash("cannot open file '%s' for reading", nam);
-	else if (strcmp(mod, "a") == 0)
-	    crash("cannot open file '%s' for appending to", nam);
-	else	/* rare mode */
-	    crash("cannot open file '%s' with mode '%s'", nam, mod);
+    if (fp == NULL) {
+    if (strcmp(mod, "w") == 0)
+        crash("cannot create file '%s'", nam);
+    else if (strcmp(mod, "r") == 0)
+        crash("cannot open file '%s' for reading", nam);
+    else if (strcmp(mod, "a") == 0)
+        crash("cannot open file '%s' for appending to", nam);
+    else  /* rare mode */
+        crash("cannot open file '%s' with mode '%s'", nam, mod);
     }
 
     return fp;
-
 } /* end clnopen() */
 
 /**********
@@ -196,16 +190,13 @@ Returns a pointer to the newly opened file structure.
 
 **********/
 
-void clnclose(FILE *const fp, const char *const fnam)
-{
-    if (fp != NULL)
-    {
-	if (ferror(fp) != 0)
-	    crash("file error on file '%s'", fnam);
-	if (fclose(fp) != 0)
-	    crash("cannot close file '%s'", fnam);
+void clnclose(FILE *const fp, const char *const fnam) {
+    if (fp != NULL) {
+    if (ferror(fp) != 0)
+        crash("file error on file '%s'", fnam);
+    if (fclose(fp) != 0)
+        crash("cannot close file '%s'", fnam);
     }
-
 } /* end clnclose() */
 
 /**********
@@ -244,11 +235,9 @@ For portability, the file should not be open on calling C<clnremove>.
 
 **********/
 
-void clnremove(const char *const fnam)
-{
+void clnremove(const char *const fnam) {
     if (remove(fnam) != 0)
-	scream("cannot delete file '%s'", fnam);
-
+    scream("cannot delete file '%s'", fnam);
 } /* end clnremove */
 
 /**********
@@ -298,41 +287,37 @@ at the start of the file on calling C<f2str>.
 
 **********/
 
-char *f2str(FILE *const stream)
-{
-    char *input;				/* input string */
-    unsigned long inbytes;			/* bytes for string */
-    unsigned long off;				/* position in string */
-    unsigned long offmax = 0UL;			/* length of string */
-    const unsigned long maxom = ULONG_MAX - 3;	/* maximum initial offmax */
+char *f2str(FILE *const stream) {
+    char *input;                               /* input string */
+    unsigned long inbytes;                     /* bytes for string */
+    unsigned long off;                         /* position in string */
+    unsigned long offmax = 0UL;                /* length of string */
+    const unsigned long maxom = ULONG_MAX - 3; /* maximum initial offmax */
 
     /* calculate file size and allocate appropriately */
-    while (getc(stream) != EOF)
-    {
-	offmax++;
-	if (offmax >= maxom)	/* crash while value has meaning */
-	    crash("input is too long");
+    while (getc(stream) != EOF) {
+    offmax++;
+    if (offmax >= maxom)  /* crash while value has meaning */
+        crash("input is too long");
     }
     if (ferror(stream) != 0)
-	crash("file error on reading file");
-    inbytes = offmax + 2UL;	/* '\0', possible '\n' */
+    crash("file error on reading file");
+    inbytes = offmax + 2UL;  /* '\0', possible '\n' */
     input = (char *) alloc(inbytes, "input");
 
     /* get string */
     rewind(stream);
     for (off = 0; off < offmax; off++)
-	input[off] = (char) getc(stream);
+    input[off] = (char) getc(stream);
     if (ferror(stream) != 0)
-	crash("file error on reading file");
+    crash("file error on reading file");
 
     /* terminate string, also adding newline at end if not present */
-    if (input[off-1] != '\n')
-    {
-	input[off] = '\n';
-	off++;
+    if (input[off-1] != '\n') {
+    input[off] = '\n';
+    off++;
     }
     input[off] = '\0';
 
     return input;
-
 } /* end f2str() */

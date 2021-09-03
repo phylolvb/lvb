@@ -42,9 +42,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ========== Error.h - interface for Error.c ========== */
 
-#ifndef LVB_ERROR_H_
-#define LVB_ERROR_H_
+#ifndef SRC_ERROR_H_
+#define SRC_ERROR_H_
 
 #include "LVB.h"
 
-#endif
+#endif  // SRC_ERROR_H_
