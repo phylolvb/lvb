@@ -391,7 +391,10 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 						ClearTreestack(treestack_ptr);
 						mrTreeStack->map(mrTreeStack, map_clean, NULL);
 				}
-				CompareMapReduceTrees(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, misc, mrTreeStack, mrBuffer, best_tree_length, proposed_tree_length, total_count, check_cmp, accepted);
+				if(CompareMapReduceTrees(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, misc, mrTreeStack, mrBuffer,
+									best_tree_length, proposed_tree_length, total_count, check_cmp, accepted) == 1) {
+										
+									}
 			}
 				#else
 								if (proposed_tree_length <= best_tree_length)	/* store tree if new */
