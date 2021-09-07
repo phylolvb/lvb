@@ -120,11 +120,12 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *treestack_ptr, const TREEST
 						if (tree_length_change < 0)  /* very best so far */
 						{
 							ClearTreestack(treestack_ptr);
+							current_tree_length = proposed_tree_length;
 							PushCurrentTreeToStack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE);
 							misc->ID = treestack_ptr->next;
 							misc->SB = 1;
 							tree_setpush(MSA, p_proposed_tree, proposed_tree_root, mrTreeStack, misc);
-							current_tree_length = proposed_tree_length;
+							
 						} else {
 
 						  misc->SB = 0;
@@ -386,69 +387,8 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 				#ifdef LVB_MAPREDUCE  
 							if (proposed_tree_length <= best_tree_length)	/* store tree if new */
 			{
-					if (proposed_tree_length < best_tree_length) {
-						ClearTreestack(treestack_ptr);
-						mrTreeStack->map(mrTreeStack, map_clean, NULL);
-
-						PushCurrentTreeToStack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE);
-						misc->ID = treestack_ptr->next;
-
-					    misc->SB = 1;
-						tree_setpush(MSA, p_proposed_tree, proposed_tree_root, mrTreeStack, misc);
-
-						accepted++;
-						MPI_Bcast(&accepted,  1, MPI_LONG, 0, MPI_COMM_WORLD);
-						MPI_Barrier(MPI_COMM_WORLD);
-					} else {
-
-	                    misc->SB = 0;
-						tree_setpush(MSA, p_proposed_tree, proposed_tree_root, mrBuffer, misc);
-						mrBuffer->add(mrTreeStack);
-						mrBuffer->collate(NULL);
-
-						misc->count = (int *) alloc( (treestack_ptr->next+1) * sizeof(int), "int array for tree comp using MR");
-						total_count = (int *) alloc( (treestack_ptr->next+1) * sizeof(int), "int array for tree comp using MR");
-
-						for(int i=0; i<=misc->ID; i++) misc->count[i] = 0;
-						/* cerr << "Reduce ********************* " << endl; */
-						/* cerr << "Reduce ********************* " << endl; */
-						mrBuffer->reduce(reduce_count, misc);
-						/* cerr << "END Reduce ********************* " << endl; */
-						/* cerr << "END Reduce ********************* " << endl; */
- 						for(int i=0; i<=misc->ID; i++) total_count[i] = 0;
-						MPI_Reduce( misc->count, total_count, misc->ID+1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD );
-
-						check_cmp = 1;
-						if (misc->rank == 0) {
-							for(int i=1; i<=misc->ID; i++) {
-							//	if (misc->nsets == total_count[i]) {
-								if (total_count[0] == total_count[i]) {
-									check_cmp = 0;
-									break;
-								}
-							}
-						}
-
-						MPI_Barrier(MPI_COMM_WORLD);
-						MPI_Bcast(&check_cmp, 1, MPI_INT, 0,    MPI_COMM_WORLD);
-						if (check_cmp == 1) {
-
-							PushCurrentTreeToStack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE);
-	                                                misc->ID = treestack_ptr->next;
-
-							misc->SB = 1;
-							tree_setpush(MSA, p_proposed_tree, proposed_tree_root, mrBuffer, misc);
-							mrTreeStack->add(mrBuffer);
-							accepted++;
-							MPI_Bcast(&accepted,  1, MPI_LONG, 0, MPI_COMM_WORLD);
-						}
-
-						free(misc->count);
-						free(total_count);
-						
-					}
-
-				}
+				CompareMapReduceTrees(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, misc, mrTreeStack, mrBuffer, best_tree_length, proposed_tree_length, total_count, check_cmp, accepted);
+			}
 				#else
 								if (proposed_tree_length <= best_tree_length)	/* store tree if new */
 			{
