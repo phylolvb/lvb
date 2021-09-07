@@ -158,10 +158,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 	void CompareMapReduceTrees(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_NODES *const p_proposed_tree, long proposed_tree_root, MISC *misc, MapReduce *mrTreeStack,
 									MapReduce *mrBuffer, long best_tree_length, long proposed_tree_length, int *total_count, int check_cmp, long& accepted) {
-		if (proposed_tree_length < best_tree_length) {
-						ClearTreestack(sp);
-						mrTreeStack->map(mrTreeStack, map_clean, NULL);
-
+		if(sp->next == 0) {
 			PushCurrentTreeToStack(MSA, sp, p_proposed_tree, proposed_tree_root, LVB_FALSE);
 			misc->ID = sp->next;
             
