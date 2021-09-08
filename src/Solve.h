@@ -55,11 +55,15 @@ static TREESTACK treestack;	/* overall best tree stack */
 static TREESTACK stack_treevo;
 
 #ifdef LVB_MAPREDUCE
-long getsoln(Dataptr restrict, Parameters, long *, Lvb_bool, MISC *, MapReduce *, MapReduce *);
-long CompareMapReduceTrees(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_NODES *const p_proposed_tree, long proposed_tree_root, 
+long GetSoln(Dataptr restrict, Parameters, long *, Lvb_bool, MISC *, MapReduce *, MapReduce *);
+long CompareMapReduceTreesAnneal(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_NODES *const p_proposed_tree, long proposed_tree_root, 
                         int *, int, long&, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer );
+void CompareMapReduceTreesGetSoln();
+void CompareMapReduceTreesGetSoln(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_NODES *const tree, long initroot,
+		int *total_count, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer, long);
+
 #else
-long getsoln(Dataptr restrict, Parameters, long *, Lvb_bool);
+long GetSoln(Dataptr restrict, Parameters, long *, Lvb_bool);
 
 #endif
 

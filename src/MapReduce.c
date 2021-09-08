@@ -156,8 +156,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 	}
 
-	long CompareMapReduceTrees(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_NODES *const p_proposed_tree, long proposed_tree_root, int *total_count,
-							int check_cmp, long& accepted,MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer) {
+	long CompareMapReduceTreesAnneal(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_NODES *const p_proposed_tree, long proposed_tree_root, int *total_count,
+							int check_cmp, long& accepted, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer) {
 		if(sp->next == 0) {
 			PushCurrentTreeToStack(MSA, sp, p_proposed_tree, proposed_tree_root, LVB_FALSE);
 			misc->ID = sp->next;
@@ -217,3 +217,50 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	}
 		return 1;
 	}
+
+	void CompareMapReduceTreesGetSoln(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_NODES *const tree, long initroot,
+		int *total_count, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer, long val) {
+
+			if(val = 1) {
+			misc->SB = 0;
+			tree_setpush(MSA, tree, initroot, mrBuffer, misc);
+			mrTreeStack->add(mrBuffer);
+			mrTreeStack->collate(NULL);
+			mrTreeStack->reduce(reduce_filter, NULL);
+
+			mrBuffer->add(mrTreeStack);
+			mrBuffer->collate(NULL);
+
+			misc->count = (int *) alloc( (treestack.next+1) * sizeof(int), "integer array for tree compare using MapReduce");
+			total_count = (int *) alloc( (treestack.next+1) * sizeof(int), "integer array for tree compare using MapReduce");
+			for(int i=0; i<=treestack.next; i++) misc->count[i] = 0;
+			mrBuffer->reduce(reduce_count, misc);
+
+			for(int i=0; i<=treestack.next; i++) total_count[i] = 0;
+			MPI_Reduce( misc->count, total_count, treestack.next+1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD );
+
+			int check_cmp = 1;
+			if (misc->rank == 0) {
+				for(int i=1; i<=treestack.next; i++) {
+					if (misc->nsets == total_count[i]) {
+						check_cmp = 0; /* different */
+						break;
+					}
+				}
+			}
+
+			MPI_Barrier(MPI_COMM_WORLD);
+			MPI_Bcast(&check_cmp, 1, MPI_INT, 0,    MPI_COMM_WORLD);
+			if (check_cmp == 1) {
+			//  CompareTreeToTreestack(MSA, &treestack, tree, initroot, LVB_FALSE);
+			  misc->ID = treestack.next;
+				  misc->SB = 1;
+				  tree_setpush(MSA, tree, initroot, mrBuffer, misc);
+				  mrTreeStack->add(mrBuffer);
+			}
+
+			free(misc->count);
+			free(total_count);
+		}
+
+		}
