@@ -117,55 +117,14 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *treestack_ptr, const TREEST
 				MPI_Bcast(&proposed_tree_length,  1, MPI_LONG, 0,    MPI_COMM_WORLD);
 
 					if (tree_length_change <= 0) {
-						if (tree_length_change < 0)  /* very best so far */
-						{
-							ClearTreestack(treestack_ptr);
-							current_tree_length = proposed_tree_length;
-							PushCurrentTreeToStack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE);
-							misc->ID = treestack_ptr->next;
-							misc->SB = 1;
-							tree_setpush(MSA, p_proposed_tree, proposed_tree_root, mrTreeStack, misc);
-							
-						} else {
+					if (tree_length_change < 0)  /* very best so far */
+					{
+						ClearTreestack(treestack_ptr);
+						current_tree_length = proposed_tree_length;
+					}
 
-						  misc->SB = 0;
-						  tree_setpush(MSA, p_proposed_tree, proposed_tree_root, mrBuffer, misc);
-						  mrBuffer->add(mrTreeStack);
-						  mrBuffer->collate(NULL);
-
-						  misc->count = (int *) alloc( (treestack_ptr->next+1) * sizeof(int), "int array for tree comp using MR");
-						  total_count = (int *) alloc( (treestack_ptr->next+1) * sizeof(int), "int array for tree comp using MR");
-						  for(int i=0; i<=treestack_ptr->next; i++) misc->count[i] = 0;
-						  mrBuffer->reduce(reduce_count, misc);
-
-						  for(int i=0; i<=treestack_ptr->next; i++) total_count[i] = 0;
-						  MPI_Reduce( misc->count, total_count, treestack_ptr->next+1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD );
-
-						  check_cmp = 1;
-						  if (misc->rank == 0) { /* sum to root process */
-							for(int i=1; i<=treestack_ptr->next; i++) {
-								if (misc->nsets == total_count[i]) {
-									check_cmp = 0; /* different */
-									break;
-								}
-							}
-						  }
-
-						  MPI_Barrier(MPI_COMM_WORLD);
-						  MPI_Bcast(&check_cmp, 1, MPI_INT, 0,    MPI_COMM_WORLD);
-						  if (check_cmp == 0) {
-								misc->SB = 1;
-								tree_setpush(MSA, p_proposed_tree, proposed_tree_root, mrBuffer, misc);
-								mrTreeStack->add(mrBuffer);
-							PushCurrentTreeToStack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE);
-								misc->ID = treestack_ptr->next;
-
-								newtree = LVB_TRUE;
-								SwapTrees(&p_current_tree, &root, &p_proposed_tree, &proposed_tree_root);
-							}
-						  free(misc->count);
-						  free(total_count);
-						}
+						CompareMapReduceTreesHillClimb(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, total_count,
+									check_cmp, misc, mrTreeStack, mrBuffer, tree_length_change, newtree, root, p_current_tree);
 
 					#else 
 					if (tree_length_change <= 0) {

@@ -56,11 +56,12 @@ static TREESTACK stack_treevo;
 
 #ifdef LVB_MAPREDUCE
 long GetSoln(Dataptr restrict, Parameters, long *, Lvb_bool, MISC *, MapReduce *, MapReduce *);
-long CompareMapReduceTreesAnneal(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_NODES *const p_proposed_tree, long proposed_tree_root, 
-                        int *, int, long&, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer );
-void CompareMapReduceTreesGetSoln();
-void CompareMapReduceTreesGetSoln(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_NODES *const tree, long initroot,
-		int *total_count, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer, long);
+long CompareMapReduceTreesAnneal(Dataptr, TREESTACK *, const TREESTACK_TREE_NODES *const, long, 
+                        int *, int, long&, MISC *, MapReduce *, MapReduce *);
+void CompareMapReduceTreesGetSoln(Dataptr, TREESTACK *, const TREESTACK_TREE_NODES *const, long,
+		int *, MISC *, MapReduce *, MapReduce *, long);
+void CompareMapReduceTreesHillClimb(Dataptr, TREESTACK *, TREESTACK_TREE_NODES *const, long, 
+                        int *, int, MISC *, MapReduce *, MapReduce *, long, Lvb_bool, long, TREESTACK_TREE_NODES *const);
 
 #else
 long GetSoln(Dataptr restrict, Parameters, long *, Lvb_bool);
