@@ -158,6 +158,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 	void CompareMapReduceTreesHillClimb(Dataptr MSA, TREESTACK *sp, TREESTACK_TREE_NODES *p_proposed_tree, long proposed_tree_root, int *total_count,
 							int check_cmp, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer, long tree_length_change, Lvb_bool newtree, long root, TREESTACK_TREE_NODES *p_current_tree) {
+							//	std::cout << std::endl << "DETERHILLCLIMB ";
 		if (tree_length_change < 0)  /* very best so far */
 						{
 							PushCurrentTreeToStack(MSA, sp, p_proposed_tree, proposed_tree_root, LVB_FALSE);

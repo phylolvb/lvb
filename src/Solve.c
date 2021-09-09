@@ -344,20 +344,20 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 		if (tree_length_change <= 0)	/* accept the change */
 		{
 				#ifdef LVB_MAPREDUCE  
-							if (proposed_tree_length <= best_tree_length)	/* store tree if new */
-			{
+				if (proposed_tree_length <= best_tree_length)	/* store tree if new */
+					{
 				if (proposed_tree_length < best_tree_length) {
 						ClearTreestack(treestack_ptr);
 						mrTreeStack->map(mrTreeStack, map_clean, NULL);
 				}
 				if(CompareMapReduceTreesAnneal(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, total_count,
-									check_cmp, accepted, misc, mrTreeStack, mrBuffer) == 1) {
-										
-									}
-			}
+					check_cmp, accepted, misc, mrTreeStack, mrBuffer) == 1) {
+
+					}
+				}
 				#else
-								if (proposed_tree_length <= best_tree_length)	/* store tree if new */
-			{
+				if (proposed_tree_length <= best_tree_length)	/* store tree if new */
+					{
 				/*printf("%ld\n", *current_iter);*/
 				if (proposed_tree_length < best_tree_length) {
 					ClearTreestack(treestack_ptr);	/* discard old bests */
@@ -367,10 +367,10 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 					#else
 						if(CompareTreeToTreestack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE) == 1)
 					#endif
-				{
-					accepted++;
+					{
+						accepted++;
+					}
 				}
-			}
 				#endif
 			/* update current tree and its stats */
 			current_tree_length = proposed_tree_length;
