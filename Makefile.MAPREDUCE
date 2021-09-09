@@ -88,7 +88,7 @@ CXX = mpic++
 
 # No warnings
 
-CFLAGS += -g -O3 -fopenmp -DLVB_MAPREDUCE -std=c++11
+CFLAGS += -g -O3 -fopenmp -DLVB_MAPREDUCE -std=c++11 
 CXXFLAGS += -g -O3 -fopenmp -DLVB_MAPREDUCE -std=c++11
 # Warnings
 
@@ -126,15 +126,15 @@ LVB_LIB_OBJS = $(LVB_SRC_DIR)/Admin.$(OBJ) \
 				$(LVB_SRC_DIR)/DataOperations.$(OBJ) \
 				$(LVB_SRC_DIR)/Error.$(OBJ) \
 				$(LVB_SRC_DIR)/FileOperations.$(OBJ) \
-				$(LVB_SRC_DIR)/SearchParameters.$(OBJ) \
-				$(LVB_SRC_DIR)/StartingTemperature.$(OBJ) \
 				$(LVB_SRC_DIR)/LogFile.$(OBJ) \
 				$(LVB_SRC_DIR)/MemoryOperations.$(OBJ) \
 				$(LVB_SRC_DIR)/MyMaths.$(OBJ) \
 				$(LVB_SRC_DIR)/RandomNumberGenerator.$(OBJ) \
-				$(LVB_SRC_DIR)/TreeEvaluation.$(OBJ) \
+				$(LVB_SRC_DIR)/SearchParameters.$(OBJ) \
 				$(LVB_SRC_DIR)/Solve.$(OBJ) \
 				$(LVB_SRC_DIR)/Sops.$(OBJ) \
+				$(LVB_SRC_DIR)/StartingTemperature.$(OBJ) \
+				$(LVB_SRC_DIR)/TreeEvaluation.$(OBJ) \
 				$(LVB_SRC_DIR)/Treestack.$(OBJ) \
 				$(LVB_SRC_DIR)/TreeOperations.$(OBJ) \
     			$(LVB_SRC_DIR)/Wrapper.$(OBJ)

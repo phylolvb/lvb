@@ -44,6 +44,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Solve.h"
 
+using namespace std;
+using namespace std::chrono;
+
 static void lenlog(FILE *lengthfp, TREESTACK *treestack_ptr, long iteration, long length, double temperature)
 /* write a message to file pointer lengthfp; iteration gives current iteration;
  * crash verbosely on write error */
@@ -122,9 +125,15 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *treestack_ptr, const TREEST
 						ClearTreestack(treestack_ptr);
 						current_tree_length = proposed_tree_length;
 					}
-
+						auto start_timer = high_resolution_clock::now();
 						CompareMapReduceTreesHillClimb(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, total_count,
 									check_cmp, misc, mrTreeStack, mrBuffer, tree_length_change, newtree, root, p_current_tree);
+						auto stop = high_resolution_clock::now();
+
+						auto duration = duration_cast<microseconds>(stop - start_timer);
+
+						cout << endl << "CompareMapReduceTreesHillClimb: " << duration.count() << " microseconds | Treestack size: " << treestack_ptr->next << endl;
+
 
 					#else 
 					if (tree_length_change <= 0) {
@@ -134,11 +143,23 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *treestack_ptr, const TREEST
 						current_tree_length = proposed_tree_length;
 					}
 						#ifdef LVB_HASH
+							auto start_timer = high_resolution_clock::now();
 							if (CompareHashTreeToHashstack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE) == 1) 
 						#else
+							auto start_timer = high_resolution_clock::now();
 							if (CompareTreeToTreestack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE) == 1) 
 						#endif
 					{
+						auto stop = high_resolution_clock::now();
+
+						auto duration = duration_cast<microseconds>(stop - start_timer);
+
+						#ifdef LVB_HASH
+						cout << endl << "CompareHashTreeToHashstackHillClimb: " << duration.count() << " microseconds | Treestack size: " << treestack_ptr->next << endl;
+						#else
+						cout << endl << "CompareTreeToTreestackHillClimb: " << duration.count() << " microseconds | Treestack size: " << treestack_ptr->next << endl;
+						#endif
+						
 						newtree = LVB_TRUE;
 						SwapTrees(&p_current_tree, &root, &p_proposed_tree, &proposed_tree_root);
 					}
@@ -246,7 +267,7 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 		tree_setpush(MSA, inittree, root, mrTreeStack, misc);
 	
 	#elif LVB_HASH
-		CompareHashTreeToHashstack(MSA, treestack_ptr, inittree, root, LVB_FALSE);	/* init. tree initially best */
+		CompareHashTreeToHashstack(MSA, treestack_ptr, inittree, root, LVB_FALSE);
 	#else
 		CompareTreeToTreestack(MSA, treestack_ptr, inittree, root, LVB_FALSE);	/* init. tree initially best */  
 	#endif
@@ -350,10 +371,16 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 						ClearTreestack(treestack_ptr);
 						mrTreeStack->map(mrTreeStack, map_clean, NULL);
 				}
+				auto start_timer = high_resolution_clock::now();
 				if(CompareMapReduceTreesAnneal(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, total_count,
 					check_cmp, accepted, misc, mrTreeStack, mrBuffer) == 1) {
 
 					}
+				auto stop = high_resolution_clock::now();
+
+				auto duration = duration_cast<microseconds>(stop - start_timer);
+
+				cout << endl << "CompareMapReduceAnneal: " << duration.count() << " microseconds | Treestack size: " << treestack_ptr->next << endl;
 				}
 				#else
 				if (proposed_tree_length <= best_tree_length)	/* store tree if new */
@@ -363,11 +390,22 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 					ClearTreestack(treestack_ptr);	/* discard old bests */
 				}
 					#ifdef LVB_HASH
+						auto start_timer = high_resolution_clock::now();
 						if(CompareHashTreeToHashstack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE) == 1)
 					#else
+						auto start_timer = high_resolution_clock::now();
 						if(CompareTreeToTreestack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE) == 1)
 					#endif
 					{
+						auto stop = high_resolution_clock::now();
+
+						auto duration = duration_cast<microseconds>(stop - start_timer);
+
+						#ifdef LVB_HASH
+						cout << endl << "CompareHashTreeToHashstackAnneal: " << duration.count() << " microseconds | Treestack size: " << treestack_ptr->next << endl;
+						#else
+						cout << endl << "CompareTreeToTreestackAnneal: " << duration.count() << " microseconds | Treestack size: " << treestack_ptr->next << endl;
+						#endif
 						accepted++;
 					}
 				}
@@ -552,10 +590,10 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 } /* end Anneal() */
 
 #ifdef LVB_MAPREDUCE
-long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool log_progress,
+long GetSoln(Dataptr restrict MSA, TREESTACK *treestack_ptr, Parameters rcstruct, long *iter_p, Lvb_bool log_progress,
 				MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer)
 #else
-long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool log_progress)
+long GetSoln(Dataptr restrict MSA, TREESTACK *treestack_ptr, Parameters rcstruct, long *iter_p, Lvb_bool log_progress)
 
 #endif
 /* get and output solution(s) according to parameters in rcstruct;
@@ -647,7 +685,15 @@ long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool l
 		long val = PullTreefromTreestack(MSA, tree, &initroot, &treestack, LVB_FALSE);
 		CompareTreeToTreestack(MSA, &treestack, tree, initroot, LVB_FALSE);
 
+		auto start_timer = high_resolution_clock::now();
+
 		CompareMapReduceTreesGetSoln(MSA, &treestack, tree, initroot, total_count, misc, mrTreeStack, mrBuffer, val);
+		
+		auto stop = high_resolution_clock::now();
+
+		auto duration = duration_cast<microseconds>(stop - start_timer);
+
+		cout << endl << "CompareMapReduceTreesGetSoln: " << duration.count() << " microseconds | Treestack size: " << treestack_ptr->next << endl;
 
 		if(val = 1) treelength = deterministic_hillclimb(MSA, &treestack, tree, rcstruct, initroot, stdout,
 			iter_p, log_progress, misc, mrTreeStack, mrBuffer);
@@ -659,9 +705,22 @@ long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool l
     PullTreefromTreestack(MSA, tree, &initroot, &treestack, LVB_FALSE);
 
 	#ifdef LVB_HASH
+		auto start_timer = high_resolution_clock::now();
 		CompareHashTreeToHashstack(MSA, &treestack, tree, initroot, LVB_FALSE);
+		auto stop = high_resolution_clock::now();
+
+		auto duration = duration_cast<microseconds>(stop - start_timer);
+
+		cout << endl << "CompareHashTreeToHashstackGetSoln: " << duration.count() << " microseconds | Treestack size: " << treestack_ptr->next << endl;
 	#else
+		auto start_timer = high_resolution_clock::now();
 		CompareTreeToTreestack(MSA, &treestack, tree, initroot, LVB_FALSE);
+
+		auto stop = high_resolution_clock::now();
+
+		auto duration = duration_cast<microseconds>(stop - start_timer);
+
+		cout << endl << "CompareTreeToTreestackGetSoln: " << duration.count() << " microseconds | Treestack size: " << treestack_ptr->next << endl;
 	#endif
 
     treelength = deterministic_hillclimb(MSA, &treestack, tree, rcstruct, initroot, stdout,

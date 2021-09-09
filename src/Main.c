@@ -133,13 +133,13 @@ int main(int argc, char **argv)
     treEvo = fopen ("treEvo.tre","w");
 	iter = 0;
 	#ifdef LVB_MAPREDUCE
-	final_length = GetSoln(MSA, rcstruct, &iter, log_progress, &misc, mrTreeStack, mrBuffer);
+	final_length = GetSoln(MSA, &treestack, rcstruct, &iter, log_progress, &misc, mrTreeStack, mrBuffer);
 	if (misc.rank == 0) {
 		trees_output = PrintTreestack(MSA, &treestack, outtreefp, LVB_FALSE);
 	}
 
 	#else
-	final_length = GetSoln(MSA, rcstruct, &iter, log_progress);
+	final_length = GetSoln(MSA, &treestack, rcstruct, &iter, log_progress);
 	trees_output = PrintTreestack(MSA, &treestack, outtreefp, LVB_FALSE);
 
 	#endif
