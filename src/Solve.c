@@ -134,6 +134,9 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *treestack_ptr, const TREEST
 
 						cout << endl << "CompareMapReduceTreesHillClimb: " << duration.count() << " microseconds | Treestack size: " << treestack_ptr->next << endl;
 
+						FILE *timefunction = fopen("FunctionTimesMR","a+");
+						fprintf (timefunction, "%ld\t%ld\n", duration.count(), treestack_ptr->next);
+						fclose(timefunction);
 
 					#else 
 					if (tree_length_change <= 0) {
@@ -143,7 +146,8 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *treestack_ptr, const TREEST
 						current_tree_length = proposed_tree_length;
 					}
 						#ifdef LVB_HASH
-							auto start_timer = high_resolution_clock::now();
+						
+						auto start_timer = high_resolution_clock::now();
 							if (CompareHashTreeToHashstack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE) == 1) 
 						#else
 							auto start_timer = high_resolution_clock::now();
@@ -156,8 +160,15 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *treestack_ptr, const TREEST
 
 						#ifdef LVB_HASH
 						cout << endl << "CompareHashTreeToHashstackHillClimb: " << duration.count() << " microseconds | Treestack size: " << treestack_ptr->next << endl;
+
+						FILE *timefunction = fopen("FunctionTimesHASH","a+");
+						fprintf (timefunction, "%ld\t%ld\n", duration.count(), treestack_ptr->next);
+						fclose(timefunction);
 						#else
 						cout << endl << "CompareTreeToTreestackHillClimb: " << duration.count() << " microseconds | Treestack size: " << treestack_ptr->next << endl;
+								FILE *timefunction = fopen("FunctionTimesNP","a+");
+								fprintf (timefunction, "%ld\t%ld\n", duration.count(), treestack_ptr->next);
+								fclose(timefunction);
 						#endif
 						
 						newtree = LVB_TRUE;
@@ -381,6 +392,10 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 				auto duration = duration_cast<microseconds>(stop - start_timer);
 
 				cout << endl << "CompareMapReduceAnneal: " << duration.count() << " microseconds | Treestack size: " << treestack_ptr->next << endl;
+
+				FILE *timefunction = fopen("FunctionTimesMR","a+");
+				fprintf (timefunction, "%ld\t%ld\n", duration.count(), treestack_ptr->next);
+				fclose(timefunction);
 				}
 				#else
 				if (proposed_tree_length <= best_tree_length)	/* store tree if new */
@@ -403,8 +418,15 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 
 						#ifdef LVB_HASH
 						cout << endl << "CompareHashTreeToHashstackAnneal: " << duration.count() << " microseconds | Treestack size: " << treestack_ptr->next << endl;
+
+						FILE *timefunction = fopen("FunctionTimesHASH","a+");
+						fprintf (timefunction, "%ld\t%ld\n", duration.count(), treestack_ptr->next);
+						fclose(timefunction);
 						#else
 						cout << endl << "CompareTreeToTreestackAnneal: " << duration.count() << " microseconds | Treestack size: " << treestack_ptr->next << endl;
+								FILE *timefunction = fopen("FunctionTimesNP","a+");
+								fprintf (timefunction, "%ld\t%ld\n", duration.count(), treestack_ptr->next);
+								fclose(timefunction);
 						#endif
 						accepted++;
 					}
@@ -695,6 +717,10 @@ long GetSoln(Dataptr restrict MSA, TREESTACK *treestack_ptr, Parameters rcstruct
 
 		cout << endl << "CompareMapReduceTreesGetSoln: " << duration.count() << " microseconds | Treestack size: " << treestack_ptr->next << endl;
 
+		FILE *timefunction = fopen("FunctionTimesMR","a+");
+		fprintf (timefunction, "%ld\t%ld\n", duration.count(), treestack_ptr->next);
+		fclose(timefunction);
+
 		if(val = 1) treelength = deterministic_hillclimb(MSA, &treestack, tree, rcstruct, initroot, stdout,
 			iter_p, log_progress, misc, mrTreeStack, mrBuffer);
 
@@ -712,6 +738,10 @@ long GetSoln(Dataptr restrict MSA, TREESTACK *treestack_ptr, Parameters rcstruct
 		auto duration = duration_cast<microseconds>(stop - start_timer);
 
 		cout << endl << "CompareHashTreeToHashstackGetSoln: " << duration.count() << " microseconds | Treestack size: " << treestack_ptr->next << endl;
+
+		FILE *timefunction = fopen("FunctionTimesHASH","a+");
+		fprintf (timefunction, "%ld\t%ld\n", duration.count(), treestack_ptr->next);
+		fclose(timefunction);
 	#else
 		auto start_timer = high_resolution_clock::now();
 		CompareTreeToTreestack(MSA, &treestack, tree, initroot, LVB_FALSE);
@@ -721,6 +751,9 @@ long GetSoln(Dataptr restrict MSA, TREESTACK *treestack_ptr, Parameters rcstruct
 		auto duration = duration_cast<microseconds>(stop - start_timer);
 
 		cout << endl << "CompareTreeToTreestackGetSoln: " << duration.count() << " microseconds | Treestack size: " << treestack_ptr->next << endl;
+		FILE *timefunction = fopen("FunctionTimesNP","a+");
+		fprintf (timefunction, "%ld\t%ld\n", duration.count(), treestack_ptr->next);
+		fclose(timefunction);
 	#endif
 
     treelength = deterministic_hillclimb(MSA, &treestack, tree, rcstruct, initroot, stdout,
