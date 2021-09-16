@@ -301,18 +301,19 @@ long CompareMapReduceTreesGetSoln(Dataptr MSA, TREESTACK *sp, const TREESTACK_TR
 					}
 				}
 			}
-		}
 			// PART 3, push
 			MPI_Barrier(MPI_COMM_WORLD);
 			MPI_Bcast(&check_cmp, 1, MPI_INT, 0, MPI_COMM_WORLD);
-			if (check_cmp == 1) {
+			
 			  misc->ID = sp->next;
 				  misc->SB = 1;
 				  tree_setpush(MSA, p_proposed_tree, proposed_tree_root, mrBuffer, misc);
 				  mrTreeStack->add(mrBuffer);
-			}
+				  
 			free(misc->count);
 			free(total_count);
+		}
+			return 1;
 		}
 
 		long CompareMapReduceTrees() {
