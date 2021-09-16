@@ -273,13 +273,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	}
 
 long CompareMapReduceTreesGetSoln(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_NODES *const p_proposed_tree, long proposed_tree_root,
-		int *total_count, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer, long val) {
+		int *total_count, int check_cmp, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer, long val) {
 
 		// PART 1, if treestack is empty
 		if(sp->next == 0) {
 
 		} else {
-		}
 			misc->SB = 0;
 			tree_setpush(MSA, p_proposed_tree, proposed_tree_root, mrBuffer, misc);
 			mrBuffer->add(mrTreeStack);
@@ -301,6 +300,8 @@ long CompareMapReduceTreesGetSoln(Dataptr MSA, TREESTACK *sp, const TREESTACK_TR
 					}
 				}
 			}
+		}
+			
 			MPI_Barrier(MPI_COMM_WORLD);
 			MPI_Bcast(&check_cmp, 1, MPI_INT, 0, MPI_COMM_WORLD);
 			if (check_cmp == 1) {
@@ -312,3 +313,8 @@ long CompareMapReduceTreesGetSoln(Dataptr MSA, TREESTACK *sp, const TREESTACK_TR
 			free(misc->count);
 			free(total_count);
 		}
+
+		long CompareMapReduceTrees() {
+
+		}
+		

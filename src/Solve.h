@@ -60,10 +60,10 @@ long GetSoln(Dataptr restrict, TREESTACK *treestack_ptr, Parameters, long *, Lvb
 long CompareMapReduceTreesAnneal(Dataptr, TREESTACK *, const TREESTACK_TREE_NODES *const, long, 
                         int *, int, long&, MISC *, MapReduce *, MapReduce *);
 long CompareMapReduceTreesGetSoln(Dataptr, TREESTACK *, const TREESTACK_TREE_NODES *const, long,
-		int *, MISC *, MapReduce *, MapReduce *, long);
+		int *, int, MISC *, MapReduce *, MapReduce *, long);
 long CompareMapReduceTreesHillClimb(Dataptr, TREESTACK *, TREESTACK_TREE_NODES *const, long, 
                         int *, int, MISC *, MapReduce *, MapReduce *, long, Lvb_bool, long, TREESTACK_TREE_NODES *const);
-
+long CompareMapReduceTrees();
 #else
 long GetSoln(Dataptr restrict, TREESTACK *treestack_ptr, Parameters, long *, Lvb_bool);
 
