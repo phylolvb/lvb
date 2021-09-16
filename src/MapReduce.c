@@ -278,6 +278,7 @@ long CompareMapReduceTreesGetSoln(Dataptr MSA, TREESTACK *sp, const TREESTACK_TR
 		// PART 1, if treestack is empty
 		if(sp->next == 0) {
 
+		// PART 2, if treestack is not empty, compare
 		} else {
 			misc->SB = 0;
 			tree_setpush(MSA, p_proposed_tree, proposed_tree_root, mrBuffer, misc);
@@ -301,7 +302,7 @@ long CompareMapReduceTreesGetSoln(Dataptr MSA, TREESTACK *sp, const TREESTACK_TR
 				}
 			}
 		}
-			
+			// PART 3, push
 			MPI_Barrier(MPI_COMM_WORLD);
 			MPI_Bcast(&check_cmp, 1, MPI_INT, 0, MPI_COMM_WORLD);
 			if (check_cmp == 1) {
