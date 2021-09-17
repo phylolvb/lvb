@@ -157,18 +157,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	}
 
 	long CompareMapReduceTreesHillClimb(Dataptr MSA, TREESTACK *sp, TREESTACK_TREE_NODES *p_proposed_tree, long proposed_tree_root, int *total_count,
-							int check_cmp, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer, long tree_length_change, Lvb_bool newtree, long root, TREESTACK_TREE_NODES *p_current_tree) {
+							int check_cmp, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer) {
 
-		// PART 1, if treestack is empty
-		if (sp->next == 0) {
-		/*	PushCurrentTreeToStack(MSA, sp, p_proposed_tree, proposed_tree_root, LVB_FALSE);
-			misc->ID = sp->next;
-			
-			misc->SB = 1;
-			tree_setpush(MSA, p_proposed_tree, proposed_tree_root, mrTreeStack, misc); */
+		// if treestack is not empty
+		if (sp->next >= 1) {
 
-		// PART 2, if treestack is not empty, compare
-		} else {
 			misc->SB = 0;
 			tree_setpush(MSA, p_proposed_tree, proposed_tree_root, mrBuffer, misc);
 			mrBuffer->add(mrTreeStack);
@@ -186,35 +179,32 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 			if (misc->rank == 0) { /* sum to root process */
 				for(int i=1; i<=sp->next; i++) {
 					if (misc->nsets == total_count[i]) {
-						check_cmp = 0; /* different */
+						check_cmp = 0; /* same */
 						return 0;
 					}
 				}
 			}
 		}
-		// PART 3, push
+		// Push
 		MPI_Barrier(MPI_COMM_WORLD);
 		MPI_Bcast(&check_cmp, 1, MPI_INT, 0, MPI_COMM_WORLD);
-		if (check_cmp == 0) {
-			misc->SB = 1;
-			tree_setpush(MSA, p_proposed_tree, proposed_tree_root, mrBuffer, misc);
-			mrTreeStack->add(mrBuffer);
-			PushCurrentTreeToStack(MSA, sp, p_proposed_tree, proposed_tree_root, LVB_FALSE);
-			misc->ID = sp->next;
+		
+		misc->SB = 1;
+		tree_setpush(MSA, p_proposed_tree, proposed_tree_root, mrBuffer, misc);
+		mrTreeStack->add(mrBuffer);
+		PushCurrentTreeToStack(MSA, sp, p_proposed_tree, proposed_tree_root, LVB_FALSE);
+		misc->ID = sp->next;
 
-			newtree = LVB_TRUE;
-			SwapTrees(&p_current_tree, &root, &p_proposed_tree, &proposed_tree_root);
-		}
-			free(misc->count);
-			free(total_count);
+		free(misc->count);
+		free(total_count);
 
-			return 1;
+		return 1;
 	}
 
-	long CompareMapReduceTreesAnneal(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_NODES *const p_proposed_tree, long proposed_tree_root, int *total_count,
+	long CompareMapReduceTreesAnneal(Dataptr MSA, TREESTACK *sp, TREESTACK_TREE_NODES *p_proposed_tree, long proposed_tree_root, int *total_count,
 							int check_cmp, long& accepted, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer) {
 		
-        // PART 1, if treestack is empty
+       // PART 1, if treestack is empty
 		if(sp->next == 0) {
 			PushCurrentTreeToStack(MSA, sp, p_proposed_tree, proposed_tree_root, LVB_FALSE);
 			misc->ID = sp->next;
