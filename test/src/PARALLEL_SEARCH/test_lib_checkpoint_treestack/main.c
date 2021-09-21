@@ -60,8 +60,8 @@ int main(int argc, char **argv)
     long root1;				/* root of tree 1 */
     long root2;				/* root of tree 2 */
     long success_cnt = 0;		/* successful tree comparisons */
-    TREESTACK_TREE_BRANCH *tree1;			/* first tree to compare */
-    TREESTACK_TREE_BRANCH *tree2;			/* second tree to compare */
+    TREESTACK_TREE_NODES *tree1;			/* first tree to compare */
+    TREESTACK_TREE_NODES *tree2;			/* second tree to compare */
     int my_id;				/* MPI process ID */
     TREESTACK *s_no_checkpoint;		/* tree stack without checkpointing */
     TREESTACK *s_with_checkpoint;	/* tree stack with checkpointing */

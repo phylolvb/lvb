@@ -1,0 +1,193 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - lcov.info - lvb/Hash.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">lvb</a> - Hash.cpp<span style="font-size: 80%;"> (source / <a href="Hash.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">lcov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">33</td>
+            <td class="headerCovTableEntry">37</td>
+            <td class="headerCovTableEntryMed">89.2 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2021-04-21 09:18:27</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntryLo">71.4 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* LVB</a>
+<span class="lineNum">       2 </span>            : 
+<span class="lineNum">       3 </span>            : (c) Copyright 2003-2012 by Daniel Barker
+<span class="lineNum">       4 </span>            : (c) Copyright 2013, 2014 by Daniel Barker and
+<span class="lineNum">       5 </span>            : Maximilian Strobl
+<span class="lineNum">       6 </span>            : (c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
+<span class="lineNum">       7 </span>            : (c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
+<span class="lineNum">       8 </span>            : and Chris Wood.
+<span class="lineNum">       9 </span>            : (c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
+<span class="lineNum">      10 </span>            : Fernando Guntoro, Maximilian Strobl and Chris Wood.
+<span class="lineNum">      11 </span>            : (c) Copyright 2020 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
+<span class="lineNum">      12 </span>            : Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
+<span class="lineNum">      13 </span>            : 
+<span class="lineNum">      14 </span>            : All rights reserved.
+<span class="lineNum">      15 </span>            : 
+<span class="lineNum">      16 </span>            : Redistribution and use in source and binary forms, with or without
+<span class="lineNum">      17 </span>            : modification, are permitted provided that the following conditions are met:
+<span class="lineNum">      18 </span>            : 
+<span class="lineNum">      19 </span>            : 1. Redistributions of source code must retain the above copyright notice, this
+<span class="lineNum">      20 </span>            : list of conditions and the following disclaimer.
+<span class="lineNum">      21 </span>            : 
+<span class="lineNum">      22 </span>            : 2. Redistributions in binary form must reproduce the above copyright notice,
+<span class="lineNum">      23 </span>            : this list of conditions and the following disclaimer in the documentation
+<span class="lineNum">      24 </span>            : and/or other materials provided with the distribution.
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : 3. Neither the name of the copyright holder nor the names of its contributors
+<span class="lineNum">      27 </span>            : may be used to endorse or promote products derived from this software without
+<span class="lineNum">      28 </span>            : specific prior written permission.
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND
+<span class="lineNum">      31 </span>            : ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+<span class="lineNum">      32 </span>            : WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+<span class="lineNum">      33 </span>            : DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+<span class="lineNum">      34 </span>            : FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+<span class="lineNum">      35 </span>            : DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+<span class="lineNum">      36 </span>            : SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+<span class="lineNum">      37 </span>            : CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+<span class="lineNum">      38 </span>            : OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+<span class="lineNum">      39 </span>            : OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span>            : */
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            : /* ========== Hash.cpp - hashing functions ========== */
+<span class="lineNum">      44 </span>            : 
+<a name="45"><span class="lineNum">      45 </span>            : #include &quot;Hash.h&quot;</a>
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span><span class="lineCov">       1037 : long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_BRANCH *const BranchArray, const long root, Lvb_bool b_with_sitestate)</span>
+<span class="lineNum">      48 </span>            : {
+<span class="lineNum">      49 </span><span class="lineCov">       1037 :     long i = 0, new_root = 0;</span>
+<span class="lineNum">      50 </span>            :     static TREESTACK_TREE_BRANCH *copy_2 = NULL;                        /* possibly re-rooted tree 2 */
+<span class="lineNum">      51 </span><span class="lineCov">       1037 :     Lvb_bool b_First = LVB_TRUE;</span>
+<span class="lineNum">      52 </span>            :     std::string current_site_states;
+<span class="lineNum">      53 </span><span class="lineCov">       1037 :     unsigned long current_site_states_hash = 0;</span>
+<span class="lineNum">      54 </span><span class="lineCov">       1038 :     static std::vector&lt;unsigned long&gt; hashstackvector;</span>
+<span class="lineNum">      55 </span>            : 
+<span class="lineNum">      56 </span>            :         /* allocate &quot;local&quot; static heap memory - static - do not free! */
+<span class="lineNum">      57 </span><span class="lineCov">       1037 :         if (copy_2 == NULL) copy_2 = treealloc(MSA, b_with_sitestate);</span>
+<span class="lineNum">      58 </span><span class="lineCov">       1037 :     treecopy(MSA, copy_2, BranchArray, b_with_sitestate);</span>
+<span class="lineNum">      59 </span><span class="lineCov">       1037 :     if (root != 0){</span>
+<span class="lineNum">      60 </span><span class="lineCov">       1012 :         lvb_reroot(MSA, copy_2, root, new_root, b_with_sitestate);</span>
+<span class="lineNum">      61 </span>            :     }
+<span class="lineNum">      62 </span>            : 
+<span class="lineNum">      63 </span>            :   /* if treestack is empty, add current config */
+<span class="lineNum">      64 </span><span class="lineCov">       1037 :     if (sp-&gt;next == 0){</span>
+<span class="lineNum">      65 </span><span class="lineCov">       1020 :         current_site_states = MakeHashSet(MSA, copy_2, new_root); /* make sset and return sset as string */</span>
+<span class="lineNum">      66 </span>            :       hashstackvector.clear();
+<span class="lineNum">      67 </span><span class="lineCov">       1530 :       current_site_states_hash = HashSiteSet(current_site_states);</span>
+<span class="lineNum">      68 </span>            :     } else{
+<span class="lineNum">      69 </span><span class="lineCov">       8959 :             for (i = sp-&gt;next - 1; i &gt;= 0; i--) {</span>
+<span class="lineNum">      70 </span><span class="lineCov">      26154 :             if (TopologicalHashComparison(MSA, hashstackvector.at(i), copy_2, b_First, current_site_states, current_site_states_hash) == 0) return 0; /* if current hash matches stored hash, exit */</span>
+<span class="lineNum">      71 </span><span class="lineCov">       8432 :                 b_First = LVB_FALSE;</span>
+<span class="lineNum">      72 </span>            :               }
+<span class="lineNum">      73 </span>            :           }
+<span class="lineNum">      74 </span>            :     /* add new hash to vector */
+<span class="lineNum">      75 </span><span class="lineCov">        751 :     hashstackvector.push_back(current_site_states_hash);</span>
+<span class="lineNum">      76 </span>            : 
+<span class="lineNum">      77 </span>            :     /* topology is new so must be pushed */
+<span class="lineNum">      78 </span><span class="lineCov">        751 :     lvb_assert(root &lt; MSA-&gt;n);</span>
+<span class="lineNum">      79 </span><span class="lineCov">        751 :     PushCurrentTreeToStack(MSA, sp, BranchArray, root, b_with_sitestate);</span>
+<span class="lineNum">      80 </span>            :     return 1;
+<span class="lineNum">      81 </span>            : 
+<span class="lineNum">      82 </span>            : } /* end CompareHashTreeToHashstack() */
+<a name="83"><span class="lineNum">      83 </span>            : </a>
+<span class="lineNum">      84 </span>            :  /*if hash != return 1, else return 0 */
+<span class="lineNum">      85 </span><span class="lineCov">       8718 : long TopologicalHashComparison(Dataptr MSA, unsigned long stored_hash, const TREESTACK_TREE_BRANCH *const tree_2, Lvb_bool b_First, std::string current_site_states, unsigned long&amp; current_site_states_hash) {</span>
+<span class="lineNum">      86 </span><span class="lineCov">       8718 :   if (b_First == LVB_TRUE) {</span>
+<span class="lineNum">      87 </span><span class="lineCov">       1054 :     current_site_states = MakeHashSet(MSA, tree_2, 0); /* make sset and return sset as string */</span>
+<span class="lineNum">      88 </span><span class="lineCov">       1581 :     current_site_states_hash = HashSiteSet(current_site_states); /* hash sset string */</span>
+<span class="lineNum">      89 </span>            :   }
+<span class="lineNum">      90 </span><span class="lineCov">      17436 :   return HashComparison(stored_hash, current_site_states_hash); </span>
+<a name="91"><span class="lineNum">      91 </span>            : }</a>
+<span class="lineNum">      92 </span>            : 
+<span class="lineNum">      93 </span><span class="lineNoCov">          0 : long HashComparison(unsigned long stored_hash, unsigned long current_site_states_hash) {</span>
+<span class="lineNum">      94 </span><span class="lineCov">       8718 :     if (stored_hash != current_site_states_hash) return 1;</span>
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 :     return 0;</span>
+<span class="lineNum">      96 </span>            : }
+<a name="97"><span class="lineNum">      97 </span>            : </a>
+<span class="lineNum">      98 </span>            : /* convert sset to string (called from TreeOperations.c) */
+<span class="lineNum">      99 </span><span class="lineCov">       1037 : std::string ConvertSiteSetToString(Dataptr MSA, Objset *oset_1)</span>
+<span class="lineNum">     100 </span>            : {
+<span class="lineNum">     101 </span><span class="lineCov">       1037 :   std::ostringstream os;</span>
+<span class="lineNum">     102 </span><span class="lineCov">     100589 :         for (int i = 0; i &lt; MSA-&gt;nsets; i++){</span>
+<span class="lineNum">     103 </span><span class="lineCov">     201178 :                 os &lt;&lt; i &lt;&lt; &quot;    &quot; &lt;&lt; oset_1[i].cnt &lt;&lt; &quot;    &quot;;</span>
+<span class="lineNum">     104 </span><span class="lineCov">    1063796 :                 for (int x = 0; x &lt; oset_1[i].cnt; x++) </span>
+<span class="lineNum">     105 </span><span class="lineCov">    2127592 :     os &lt;&lt; oset_1[i].set[x] &lt;&lt; &quot;   &quot;;</span>
+<span class="lineNum">     106 </span>            :                 os &lt;&lt; std::endl;
+<span class="lineNum">     107 </span>            :         }
+<span class="lineNum">     108 </span>            :   
+<span class="lineNum">     109 </span>            :   std::string sitesetstr(os.str());
+<span class="lineNum">     110 </span><span class="lineCov">       1037 :   return sitesetstr;</span>
+<a name="111"><span class="lineNum">     111 </span>            : }</a>
+<span class="lineNum">     112 </span>            : 
+<span class="lineNum">     113 </span><span class="lineNoCov">          0 : unsigned long HashSiteSet(std::string currentsiteset)</span>
+<span class="lineNum">     114 </span>            : {
+<a name="115"><span class="lineNum">     115 </span><span class="lineCov">       2074 :   unsigned long str_hash = std::hash&lt;std::string&gt;{}(currentsiteset);</span></a>
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 :   return str_hash;</span>
+<span class="lineNum">     117 </span><span class="lineCov">          3 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

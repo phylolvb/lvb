@@ -1,0 +1,371 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - lcov.info - cxx/win_inln.h</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">cxx</a> - win_inln.h<span style="font-size: 80%;"> (source / <a href="win_inln.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">lcov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">64</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2021-04-21 09:25:29</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">19</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // -*- c++ -*-</a>
+<span class="lineNum">       2 </span>            : //
+<span class="lineNum">       3 </span>            : // Copyright (c) 2004-2005 The Trustees of Indiana University and Indiana
+<span class="lineNum">       4 </span>            : //                         University Research and Technology
+<span class="lineNum">       5 </span>            : //                         Corporation.  All rights reserved.
+<span class="lineNum">       6 </span>            : // Copyright (c) 2004-2005 The University of Tennessee and The University
+<span class="lineNum">       7 </span>            : //                         of Tennessee Research Foundation.  All rights
+<span class="lineNum">       8 </span>            : //                         reserved.
+<span class="lineNum">       9 </span>            : // Copyright (c) 2004-2005 High Performance Computing Center Stuttgart, 
+<span class="lineNum">      10 </span>            : //                         University of Stuttgart.  All rights reserved.
+<span class="lineNum">      11 </span>            : // Copyright (c) 2004-2005 The Regents of the University of California.
+<span class="lineNum">      12 </span>            : //                         All rights reserved.
+<span class="lineNum">      13 </span>            : // Copyright (c) 2007      Sun Microsystems, Inc.  All rights reserved.
+<span class="lineNum">      14 </span>            : // Copyright (c) 2007-2008 Cisco Systems, Inc.  All rights reserved.
+<span class="lineNum">      15 </span>            : // $COPYRIGHT$
+<span class="lineNum">      16 </span>            : // 
+<span class="lineNum">      17 </span>            : // Additional copyrights may follow
+<span class="lineNum">      18 </span>            : // 
+<span class="lineNum">      19 </span>            : // $HEADER$
+<span class="lineNum">      20 </span>            : //
+<span class="lineNum">      21 </span>            : 
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span>            : 
+<span class="lineNum">      24 </span>            : //
+<span class="lineNum">      25 </span>            : // Miscellany
+<span class="lineNum">      26 </span>            : //
+<span class="lineNum">      27 </span>            : 
+<a name="28"><span class="lineNum">      28 </span>            : </a>
+<span class="lineNum">      29 </span>            : inline MPI::Errhandler 
+<span class="lineNum">      30 </span><span class="lineNoCov">          0 : MPI::Win:: Get_errhandler() const </span>
+<span class="lineNum">      31 </span>            : {
+<span class="lineNum">      32 </span>            :     MPI_Errhandler errhandler;
+<span class="lineNum">      33 </span><span class="lineNoCov">          0 :     MPI_Win_get_errhandler(mpi_win, &amp;errhandler);</span>
+<span class="lineNum">      34 </span><span class="lineNoCov">          0 :     return errhandler;</span>
+<span class="lineNum">      35 </span>            : }
+<span class="lineNum">      36 </span>            : 
+<a name="37"><span class="lineNum">      37 </span>            : </a>
+<span class="lineNum">      38 </span>            : inline void 
+<span class="lineNum">      39 </span><span class="lineNoCov">          0 : MPI::Win::Set_errhandler(const MPI::Errhandler&amp; errhandler) const</span>
+<span class="lineNum">      40 </span>            : {
+<span class="lineNum">      41 </span><span class="lineNoCov">          0 :     (void)MPI_Win_set_errhandler(mpi_win, errhandler);</span>
+<span class="lineNum">      42 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">      43 </span>            : 
+<span class="lineNum">      44 </span>            : 
+<span class="lineNum">      45 </span>            : //
+<span class="lineNum">      46 </span>            : // One sided communication
+<span class="lineNum">      47 </span>            : //
+<span class="lineNum">      48 </span>            : 
+<a name="49"><span class="lineNum">      49 </span>            : </a>
+<span class="lineNum">      50 </span>            : inline void 
+<span class="lineNum">      51 </span><span class="lineNoCov">          0 : MPI::Win::Accumulate(const void* origin_addr, int origin_count,</span>
+<span class="lineNum">      52 </span><span class="lineNoCov">          0 :                 const MPI::Datatype&amp; origin_datatype, int target_rank,</span>
+<span class="lineNum">      53 </span>            :                 MPI::Aint target_disp, int target_count,
+<span class="lineNum">      54 </span><span class="lineNoCov">          0 :                 const MPI::Datatype&amp; target_datatype,</span>
+<span class="lineNum">      55 </span><span class="lineNoCov">          0 :                 const MPI::Op&amp; op) const </span>
+<span class="lineNum">      56 </span>            : {
+<span class="lineNum">      57 </span>            :   (void) MPI_Accumulate(const_cast&lt;void *&gt;(origin_addr), origin_count, origin_datatype,
+<span class="lineNum">      58 </span>            :                         target_rank, target_disp, target_count, 
+<span class="lineNum">      59 </span><span class="lineNoCov">          0 :                         target_datatype, op, mpi_win);</span>
+<span class="lineNum">      60 </span>            :   
+<span class="lineNum">      61 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">      62 </span>            : 
+<a name="63"><span class="lineNum">      63 </span>            : </a>
+<span class="lineNum">      64 </span>            : inline void
+<span class="lineNum">      65 </span><span class="lineNoCov">          0 : MPI::Win::Complete() const </span>
+<span class="lineNum">      66 </span>            : {
+<span class="lineNum">      67 </span><span class="lineNoCov">          0 :   (void) MPI_Win_complete(mpi_win);</span>
+<span class="lineNum">      68 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">      69 </span>            : 
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span>            : inline  MPI::Win 
+<span class="lineNum">      72 </span>            : MPI::Win::Create(const void* base, MPI::Aint size, 
+<span class="lineNum">      73 </span>            :                         int disp_unit, const MPI::Info&amp; info, 
+<span class="lineNum">      74 </span>            :                         const MPI::Intracomm&amp; comm) 
+<span class="lineNum">      75 </span>            : {
+<span class="lineNum">      76 </span>            :   MPI_Win newwin;
+<span class="lineNum">      77 </span>            :   (void) MPI_Win_create(const_cast&lt;void *&gt;(base), size, disp_unit, info, comm, &amp;newwin);
+<span class="lineNum">      78 </span>            :   return newwin;
+<span class="lineNum">      79 </span>            : }
+<span class="lineNum">      80 </span>            : 
+<a name="81"><span class="lineNum">      81 </span>            : </a>
+<span class="lineNum">      82 </span>            : inline void 
+<span class="lineNum">      83 </span><span class="lineNoCov">          0 : MPI::Win::Fence(int assert) const </span>
+<span class="lineNum">      84 </span>            : {
+<span class="lineNum">      85 </span><span class="lineNoCov">          0 :   (void) MPI_Win_fence(assert, mpi_win);</span>
+<span class="lineNum">      86 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">      87 </span>            : 
+<a name="88"><span class="lineNum">      88 </span>            : </a>
+<span class="lineNum">      89 </span>            : inline void 
+<span class="lineNum">      90 </span><span class="lineNoCov">          0 : MPI::Win::Get(const void *origin_addr, int origin_count, </span>
+<span class="lineNum">      91 </span><span class="lineNoCov">          0 :                      const MPI::Datatype&amp; origin_datatype, </span>
+<span class="lineNum">      92 </span>            :                      int target_rank, MPI::Aint target_disp, 
+<span class="lineNum">      93 </span>            :                      int target_count, 
+<span class="lineNum">      94 </span><span class="lineNoCov">          0 :                      const MPI::Datatype&amp; target_datatype) const </span>
+<span class="lineNum">      95 </span>            : {
+<span class="lineNum">      96 </span>            :   (void) MPI_Get(const_cast&lt;void *&gt;(origin_addr), origin_count, origin_datatype,
+<span class="lineNum">      97 </span>            :                      target_rank, target_disp, 
+<span class="lineNum">      98 </span><span class="lineNoCov">          0 :                      target_count, target_datatype, mpi_win);</span>
+<span class="lineNum">      99 </span>            : 
+<span class="lineNum">     100 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     101 </span>            : 
+<a name="102"><span class="lineNum">     102 </span>            : </a>
+<span class="lineNum">     103 </span>            : inline MPI::Group 
+<span class="lineNum">     104 </span><span class="lineNoCov">          0 : MPI::Win::Get_group() const</span>
+<span class="lineNum">     105 </span>            : {
+<span class="lineNum">     106 </span>            :   MPI_Group mpi_group;
+<span class="lineNum">     107 </span><span class="lineNoCov">          0 :   (void) MPI_Win_get_group(mpi_win, &amp;mpi_group);</span>
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 :   return mpi_group;</span>
+<span class="lineNum">     109 </span>            : }
+<span class="lineNum">     110 </span>            : 
+<a name="111"><span class="lineNum">     111 </span>            : </a>
+<span class="lineNum">     112 </span>            : inline void 
+<span class="lineNum">     113 </span><span class="lineNoCov">          0 : MPI::Win::Lock(int lock_type, int rank, int assert) const </span>
+<span class="lineNum">     114 </span>            : {
+<span class="lineNum">     115 </span><span class="lineNoCov">          0 :   (void) MPI_Win_lock(lock_type, rank, assert, mpi_win);</span>
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     117 </span>            : 
+<a name="118"><span class="lineNum">     118 </span>            : </a>
+<span class="lineNum">     119 </span>            : inline void 
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 : MPI::Win::Post(const MPI::Group&amp; group, int assert) const </span>
+<span class="lineNum">     121 </span>            : {
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :   (void) MPI_Win_post(group, assert, mpi_win);</span>
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     124 </span>            : 
+<a name="125"><span class="lineNum">     125 </span>            : </a>
+<span class="lineNum">     126 </span>            : inline void 
+<span class="lineNum">     127 </span><span class="lineNoCov">          0 : MPI::Win::Put(const void* origin_addr, int origin_count, </span>
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 :                      const MPI::Datatype&amp; origin_datatype, </span>
+<span class="lineNum">     129 </span>            :                      int target_rank, MPI::Aint target_disp, 
+<span class="lineNum">     130 </span>            :                      int target_count, 
+<span class="lineNum">     131 </span><span class="lineNoCov">          0 :                      const MPI::Datatype&amp; target_datatype) const </span>
+<span class="lineNum">     132 </span>            : {
+<span class="lineNum">     133 </span>            :   (void) MPI_Put(const_cast&lt;void *&gt;(origin_addr), origin_count, origin_datatype, 
+<span class="lineNum">     134 </span>            :                  target_rank, target_disp, target_count,
+<span class="lineNum">     135 </span><span class="lineNoCov">          0 :                  target_datatype, mpi_win);</span>
+<span class="lineNum">     136 </span>            :   
+<span class="lineNum">     137 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     138 </span>            : 
+<a name="139"><span class="lineNum">     139 </span>            : </a>
+<span class="lineNum">     140 </span>            : inline void 
+<span class="lineNum">     141 </span><span class="lineNoCov">          0 : MPI::Win::Start(const MPI::Group&amp; group, int assert) const</span>
+<span class="lineNum">     142 </span>            : {
+<span class="lineNum">     143 </span><span class="lineNoCov">          0 :   (void) MPI_Win_start(group, assert, mpi_win);</span>
+<span class="lineNum">     144 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     145 </span>            : 
+<a name="146"><span class="lineNum">     146 </span>            : </a>
+<span class="lineNum">     147 </span>            : inline bool 
+<span class="lineNum">     148 </span><span class="lineNoCov">          0 : MPI::Win::Test() const</span>
+<span class="lineNum">     149 </span>            : {
+<span class="lineNum">     150 </span>            :   int flag;
+<span class="lineNum">     151 </span><span class="lineNoCov">          0 :   MPI_Win_test(mpi_win, &amp;flag);</span>
+<span class="lineNum">     152 </span><span class="lineNoCov">          0 :   return OPAL_INT_TO_BOOL(flag);</span>
+<span class="lineNum">     153 </span>            :   
+<span class="lineNum">     154 </span>            : }
+<span class="lineNum">     155 </span>            : 
+<a name="156"><span class="lineNum">     156 </span>            : </a>
+<span class="lineNum">     157 </span>            : inline void 
+<span class="lineNum">     158 </span><span class="lineNoCov">          0 : MPI::Win::Unlock(int rank) const</span>
+<span class="lineNum">     159 </span>            : {
+<span class="lineNum">     160 </span><span class="lineNoCov">          0 :   (void) MPI_Win_unlock(rank, mpi_win);</span>
+<span class="lineNum">     161 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     162 </span>            : 
+<a name="163"><span class="lineNum">     163 </span>            : </a>
+<span class="lineNum">     164 </span>            : inline void 
+<span class="lineNum">     165 </span><span class="lineNoCov">          0 : MPI::Win::Wait() const</span>
+<span class="lineNum">     166 </span>            : {
+<span class="lineNum">     167 </span><span class="lineNoCov">          0 :   (void) MPI_Win_wait(mpi_win);</span>
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     169 </span>            : 
+<span class="lineNum">     170 </span>            : 
+<span class="lineNum">     171 </span>            : //
+<span class="lineNum">     172 </span>            : // External Interfaces
+<span class="lineNum">     173 </span>            : //
+<a name="174"><span class="lineNum">     174 </span>            : </a>
+<span class="lineNum">     175 </span>            : inline void 
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 : MPI::Win::Call_errhandler(int errorcode) const</span>
+<span class="lineNum">     177 </span>            : {
+<span class="lineNum">     178 </span><span class="lineNoCov">          0 :   (void) MPI_Win_call_errhandler(mpi_win, errorcode);</span>
+<span class="lineNum">     179 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     180 </span>            : 
+<span class="lineNum">     181 </span>            : // 1) original Create_keyval that takes the first 2 arguments as C++
+<span class="lineNum">     182 </span>            : //    functions
+<span class="lineNum">     183 </span>            : inline int
+<span class="lineNum">     184 </span>            : MPI::Win::Create_keyval(MPI::Win::Copy_attr_function* win_copy_attr_fn,
+<span class="lineNum">     185 </span>            :                              MPI::Win::Delete_attr_function* win_delete_attr_fn, 
+<span class="lineNum">     186 </span>            :                              void* extra_state)
+<span class="lineNum">     187 </span>            : {
+<span class="lineNum">     188 </span>            :     // Back-end function does the heavy lifting
+<span class="lineNum">     189 </span>            :     int ret, keyval;
+<span class="lineNum">     190 </span>            :     ret = do_create_keyval(NULL, NULL, 
+<span class="lineNum">     191 </span>            :                            win_copy_attr_fn, win_delete_attr_fn,
+<span class="lineNum">     192 </span>            :                            extra_state, keyval);
+<span class="lineNum">     193 </span>            :     return (MPI_SUCCESS == ret) ? keyval : ret;
+<span class="lineNum">     194 </span>            : }
+<span class="lineNum">     195 </span>            : 
+<span class="lineNum">     196 </span>            : // 2) overload Create_keyval to take the first 2 arguments as C
+<span class="lineNum">     197 </span>            : //    functions
+<span class="lineNum">     198 </span>            : inline int
+<span class="lineNum">     199 </span>            : MPI::Win::Create_keyval(MPI_Win_copy_attr_function* win_copy_attr_fn,
+<span class="lineNum">     200 </span>            :                              MPI_Win_delete_attr_function* win_delete_attr_fn, 
+<span class="lineNum">     201 </span>            :                              void* extra_state)
+<span class="lineNum">     202 </span>            : {
+<span class="lineNum">     203 </span>            :     // Back-end function does the heavy lifting
+<span class="lineNum">     204 </span>            :     int ret, keyval;
+<span class="lineNum">     205 </span>            :     ret = do_create_keyval(win_copy_attr_fn, win_delete_attr_fn,
+<span class="lineNum">     206 </span>            :                            NULL, NULL, 
+<span class="lineNum">     207 </span>            :                            extra_state, keyval);
+<span class="lineNum">     208 </span>            :     return (MPI_SUCCESS == ret) ? keyval : ret;
+<span class="lineNum">     209 </span>            : }
+<span class="lineNum">     210 </span>            : 
+<span class="lineNum">     211 </span>            : // 3) overload Create_keyval to take the first 2 arguments as C++ &amp; C
+<span class="lineNum">     212 </span>            : //    functions
+<span class="lineNum">     213 </span>            : inline int
+<span class="lineNum">     214 </span>            : MPI::Win::Create_keyval(MPI::Win::Copy_attr_function* win_copy_attr_fn,
+<span class="lineNum">     215 </span>            :                              MPI_Win_delete_attr_function* win_delete_attr_fn,
+<span class="lineNum">     216 </span>            :                              void* extra_state)
+<span class="lineNum">     217 </span>            : {
+<span class="lineNum">     218 </span>            :     // Back-end function does the heavy lifting
+<span class="lineNum">     219 </span>            :     int ret, keyval;
+<span class="lineNum">     220 </span>            :     ret = do_create_keyval(NULL, win_delete_attr_fn,
+<span class="lineNum">     221 </span>            :                            win_copy_attr_fn, NULL, 
+<span class="lineNum">     222 </span>            :                            extra_state, keyval);
+<span class="lineNum">     223 </span>            :     return (MPI_SUCCESS == ret) ? keyval : ret;
+<span class="lineNum">     224 </span>            : }
+<span class="lineNum">     225 </span>            : 
+<span class="lineNum">     226 </span>            : // 4) overload Create_keyval to take the first 2 arguments as C &amp; C++
+<span class="lineNum">     227 </span>            : //    functions
+<span class="lineNum">     228 </span>            : inline int
+<span class="lineNum">     229 </span>            : MPI::Win::Create_keyval(MPI_Win_copy_attr_function* win_copy_attr_fn,
+<span class="lineNum">     230 </span>            :                              MPI::Win::Delete_attr_function* win_delete_attr_fn,
+<span class="lineNum">     231 </span>            :                              void* extra_state)
+<span class="lineNum">     232 </span>            : {
+<span class="lineNum">     233 </span>            :     // Back-end function does the heavy lifting
+<span class="lineNum">     234 </span>            :     int ret, keyval;
+<span class="lineNum">     235 </span>            :     ret = do_create_keyval(win_copy_attr_fn, NULL,
+<span class="lineNum">     236 </span>            :                            NULL, win_delete_attr_fn,
+<span class="lineNum">     237 </span>            :                            extra_state, keyval);
+<span class="lineNum">     238 </span>            :     return (MPI_SUCCESS == ret) ? keyval : ret;
+<span class="lineNum">     239 </span>            : }
+<a name="240"><span class="lineNum">     240 </span>            : </a>
+<span class="lineNum">     241 </span>            : inline void 
+<span class="lineNum">     242 </span><span class="lineNoCov">          0 : MPI::Win::Delete_attr(int win_keyval) </span>
+<span class="lineNum">     243 </span>            : {
+<span class="lineNum">     244 </span><span class="lineNoCov">          0 :   (void) MPI_Win_delete_attr(mpi_win, win_keyval);</span>
+<span class="lineNum">     245 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     246 </span>            : 
+<span class="lineNum">     247 </span>            : 
+<span class="lineNum">     248 </span>            : inline void 
+<span class="lineNum">     249 </span>            : MPI::Win::Free_keyval(int&amp; win_keyval)
+<span class="lineNum">     250 </span>            : {
+<span class="lineNum">     251 </span>            :   (void) MPI_Win_free_keyval(&amp;win_keyval);
+<span class="lineNum">     252 </span>            : }
+<span class="lineNum">     253 </span>            : 
+<span class="lineNum">     254 </span>            : 
+<span class="lineNum">     255 </span>            : // version 1: pre-errata Get_attr (not correct, but probably nice to support
+<span class="lineNum">     256 </span>            : inline bool
+<span class="lineNum">     257 </span>            : MPI::Win::Get_attr(const Win&amp; win, int win_keyval,
+<span class="lineNum">     258 </span>            :                          void* attribute_val) const
+<span class="lineNum">     259 </span>            : {
+<span class="lineNum">     260 </span>            :   int ret;
+<span class="lineNum">     261 </span>            :   (void) MPI_Win_get_attr(win, win_keyval, attribute_val, &amp;ret);
+<span class="lineNum">     262 </span>            :   return OPAL_INT_TO_BOOL(ret);
+<span class="lineNum">     263 </span>            : }
+<span class="lineNum">     264 </span>            : 
+<span class="lineNum">     265 </span>            : 
+<span class="lineNum">     266 </span>            : // version 2: post-errata Get_attr (correct, but no one seems to know about it)
+<span class="lineNum">     267 </span>            : inline bool 
+<span class="lineNum">     268 </span>            : MPI::Win::Get_attr(int win_keyval, void* attribute_val) const
+<span class="lineNum">     269 </span>            : {
+<span class="lineNum">     270 </span>            :   int ret;
+<span class="lineNum">     271 </span>            :   (void) MPI_Win_get_attr(mpi_win, win_keyval, attribute_val, &amp;ret);
+<span class="lineNum">     272 </span>            :   return OPAL_INT_TO_BOOL(ret);
+<span class="lineNum">     273 </span>            : }
+<span class="lineNum">     274 </span>            : 
+<a name="275"><span class="lineNum">     275 </span>            : </a>
+<span class="lineNum">     276 </span>            : inline void 
+<span class="lineNum">     277 </span><span class="lineNoCov">          0 : MPI::Win::Get_name(char* win_name, int&amp; resultlen) const</span>
+<span class="lineNum">     278 </span>            : {
+<span class="lineNum">     279 </span><span class="lineNoCov">          0 :   (void) MPI_Win_get_name(mpi_win, win_name, &amp;resultlen);</span>
+<span class="lineNum">     280 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     281 </span>            : 
+<a name="282"><span class="lineNum">     282 </span>            : </a>
+<span class="lineNum">     283 </span>            : inline void 
+<span class="lineNum">     284 </span><span class="lineNoCov">          0 : MPI::Win::Set_attr(int win_keyval, const void* attribute_val) </span>
+<span class="lineNum">     285 </span>            : {
+<span class="lineNum">     286 </span><span class="lineNoCov">          0 :   (void) MPI_Win_set_attr(mpi_win, win_keyval, const_cast&lt;void *&gt;(attribute_val));</span>
+<span class="lineNum">     287 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     288 </span>            : 
+<a name="289"><span class="lineNum">     289 </span>            : </a>
+<span class="lineNum">     290 </span>            : inline void 
+<span class="lineNum">     291 </span><span class="lineNoCov">          0 : MPI::Win::Set_name(const char* win_name) </span>
+<span class="lineNum">     292 </span>            : {
+<span class="lineNum">     293 </span><span class="lineNoCov">          0 :   (void) MPI_Win_set_name(mpi_win, const_cast&lt;char *&gt;(win_name));</span>
+<span class="lineNum">     294 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     295 </span>            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

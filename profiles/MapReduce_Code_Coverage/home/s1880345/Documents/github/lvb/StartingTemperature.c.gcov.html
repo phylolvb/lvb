@@ -1,0 +1,263 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - lcov.info - /home/s1880345/Documents/github/lvb/StartingTemperature.c</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">home/s1880345/Documents/github/lvb</a> - StartingTemperature.c<span style="font-size: 80%;"> (source / <a href="StartingTemperature.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">lcov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">48</td>
+            <td class="headerCovTableEntry">49</td>
+            <td class="headerCovTableEntryHi">98.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2021-04-21 09:25:29</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /* LVB</a>
+<span class="lineNum">       2 </span>            : 
+<span class="lineNum">       3 </span>            : (c) Copyright 2003-2012 by Daniel Barker
+<span class="lineNum">       4 </span>            : (c) Copyright 2013, 2014 by Daniel Barker and
+<span class="lineNum">       5 </span>            : Maximilian Strobl
+<span class="lineNum">       6 </span>            : (c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
+<span class="lineNum">       7 </span>            : (c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
+<span class="lineNum">       8 </span>            : and Chris Wood.
+<span class="lineNum">       9 </span>            : (c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
+<span class="lineNum">      10 </span>            : Fernando Guntoro, Maximilian Strobl and Chris Wood.
+<span class="lineNum">      11 </span>            : (c) Copyright 2020 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
+<span class="lineNum">      12 </span>            : Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
+<span class="lineNum">      13 </span>            : 
+<span class="lineNum">      14 </span>            : All rights reserved.
+<span class="lineNum">      15 </span>            : 
+<span class="lineNum">      16 </span>            : Redistribution and use in source and binary forms, with or without
+<span class="lineNum">      17 </span>            : modification, are permitted provided that the following conditions are met:
+<span class="lineNum">      18 </span>            : 
+<span class="lineNum">      19 </span>            : 1. Redistributions of source code must retain the above copyright notice, this
+<span class="lineNum">      20 </span>            : list of conditions and the following disclaimer.
+<span class="lineNum">      21 </span>            : 
+<span class="lineNum">      22 </span>            : 2. Redistributions in binary form must reproduce the above copyright notice,
+<span class="lineNum">      23 </span>            : this list of conditions and the following disclaimer in the documentation
+<span class="lineNum">      24 </span>            : and/or other materials provided with the distribution.
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : 3. Neither the name of the copyright holder nor the names of its contributors
+<span class="lineNum">      27 </span>            : may be used to endorse or promote products derived from this software without
+<span class="lineNum">      28 </span>            : specific prior written permission.
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND
+<span class="lineNum">      31 </span>            : ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+<span class="lineNum">      32 </span>            : WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+<span class="lineNum">      33 </span>            : DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+<span class="lineNum">      34 </span>            : FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+<span class="lineNum">      35 </span>            : DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+<span class="lineNum">      36 </span>            : SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+<span class="lineNum">      37 </span>            : CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+<span class="lineNum">      38 </span>            : OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+<span class="lineNum">      39 </span>            : OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span>            : */
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            : /* ========== StartingTemperature.c - determine starting temperature ========== */
+<span class="lineNum">      44 </span>            : 
+<span class="lineNum">      45 </span>            : #include &quot;DataOperations.h&quot;
+<a name="46"><span class="lineNum">      46 </span>            : #include &quot;LVB.h&quot;</a>
+<span class="lineNum">      47 </span>            : 
+<span class="lineNum">      48 </span><span class="lineCov">          1 : double StartingTemperature(Dataptr MSA, const TREESTACK_TREE_BRANCH *const inittree, Parameters rcstruct, long root,</span>
+<span class="lineNum">      49 </span>            :         Lvb_bool log_progress)
+<span class="lineNum">      50 </span>            : 
+<span class="lineNum">      51 </span>            : /* Determine the starting temperature for the annealing search
+<span class="lineNum">      52 </span>            :  * by finding the temperature T at which 65% of proposed
+<span class="lineNum">      53 </span>            :  * positive transitions (changes in the tree structure which increase
+<span class="lineNum">      54 </span>            :  * the tree length) are accepted. Starting at t = LVB_EPS, the
+<span class="lineNum">      55 </span>            :  * algorithm will gradually increase the temperature, estimating the
+<span class="lineNum">      56 </span>            :  * ratio of accepted to proposed postive transitions at each step
+<span class="lineNum">      57 </span>            :  * using a sample of sample_size transitions. When the ratio reaches the
+<span class="lineNum">      58 </span>            :  * desired value the search stops and the current temperature is
+<span class="lineNum">      59 </span>            :  * returned as starting temperature.
+<span class="lineNum">      60 </span>            :  * Note: The procedures for creating mutations and deciding on
+<span class="lineNum">      61 </span>            :  * whether to accept them have been adopted from the Anneal()
+<span class="lineNum">      62 </span>            :  * function.
+<span class="lineNum">      63 </span>            : */
+<span class="lineNum">      64 </span>            : {
+<span class="lineNum">      65 </span>            :         /* Variables for the generation of transitions (adopted from Anneal()) */
+<span class="lineNum">      66 </span>            :     double deltah;              /* change in energy (1 - C.I.) */
+<span class="lineNum">      67 </span>            :     long deltalen;              /* change in length with new tree */
+<span class="lineNum">      68 </span>            :     long iter;          /* iteration of mutate/evaluate loop */
+<span class="lineNum">      69 </span>            :     long len;                   /* length of current tree */
+<span class="lineNum">      70 </span>            :     long lendash;               /* length of proposed new tree */
+<span class="lineNum">      71 </span>            :     long lenmin;                /* minimum length for any tree */
+<span class="lineNum">      72 </span>            :     double pacc;                /* prob. of accepting new config. */
+<span class="lineNum">      73 </span>            :     double r_lenmin;            /* minimum length for any tree */
+<span class="lineNum">      74 </span>            :     long rootdash;              /* root of new configuration */
+<span class="lineNum">      75 </span><span class="lineCov">          1 :     double t = LVB_EPS;         /* current temperature */</span>
+<span class="lineNum">      76 </span>            :     TREESTACK_TREE_BRANCH *x;                   /* current configuration */
+<span class="lineNum">      77 </span>            :     TREESTACK_TREE_BRANCH *xdash;               /* proposed new configuration */
+<span class="lineNum">      78 </span>            : 
+<span class="lineNum">      79 </span>            :     /* Variables specific to the StartingTemperatureemperature() procedure*/
+<span class="lineNum">      80 </span><span class="lineCov">          1 :     int acc_pos_trans = 0;        /* Number of accepted positve transitions */</span>
+<span class="lineNum">      81 </span><span class="lineCov">          1 :     double increment_size = 0.00001; /* Step size by which the temperature is increased */</span>
+<span class="lineNum">      82 </span><span class="lineCov">          1 :     int prop_pos_trans = 0;       /* Number of proposed positve transitions */</span>
+<span class="lineNum">      83 </span><span class="lineCov">          1 :     double r_acc_to_prop = 0;   /* Ratio of accepted to proposed positve transitions */</span>
+<span class="lineNum">      84 </span><span class="lineCov">          1 :     int sample_size = 100;                /* Sample size used to estimate the ratio */</span>
+<span class="lineNum">      85 </span>            :     long *p_todo_arr; /* [MAX_BRANCHES + 1];     list of &quot;dirty&quot; branch nos */
+<span class="lineNum">      86 </span>            :     long *p_todo_arr_sum_changes; /*used in openMP, to sum the partial changes */
+<span class="lineNum">      87 </span>            :     int *p_runs;                                /*used in openMP, 0 if not run yet, 1 if it was processed */
+<span class="lineNum">      88 </span><span class="lineCov">          1 :     const double log_wrapper_LVB_EPS = log_wrapper(LVB_EPS);</span>
+<span class="lineNum">      89 </span>            : 
+<span class="lineNum">      90 </span>            :     /* Create &quot;local&quot; dynamic heap memory and initialise tree
+<span class="lineNum">      91 </span>            :      * structures like in Anneal() */
+<span class="lineNum">      92 </span><span class="lineCov">          1 :     x = treealloc(MSA, LVB_TRUE);</span>
+<span class="lineNum">      93 </span><span class="lineCov">          1 :     xdash = treealloc(MSA, LVB_TRUE);</span>
+<span class="lineNum">      94 </span>            : 
+<span class="lineNum">      95 </span><span class="lineCov">          1 :     treecopy(MSA, x, inittree, LVB_TRUE);       /* current configuration */</span>
+<span class="lineNum">      96 </span><span class="lineCov">          1 :     alloc_memory_to_getplen(MSA, &amp;p_todo_arr, &amp;p_todo_arr_sum_changes, &amp;p_runs);</span>
+<span class="lineNum">      97 </span><span class="lineCov">          1 :     len = getplen(MSA, x, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);</span>
+<span class="lineNum">      98 </span>            : 
+<span class="lineNum">      99 </span><span class="lineCov">          1 :         lenmin = MinimumTreeLength(MSA);</span>
+<span class="lineNum">     100 </span><span class="lineCov">          1 :     r_lenmin = (double) lenmin;</span>
+<span class="lineNum">     101 </span>            : 
+<span class="lineNum">     102 </span>            :     /* Log progress to standard output if chosen*/
+<span class="lineNum">     103 </span>            :     // if (log_progress) printf(&quot;\nDetermining the Starting Temperature ...\n&quot;);
+<span class="lineNum">     104 </span>            : 
+<span class="lineNum">     105 </span><span class="lineCov">        122 :     while (r_acc_to_prop &lt;= 0.65)</span>
+<span class="lineNum">     106 </span>            :     {
+<span class="lineNum">     107 </span>            : 
+<span class="lineNum">     108 </span>            :                 /* Collect a sample of sample_size permutations at the current temperature
+<span class="lineNum">     109 </span>            :                 * and compute the ratio of proposed vs accepted worse changes*/
+<span class="lineNum">     110 </span><span class="lineCov">      12120 :                 for (iter = 0; iter &lt;= sample_size; iter++)</span>
+<span class="lineNum">     111 </span>            :                 {
+<span class="lineNum">     112 </span>            :                         /* Create an alternative tree topology (adopted from Anneal()) */
+<span class="lineNum">     113 </span>            : 
+<span class="lineNum">     114 </span>            :                         /* occasionally re-root, to prevent influence from root position */
+<span class="lineNum">     115 </span><span class="lineCov">      12120 :                         if ((iter % REROOT_INTERVAL) == 0) root = arbreroot(MSA, x, root);</span>
+<span class="lineNum">     116 </span>            : 
+<span class="lineNum">     117 </span><span class="lineCov">      12120 :                         lvb_assert(t &gt; DBL_EPSILON);</span>
+<span class="lineNum">     118 </span>            : 
+<span class="lineNum">     119 </span>            :                         /* mutation: alternate between the two mutation functions */
+<span class="lineNum">     120 </span><span class="lineCov">      12120 :                         rootdash = root;</span>
+<span class="lineNum">     121 </span><span class="lineCov">      12120 :                         if (iter &amp; 0x01) mutate_spr(MSA, xdash, x, root);   /* global change */</span>
+<span class="lineNum">     122 </span><span class="lineCov">       6120 :                         else mutate_nni(MSA, xdash, x, root);   /* local change */</span>
+<span class="lineNum">     123 </span>            : 
+<span class="lineNum">     124 </span><span class="lineCov">      12120 :                         lendash = getplen(MSA, xdash, rcstruct, rootdash, p_todo_arr, p_todo_arr_sum_changes, p_runs);</span>
+<span class="lineNum">     125 </span><span class="lineCov">      12120 :                         lvb_assert (lendash &gt;= 1L);</span>
+<span class="lineNum">     126 </span><span class="lineCov">      12120 :                         deltalen = lendash - len;</span>
+<span class="lineNum">     127 </span><span class="lineCov">      12120 :                         deltah = (r_lenmin / (double) len) - (r_lenmin / (double) lendash);</span>
+<span class="lineNum">     128 </span>            : 
+<span class="lineNum">     129 </span><span class="lineCov">      12120 :                         if (deltah &gt; 1.0)    /* MinimumTreeLength() problem with ambiguous sites */</span>
+<span class="lineNum">     130 </span><span class="lineNoCov">          0 :                                 deltah = 1.0;</span>
+<span class="lineNum">     131 </span>            : 
+<span class="lineNum">     132 </span>            :                         /* Check whether the change is accepted (Again adopted from Anneal()*/
+<span class="lineNum">     133 </span><span class="lineCov">      12120 :                         if (deltalen &lt;= 0)   /* accept the change */</span>
+<span class="lineNum">     134 </span>            :                         {
+<span class="lineNum">     135 </span>            :                                 /* update current tree and its stats */
+<span class="lineNum">     136 </span><span class="lineCov">       2514 :                                 len = lendash;</span>
+<span class="lineNum">     137 </span><span class="lineCov">       2514 :                                 SwapTrees(&amp;x, &amp;root, &amp;xdash, &amp;rootdash);</span>
+<span class="lineNum">     138 </span>            :                         }
+<span class="lineNum">     139 </span>            :                         else {
+<span class="lineNum">     140 </span><span class="lineCov">       9606 :                                 prop_pos_trans++; /* Another positive transition has been generated*/</span>
+<span class="lineNum">     141 </span>            : 
+<span class="lineNum">     142 </span><span class="lineCov">       9606 :                                 if (-deltah &lt; t * log_wrapper_LVB_EPS) {</span>
+<span class="lineNum">     143 </span><span class="lineCov">        877 :                                         pacc = 0.0;</span>
+<span class="lineNum">     144 </span>            :                                         /* Call uni() even though its not required. It
+<span class="lineNum">     145 </span>            :                                         * would have been called in LVB 1.0A, so this
+<span class="lineNum">     146 </span>            :                                         * helps make results identical to results with
+<span class="lineNum">     147 </span>            :                                         * that version. */
+<span class="lineNum">     148 </span><span class="lineCov">        877 :                                         (void) uni();</span>
+<span class="lineNum">     149 </span>            :                                 }
+<span class="lineNum">     150 </span>            :                                 else    /* possibly accept the change */
+<span class="lineNum">     151 </span>            :                                 {
+<span class="lineNum">     152 </span><span class="lineCov">       8729 :                                         pacc = exp_wrapper(-deltah/t);</span>
+<span class="lineNum">     153 </span><span class="lineCov">       8729 :                                         if (uni() &lt; pacc)    /* do accept the change */</span>
+<span class="lineNum">     154 </span>            :                                         {
+<span class="lineNum">     155 </span><span class="lineCov">       1359 :                                                 len = lendash;</span>
+<span class="lineNum">     156 </span><span class="lineCov">       1359 :                                                 SwapTrees(&amp;x, &amp;root, &amp;xdash, &amp;rootdash);</span>
+<span class="lineNum">     157 </span><span class="lineCov">       1359 :                                                 acc_pos_trans++;  /* The change has been accepted */</span>
+<span class="lineNum">     158 </span>            :                                         }
+<span class="lineNum">     159 </span>            :                                 }
+<span class="lineNum">     160 </span>            :                         }
+<span class="lineNum">     161 </span>            :                 }
+<span class="lineNum">     162 </span>            : 
+<span class="lineNum">     163 </span>            :                 /* Calculate the ratio of accepted to proposed positve transitions
+<span class="lineNum">     164 </span>            :                  * at the current temperature*/
+<span class="lineNum">     165 </span><span class="lineCov">        120 :                 r_acc_to_prop = (double) acc_pos_trans / prop_pos_trans;</span>
+<span class="lineNum">     166 </span>            : 
+<span class="lineNum">     167 </span>            :                 /* Increase t and make sure it stays within range*/
+<span class="lineNum">     168 </span><span class="lineCov">        120 :                 t += increment_size;</span>
+<span class="lineNum">     169 </span><span class="lineCov">        120 :                 if (t &gt;= 1 || t &lt;= 0) return 1;</span>
+<span class="lineNum">     170 </span>            : 
+<span class="lineNum">     171 </span>            :                 /* Reset variables for next temperature */
+<span class="lineNum">     172 </span>            :                 prop_pos_trans = 0;
+<span class="lineNum">     173 </span>            :                 acc_pos_trans = 0;
+<span class="lineNum">     174 </span>            :     }
+<span class="lineNum">     175 </span>            : 
+<span class="lineNum">     176 </span>            :     /* free &quot;local&quot; dynamic heap memory */
+<span class="lineNum">     177 </span><span class="lineCov">          1 :     free_memory_to_getplen(&amp;p_todo_arr, &amp;p_todo_arr_sum_changes, &amp;p_runs);</span>
+<span class="lineNum">     178 </span><span class="lineCov">          1 :     free(x);</span>
+<span class="lineNum">     179 </span><span class="lineCov">          1 :     free(xdash);</span>
+<span class="lineNum">     180 </span>            : 
+<span class="lineNum">     181 </span>            :     /* Log progress if chosen*/
+<span class="lineNum">     182 </span><span class="lineCov">          1 :         if (log_progress) printf(&quot;  SA Starting Temperature: %-.8f\n&quot;, (t - increment_size));</span>
+<span class="lineNum">     183 </span>            : 
+<span class="lineNum">     184 </span>            :     /* Return the temperature last used */
+<a name="185"><span class="lineNum">     185 </span><span class="lineCov">          1 :     return (t - increment_size);</span></a>
+<span class="lineNum">     186 </span>            : 
+<span class="lineNum">     187 </span><span class="lineCov">          3 : } /* end StartingTemperature() */</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

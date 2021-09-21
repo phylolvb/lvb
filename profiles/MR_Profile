@@ -1,0 +1,439 @@
+index % time    self  children    called     name
+                                                 <spontaneous>
+[1]     91.5    0.00    1.46                 getsoln(data*, Parameters, long*, Lvb_bool, MISC*, MAPREDUCE_NS::MapReduce*, MAPREDUCE_NS::MapReduce*) [1]
+                0.07    1.33       1/1           Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool, MISC*, MAPREDUCE_NS::MapReduce*, MAPREDUCE_NS::MapReduce*) [2]
+                0.01    0.05       1/1           StartingTemperature(data*, TREESTACK_TREE_BRANCH const*, Parameters, long, Lvb_bool) [6]
+                0.00    0.00       2/752         CompareTreeToTreestack(data*, TREESTACK*, TREESTACK_TREE_BRANCH const*, long, Lvb_bool) [13]
+                0.00    0.00       2/1278        tree_setpush(data*, TREESTACK_TREE_BRANCH const*, long, MAPREDUCE_NS::MapReduce*, MISC*) [10]
+                0.00    0.00       2/2           PullRandomTree(data*, TREESTACK_TREE_BRANCH*) [26]
+                0.00    0.00     102/18531       alloc(unsigned long, char const*) [43]
+                0.00    0.00       2/2           ss_init(data*, TREESTACK_TREE_BRANCH*, unsigned long**) [63]
+                0.00    0.00       1/61          treealloc(data*, Lvb_bool) [56]
+                0.00    0.00       1/1           DNAToBinary(data*, unsigned long**) [87]
+                0.00    0.00       1/1           CheckStandardOutput() [88]
+                0.00    0.00       1/1           PullTreefromTreestack(data*, TREESTACK_TREE_BRANCH*, long*, TREESTACK*, Lvb_bool) [89]
+-----------------------------------------------
+                0.07    1.33       1/1           getsoln(data*, Parameters, long*, Lvb_bool, MISC*, MAPREDUCE_NS::MapReduce*, MAPREDUCE_NS::MapReduce*) [1]
+[2]     87.9    0.07    1.33       1         Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool, MISC*, MAPREDUCE_NS::MapReduce*, MAPREDUCE_NS::MapReduce*) [2]
+                1.02    0.00  354051/366224      getplen(data*, TREESTACK_TREE_BRANCH*, Parameters, long, long*, long*, int*) [3]
+                0.09    0.01  125304/131304      mutate_spr(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, long) [4]
+                0.06    0.02  102800/102800      mutate_tbr(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, long) [5]
+                0.04    0.01  125946/132066      mutate_nni(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, long) [9]
+                0.00    0.04    1276/1278        tree_setpush(data*, TREESTACK_TREE_BRANCH const*, long, MAPREDUCE_NS::MapReduce*, MISC*) [10]
+                0.00    0.03     750/752         CompareTreeToTreestack(data*, TREESTACK*, TREESTACK_TREE_BRANCH const*, long, Lvb_bool) [13]
+                0.01    0.00  656139/797811      uni() [19]
+                0.00    0.00       1/1           print_sets(data*, TREESTACK*, MISC*) [25]
+                0.00    0.00     354/474         arbreroot(data*, TREESTACK_TREE_BRANCH*, long) [27]
+                0.00    0.00  147747/156476      exp_wrapper(double) [38]
+                0.00    0.00   93508/97381       SwapTrees(TREESTACK_TREE_BRANCH**, long*, TREESTACK_TREE_BRANCH**, long*) [39]
+                0.00    0.00    1052/18531       alloc(unsigned long, char const*) [43]
+                0.00    0.00     509/509         ClearTreestack(TREESTACK*) [51]
+                0.00    0.00     297/297         pow_wrapper(double, double) [53]
+                0.00    0.00       3/12          log_wrapper(double) [60]
+                0.00    0.00       2/61          treealloc(data*, Lvb_bool) [56]
+                0.00    0.00       1/1560        treecopy(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, Lvb_bool) [44]
+                0.00    0.00       1/2           alloc_memory_to_getplen(data*, long**, long**, int**) [62]
+                0.00    0.00       1/2           free_memory_to_getplen(long**, long**, int**) [61]
+-----------------------------------------------
+                0.00    0.00      52/366224      CompareTreeToTreestack(data*, TREESTACK*, TREESTACK_TREE_BRANCH const*, long, Lvb_bool) [13]
+                0.04    0.00   12121/366224      StartingTemperature(data*, TREESTACK_TREE_BRANCH const*, Parameters, long, Lvb_bool) [6]
+                1.02    0.00  354051/366224      Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool, MISC*, MAPREDUCE_NS::MapReduce*, MAPREDUCE_NS::MapReduce*) [2]
+[3]     66.7    1.06    0.00  366224         getplen(data*, TREESTACK_TREE_BRANCH*, Parameters, long, long*, long*, int*) [3]
+                0.00    0.00    1536/1536        setstcmp_with_sitestate2(data*, Objset*) [45]
+-----------------------------------------------
+                0.00    0.00    6000/131304      StartingTemperature(data*, TREESTACK_TREE_BRANCH const*, Parameters, long, Lvb_bool) [6]
+                0.09    0.01  125304/131304      Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool, MISC*, MAPREDUCE_NS::MapReduce*, MAPREDUCE_NS::MapReduce*) [2]
+[4]      6.5    0.09    0.01  131304         mutate_spr(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, long) [4]
+                0.01    0.00  342396/798993      randpint(long) [11]
+-----------------------------------------------
+                0.06    0.02  102800/102800      Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool, MISC*, MAPREDUCE_NS::MapReduce*, MAPREDUCE_NS::MapReduce*) [2]
+[5]      5.2    0.06    0.02  102800         mutate_tbr(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, long) [5]
+                0.01    0.00  322441/798993      randpint(long) [11]
+                0.01    0.00  102800/102800      count(TREESTACK_TREE_BRANCH*, int) [20]
+                0.00    0.00   36459/36459       addtoarray(TREESTACK_TREE_BRANCH*, int, int*, int) [42]
+                0.00    0.00       1/18531       alloc(unsigned long, char const*) [43]
+-----------------------------------------------
+                0.01    0.05       1/1           getsoln(data*, Parameters, long*, Lvb_bool, MISC*, MAPREDUCE_NS::MapReduce*, MAPREDUCE_NS::MapReduce*) [1]
+[6]      3.6    0.01    0.05       1         StartingTemperature(data*, TREESTACK_TREE_BRANCH const*, Parameters, long, Lvb_bool) [6]
+                0.04    0.00   12121/366224      getplen(data*, TREESTACK_TREE_BRANCH*, Parameters, long, long*, long*, int*) [3]
+                0.01    0.00       1/2           MinimumTreeLength(data*) [21]
+                0.00    0.00    6000/131304      mutate_spr(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, long) [4]
+                0.00    0.00    6120/132066      mutate_nni(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, long) [9]
+                0.00    0.00    9606/797811      uni() [19]
+                0.00    0.00     120/474         arbreroot(data*, TREESTACK_TREE_BRANCH*, long) [27]
+                0.00    0.00    8729/156476      exp_wrapper(double) [38]
+                0.00    0.00    3873/97381       SwapTrees(TREESTACK_TREE_BRANCH**, long*, TREESTACK_TREE_BRANCH**, long*) [39]
+                0.00    0.00       2/61          treealloc(data*, Lvb_bool) [56]
+                0.00    0.00       1/12          log_wrapper(double) [60]
+                0.00    0.00       1/1560        treecopy(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, Lvb_bool) [44]
+                0.00    0.00       1/2           alloc_memory_to_getplen(data*, long**, long**, int**) [62]
+                0.00    0.00       1/2           free_memory_to_getplen(long**, long**, int**) [61]
+-----------------------------------------------
+                              228928             sort_array(long*, int, int) [7]
+                0.00    0.00      54/2084        print_sets(data*, TREESTACK*, MISC*) [25]
+                0.00    0.00     190/2084        TopologyComparison(data*, Objset*, TREESTACK_TREE_BRANCH const*, Lvb_bool) [23]
+                0.01    0.00     562/2084        makesets(data*, TREESTACK_TREE_BRANCH const*, long) [18]
+                0.03    0.00    1278/2084        tree_setpush(data*, TREESTACK_TREE_BRANCH const*, long, MAPREDUCE_NS::MapReduce*, MISC*) [10]
+[7]      3.1    0.05    0.00    2084+228928  sort_array(long*, int, int) [7]
+                              228928             sort_array(long*, int, int) [7]
+-----------------------------------------------
+                                                 <spontaneous>
+[8]      3.1    0.05    0.00                 hashlittle(void const*, unsigned long, unsigned int) [8]
+-----------------------------------------------
+                0.00    0.00    6120/132066      StartingTemperature(data*, TREESTACK_TREE_BRANCH const*, Parameters, long, Lvb_bool) [6]
+                0.04    0.01  125946/132066      Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool, MISC*, MAPREDUCE_NS::MapReduce*, MAPREDUCE_NS::MapReduce*) [2]
+[9]      2.9    0.04    0.01  132066         mutate_nni(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, long) [9]
+                0.00    0.00  132066/798993      randpint(long) [11]
+                0.00    0.00  132066/797811      uni() [19]
+-----------------------------------------------
+                0.00    0.00       2/1278        getsoln(data*, Parameters, long*, Lvb_bool, MISC*, MAPREDUCE_NS::MapReduce*, MAPREDUCE_NS::MapReduce*) [1]
+                0.00    0.04    1276/1278        Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool, MISC*, MAPREDUCE_NS::MapReduce*, MAPREDUCE_NS::MapReduce*) [2]
+[10]     2.7    0.00    0.04    1278         tree_setpush(data*, TREESTACK_TREE_BRANCH const*, long, MAPREDUCE_NS::MapReduce*, MISC*) [10]
+                0.03    0.00    1278/2084        sort_array(long*, int, int) [7]
+                0.00    0.01    1278/2084        fillsets(data*, Objset*, TREESTACK_TREE_BRANCH const*, long) [15]
+                0.00    0.00    1279/18531       alloc(unsigned long, char const*) [43]
+                0.00    0.00    1251/1305        lvb_reroot(data*, TREESTACK_TREE_BRANCH*, long, long, Lvb_bool) [clone .constprop.41] [46]
+                0.00    0.00       4/12          log_wrapper(double) [60]
+-----------------------------------------------
+                0.00    0.00     478/798993      arbreroot(data*, TREESTACK_TREE_BRANCH*, long) [27]
+                0.00    0.00    1612/798993      PullRandomTree(data*, TREESTACK_TREE_BRANCH*) [26]
+                0.00    0.00  132066/798993      mutate_nni(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, long) [9]
+                0.01    0.00  322441/798993      mutate_tbr(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, long) [5]
+                0.01    0.00  342396/798993      mutate_spr(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, long) [4]
+[11]     1.9    0.03    0.00  798993         randpint(long) [11]
+-----------------------------------------------
+                                                 <spontaneous>
+[12]     1.9    0.03    0.00                 MAPREDUCE_NS::KeyMultiValue::find(int, char*, int, MAPREDUCE_NS::KeyMultiValue::Unique*&) [12]
+-----------------------------------------------
+                0.00    0.00       2/752         getsoln(data*, Parameters, long*, Lvb_bool, MISC*, MAPREDUCE_NS::MapReduce*, MAPREDUCE_NS::MapReduce*) [1]
+                0.00    0.03     750/752         Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool, MISC*, MAPREDUCE_NS::MapReduce*, MAPREDUCE_NS::MapReduce*) [2]
+[13]     1.6    0.00    0.03     752         CompareTreeToTreestack(data*, TREESTACK*, TREESTACK_TREE_BRANCH const*, long, Lvb_bool) [13]
+                0.00    0.02     562/562         makesets(data*, TREESTACK_TREE_BRANCH const*, long) [18]
+                0.00    0.01     292/292         TopologyComparison(data*, Objset*, TREESTACK_TREE_BRANCH const*, Lvb_bool) [23]
+                0.00    0.00      52/366224      getplen(data*, TREESTACK_TREE_BRANCH*, Parameters, long, long*, long*, int*) [3]
+                0.00    0.00     752/1560        treecopy(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, Lvb_bool) [44]
+                0.00    0.00     751/751         PushCurrentTreeToStack(data*, TREESTACK*, TREESTACK_TREE_BRANCH const*, long, Lvb_bool) [50]
+                0.00    0.00     727/1257        lvb_reroot(data*, TREESTACK_TREE_BRANCH*, long, long, Lvb_bool) [48]
+                0.00    0.00       1/18531       alloc(unsigned long, char const*) [43]
+                0.00    0.00       1/61          treealloc(data*, Lvb_bool) [56]
+-----------------------------------------------
+                               78260             realgetobjs(data*, TREESTACK_TREE_BRANCH const*, long, long*, long*) [14]
+                0.02    0.00  202148/202148      fillsets(data*, Objset*, TREESTACK_TREE_BRANCH const*, long) [15]
+[14]     1.3    0.02    0.00  202148+78260   realgetobjs(data*, TREESTACK_TREE_BRANCH const*, long, long*, long*) [14]
+                               78260             realgetobjs(data*, TREESTACK_TREE_BRANCH const*, long, long*, long*) [14]
+-----------------------------------------------
+                              205884             fillsets(data*, Objset*, TREESTACK_TREE_BRANCH const*, long) [15]
+                0.00    0.00      54/2084        print_sets(data*, TREESTACK*, MISC*) [25]
+                0.00    0.00     190/2084        TopologyComparison(data*, Objset*, TREESTACK_TREE_BRANCH const*, Lvb_bool) [23]
+                0.00    0.01     562/2084        makesets(data*, TREESTACK_TREE_BRANCH const*, long) [18]
+                0.00    0.01    1278/2084        tree_setpush(data*, TREESTACK_TREE_BRANCH const*, long, MAPREDUCE_NS::MapReduce*, MISC*) [10]
+[15]     1.3    0.00    0.02    2084+205884  fillsets(data*, Objset*, TREESTACK_TREE_BRANCH const*, long) [15]
+                0.02    0.00  202148/202148      realgetobjs(data*, TREESTACK_TREE_BRANCH const*, long, long*, long*) [14]
+                              205884             fillsets(data*, Objset*, TREESTACK_TREE_BRANCH const*, long) [15]
+-----------------------------------------------
+                                                 <spontaneous>
+[16]     1.3    0.02    0.00                 MAPREDUCE_NS::KeyMultiValue::kv2kmv(int) [16]
+-----------------------------------------------
+                                                 <spontaneous>
+[17]     1.3    0.02    0.00                 MAPREDUCE_NS::KeyMultiValue::kv2unique(int) [17]
+-----------------------------------------------
+                0.00    0.02     562/562         CompareTreeToTreestack(data*, TREESTACK*, TREESTACK_TREE_BRANCH const*, long, Lvb_bool) [13]
+[18]     1.2    0.00    0.02     562         makesets(data*, TREESTACK_TREE_BRANCH const*, long) [18]
+                0.01    0.00     562/2084        sort_array(long*, int, int) [7]
+                0.00    0.01     562/2084        fillsets(data*, Objset*, TREESTACK_TREE_BRANCH const*, long) [15]
+                0.00    0.00       4/12          log_wrapper(double) [60]
+                0.00    0.00       1/18531       alloc(unsigned long, char const*) [43]
+-----------------------------------------------
+                0.00    0.00    9606/797811      StartingTemperature(data*, TREESTACK_TREE_BRANCH const*, Parameters, long, Lvb_bool) [6]
+                0.00    0.00  132066/797811      mutate_nni(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, long) [9]
+                0.01    0.00  656139/797811      Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool, MISC*, MAPREDUCE_NS::MapReduce*, MAPREDUCE_NS::MapReduce*) [2]
+[19]     0.6    0.01    0.00  797811         uni() [19]
+-----------------------------------------------
+                               38638             count(TREESTACK_TREE_BRANCH*, int) [20]
+                0.01    0.00  102800/102800      mutate_tbr(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, long) [5]
+[20]     0.6    0.01    0.00  102800+38638   count(TREESTACK_TREE_BRANCH*, int) [20]
+                               38638             count(TREESTACK_TREE_BRANCH*, int) [20]
+-----------------------------------------------
+                0.01    0.00       1/2           matchange(data*, Parameters) [24]
+                0.01    0.00       1/2           StartingTemperature(data*, TREESTACK_TREE_BRANCH const*, Parameters, long, Lvb_bool) [6]
+[21]     0.6    0.01    0.00       2         MinimumTreeLength(data*) [21]
+-----------------------------------------------
+                                                 <spontaneous>
+[22]     0.6    0.01    0.00                 MAPREDUCE_NS::MapReduce::add(MAPREDUCE_NS::MapReduce*) [22]
+-----------------------------------------------
+                0.00    0.01     292/292         CompareTreeToTreestack(data*, TREESTACK*, TREESTACK_TREE_BRANCH const*, long, Lvb_bool) [13]
+[23]     0.4    0.00    0.01     292         TopologyComparison(data*, Objset*, TREESTACK_TREE_BRANCH const*, Lvb_bool) [23]
+                0.00    0.00     190/2084        sort_array(long*, int, int) [7]
+                0.00    0.00     190/2084        fillsets(data*, Objset*, TREESTACK_TREE_BRANCH const*, long) [15]
+-----------------------------------------------
+                                                 <spontaneous>
+[24]     0.3    0.00    0.01                 matchange(data*, Parameters) [24]
+                0.01    0.00       1/2           MinimumTreeLength(data*) [21]
+                0.00    0.00     102/18531       alloc(unsigned long, char const*) [43]
+                0.00    0.00       1/1           tree_bytes(data*) [86]
+                0.00    0.00       1/1           tree_bytes_without_sitestate(data*) [90]
+-----------------------------------------------
+                0.00    0.00       1/1           Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool, MISC*, MAPREDUCE_NS::MapReduce*, MAPREDUCE_NS::MapReduce*) [2]
+[25]     0.1    0.00    0.00       1         print_sets(data*, TREESTACK*, MISC*) [25]
+                0.00    0.00      54/2084        sort_array(long*, int, int) [7]
+                0.00    0.00      54/2084        fillsets(data*, Objset*, TREESTACK_TREE_BRANCH const*, long) [15]
+                0.00    0.00    5239/18531       alloc(unsigned long, char const*) [43]
+                0.00    0.00      54/1305        lvb_reroot(data*, TREESTACK_TREE_BRANCH*, long, long, Lvb_bool) [clone .constprop.41] [46]
+-----------------------------------------------
+                0.00    0.00       2/2           getsoln(data*, Parameters, long*, Lvb_bool, MISC*, MAPREDUCE_NS::MapReduce*, MAPREDUCE_NS::MapReduce*) [1]
+[26]     0.0    0.00    0.00       2         PullRandomTree(data*, TREESTACK_TREE_BRANCH*) [26]
+                0.00    0.00    1612/798993      randpint(long) [11]
+                0.00    0.00       2/1257        lvb_reroot(data*, TREESTACK_TREE_BRANCH*, long, long, Lvb_bool) [48]
+-----------------------------------------------
+                0.00    0.00     120/474         StartingTemperature(data*, TREESTACK_TREE_BRANCH const*, Parameters, long, Lvb_bool) [6]
+                0.00    0.00     354/474         Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool, MISC*, MAPREDUCE_NS::MapReduce*, MAPREDUCE_NS::MapReduce*) [2]
+[27]     0.0    0.00    0.00     474         arbreroot(data*, TREESTACK_TREE_BRANCH*, long) [27]
+                0.00    0.00     478/798993      randpint(long) [11]
+                0.00    0.00     474/1257        lvb_reroot(data*, TREESTACK_TREE_BRANCH*, long, long, Lvb_bool) [48]
+-----------------------------------------------
+                0.00    0.00       1/1           phylip_dna_matrin(char*, int, data*) [128]
+[28]     0.0    0.00    0.00       1         read_file [28]
+                0.00    0.00       1/1           CReadFiles::CReadFiles() [97]
+                0.00    0.00       1/1           CReadFiles::read_file(std::string, int) [96]
+                0.00    0.00       1/1           CReadFiles::~CReadFiles() [98]
+-----------------------------------------------
+                0.00    0.00    8729/156476      StartingTemperature(data*, TREESTACK_TREE_BRANCH const*, Parameters, long, Lvb_bool) [6]
+                0.00    0.00  147747/156476      Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool, MISC*, MAPREDUCE_NS::MapReduce*, MAPREDUCE_NS::MapReduce*) [2]
+[38]     0.0    0.00    0.00  156476         exp_wrapper(double) [38]
+-----------------------------------------------
+                0.00    0.00    3873/97381       StartingTemperature(data*, TREESTACK_TREE_BRANCH const*, Parameters, long, Lvb_bool) [6]
+                0.00    0.00   93508/97381       Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool, MISC*, MAPREDUCE_NS::MapReduce*, MAPREDUCE_NS::MapReduce*) [2]
+[39]     0.0    0.00    0.00   97381         SwapTrees(TREESTACK_TREE_BRANCH**, long*, TREESTACK_TREE_BRANCH**, long*) [39]
+-----------------------------------------------
+                0.00    0.00   67706/67706       MAPREDUCE_NS::MapReduce::map(MAPREDUCE_NS::MapReduce*, void (*)(unsigned long, char*, int, char*, int, MAPREDUCE_NS::KeyValue*, void*), void*, int) [299]
+[40]     0.0    0.00    0.00   67706         map_clean(unsigned long, char*, int, char*, int, MAPREDUCE_NS::KeyValue*, void*) [40]
+-----------------------------------------------
+                0.00    0.00   54264/54264       MAPREDUCE_NS::MapReduce::reduce(void (*)(char*, int, char*, int, int*, MAPREDUCE_NS::KeyValue*, void*), void*) [315]
+[41]     0.0    0.00    0.00   54264         reduce_count(char*, int, char*, int, int*, MAPREDUCE_NS::KeyValue*, void*) [41]
+-----------------------------------------------
+                               38638             addtoarray(TREESTACK_TREE_BRANCH*, int, int*, int) [42]
+                0.00    0.00   36459/36459       mutate_tbr(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, long) [5]
+[42]     0.0    0.00    0.00   36459+38638   addtoarray(TREESTACK_TREE_BRANCH*, int, int*, int) [42]
+                               38638             addtoarray(TREESTACK_TREE_BRANCH*, int, int*, int) [42]
+-----------------------------------------------
+                0.00    0.00       1/18531       CompareTreeToTreestack(data*, TREESTACK*, TREESTACK_TREE_BRANCH const*, long, Lvb_bool) [13]
+                0.00    0.00       1/18531       PrintTreestack(data*, TREESTACK*, _IO_FILE*, Lvb_bool) [119]
+                0.00    0.00       1/18531       mutate_tbr(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, long) [5]
+                0.00    0.00       1/18531       lvb_reroot(data*, TREESTACK_TREE_BRANCH*, long, long, Lvb_bool) [48]
+                0.00    0.00       1/18531       makesets(data*, TREESTACK_TREE_BRANCH const*, long) [18]
+                0.00    0.00       5/18531       treealloc(data*, Lvb_bool) [56]
+                0.00    0.00     102/18531       getsoln(data*, Parameters, long*, Lvb_bool, MISC*, MAPREDUCE_NS::MapReduce*, MAPREDUCE_NS::MapReduce*) [1]
+                0.00    0.00     102/18531       matchange(data*, Parameters) [24]
+                0.00    0.00     109/18531       PushCurrentTreeToStack(data*, TREESTACK*, TREESTACK_TREE_BRANCH const*, long, Lvb_bool) [50]
+                0.00    0.00    1052/18531       Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool, MISC*, MAPREDUCE_NS::MapReduce*, MAPREDUCE_NS::MapReduce*) [2]
+                0.00    0.00    1279/18531       tree_setpush(data*, TREESTACK_TREE_BRANCH const*, long, MAPREDUCE_NS::MapReduce*, MISC*) [10]
+                0.00    0.00    5238/18531       copy_sitestate(data*, Objset*) [49]
+                0.00    0.00    5239/18531       print_sets(data*, TREESTACK*, MISC*) [25]
+                0.00    0.00    5400/18531       ur_print(data*, _IO_FILE*, TREESTACK_TREE_BRANCH const*, long) [58]
+[43]     0.0    0.00    0.00   18531         alloc(unsigned long, char const*) [43]
+-----------------------------------------------
+                0.00    0.00       1/1560        Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool, MISC*, MAPREDUCE_NS::MapReduce*, MAPREDUCE_NS::MapReduce*) [2]
+                0.00    0.00       1/1560        StartingTemperature(data*, TREESTACK_TREE_BRANCH const*, Parameters, long, Lvb_bool) [6]
+                0.00    0.00       1/1560        PullTreefromTreestack(data*, TREESTACK_TREE_BRANCH*, long*, TREESTACK*, Lvb_bool) [89]
+                0.00    0.00      54/1560        PrintTreestack(data*, TREESTACK*, _IO_FILE*, Lvb_bool) [119]
+                0.00    0.00     751/1560        PushCurrentTreeToStack(data*, TREESTACK*, TREESTACK_TREE_BRANCH const*, long, Lvb_bool) [50]
+                0.00    0.00     752/1560        CompareTreeToTreestack(data*, TREESTACK*, TREESTACK_TREE_BRANCH const*, long, Lvb_bool) [13]
+[44]     0.0    0.00    0.00    1560         treecopy(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, Lvb_bool) [44]
+-----------------------------------------------
+                0.00    0.00    1536/1536        getplen(data*, TREESTACK_TREE_BRANCH*, Parameters, long, long*, long*, int*) [3]
+[45]     0.0    0.00    0.00    1536         setstcmp_with_sitestate2(data*, Objset*) [45]
+-----------------------------------------------
+                0.00    0.00      54/1305        print_sets(data*, TREESTACK*, MISC*) [25]
+                0.00    0.00    1251/1305        tree_setpush(data*, TREESTACK_TREE_BRANCH const*, long, MAPREDUCE_NS::MapReduce*, MISC*) [10]
+[46]     0.0    0.00    0.00    1305         lvb_reroot(data*, TREESTACK_TREE_BRANCH*, long, long, Lvb_bool) [clone .constprop.41] [46]
+-----------------------------------------------
+                0.00    0.00    1278/1278        MAPREDUCE_NS::MapReduce::map_tasks(int, char**, void (*)(int, MAPREDUCE_NS::KeyValue*, void*), void (*)(int, char*, MAPREDUCE_NS::KeyValue*, void*), void*, int, int) [337]
+[47]     0.0    0.00    0.00    1278         map_pushSets(int, MAPREDUCE_NS::KeyValue*, void*) [47]
+-----------------------------------------------
+                0.00    0.00       2/1257        PullRandomTree(data*, TREESTACK_TREE_BRANCH*) [26]
+                0.00    0.00      54/1257        PrintTreestack(data*, TREESTACK*, _IO_FILE*, Lvb_bool) [119]
+                0.00    0.00     474/1257        arbreroot(data*, TREESTACK_TREE_BRANCH*, long) [27]
+                0.00    0.00     727/1257        CompareTreeToTreestack(data*, TREESTACK*, TREESTACK_TREE_BRANCH const*, long, Lvb_bool) [13]
+[48]     0.0    0.00    0.00    1257         lvb_reroot(data*, TREESTACK_TREE_BRANCH*, long, long, Lvb_bool) [48]
+                0.00    0.00       1/18531       alloc(unsigned long, char const*) [43]
+-----------------------------------------------
+                0.00    0.00     751/751         PushCurrentTreeToStack(data*, TREESTACK*, TREESTACK_TREE_BRANCH const*, long, Lvb_bool) [50]
+[49]     0.0    0.00    0.00     751         copy_sitestate(data*, Objset*) [49]
+                0.00    0.00    5238/18531       alloc(unsigned long, char const*) [43]
+-----------------------------------------------
+                0.00    0.00     751/751         CompareTreeToTreestack(data*, TREESTACK*, TREESTACK_TREE_BRANCH const*, long, Lvb_bool) [13]
+[50]     0.0    0.00    0.00     751         PushCurrentTreeToStack(data*, TREESTACK*, TREESTACK_TREE_BRANCH const*, long, Lvb_bool) [50]
+                0.00    0.00     751/1560        treecopy(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, Lvb_bool) [44]
+                0.00    0.00     751/751         copy_sitestate(data*, Objset*) [49]
+                0.00    0.00     109/18531       alloc(unsigned long, char const*) [43]
+                0.00    0.00      54/61          treealloc(data*, Lvb_bool) [56]
+-----------------------------------------------
+                0.00    0.00     509/509         Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool, MISC*, MAPREDUCE_NS::MapReduce*, MAPREDUCE_NS::MapReduce*) [2]
+[51]     0.0    0.00    0.00     509         ClearTreestack(TREESTACK*) [51]
+-----------------------------------------------
+                0.00    0.00     101/403         CReadFiles::is_phylip_interleaved() [94]
+                0.00    0.00     101/403         CReadFiles::is_phylip_line_sequential(int&) [95]
+                0.00    0.00     201/403         CReadFiles::read_phylip() [93]
+[52]     0.0    0.00    0.00     403         CReadFiles::trim(std::string const&) [52]
+-----------------------------------------------
+                0.00    0.00     297/297         Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool, MISC*, MAPREDUCE_NS::MapReduce*, MAPREDUCE_NS::MapReduce*) [2]
+[53]     0.0    0.00    0.00     297         pow_wrapper(double, double) [53]
+-----------------------------------------------
+                0.00    0.00     104/104         MAPREDUCE_NS::MapReduce::reduce(void (*)(char*, int, char*, int, int*, MAPREDUCE_NS::KeyValue*, void*), void*) [315]
+[54]     0.0    0.00    0.00     104         reduce_filter(char*, int, char*, int, int*, MAPREDUCE_NS::KeyValue*, void*) [54]
+-----------------------------------------------
+                0.00    0.00     100/100         CReadFiles::read_phylip() [93]
+[55]     0.0    0.00    0.00     100         CReadFiles::clean_phylip_dna_sequence(std::string) [55]
+-----------------------------------------------
+                0.00    0.00       1/61          getsoln(data*, Parameters, long*, Lvb_bool, MISC*, MAPREDUCE_NS::MapReduce*, MAPREDUCE_NS::MapReduce*) [1]
+                0.00    0.00       1/61          CompareTreeToTreestack(data*, TREESTACK*, TREESTACK_TREE_BRANCH const*, long, Lvb_bool) [13]
+                0.00    0.00       1/61          PrintTreestack(data*, TREESTACK*, _IO_FILE*, Lvb_bool) [119]
+                0.00    0.00       2/61          Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool, MISC*, MAPREDUCE_NS::MapReduce*, MAPREDUCE_NS::MapReduce*) [2]
+                0.00    0.00       2/61          StartingTemperature(data*, TREESTACK_TREE_BRANCH const*, Parameters, long, Lvb_bool) [6]
+                0.00    0.00      54/61          PushCurrentTreeToStack(data*, TREESTACK*, TREESTACK_TREE_BRANCH const*, long, Lvb_bool) [50]
+[56]     0.0    0.00    0.00      61         treealloc(data*, Lvb_bool) [56]
+                0.00    0.00       5/18531       alloc(unsigned long, char const*) [43]
+-----------------------------------------------
+                0.00    0.00      54/54          PrintTreestack(data*, TREESTACK*, _IO_FILE*, Lvb_bool) [119]
+[57]     0.0    0.00    0.00      54         lvb_treeprint(data*, _IO_FILE*, TREESTACK_TREE_BRANCH const*, long) [57]
+-----------------------------------------------
+                               10584             ur_print(data*, _IO_FILE*, TREESTACK_TREE_BRANCH const*, long) [58]
+                0.00    0.00      54/54          PrintTreestack(data*, TREESTACK*, _IO_FILE*, Lvb_bool) [119]
+[58]     0.0    0.00    0.00      54+10584   ur_print(data*, _IO_FILE*, TREESTACK_TREE_BRANCH const*, long) [58]
+                0.00    0.00    5400/18531       alloc(unsigned long, char const*) [43]
+                               10584             ur_print(data*, _IO_FILE*, TREESTACK_TREE_BRANCH const*, long) [58]
+-----------------------------------------------
+                0.00    0.00      16/16          CReadFiles::read_phylip() [93]
+[59]     0.0    0.00    0.00      16         void std::vector<std::string, std::allocator<std::string> >::_M_emplace_back_aux<std::string>(std::string&&) [59]
+-----------------------------------------------
+                0.00    0.00       1/12          StartingTemperature(data*, TREESTACK_TREE_BRANCH const*, Parameters, long, Lvb_bool) [6]
+                0.00    0.00       3/12          Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool, MISC*, MAPREDUCE_NS::MapReduce*, MAPREDUCE_NS::MapReduce*) [2]
+                0.00    0.00       4/12          makesets(data*, TREESTACK_TREE_BRANCH const*, long) [18]
+                0.00    0.00       4/12          tree_setpush(data*, TREESTACK_TREE_BRANCH const*, long, MAPREDUCE_NS::MapReduce*, MISC*) [10]
+[60]     0.0    0.00    0.00      12         log_wrapper(double) [60]
+-----------------------------------------------
+                0.00    0.00       1/2           Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool, MISC*, MAPREDUCE_NS::MapReduce*, MAPREDUCE_NS::MapReduce*) [2]
+                0.00    0.00       1/2           StartingTemperature(data*, TREESTACK_TREE_BRANCH const*, Parameters, long, Lvb_bool) [6]
+[61]     0.0    0.00    0.00       2         free_memory_to_getplen(long**, long**, int**) [61]
+-----------------------------------------------
+                0.00    0.00       1/2           Anneal(data*, TREESTACK*, TREESTACK*, TREESTACK_TREE_BRANCH const*, Parameters, long, double, long, long, long, _IO_FILE*, long*, Lvb_bool, MISC*, MAPREDUCE_NS::MapReduce*, MAPREDUCE_NS::MapReduce*) [2]
+                0.00    0.00       1/2           StartingTemperature(data*, TREESTACK_TREE_BRANCH const*, Parameters, long, Lvb_bool) [6]
+[62]     0.0    0.00    0.00       2         alloc_memory_to_getplen(data*, long**, long**, int**) [62]
+-----------------------------------------------
+                0.00    0.00       2/2           getsoln(data*, Parameters, long*, Lvb_bool, MISC*, MAPREDUCE_NS::MapReduce*, MAPREDUCE_NS::MapReduce*) [1]
+[63]     0.0    0.00    0.00       2         ss_init(data*, TREESTACK_TREE_BRANCH*, unsigned long**) [63]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [563]
+[64]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z11exp_wrapperd [64]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [563]
+[65]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z11file_existsPKc [65]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [563]
+[66]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z12PrintLVBInfov [66]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [563]
+[67]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z13LogFileExistsPKc [67]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [563]
+[68]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z15defaults_paramsP10Parameters [68]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [563]
+[69]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z16PrintInitialTreeP4dataPK21TREESTACK_TREE_BRANCHlll [69]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [563]
+[70]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z17MinimumTreeLengthP4data [70]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [563]
+[71]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z17phylip_dna_matrinPciP4data [71]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [563]
+[72]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z19StartingTemperatureP4dataPK21TREESTACK_TREE_BRANCH10Parametersl8Lvb_bool [72]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [563]
+[73]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z19functionality_checkv [73]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [563]
+[74]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z22PushCurrentTreeToStackP4dataP9TREESTACKPK21TREESTACK_TREE_BRANCHl8Lvb_bool [74]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [563]
+[75]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z23deterministic_hillclimbP4dataP9TREESTACKPK21TREESTACK_TREE_BRANCH10ParameterslP8_IO_FILEPl8Lvb_boolP4MISCPN12MAPREDUCE_NS9MapReduceESF_ [75]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [563]
+[76]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z3univ [76]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [563]
+[77]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z5allocmPKc [77]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [563]
+[78]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z5crashPKcz [78]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [563]
+[79]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z7cleanupv [79]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [563]
+[80]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z7getplenP4dataP21TREESTACK_TREE_BRANCH10ParameterslPlS4_Pi [80]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [563]
+[81]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z9StartTimev [81]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [563]
+[82]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z9map_cleanmPciS_iPN12MAPREDUCE_NS8KeyValueEPv [82]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [563]
+[83]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z9nodeclearP21TREESTACK_TREE_BRANCHl [83]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [563]
+[84]     0.0    0.00    0.00       1         _GLOBAL__sub_I__ZN10CReadFilesC2Ev [84]
+-----------------------------------------------
+                0.00    0.00       1/1           __libc_csu_init [563]
+[85]     0.0    0.00    0.00       1         _GLOBAL__sub_I_read_file [85]
+-----------------------------------------------
+                0.00    0.00       1/1           matchange(data*, Parameters) [24]
+[86]     0.0    0.00    0.00       1         tree_bytes(data*) [86]
+-----------------------------------------------
+                0.00    0.00       1/1           getsoln(data*, Parameters, long*, Lvb_bool, MISC*, MAPREDUCE_NS::MapReduce*, MAPREDUCE_NS::MapReduce*) [1]
+[87]     0.0    0.00    0.00       1         DNAToBinary(data*, unsigned long**) [87]
+-----------------------------------------------
+                0.00    0.00       1/1           getsoln(data*, Parameters, long*, Lvb_bool, MISC*, MAPREDUCE_NS::MapReduce*, MAPREDUCE_NS::MapReduce*) [1]
+[88]     0.0    0.00    0.00       1         CheckStandardOutput() [88]
+-----------------------------------------------
+                0.00    0.00       1/1           getsoln(data*, Parameters, long*, Lvb_bool, MISC*, MAPREDUCE_NS::MapReduce*, MAPREDUCE_NS::MapReduce*) [1]
+[89]     0.0    0.00    0.00       1         PullTreefromTreestack(data*, TREESTACK_TREE_BRANCH*, long*, TREESTACK*, Lvb_bool) [89]
+                0.00    0.00       1/1560        treecopy(data*, TREESTACK_TREE_BRANCH*, TREESTACK_TREE_BRANCH const*, Lvb_bool) [44]
+-----------------------------------------------
+                0.00    0.00       1/1           matchange(data*, Parameters) [24]
+[90]     0.0    0.00    0.00       1         tree_bytes_without_sitestate(data*) [90]
+-----------------------------------------------
+                0.00    0.00       1/1           writeinf(Parameters, data*, int, char**, int) [166]
+[91]     0.0    0.00    0.00       1         LogTime() [91]
+-----------------------------------------------
+                0.00    0.00       1/1           CReadFiles::read_file(std::string, int) [96]
+[92]     0.0    0.00    0.00       1         CReadFiles::clean_data() [92]
+-----------------------------------------------
+                0.00    0.00       1/1           CReadFiles::read_file(std::string, int) [96]
+[93]     0.0    0.00    0.00       1         CReadFiles::read_phylip() [93]
+                0.00    0.00     201/403         CReadFiles::trim(std::string const&) [52]
+                0.00    0.00     100/100         CReadFiles::clean_phylip_dna_sequence(std::string) [55]
+                0.00    0.00      16/16          void std::vector<std::string, std::allocator<std::string> >::_M_emplace_back_aux<std::string>(std::string&&) [59]
+                0.00    0.00       1/1           CReadFiles::is_phylip_interleaved() [94]
+                0.00    0.00       1/1           CReadFiles::is_phylip_line_sequential(int&) [95]
+-----------------------------------------------
+                0.00    0.00       1/1           CReadFiles::read_phylip() [93]
+[94]     0.0    0.00    0.00       1         CReadFiles::is_phylip_interleaved() [94]
+                0.00    0.00     101/403         CReadFiles::trim(std::string const&) [52]
+-----------------------------------------------
+                0.00    0.00       1/1           CReadFiles::read_phylip() [93]
+[95]     0.0    0.00    0.00       1         CReadFiles::is_phylip_line_sequential(int&) [95]
+                0.00    0.00     101/403         CReadFiles::trim(std::string const&) [52]
+-----------------------------------------------
+                0.00    0.00       1/1           read_file [28]
+[96]     0.0    0.00    0.00       1         CReadFiles::read_file(std::string, int) [96]
+                0.00    0.00       1/1           CReadFiles::clean_data() [92]
+                0.00    0.00       1/1           CReadFiles::read_phylip() [93]
+-----------------------------------------------
+                0.00    0.00       1/1           read_file [28]
+[97]     0.0    0.00    0.00       1         CReadFiles::CReadFiles() [97]
+-----------------------------------------------
+                0.00    0.00       1/1           read_file [28]
+[98]     0.0    0.00    0.00       1         CReadFiles::~CReadFiles() [98]

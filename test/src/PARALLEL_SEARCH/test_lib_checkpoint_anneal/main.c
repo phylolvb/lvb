@@ -50,25 +50,25 @@ int main(int argc, char **argv)
     Dataptr MSA;
     Parameters rcstruct;
 
-    TREESTACK_TREE_BRANCH *p_current_tree, *p_current_tree_2;	/* first tree to compare */
-    TREESTACK_TREE_BRANCH *p_proposed_tree, *p_proposed_tree_2;	/* first tree to compare */
+    TREESTACK_TREE_NODES *p_current_tree, *p_current_tree_2;	/* first tree to compare */
+    TREESTACK_TREE_NODES *p_proposed_tree, *p_proposed_tree_2;	/* first tree to compare */
     long accepted = 54, accepted_2;		/* changes accepted */
 	Lvb_bool dect = LVB_FALSE, dect_2;		/* should decrease temperature */
 	double deltah = 0.23423, deltah_2;		/* change in energy (1 - C.I.) */
-	long deltalen = 24, deltalen_2;		/* change in length with new tree */
+	long tree_length_change = 24, deltalen_2;		/* change in length with new tree */
 	long failedcnt = 0, failedcnt_2; 	/* "failed count" for temperatures */
 	long iter = 0, iter_2;		/* iteration of mutate/evaluate loop */
 	long current_iter = 23423, current_iter_2;
-	long len = 34, len_2;			/* length of current tree */
-	long lenbest = 55, lenbest_2;		/* bet length found so far */
-	long lendash = 53, lendash_2;		/* length of proposed new tree */
+	long current_tree_length = 34, len_2;			/* length of current tree */
+	long best_tree_length = 55, lenbest_2;		/* bet length found so far */
+	long proposed_tree_length = 53, proposed_tree_length_2;		/* length of proposed new tree */
 	double ln_t = 6.78, ln_t_2;		/* ln(current temperature) */
 	long t_n = 543, t_n_2;		/* ordinal number of current temperature */
 	double t0 = 0.002345, t0_2;		/* ordinal number of current temperature */
 	double pacc = 24.1, pacc_2;		/* prob. of accepting new config. */
 	long proposed = 345, proposed_2;		/* trees proposed */
-	double r_lenmin, r_lenmin_2;		/* minimum length for any tree */
-	long rootdash = 0, rootdash_2;		/* root of new configuration */
+	double tree_minimum_length, r_lenmin_2;		/* minimum length for any tree */
+	long proposed_tree_root = 0, rootdash_2;		/* root of new configuration */
 	double t = 0.454545, t_2;				/* current temperature */
 	double grad_geom = 0.99, grad_geom_2;			/* "gradient" of the geometric schedule */
 	double grad_linear = 3.64 * LVB_EPS, grad_linear_2; 	/* gradient of the linear schedule */
@@ -92,25 +92,25 @@ int main(int argc, char **argv)
     	p_current_tree_2 = treealloc(MSA, b_with_sitestate_current_tree);
     	p_proposed_tree_2 = treealloc(MSA, b_with_sitestate_proposed_tree);
     	rinit(SEED);
-    	PullRandomTree(MSA, p_current_tree);// rootdash = arbreroot(MSA, p_current_tree, rootdash);
-    	PullRandomTree(MSA, p_proposed_tree);// rootdash = arbreroot(MSA, p_proposed_tree, rootdash);
-    	r_lenmin = (double) MSA->min_len_tree;
-    	checkpoint_anneal(fp, MSA, accepted, dect, deltah, deltalen, failedcnt, iter, current_iter, len, lenbest,
-    						lendash, ln_t, t_n, t0, pacc, proposed, r_lenmin, rootdash, t, grad_geom, grad_linear,
+    	PullRandomTree(MSA, p_current_tree);// proposed_tree_root = arbreroot(MSA, p_current_tree, proposed_tree_root);
+    	PullRandomTree(MSA, p_proposed_tree);// proposed_tree_root = arbreroot(MSA, p_proposed_tree, proposed_tree_root);
+    	tree_minimum_length = (double) MSA->min_len_tree;
+    	checkpoint_anneal(fp, MSA, accepted, dect, deltah, tree_length_change, failedcnt, iter, current_iter, current_tree_length, best_tree_length,
+    						proposed_tree_length, ln_t, t_n, t0, pacc, proposed, tree_minimum_length, proposed_tree_root, t, grad_geom, grad_linear,
     						p_current_tree, b_with_sitestate_current_tree, p_proposed_tree, b_with_sitestate_proposed_tree);
     	lvb_assert(fclose(fp) == 0);
 		fp = fopen("uni_anneal", "rb");
     	restore_anneal(fp, MSA, &accepted_2, &dect_2, &deltah_2, &deltalen_2, &failedcnt_2, &iter_2, &current_iter_2, &len_2, &lenbest_2,
-    			    &lendash_2, &ln_t_2, &t_n_2, &t0_2, &pacc_2, &proposed_2, &r_lenmin_2, &rootdash_2, &t_2, &grad_geom_2,
+    			    &proposed_tree_length_2, &ln_t_2, &t_n_2, &t0_2, &pacc_2, &proposed_2, &r_lenmin_2, &rootdash_2, &t_2, &grad_geom_2,
     				&grad_linear_2, p_current_tree_2, b_with_sitestate_current_tree, p_proposed_tree_2, b_with_sitestate_proposed_tree);
     	lvb_assert(fclose(fp) == 0);
     	remove("uni_anneal");
 
-    	if (accepted_2 == accepted && dect == dect_2 && deltah == deltah_2 && deltalen == deltalen_2 &&
-				failedcnt == failedcnt_2 && iter == iter_2 && current_iter == current_iter_2 && len == len_2 &&
-				lenbest == lenbest_2 && lendash == lendash_2 && ln_t == ln_t_2 &&
-				t_n == t_n_2 && t0 == t0_2 && pacc == pacc_2 && proposed == proposed_2 && r_lenmin == r_lenmin_2 &&
-				rootdash == rootdash_2 && t == t_2 && grad_geom == grad_geom_2 &&
+    	if (accepted_2 == accepted && dect == dect_2 && deltah == deltah_2 && tree_length_change == deltalen_2 &&
+				failedcnt == failedcnt_2 && iter == iter_2 && current_iter == current_iter_2 && current_tree_length == len_2 &&
+				best_tree_length == lenbest_2 && proposed_tree_length == proposed_tree_length_2 && ln_t == ln_t_2 &&
+				t_n == t_n_2 && t0 == t0_2 && pacc == pacc_2 && proposed == proposed_2 && tree_minimum_length == r_lenmin_2 &&
+				proposed_tree_root == rootdash_2 && t == t_2 && grad_geom == grad_geom_2 &&
 				grad_linear == grad_linear_2) {
 
     		treedump_screen(MSA, p_current_tree);

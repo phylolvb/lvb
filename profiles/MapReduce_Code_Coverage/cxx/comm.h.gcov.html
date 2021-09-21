@@ -1,0 +1,541 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - lcov.info - cxx/comm.h</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">cxx</a> - comm.h<span style="font-size: 80%;"> (source / <a href="comm.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">lcov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2021-04-21 09:25:29</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // -*- c++ -*-</a>
+<span class="lineNum">       2 </span>            : // 
+<span class="lineNum">       3 </span>            : // Copyright (c) 2004-2005 The Trustees of Indiana University and Indiana
+<span class="lineNum">       4 </span>            : //                         University Research and Technology
+<span class="lineNum">       5 </span>            : //                         Corporation.  All rights reserved.
+<span class="lineNum">       6 </span>            : // Copyright (c) 2004-2005 The University of Tennessee and The University
+<span class="lineNum">       7 </span>            : //                         of Tennessee Research Foundation.  All rights
+<span class="lineNum">       8 </span>            : //                         reserved.
+<span class="lineNum">       9 </span>            : // Copyright (c) 2004-2005 High Performance Computing Center Stuttgart, 
+<span class="lineNum">      10 </span>            : //                         University of Stuttgart.  All rights reserved.
+<span class="lineNum">      11 </span>            : // Copyright (c) 2004-2005 The Regents of the University of California.
+<span class="lineNum">      12 </span>            : //                         All rights reserved.
+<span class="lineNum">      13 </span>            : // Copyright (c) 2006-2009 Cisco Systems, Inc.  All rights reserved.
+<span class="lineNum">      14 </span>            : // Copyright (c) 2011      FUJITSU LIMITED.  All rights reserved.
+<span class="lineNum">      15 </span>            : // $COPYRIGHT$
+<span class="lineNum">      16 </span>            : // 
+<span class="lineNum">      17 </span>            : // Additional copyrights may follow
+<span class="lineNum">      18 </span>            : // 
+<span class="lineNum">      19 </span>            : // $HEADER$
+<span class="lineNum">      20 </span>            : //
+<span class="lineNum">      21 </span>            : 
+<span class="lineNum">      22 </span>            : class Comm_Null {
+<span class="lineNum">      23 </span>            : #if 0 /* OMPI_ENABLE_MPI_PROFILING */
+<span class="lineNum">      24 </span>            :   //  friend class PMPI::Comm_Null;
+<span class="lineNum">      25 </span>            : #endif
+<span class="lineNum">      26 </span>            : public:
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            : #if 0 /* OMPI_ENABLE_MPI_PROFILING */
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            :   // construction
+<span class="lineNum">      31 </span>            :   inline Comm_Null() { }
+<span class="lineNum">      32 </span>            :   // copy
+<span class="lineNum">      33 </span>            :   inline Comm_Null(const Comm_Null&amp; data) : pmpi_comm(data.pmpi_comm) { }
+<span class="lineNum">      34 </span>            :   // inter-language operability  
+<span class="lineNum">      35 </span>            :   inline Comm_Null(MPI_Comm data) : pmpi_comm(data) { }
+<span class="lineNum">      36 </span>            : 
+<span class="lineNum">      37 </span>            :   inline Comm_Null(const PMPI::Comm_Null&amp; data) : pmpi_comm(data) { }
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            :   // destruction
+<span class="lineNum">      40 </span>            :   virtual inline ~Comm_Null() { }
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span>            :   inline Comm_Null&amp; operator=(const Comm_Null&amp; data) {
+<span class="lineNum">      43 </span>            :     pmpi_comm = data.pmpi_comm; 
+<span class="lineNum">      44 </span>            :     return *this;
+<span class="lineNum">      45 </span>            :   }
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span>            :   // comparison
+<span class="lineNum">      48 </span>            :   inline bool operator==(const Comm_Null&amp; data) const {
+<span class="lineNum">      49 </span>            :     return (bool) (pmpi_comm == data.pmpi_comm); }
+<span class="lineNum">      50 </span>            : 
+<span class="lineNum">      51 </span>            :   inline bool operator!=(const Comm_Null&amp; data) const {
+<span class="lineNum">      52 </span>            :     return (bool) (pmpi_comm != data.pmpi_comm);}
+<span class="lineNum">      53 </span>            : 
+<span class="lineNum">      54 </span>            :   // inter-language operability (conversion operators)
+<span class="lineNum">      55 </span>            :   inline operator MPI_Comm() const { return pmpi_comm; }
+<span class="lineNum">      56 </span>            :   //  inline operator MPI_Comm*() /*const JGS*/ { return pmpi_comm; }
+<span class="lineNum">      57 </span>            :   inline operator const PMPI::Comm_Null&amp;() const { return pmpi_comm; }
+<span class="lineNum">      58 </span>            : 
+<span class="lineNum">      59 </span>            : #else
+<span class="lineNum">      60 </span>            : 
+<span class="lineNum">      61 </span>            :   // construction
+<span class="lineNum">      62 </span>            :   inline Comm_Null() : mpi_comm(MPI_COMM_NULL) { }
+<span class="lineNum">      63 </span>            :   // copy
+<span class="lineNum">      64 </span>            :   inline Comm_Null(const Comm_Null&amp; data) : mpi_comm(data.mpi_comm) { }
+<span class="lineNum">      65 </span>            :   // inter-language operability  
+<span class="lineNum">      66 </span><span class="lineNoCov">          0 :   inline Comm_Null(MPI_Comm data) : mpi_comm(data) { }</span>
+<a name="67"><span class="lineNum">      67 </span>            : </a>
+<span class="lineNum">      68 </span>            :   // destruction
+<span class="lineNum">      69 </span><span class="lineNoCov">          0 :   virtual inline ~Comm_Null() { }</span>
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span>            :  // comparison
+<span class="lineNum">      72 </span>            :   // JGS make sure this is right (in other classes too)
+<span class="lineNum">      73 </span>            :   inline bool operator==(const Comm_Null&amp; data) const {
+<span class="lineNum">      74 </span>            :     return (bool) (mpi_comm == data.mpi_comm); }
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span>            :   inline bool operator!=(const Comm_Null&amp; data) const {
+<span class="lineNum">      77 </span>            :     return (bool) !(*this == data);}
+<span class="lineNum">      78 </span>            : 
+<span class="lineNum">      79 </span>            :   // inter-language operability (conversion operators)
+<span class="lineNum">      80 </span>            :   inline operator MPI_Comm() const { return mpi_comm; }
+<span class="lineNum">      81 </span>            : 
+<span class="lineNum">      82 </span>            : #endif
+<span class="lineNum">      83 </span>            : 
+<span class="lineNum">      84 </span>            :   
+<span class="lineNum">      85 </span>            : protected:
+<span class="lineNum">      86 </span>            : 
+<span class="lineNum">      87 </span>            : #if 0 /* OMPI_ENABLE_MPI_PROFILING */
+<span class="lineNum">      88 </span>            :   PMPI::Comm_Null pmpi_comm;
+<span class="lineNum">      89 </span>            : #else
+<span class="lineNum">      90 </span>            :   MPI_Comm mpi_comm;
+<span class="lineNum">      91 </span>            : #endif
+<span class="lineNum">      92 </span>            :   
+<span class="lineNum">      93 </span>            : 
+<span class="lineNum">      94 </span>            : };
+<a name="95"><span class="lineNum">      95 </span>            : </a>
+<span class="lineNum">      96 </span>            : 
+<span class="lineNum">      97 </span><span class="lineNoCov">          0 : class Comm : public Comm_Null {</span>
+<span class="lineNum">      98 </span>            : public:
+<span class="lineNum">      99 </span>            : 
+<span class="lineNum">     100 </span>            :   typedef void Errhandler_function(Comm&amp;, int*, ...);
+<span class="lineNum">     101 </span>            :   typedef Errhandler_function Errhandler_fn
+<span class="lineNum">     102 </span>            :         __mpi_interface_deprecated__(&quot;MPI::Comm::Errhandler_fn was deprecated in MPI-2.2; use MPI::Comm::Errhandler_function instead&quot;);
+<span class="lineNum">     103 </span>            :   typedef int Copy_attr_function(const Comm&amp; oldcomm, int comm_keyval,
+<span class="lineNum">     104 </span>            :                                  void* extra_state, void* attribute_val_in,
+<span class="lineNum">     105 </span>            :                                  void* attribute_val_out, 
+<span class="lineNum">     106 </span>            :                                  bool&amp; flag);
+<span class="lineNum">     107 </span>            :   typedef int Delete_attr_function(Comm&amp; comm, int comm_keyval, 
+<span class="lineNum">     108 </span>            :                                    void* attribute_val,
+<span class="lineNum">     109 </span>            :                                    void* extra_state);
+<span class="lineNum">     110 </span>            : #if !0 /* OMPI_ENABLE_MPI_PROFILING */
+<span class="lineNum">     111 </span>            : #define _MPI2CPP_ERRHANDLERFN_ Errhandler_function
+<span class="lineNum">     112 </span>            : #define _MPI2CPP_COPYATTRFN_ Copy_attr_function
+<span class="lineNum">     113 </span>            : #define _MPI2CPP_DELETEATTRFN_ Delete_attr_function
+<span class="lineNum">     114 </span>            : #endif
+<span class="lineNum">     115 </span>            : 
+<span class="lineNum">     116 </span>            :   // construction
+<span class="lineNum">     117 </span>            :   Comm();
+<span class="lineNum">     118 </span>            : 
+<span class="lineNum">     119 </span>            :   // copy
+<span class="lineNum">     120 </span>            :   Comm(const Comm_Null&amp; data);
+<span class="lineNum">     121 </span>            : 
+<span class="lineNum">     122 </span>            : #if 0 /* OMPI_ENABLE_MPI_PROFILING */
+<span class="lineNum">     123 </span>            :   Comm(const Comm&amp; data) : 
+<span class="lineNum">     124 </span>            :     Comm_Null(data),
+<span class="lineNum">     125 </span>            :     pmpi_comm((const PMPI::Comm&amp;) data) { }
+<span class="lineNum">     126 </span>            : 
+<span class="lineNum">     127 </span>            :   // inter-language operability
+<span class="lineNum">     128 </span>            :   Comm(MPI_Comm data) : Comm_Null(data), pmpi_comm(data) { }
+<span class="lineNum">     129 </span>            : 
+<span class="lineNum">     130 </span>            :   Comm(const PMPI::Comm&amp; data) :
+<span class="lineNum">     131 </span>            :     Comm_Null((const PMPI::Comm_Null&amp;)data),
+<span class="lineNum">     132 </span>            :     pmpi_comm(data) { }
+<span class="lineNum">     133 </span>            : 
+<span class="lineNum">     134 </span>            :   operator const PMPI::Comm&amp;() const { return pmpi_comm; }
+<span class="lineNum">     135 </span>            : 
+<span class="lineNum">     136 </span>            :   // assignment
+<span class="lineNum">     137 </span>            :   Comm&amp; operator=(const Comm&amp; data) {
+<span class="lineNum">     138 </span>            :     this-&gt;Comm_Null::operator=(data);
+<span class="lineNum">     139 </span>            :     pmpi_comm = data.pmpi_comm; 
+<span class="lineNum">     140 </span>            :     return *this;
+<span class="lineNum">     141 </span>            :   }
+<span class="lineNum">     142 </span>            :   Comm&amp; operator=(const Comm_Null&amp; data) {
+<span class="lineNum">     143 </span>            :     this-&gt;Comm_Null::operator=(data);
+<span class="lineNum">     144 </span>            :     MPI_Comm tmp = data;
+<span class="lineNum">     145 </span>            :     pmpi_comm = tmp; 
+<span class="lineNum">     146 </span>            :     return *this;
+<span class="lineNum">     147 </span>            :   }
+<span class="lineNum">     148 </span>            :   // inter-language operability
+<span class="lineNum">     149 </span>            :   Comm&amp; operator=(const MPI_Comm&amp; data) {
+<span class="lineNum">     150 </span>            :     this-&gt;Comm_Null::operator=(data);
+<span class="lineNum">     151 </span>            :     pmpi_comm = data;
+<span class="lineNum">     152 </span>            :     return *this;
+<span class="lineNum">     153 </span>            :   }
+<span class="lineNum">     154 </span>            : 
+<span class="lineNum">     155 </span>            : #else
+<span class="lineNum">     156 </span>            :   Comm(const Comm&amp; data) : Comm_Null(data.mpi_comm) { }
+<span class="lineNum">     157 </span>            :   // inter-language operability
+<span class="lineNum">     158 </span><span class="lineNoCov">          0 :   Comm(MPI_Comm data) : Comm_Null(data) { }</span>
+<span class="lineNum">     159 </span>            : #endif
+<span class="lineNum">     160 </span>            : 
+<span class="lineNum">     161 </span>            : 
+<span class="lineNum">     162 </span>            :   //
+<span class="lineNum">     163 </span>            :   // Point-to-Point
+<span class="lineNum">     164 </span>            :   //
+<span class="lineNum">     165 </span>            : 
+<span class="lineNum">     166 </span>            :   virtual void Send(const void *buf, int count, 
+<span class="lineNum">     167 </span>            :                     const Datatype &amp; datatype, int dest, int tag) const;
+<span class="lineNum">     168 </span>            : 
+<span class="lineNum">     169 </span>            :   virtual void Recv(void *buf, int count, const Datatype &amp; datatype,
+<span class="lineNum">     170 </span>            :                     int source, int tag, Status &amp; status) const;
+<span class="lineNum">     171 </span>            : 
+<span class="lineNum">     172 </span>            : 
+<span class="lineNum">     173 </span>            :   virtual void Recv(void *buf, int count, const Datatype &amp; datatype,
+<span class="lineNum">     174 </span>            :                     int source, int tag) const;
+<span class="lineNum">     175 </span>            :   
+<span class="lineNum">     176 </span>            :   virtual void Bsend(const void *buf, int count,
+<span class="lineNum">     177 </span>            :                      const Datatype &amp; datatype, int dest, int tag) const;
+<span class="lineNum">     178 </span>            :   
+<span class="lineNum">     179 </span>            :   virtual void Ssend(const void *buf, int count, 
+<span class="lineNum">     180 </span>            :                      const Datatype &amp; datatype, int dest, int tag) const ;
+<span class="lineNum">     181 </span>            : 
+<span class="lineNum">     182 </span>            :   virtual void Rsend(const void *buf, int count,
+<span class="lineNum">     183 </span>            :                      const Datatype &amp; datatype, int dest, int tag) const;
+<span class="lineNum">     184 </span>            :   
+<span class="lineNum">     185 </span>            :   virtual Request Isend(const void *buf, int count,
+<span class="lineNum">     186 </span>            :                         const Datatype &amp; datatype, int dest, int tag) const;
+<span class="lineNum">     187 </span>            :   
+<span class="lineNum">     188 </span>            :   virtual Request Ibsend(const void *buf, int count, const
+<span class="lineNum">     189 </span>            :                          Datatype &amp; datatype, int dest, int tag) const;
+<span class="lineNum">     190 </span>            :   
+<span class="lineNum">     191 </span>            :   virtual Request Issend(const void *buf, int count,
+<span class="lineNum">     192 </span>            :                          const Datatype &amp; datatype, int dest, int tag) const;
+<span class="lineNum">     193 </span>            :   
+<span class="lineNum">     194 </span>            :   virtual Request Irsend(const void *buf, int count,
+<span class="lineNum">     195 </span>            :                          const Datatype &amp; datatype, int dest, int tag) const;
+<span class="lineNum">     196 </span>            : 
+<span class="lineNum">     197 </span>            :   virtual Request Irecv(void *buf, int count,
+<span class="lineNum">     198 </span>            :                         const Datatype &amp; datatype, int source, int tag) const;
+<span class="lineNum">     199 </span>            : 
+<span class="lineNum">     200 </span>            :   virtual bool Iprobe(int source, int tag, Status &amp; status) const;
+<span class="lineNum">     201 </span>            : 
+<span class="lineNum">     202 </span>            :   virtual bool Iprobe(int source, int tag) const;
+<span class="lineNum">     203 </span>            : 
+<span class="lineNum">     204 </span>            :   virtual void Probe(int source, int tag, Status &amp; status) const;
+<span class="lineNum">     205 </span>            :   
+<span class="lineNum">     206 </span>            :   virtual void Probe(int source, int tag) const;
+<span class="lineNum">     207 </span>            :   
+<span class="lineNum">     208 </span>            :   virtual Prequest Send_init(const void *buf, int count,
+<span class="lineNum">     209 </span>            :                              const Datatype &amp; datatype, int dest, 
+<span class="lineNum">     210 </span>            :                              int tag) const;
+<span class="lineNum">     211 </span>            :   
+<span class="lineNum">     212 </span>            :   virtual Prequest Bsend_init(const void *buf, int count,
+<span class="lineNum">     213 </span>            :                               const Datatype &amp; datatype, int dest, 
+<span class="lineNum">     214 </span>            :                               int tag) const;
+<span class="lineNum">     215 </span>            :   
+<span class="lineNum">     216 </span>            :   virtual Prequest Ssend_init(const void *buf, int count,
+<span class="lineNum">     217 </span>            :                               const Datatype &amp; datatype, int dest, 
+<span class="lineNum">     218 </span>            :                               int tag) const;
+<span class="lineNum">     219 </span>            :   
+<span class="lineNum">     220 </span>            :   virtual Prequest Rsend_init(const void *buf, int count,
+<span class="lineNum">     221 </span>            :                               const Datatype &amp; datatype, int dest, 
+<span class="lineNum">     222 </span>            :                               int tag) const;
+<span class="lineNum">     223 </span>            :   
+<span class="lineNum">     224 </span>            :   virtual Prequest Recv_init(void *buf, int count,
+<span class="lineNum">     225 </span>            :                              const Datatype &amp; datatype, int source, 
+<span class="lineNum">     226 </span>            :                              int tag) const;
+<span class="lineNum">     227 </span>            :   
+<span class="lineNum">     228 </span>            :   virtual void Sendrecv(const void *sendbuf, int sendcount,
+<span class="lineNum">     229 </span>            :                         const Datatype &amp; sendtype, int dest, int sendtag, 
+<span class="lineNum">     230 </span>            :                         void *recvbuf, int recvcount, 
+<span class="lineNum">     231 </span>            :                         const Datatype &amp; recvtype, int source,
+<span class="lineNum">     232 </span>            :                         int recvtag, Status &amp; status) const;
+<span class="lineNum">     233 </span>            :   
+<span class="lineNum">     234 </span>            :   virtual void Sendrecv(const void *sendbuf, int sendcount,
+<span class="lineNum">     235 </span>            :                         const Datatype &amp; sendtype, int dest, int sendtag, 
+<span class="lineNum">     236 </span>            :                         void *recvbuf, int recvcount, 
+<span class="lineNum">     237 </span>            :                         const Datatype &amp; recvtype, int source,
+<span class="lineNum">     238 </span>            :                         int recvtag) const;
+<span class="lineNum">     239 </span>            : 
+<span class="lineNum">     240 </span>            :   virtual void Sendrecv_replace(void *buf, int count,
+<span class="lineNum">     241 </span>            :                                 const Datatype &amp; datatype, int dest, 
+<span class="lineNum">     242 </span>            :                                 int sendtag, int source,
+<span class="lineNum">     243 </span>            :                                 int recvtag, Status &amp; status) const;
+<span class="lineNum">     244 </span>            : 
+<span class="lineNum">     245 </span>            :   virtual void Sendrecv_replace(void *buf, int count,
+<span class="lineNum">     246 </span>            :                                 const Datatype &amp; datatype, int dest, 
+<span class="lineNum">     247 </span>            :                                 int sendtag, int source,
+<span class="lineNum">     248 </span>            :                                 int recvtag) const;
+<span class="lineNum">     249 </span>            :   
+<span class="lineNum">     250 </span>            :   //
+<span class="lineNum">     251 </span>            :   // Groups, Contexts, and Communicators
+<span class="lineNum">     252 </span>            :   //
+<span class="lineNum">     253 </span>            : 
+<span class="lineNum">     254 </span>            :   virtual Group Get_group() const;
+<span class="lineNum">     255 </span>            :   
+<span class="lineNum">     256 </span>            :   virtual int Get_size() const;
+<span class="lineNum">     257 </span>            : 
+<span class="lineNum">     258 </span>            :   virtual int Get_rank() const;
+<span class="lineNum">     259 </span>            :   
+<span class="lineNum">     260 </span>            :   static int Compare(const Comm &amp; comm1, const Comm &amp; comm2);
+<span class="lineNum">     261 </span>            :   
+<span class="lineNum">     262 </span>            :   virtual Comm&amp; Clone() const = 0;
+<span class="lineNum">     263 </span>            : 
+<span class="lineNum">     264 </span>            :   virtual void Free(void);
+<span class="lineNum">     265 </span>            :   
+<span class="lineNum">     266 </span>            :   virtual bool Is_inter() const;
+<span class="lineNum">     267 </span>            : 
+<span class="lineNum">     268 </span>            : 
+<span class="lineNum">     269 </span>            :   //
+<span class="lineNum">     270 </span>            :   // Collective Communication
+<span class="lineNum">     271 </span>            :   //
+<span class="lineNum">     272 </span>            :   // Up in Comm because as of MPI-2, they are common to intracomm and
+<span class="lineNum">     273 </span>            :   // intercomm -- with the exception of Scan and Exscan, which are not
+<span class="lineNum">     274 </span>            :   // defined on intercomms.
+<span class="lineNum">     275 </span>            :   //
+<span class="lineNum">     276 </span>            : 
+<span class="lineNum">     277 </span>            :   virtual void
+<span class="lineNum">     278 </span>            :   Barrier() const;
+<span class="lineNum">     279 </span>            : 
+<span class="lineNum">     280 </span>            :   virtual void
+<span class="lineNum">     281 </span>            :   Bcast(void *buffer, int count, 
+<span class="lineNum">     282 </span>            :         const Datatype&amp; datatype, int root) const;
+<span class="lineNum">     283 </span>            :   
+<span class="lineNum">     284 </span>            :   virtual void
+<span class="lineNum">     285 </span>            :   Gather(const void *sendbuf, int sendcount, 
+<span class="lineNum">     286 </span>            :          const Datatype &amp; sendtype, 
+<span class="lineNum">     287 </span>            :          void *recvbuf, int recvcount, 
+<span class="lineNum">     288 </span>            :          const Datatype &amp; recvtype, int root) const;
+<span class="lineNum">     289 </span>            :   
+<span class="lineNum">     290 </span>            :   virtual void
+<span class="lineNum">     291 </span>            :   Gatherv(const void *sendbuf, int sendcount, 
+<span class="lineNum">     292 </span>            :           const Datatype &amp; sendtype, void *recvbuf, 
+<span class="lineNum">     293 </span>            :           const int recvcounts[], const int displs[], 
+<span class="lineNum">     294 </span>            :           const Datatype &amp; recvtype, int root) const;
+<span class="lineNum">     295 </span>            :   
+<span class="lineNum">     296 </span>            :   virtual void
+<span class="lineNum">     297 </span>            :   Scatter(const void *sendbuf, int sendcount, 
+<span class="lineNum">     298 </span>            :           const Datatype &amp; sendtype, 
+<span class="lineNum">     299 </span>            :           void *recvbuf, int recvcount, 
+<span class="lineNum">     300 </span>            :           const Datatype &amp; recvtype, int root) const;
+<span class="lineNum">     301 </span>            :   
+<span class="lineNum">     302 </span>            :   virtual void
+<span class="lineNum">     303 </span>            :   Scatterv(const void *sendbuf, const int sendcounts[], 
+<span class="lineNum">     304 </span>            :            const int displs[], const Datatype &amp; sendtype,
+<span class="lineNum">     305 </span>            :            void *recvbuf, int recvcount, 
+<span class="lineNum">     306 </span>            :            const Datatype &amp; recvtype, int root) const;
+<span class="lineNum">     307 </span>            :   
+<span class="lineNum">     308 </span>            :   virtual void
+<span class="lineNum">     309 </span>            :   Allgather(const void *sendbuf, int sendcount, 
+<span class="lineNum">     310 </span>            :             const Datatype &amp; sendtype, void *recvbuf, 
+<span class="lineNum">     311 </span>            :             int recvcount, const Datatype &amp; recvtype) const;
+<span class="lineNum">     312 </span>            :   
+<span class="lineNum">     313 </span>            :   virtual void
+<span class="lineNum">     314 </span>            :   Allgatherv(const void *sendbuf, int sendcount, 
+<span class="lineNum">     315 </span>            :              const Datatype &amp; sendtype, void *recvbuf, 
+<span class="lineNum">     316 </span>            :              const int recvcounts[], const int displs[],
+<span class="lineNum">     317 </span>            :              const Datatype &amp; recvtype) const;
+<span class="lineNum">     318 </span>            :   
+<span class="lineNum">     319 </span>            :   virtual void
+<span class="lineNum">     320 </span>            :   Alltoall(const void *sendbuf, int sendcount, 
+<span class="lineNum">     321 </span>            :            const Datatype &amp; sendtype, void *recvbuf, 
+<span class="lineNum">     322 </span>            :            int recvcount, const Datatype &amp; recvtype) const;
+<span class="lineNum">     323 </span>            :   
+<span class="lineNum">     324 </span>            :   virtual void
+<span class="lineNum">     325 </span>            :   Alltoallv(const void *sendbuf, const int sendcounts[], 
+<span class="lineNum">     326 </span>            :             const int sdispls[], const Datatype &amp; sendtype, 
+<span class="lineNum">     327 </span>            :             void *recvbuf, const int recvcounts[], 
+<span class="lineNum">     328 </span>            :             const int rdispls[], const Datatype &amp; recvtype) const;
+<span class="lineNum">     329 </span>            :   
+<span class="lineNum">     330 </span>            :   virtual void
+<span class="lineNum">     331 </span>            :   Alltoallw(const void *sendbuf, const int sendcounts[],
+<span class="lineNum">     332 </span>            :             const int sdispls[], const Datatype sendtypes[],
+<span class="lineNum">     333 </span>            :             void *recvbuf, const int recvcounts[],
+<span class="lineNum">     334 </span>            :             const int rdispls[], const Datatype recvtypes[]) const;
+<span class="lineNum">     335 </span>            :   
+<span class="lineNum">     336 </span>            :   virtual void
+<span class="lineNum">     337 </span>            :   Reduce(const void *sendbuf, void *recvbuf, int count, 
+<span class="lineNum">     338 </span>            :          const Datatype &amp; datatype, const Op &amp; op, 
+<span class="lineNum">     339 </span>            :          int root) const;
+<span class="lineNum">     340 </span>            :   
+<span class="lineNum">     341 </span>            :   
+<span class="lineNum">     342 </span>            :   virtual void
+<span class="lineNum">     343 </span>            :   Allreduce(const void *sendbuf, void *recvbuf, int count,
+<span class="lineNum">     344 </span>            :             const Datatype &amp; datatype, const Op &amp; op) const;
+<span class="lineNum">     345 </span>            :   
+<span class="lineNum">     346 </span>            :   virtual void
+<span class="lineNum">     347 </span>            :   Reduce_scatter(const void *sendbuf, void *recvbuf, 
+<span class="lineNum">     348 </span>            :                  int recvcounts[], 
+<span class="lineNum">     349 </span>            :                  const Datatype &amp; datatype, 
+<span class="lineNum">     350 </span>            :                  const Op &amp; op) const;
+<span class="lineNum">     351 </span>            : 
+<span class="lineNum">     352 </span>            :   // 
+<span class="lineNum">     353 </span>            :   // Process Creation
+<span class="lineNum">     354 </span>            :   //
+<span class="lineNum">     355 </span>            : 
+<span class="lineNum">     356 </span>            :   virtual void Disconnect();
+<span class="lineNum">     357 </span>            : 
+<span class="lineNum">     358 </span>            :   static Intercomm Get_parent();
+<span class="lineNum">     359 </span>            :   
+<span class="lineNum">     360 </span>            :   static Intercomm Join(const int fd);
+<span class="lineNum">     361 </span>            : 
+<span class="lineNum">     362 </span>            :   //
+<span class="lineNum">     363 </span>            :   // External Interfaces
+<span class="lineNum">     364 </span>            :   //
+<span class="lineNum">     365 </span>            :   
+<span class="lineNum">     366 </span>            :   virtual void Get_name(char * comm_name, int&amp; resultlen) const;
+<span class="lineNum">     367 </span>            : 
+<span class="lineNum">     368 </span>            :   virtual void Set_name(const char* comm_name);
+<span class="lineNum">     369 </span>            :   
+<span class="lineNum">     370 </span>            :   //
+<span class="lineNum">     371 </span>            :   // Process Topologies
+<span class="lineNum">     372 </span>            :   //
+<span class="lineNum">     373 </span>            :   
+<span class="lineNum">     374 </span>            :   virtual int Get_topology() const;
+<span class="lineNum">     375 </span>            :   
+<span class="lineNum">     376 </span>            :   //
+<span class="lineNum">     377 </span>            :   // Environmental Inquiry
+<span class="lineNum">     378 </span>            :   //
+<span class="lineNum">     379 </span>            :   
+<span class="lineNum">     380 </span>            :   virtual void Abort(int errorcode);
+<span class="lineNum">     381 </span>            : 
+<span class="lineNum">     382 </span>            :   //
+<span class="lineNum">     383 </span>            :   // Errhandler
+<span class="lineNum">     384 </span>            :   //
+<span class="lineNum">     385 </span>            : 
+<span class="lineNum">     386 </span>            :   static Errhandler Create_errhandler(Comm::Errhandler_function* function);
+<span class="lineNum">     387 </span>            : 
+<span class="lineNum">     388 </span>            :   virtual void Set_errhandler(const Errhandler&amp; errhandler);
+<span class="lineNum">     389 </span>            : 
+<span class="lineNum">     390 </span>            :   virtual Errhandler Get_errhandler() const;
+<span class="lineNum">     391 </span>            : 
+<span class="lineNum">     392 </span>            :   void Call_errhandler(int errorcode) const;
+<span class="lineNum">     393 </span>            : 
+<span class="lineNum">     394 </span>            :   //
+<span class="lineNum">     395 </span>            :   // Keys and Attributes
+<span class="lineNum">     396 </span>            :   //
+<span class="lineNum">     397 </span>            : 
+<span class="lineNum">     398 </span>            :   // Need 4 overloaded versions of this function because per the
+<span class="lineNum">     399 </span>            :   // MPI-2 spec, you can mix-n-match the C predefined functions with
+<span class="lineNum">     400 </span>            :   // C++ functions.
+<span class="lineNum">     401 </span>            :   static int Create_keyval(Copy_attr_function* comm_copy_attr_fn,
+<span class="lineNum">     402 </span>            :                            Delete_attr_function* comm_delete_attr_fn,
+<span class="lineNum">     403 </span>            :                            void* extra_state);
+<span class="lineNum">     404 </span>            :   static int Create_keyval(MPI_Comm_copy_attr_function* comm_copy_attr_fn,
+<span class="lineNum">     405 </span>            :                            MPI_Comm_delete_attr_function* comm_delete_attr_fn,
+<span class="lineNum">     406 </span>            :                            void* extra_state);
+<span class="lineNum">     407 </span>            :   static int Create_keyval(Copy_attr_function* comm_copy_attr_fn,
+<span class="lineNum">     408 </span>            :                            MPI_Comm_delete_attr_function* comm_delete_attr_fn,
+<span class="lineNum">     409 </span>            :                            void* extra_state);
+<span class="lineNum">     410 </span>            :   static int Create_keyval(MPI_Comm_copy_attr_function* comm_copy_attr_fn,
+<span class="lineNum">     411 </span>            :                            Delete_attr_function* comm_delete_attr_fn,
+<span class="lineNum">     412 </span>            :                            void* extra_state);
+<span class="lineNum">     413 </span>            : 
+<span class="lineNum">     414 </span>            : protected:  
+<span class="lineNum">     415 </span>            :   static int do_create_keyval(MPI_Comm_copy_attr_function* c_copy_fn,
+<span class="lineNum">     416 </span>            :                               MPI_Comm_delete_attr_function* c_delete_fn,
+<span class="lineNum">     417 </span>            :                               Copy_attr_function* cxx_copy_fn,
+<span class="lineNum">     418 </span>            :                               Delete_attr_function* cxx_delete_fn,
+<span class="lineNum">     419 </span>            :                               void* extra_state, int &amp;keyval);
+<span class="lineNum">     420 </span>            : 
+<span class="lineNum">     421 </span>            : public:
+<span class="lineNum">     422 </span>            : 
+<span class="lineNum">     423 </span>            :   static void Free_keyval(int&amp; comm_keyval);
+<span class="lineNum">     424 </span>            : 
+<span class="lineNum">     425 </span>            :   virtual void Set_attr(int comm_keyval, const void* attribute_val) const;
+<span class="lineNum">     426 </span>            : 
+<span class="lineNum">     427 </span>            :   virtual bool Get_attr(int comm_keyval, void* attribute_val) const;
+<span class="lineNum">     428 </span>            :   
+<span class="lineNum">     429 </span>            :   virtual void Delete_attr(int comm_keyval);
+<span class="lineNum">     430 </span>            : 
+<span class="lineNum">     431 </span>            :   static int NULL_COPY_FN(const Comm&amp; oldcomm, int comm_keyval,
+<span class="lineNum">     432 </span>            :                           void* extra_state, void* attribute_val_in,
+<span class="lineNum">     433 </span>            :                           void* attribute_val_out, bool&amp; flag);
+<span class="lineNum">     434 </span>            :   
+<span class="lineNum">     435 </span>            :   static int DUP_FN(const Comm&amp; oldcomm, int comm_keyval,
+<span class="lineNum">     436 </span>            :                     void* extra_state, void* attribute_val_in,
+<span class="lineNum">     437 </span>            :                     void* attribute_val_out, bool&amp; flag);
+<span class="lineNum">     438 </span>            :   
+<span class="lineNum">     439 </span>            :   static int NULL_DELETE_FN(Comm&amp; comm, int comm_keyval, void* attribute_val,
+<span class="lineNum">     440 </span>            :                             void* extra_state);
+<span class="lineNum">     441 </span>            : 
+<span class="lineNum">     442 </span>            : 
+<span class="lineNum">     443 </span>            : private:
+<span class="lineNum">     444 </span>            : #if 0 /* OMPI_ENABLE_MPI_PROFILING */
+<span class="lineNum">     445 </span>            :   PMPI::Comm pmpi_comm;
+<span class="lineNum">     446 </span>            : #endif
+<span class="lineNum">     447 </span>            : 
+<span class="lineNum">     448 </span>            : #if ! 0 /* OMPI_ENABLE_MPI_PROFILING */
+<span class="lineNum">     449 </span>            : public:
+<span class="lineNum">     450 </span>            : 
+<span class="lineNum">     451 </span>            :     // Data that is passed through keyval create when C++ callback
+<span class="lineNum">     452 </span>            :     // functions are used
+<span class="lineNum">     453 </span>            :     struct keyval_intercept_data_t {
+<span class="lineNum">     454 </span>            :         MPI_Comm_copy_attr_function *c_copy_fn;
+<span class="lineNum">     455 </span>            :         MPI_Comm_delete_attr_function *c_delete_fn;
+<span class="lineNum">     456 </span>            :         Copy_attr_function* cxx_copy_fn;
+<span class="lineNum">     457 </span>            :         Delete_attr_function* cxx_delete_fn;
+<span class="lineNum">     458 </span>            :         void *extra_state;
+<span class="lineNum">     459 </span>            :     };
+<span class="lineNum">     460 </span>            : 
+<span class="lineNum">     461 </span>            :     // Protect the global list from multiple thread access
+<span class="lineNum">     462 </span>            :     static opal_mutex_t cxx_extra_states_lock;
+<span class="lineNum">     463 </span>            : #endif
+<span class="lineNum">     464 </span>            : 
+<span class="lineNum">     465 </span>            : };
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

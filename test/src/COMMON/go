@@ -172,7 +172,7 @@ else
 }
 
 # run the tests and log the results
-print "\nRUNNING TESTS ON LVB ...\n";
+print "\nRUNNING CORE TESTS:\n";
 $failed_cnt = 0;
 @failed_tests = ();
 foreach $test_dir (@test_dirs)
@@ -190,7 +190,7 @@ foreach $test_dir (@test_dirs)
     {
 		$com = "$ENV{GPLUSPLUS} $ENV{CFLAGS} -c Main.c -I ../../../$ENV{LVB_HEADER_PATH} -o Main.o;"
 			. " $ENV{LINKERCPLUSPLUS} $ENV{CFLAGS} -I ../../../$ENV{LVB_HEADER_PATH} -o testprog.exe Main.o $ENV{LVB_LIBRARY} "
-			. "$ENV{LVB_OTHERLIBS} ../../../../MSAInput.o ../../../../CommandLineParser.o";
+			. "$ENV{LVB_OTHERLIBS} ../../../../src/MSAInput.o ../../../../src/CommandLineParser.o";
 		# Build the executable
 		! `$com` or die "Cannot compile testprog.exe";
     }

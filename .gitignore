@@ -1,0 +1,9 @@
+### Compiled Object Files ###
+*.o
+
+### Compiled Static Libraries ###
+*.a
+
+.vscode/
+profiles/
+libs/

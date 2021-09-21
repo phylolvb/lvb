@@ -1,0 +1,371 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - lcov.info - cxx/functions_inln.h</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">cxx</a> - functions_inln.h<span style="font-size: 80%;"> (source / <a href="functions_inln.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">lcov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2021-04-21 09:25:29</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntryHi">-</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : // -*- c++ -*-</a>
+<span class="lineNum">       2 </span>            : // 
+<span class="lineNum">       3 </span>            : // Copyright (c) 2004-2005 The Trustees of Indiana University and Indiana
+<span class="lineNum">       4 </span>            : //                         University Research and Technology
+<span class="lineNum">       5 </span>            : //                         Corporation.  All rights reserved.
+<span class="lineNum">       6 </span>            : // Copyright (c) 2004-2005 The University of Tennessee and The University
+<span class="lineNum">       7 </span>            : //                         of Tennessee Research Foundation.  All rights
+<span class="lineNum">       8 </span>            : //                         reserved.
+<span class="lineNum">       9 </span>            : // Copyright (c) 2004-2005 High Performance Computing Center Stuttgart, 
+<span class="lineNum">      10 </span>            : //                         University of Stuttgart.  All rights reserved.
+<span class="lineNum">      11 </span>            : // Copyright (c) 2004-2005 The Regents of the University of California.
+<span class="lineNum">      12 </span>            : //                         All rights reserved.
+<span class="lineNum">      13 </span>            : // Copyright (c) 2008      Cisco Systems, Inc.  All rights reserved.
+<span class="lineNum">      14 </span>            : // Copyright (c) 2011      FUJITSU LIMITED.  All rights reserved.
+<span class="lineNum">      15 </span>            : // $COPYRIGHT$
+<span class="lineNum">      16 </span>            : // 
+<span class="lineNum">      17 </span>            : // Additional copyrights may follow
+<span class="lineNum">      18 </span>            : // 
+<span class="lineNum">      19 </span>            : // $HEADER$
+<span class="lineNum">      20 </span>            : //
+<span class="lineNum">      21 </span>            : 
+<span class="lineNum">      22 </span>            : #include &lt;string.h&gt;
+<span class="lineNum">      23 </span>            : 
+<span class="lineNum">      24 </span>            : //
+<span class="lineNum">      25 </span>            : // Point-to-Point Communication
+<span class="lineNum">      26 </span>            : //
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            : inline void 
+<span class="lineNum">      29 </span>            : MPI::Attach_buffer(void* buffer, int size)
+<span class="lineNum">      30 </span>            : {
+<span class="lineNum">      31 </span>            :   (void)MPI_Buffer_attach(buffer, size);
+<span class="lineNum">      32 </span>            : }
+<span class="lineNum">      33 </span>            : 
+<span class="lineNum">      34 </span>            : inline int 
+<span class="lineNum">      35 </span>            : MPI::Detach_buffer(void*&amp; buffer)
+<span class="lineNum">      36 </span>            : {
+<span class="lineNum">      37 </span>            :   int size;
+<span class="lineNum">      38 </span>            :   (void)MPI_Buffer_detach(&amp;buffer, &amp;size);
+<span class="lineNum">      39 </span>            :   return size;
+<span class="lineNum">      40 </span>            : }
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span>            : //
+<span class="lineNum">      43 </span>            : // Process Topologies
+<span class="lineNum">      44 </span>            : //
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span>            : inline void
+<span class="lineNum">      47 </span>            : MPI::Compute_dims(int nnodes, int ndims, int dims[])
+<span class="lineNum">      48 </span>            : {
+<span class="lineNum">      49 </span>            :   (void)MPI_Dims_create(nnodes, ndims, dims);
+<span class="lineNum">      50 </span>            : }
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span>            : //
+<span class="lineNum">      54 </span>            : // Environmental Inquiry
+<span class="lineNum">      55 </span>            : //
+<span class="lineNum">      56 </span>            : 
+<span class="lineNum">      57 </span>            : inline int
+<span class="lineNum">      58 </span>            : MPI::Add_error_class()
+<span class="lineNum">      59 </span>            : {
+<span class="lineNum">      60 </span>            :     int errcls;
+<span class="lineNum">      61 </span>            :     (void)MPI_Add_error_class(&amp;errcls);
+<span class="lineNum">      62 </span>            :     return errcls;
+<span class="lineNum">      63 </span>            : }
+<span class="lineNum">      64 </span>            : 
+<span class="lineNum">      65 </span>            : inline int
+<span class="lineNum">      66 </span>            : MPI::Add_error_code(int errorclass)
+<span class="lineNum">      67 </span>            : {
+<span class="lineNum">      68 </span>            :     int errcode;
+<span class="lineNum">      69 </span>            :     (void)MPI_Add_error_code(errorclass, &amp;errcode);
+<span class="lineNum">      70 </span>            :     return errcode;
+<span class="lineNum">      71 </span>            : }
+<span class="lineNum">      72 </span>            : 
+<span class="lineNum">      73 </span>            : inline void
+<span class="lineNum">      74 </span>            : MPI::Add_error_string(int errorcode, const char* string)
+<span class="lineNum">      75 </span>            : {
+<span class="lineNum">      76 </span>            :     (void)MPI_Add_error_string(errorcode, const_cast&lt;char *&gt;(string));
+<span class="lineNum">      77 </span>            : }
+<span class="lineNum">      78 </span>            : 
+<span class="lineNum">      79 </span>            : inline void 
+<span class="lineNum">      80 </span>            : MPI::Get_processor_name(char* name, int&amp; resultlen)
+<span class="lineNum">      81 </span>            : {
+<span class="lineNum">      82 </span>            :   (void)MPI_Get_processor_name(name, &amp;resultlen);
+<span class="lineNum">      83 </span>            : }
+<span class="lineNum">      84 </span>            : 
+<span class="lineNum">      85 </span>            : inline void
+<span class="lineNum">      86 </span>            : MPI::Get_error_string(int errorcode, char* string, int&amp; resultlen)
+<span class="lineNum">      87 </span>            : {
+<span class="lineNum">      88 </span>            :   (void)MPI_Error_string(errorcode, string, &amp;resultlen);
+<span class="lineNum">      89 </span>            : }
+<span class="lineNum">      90 </span>            : 
+<span class="lineNum">      91 </span>            : inline int 
+<span class="lineNum">      92 </span>            : MPI::Get_error_class(int errorcode) 
+<span class="lineNum">      93 </span>            : {
+<span class="lineNum">      94 </span>            :   int errorclass;
+<span class="lineNum">      95 </span>            :   (void)MPI_Error_class(errorcode, &amp;errorclass);
+<span class="lineNum">      96 </span>            :   return errorclass;
+<span class="lineNum">      97 </span>            : }
+<span class="lineNum">      98 </span>            : 
+<span class="lineNum">      99 </span>            : inline double 
+<span class="lineNum">     100 </span>            : MPI::Wtime()
+<span class="lineNum">     101 </span>            : {
+<span class="lineNum">     102 </span>            :   return (MPI_Wtime());
+<span class="lineNum">     103 </span>            : }
+<span class="lineNum">     104 </span>            : 
+<span class="lineNum">     105 </span>            : inline double 
+<span class="lineNum">     106 </span>            : MPI::Wtick()
+<span class="lineNum">     107 </span>            : {
+<span class="lineNum">     108 </span>            :   return (MPI_Wtick());
+<span class="lineNum">     109 </span>            : }
+<span class="lineNum">     110 </span>            : 
+<span class="lineNum">     111 </span>            : inline void
+<span class="lineNum">     112 </span>            : MPI::Real_init()
+<span class="lineNum">     113 </span>            : {
+<span class="lineNum">     114 </span>            :     MPI::InitializeIntercepts();
+<span class="lineNum">     115 </span>            : }
+<span class="lineNum">     116 </span>            : 
+<span class="lineNum">     117 </span>            : 
+<span class="lineNum">     118 </span>            : inline void
+<span class="lineNum">     119 </span>            : MPI::Init(int&amp; argc, char**&amp; argv)
+<span class="lineNum">     120 </span>            : {
+<span class="lineNum">     121 </span>            :   (void)MPI_Init(&amp;argc, &amp;argv);
+<span class="lineNum">     122 </span>            :   Real_init();
+<span class="lineNum">     123 </span>            : }
+<span class="lineNum">     124 </span>            : 
+<span class="lineNum">     125 </span>            : inline void
+<span class="lineNum">     126 </span>            : MPI::Init()
+<span class="lineNum">     127 </span>            : {
+<span class="lineNum">     128 </span>            :   (void)MPI_Init(0, 0);
+<span class="lineNum">     129 </span>            :   Real_init();
+<span class="lineNum">     130 </span>            : }
+<span class="lineNum">     131 </span>            : 
+<span class="lineNum">     132 </span>            : inline void
+<span class="lineNum">     133 </span>            : MPI::Finalize()
+<span class="lineNum">     134 </span>            : {
+<span class="lineNum">     135 </span>            :   (void)MPI_Finalize();
+<span class="lineNum">     136 </span>            : }
+<span class="lineNum">     137 </span>            : 
+<span class="lineNum">     138 </span>            : inline bool
+<span class="lineNum">     139 </span>            : MPI::Is_initialized()
+<span class="lineNum">     140 </span>            : {
+<span class="lineNum">     141 </span>            :   int t;
+<span class="lineNum">     142 </span><span class="lineNoCov">          0 :   (void)MPI_Initialized(&amp;t);</span>
+<span class="lineNum">     143 </span><span class="lineNoCov">          0 :   return OPAL_INT_TO_BOOL(t);</span>
+<span class="lineNum">     144 </span>            : }
+<span class="lineNum">     145 </span>            : 
+<span class="lineNum">     146 </span>            : inline bool
+<span class="lineNum">     147 </span>            : MPI::Is_finalized()
+<span class="lineNum">     148 </span>            : {
+<span class="lineNum">     149 </span>            :   int t;
+<span class="lineNum">     150 </span>            :   (void)MPI_Finalized(&amp;t);
+<span class="lineNum">     151 </span>            :   return OPAL_INT_TO_BOOL(t);
+<span class="lineNum">     152 </span>            : }
+<span class="lineNum">     153 </span>            : 
+<span class="lineNum">     154 </span>            : 
+<span class="lineNum">     155 </span>            : //
+<span class="lineNum">     156 </span>            : // External Interfaces
+<span class="lineNum">     157 </span>            : //
+<span class="lineNum">     158 </span>            : 
+<span class="lineNum">     159 </span>            : inline int
+<span class="lineNum">     160 </span>            : MPI::Init_thread(int required)
+<span class="lineNum">     161 </span>            : {
+<span class="lineNum">     162 </span>            :   int provided;
+<span class="lineNum">     163 </span>            :   (void) MPI_Init_thread(0, NULL, required, &amp;provided);
+<span class="lineNum">     164 </span>            :   Real_init();
+<span class="lineNum">     165 </span>            :   return provided;
+<span class="lineNum">     166 </span>            : }
+<span class="lineNum">     167 </span>            : 
+<span class="lineNum">     168 </span>            : 
+<span class="lineNum">     169 </span>            : inline int
+<span class="lineNum">     170 </span>            : MPI::Init_thread(int&amp; argc, char**&amp; argv, int required)
+<span class="lineNum">     171 </span>            : {
+<span class="lineNum">     172 </span>            :   int provided;
+<span class="lineNum">     173 </span>            :   (void) MPI_Init_thread(&amp;argc, &amp;argv, required, &amp;provided);
+<span class="lineNum">     174 </span>            :   Real_init();
+<span class="lineNum">     175 </span>            :   return provided;
+<span class="lineNum">     176 </span>            : }
+<span class="lineNum">     177 </span>            : 
+<span class="lineNum">     178 </span>            : 
+<span class="lineNum">     179 </span>            : inline bool
+<span class="lineNum">     180 </span>            : MPI::Is_thread_main()
+<span class="lineNum">     181 </span>            : {
+<span class="lineNum">     182 </span>            :   int flag;
+<span class="lineNum">     183 </span>            :   (void) MPI_Is_thread_main(&amp;flag);
+<span class="lineNum">     184 </span>            :   return OPAL_INT_TO_BOOL(flag == 1);
+<span class="lineNum">     185 </span>            : }
+<span class="lineNum">     186 </span>            : 
+<span class="lineNum">     187 </span>            : 
+<span class="lineNum">     188 </span>            : inline int
+<span class="lineNum">     189 </span>            : MPI::Query_thread()
+<span class="lineNum">     190 </span>            : {
+<span class="lineNum">     191 </span>            :   int provided;
+<span class="lineNum">     192 </span>            :   (void) MPI_Query_thread(&amp;provided);
+<span class="lineNum">     193 </span>            :   return provided;
+<span class="lineNum">     194 </span>            : }
+<span class="lineNum">     195 </span>            : 
+<span class="lineNum">     196 </span>            : 
+<span class="lineNum">     197 </span>            : //
+<span class="lineNum">     198 </span>            : // Miscellany
+<span class="lineNum">     199 </span>            : //
+<span class="lineNum">     200 </span>            : 
+<span class="lineNum">     201 </span>            : 
+<span class="lineNum">     202 </span>            : inline void*
+<span class="lineNum">     203 </span>            : MPI::Alloc_mem(MPI::Aint size, const MPI::Info&amp; info) 
+<span class="lineNum">     204 </span>            : {
+<span class="lineNum">     205 </span>            :   void* baseptr;
+<span class="lineNum">     206 </span>            :   (void) MPI_Alloc_mem(size, info, &amp;baseptr);
+<span class="lineNum">     207 </span>            :   return baseptr;
+<span class="lineNum">     208 </span>            : }
+<span class="lineNum">     209 </span>            : 
+<span class="lineNum">     210 </span>            : 
+<span class="lineNum">     211 </span>            : inline void
+<span class="lineNum">     212 </span>            : MPI::Free_mem(void* base)
+<span class="lineNum">     213 </span>            : {
+<span class="lineNum">     214 </span>            :   (void) MPI_Free_mem(base);
+<span class="lineNum">     215 </span>            : }
+<span class="lineNum">     216 </span>            : 
+<span class="lineNum">     217 </span>            : 
+<span class="lineNum">     218 </span>            : //
+<span class="lineNum">     219 </span>            : // Process Creation
+<span class="lineNum">     220 </span>            : //
+<span class="lineNum">     221 </span>            : 
+<span class="lineNum">     222 </span>            : 
+<span class="lineNum">     223 </span>            : inline void
+<span class="lineNum">     224 </span>            : MPI::Close_port(const char* port_name) 
+<span class="lineNum">     225 </span>            : {
+<span class="lineNum">     226 </span>            :   (void) MPI_Close_port(const_cast&lt;char *&gt;(port_name));
+<span class="lineNum">     227 </span>            : }
+<span class="lineNum">     228 </span>            : 
+<span class="lineNum">     229 </span>            : 
+<span class="lineNum">     230 </span>            : inline void
+<span class="lineNum">     231 </span>            : MPI::Lookup_name(const char * service_name, 
+<span class="lineNum">     232 </span>            :                         const MPI::Info&amp; info,
+<span class="lineNum">     233 </span>            :                         char* port_name)
+<span class="lineNum">     234 </span>            : {
+<span class="lineNum">     235 </span>            :   (void) MPI_Lookup_name(const_cast&lt;char *&gt;(service_name), info, port_name);
+<span class="lineNum">     236 </span>            : }
+<span class="lineNum">     237 </span>            : 
+<span class="lineNum">     238 </span>            : 
+<span class="lineNum">     239 </span>            : inline void
+<span class="lineNum">     240 </span>            : MPI::Open_port(const MPI::Info&amp; info, char* port_name)
+<span class="lineNum">     241 </span>            : {
+<span class="lineNum">     242 </span>            :   (void) MPI_Open_port(info, port_name);
+<span class="lineNum">     243 </span>            : }
+<span class="lineNum">     244 </span>            : 
+<span class="lineNum">     245 </span>            : 
+<span class="lineNum">     246 </span>            : inline void
+<span class="lineNum">     247 </span>            : MPI::Publish_name(const char* service_name, 
+<span class="lineNum">     248 </span>            :                          const MPI::Info&amp; info,
+<span class="lineNum">     249 </span>            :                          const char* port_name)
+<span class="lineNum">     250 </span>            : {
+<span class="lineNum">     251 </span>            :   (void) MPI_Publish_name(const_cast&lt;char *&gt;(service_name), info,
+<span class="lineNum">     252 </span>            :                           const_cast&lt;char *&gt;(port_name));
+<span class="lineNum">     253 </span>            : }
+<span class="lineNum">     254 </span>            : 
+<span class="lineNum">     255 </span>            : 
+<span class="lineNum">     256 </span>            : inline void
+<span class="lineNum">     257 </span>            : MPI::Unpublish_name(const char* service_name, 
+<span class="lineNum">     258 </span>            :                            const MPI::Info&amp; info,
+<span class="lineNum">     259 </span>            :                            const char* port_name)
+<span class="lineNum">     260 </span>            : {
+<span class="lineNum">     261 </span>            :   (void)MPI_Unpublish_name(const_cast&lt;char *&gt;(service_name), info,
+<span class="lineNum">     262 </span>            :                            const_cast&lt;char *&gt;(port_name));
+<span class="lineNum">     263 </span>            : }
+<span class="lineNum">     264 </span>            : 
+<span class="lineNum">     265 </span>            : 
+<span class="lineNum">     266 </span>            : 
+<span class="lineNum">     267 </span>            : //
+<span class="lineNum">     268 </span>            : // Profiling
+<span class="lineNum">     269 </span>            : //
+<span class="lineNum">     270 </span>            : 
+<span class="lineNum">     271 </span>            : inline void
+<span class="lineNum">     272 </span>            : MPI::Pcontrol(const int level, ...)
+<span class="lineNum">     273 </span>            : {
+<span class="lineNum">     274 </span>            :   va_list ap;
+<span class="lineNum">     275 </span>            :   va_start(ap, level);
+<span class="lineNum">     276 </span>            :  
+<span class="lineNum">     277 </span>            :   (void)MPI_Pcontrol(level, ap);
+<span class="lineNum">     278 </span>            :   va_end(ap);
+<span class="lineNum">     279 </span>            : }
+<span class="lineNum">     280 </span>            : 
+<span class="lineNum">     281 </span>            : 
+<span class="lineNum">     282 </span>            : inline void
+<span class="lineNum">     283 </span>            : MPI::Get_version(int&amp; version, int&amp; subversion)
+<span class="lineNum">     284 </span>            : {
+<span class="lineNum">     285 </span>            :   (void)MPI_Get_version(&amp;version, &amp;subversion);
+<span class="lineNum">     286 </span>            : }
+<span class="lineNum">     287 </span>            : 
+<span class="lineNum">     288 </span>            : 
+<span class="lineNum">     289 </span>            : inline MPI::Aint
+<span class="lineNum">     290 </span>            : MPI::Get_address(void* location)
+<span class="lineNum">     291 </span>            : {
+<span class="lineNum">     292 </span>            :   MPI::Aint ret;
+<span class="lineNum">     293 </span>            :   MPI_Get_address(location, &amp;ret);
+<span class="lineNum">     294 </span>            :   return ret;
+<span class="lineNum">     295 </span>            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

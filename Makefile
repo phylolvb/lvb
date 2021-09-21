@@ -66,11 +66,13 @@
 # Directories
 TEST_DIR = ./test/src
 DOCS_PROG_DIR = ./docs_programmer
+LVB_SRC_DIR = ./src
 #LVB_READ_FILE_DIR = ./LVB_READ_FILES/src
 
 ### define a c++ compiler to your platform 
 G++ = mpic++
 CC = mpic++
+CXX = mpic++
 
 # UNCOMMENT THIS FOR 32-BIT LINUX (E.G. OLD INTEL CPUS OR RASPBERRY PI)
 #CFLAGS += -DCOMPILE_32_BITS
@@ -83,9 +85,21 @@ CFLAGS += -msse4.2
 #CFLAGS += -openmp-link static
 
 # General options
-# CFLAGS += -Wall -g -O3 -std=c99 -fopenmp  -DLVB_NP
-CFLAGS += -Wall -g -O3 -fopenmp  -DLVB_NP -std=c++11
-CXXFLAGS += -Wall -g -O3 -fopenmp -DLVB_NP -std=c++11
+
+# No warnings
+
+CFLAGS += -g -O3 -fopenmp -DLVB_NP -std=c++11
+CXXFLAGS += -g -O3 -fopenmp -DLVB_NP -std=c++11
+
+# Warnings
+
+# CFLAGS += -Wall -g -O3 -fopenmp -DLVB_NP -std=c++11
+# CXXFLAGS += -Wall -g -O3 -fopenmp -DLVB_NP -std=c++11
+
+# Profiling
+
+# CFLAGS += -g -O3 -fopenmp -DLVB_NP -std=c++11 -ftest-coverage -fprofile-arcs -pg
+# CXXFLAGS += -g -O3 -fopenmp -DLVB_NP -std=c++11 -ftest-coverage -fprofile-arcs -pg
 
 # System-dependent macros - OK for Linux and UNIX-like systems, for others will
 # require change
@@ -106,59 +120,44 @@ LVB_PROG = lvb$(EXE)
 
 # Object files that will go into the LVB library
 
-LVB_LIB_OBJS = Admin.$(OBJ) \
-               Cleanup.$(OBJ) \
-			   Clock.$(OBJ) \
-               DataOperations.$(OBJ) \
-               Error.$(OBJ) \
-               FileOperations.$(OBJ) \
-               SearchParameters.$(OBJ) \
-               StartingTemperature.$(OBJ) \
-			   Print.$(OBJ) \
-			   LogFile.$(OBJ) \
-               MemoryOperations.$(OBJ) \
-               MyMaths.$(OBJ) \
-               RandomNumberGenerator.$(OBJ) \
-               TreeEvaluation.$(OBJ) \
-               Solve.$(OBJ) \
-               Sops.$(OBJ) \
-			   Treestack.$(OBJ) \
-               TreeOperations.$(OBJ) \
-			   Verbose.$(OBJ) \
-               Wrapper.$(OBJ)
+# C files
 
-LVB_READ_FILE_OBJS = 	$(LVB_READ_FILE_DIR)MSAInput.$(OBJ) \
-			$(LVB_READ_FILE_DIR)CommandLineParser.$(OBJ)
+LVB_LIB_OBJS = $(LVB_SRC_DIR)/Admin.$(OBJ) \
+               $(LVB_SRC_DIR)/Cleanup.$(OBJ) \
+			   $(LVB_SRC_DIR)/Clock.$(OBJ) \
+               $(LVB_SRC_DIR)/DataOperations.$(OBJ) \
+               $(LVB_SRC_DIR)/Error.$(OBJ) \
+               $(LVB_SRC_DIR)/FileOperations.$(OBJ) \
+               $(LVB_SRC_DIR)/SearchParameters.$(OBJ) \
+               $(LVB_SRC_DIR)/StartingTemperature.$(OBJ) \
+			   $(LVB_SRC_DIR)/LogFile.$(OBJ) \
+               $(LVB_SRC_DIR)/MemoryOperations.$(OBJ) \
+               $(LVB_SRC_DIR)/MyMaths.$(OBJ) \
+               $(LVB_SRC_DIR)/RandomNumberGenerator.$(OBJ) \
+               $(LVB_SRC_DIR)/TreeEvaluation.$(OBJ) \
+               $(LVB_SRC_DIR)/Solve.$(OBJ) \
+               $(LVB_SRC_DIR)/Sops.$(OBJ) \
+			   $(LVB_SRC_DIR)/Treestack.$(OBJ) \
+               $(LVB_SRC_DIR)/TreeOperations.$(OBJ) \
+               $(LVB_SRC_DIR)/Wrapper.$(OBJ)
+
+# C++ files
+
+LVB_READ_FILE_OBJS = 	$(LVB_SRC_DIR)/CommandLineParser.$(OBJ) \
+						$(LVB_SRC_DIR)/MSAInput.$(OBJ) \
+						$(LVB_SRC_DIR)/Print.$(OBJ) \
+						$(LVB_SRC_DIR)/Verbose.$(OBJ)
+						
 
 LVB_LIB_OBJS_OUTPUT = $(LVB_LIB_OBJS)
 
 # Object files that are used directly and will not go into the library
 
-LVB_PROG_OBJS = Main.$(OBJ)
+LVB_PROG_OBJS = $(LVB_SRC_DIR)/Main.$(OBJ)
 
 # Documentation files
 
-LVB_MANUAL = LVBManual.pdf
-
-DOCS_PROGRAMMER = $(TEST_MANUAL) \
-                  $(DOCS_PROG_DIR)/Main.html \
-                  $(DOCS_PROG_DIR)/Treestack.html \
-		  $(DOCS_PROG_DIR)/Cleanup.html \
-		  $(DOCS_PROG_DIR)/DataOperations.html \
-		  $(DOCS_PROG_DIR)/Error.html \
-		  $(DOCS_PROG_DIR)/FileOperations.html \
-		  $(DOCS_PROG_DIR)/SearchParameters.html \
-		  $(DOCS_PROG_DIR)/Admin.html \
-		  $(DOCS_PROG_DIR)/MemoryOperations.html \
-		  $(DOCS_PROG_DIR)/MyMaths.html \
-		  $(DOCS_PROG_DIR)/RandomNumberGenerator.html \
-		  $(DOCS_PROG_DIR)/TreeEvaluation.html \
-		  $(DOCS_PROG_DIR)/Solve.html \
-		  $(DOCS_PROG_DIR)/Sops.html \
-		  $(DOCS_PROG_DIR)/TreeOperations.html \
-		  $(DOCS_PROG_DIR)/Wrapper.html
-
-TEST_MANUAL = $(DOCS_PROG_DIR)/go.html
+# LVB_MANUAL = LVBManual.pdf
 
 # All documentation files
 
@@ -177,8 +176,8 @@ all : lvb	# allow 'make all' as synonym for 'make lvb'
 
 lvb : LVB_PROG $(DOCS)
 
-$(LVB_MANUAL) : LVBManual.odt
-	soffice --headless --convert-to pdf:writer_pdf_Export LVBManual.odt
+#$(LVB_MANUAL) : LVBManual.odt
+#	soffice --headless --convert-to pdf:writer_pdf_Export LVBManual.odt
 
 LVB_PROG : $(LVB_LIB) $(LVB_PROG_OBJS)
 	$(G++) $(CFLAGS) $(LDFLAGS) -o $(LVB_PROG) $(LVB_PROG_OBJS) $(LVB_READ_FILE_OBJS) $(LIBS) $(LM)
