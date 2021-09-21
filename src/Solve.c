@@ -373,7 +373,7 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 				// cout << endl << "iter: " << *current_iter << " " << "CompareMapReduceAnneal: " << duration.count() << " microseconds | Treestack size: " << treestack_ptr->next << endl;
 
 				FILE *timefunction = fopen("FunctionTimesMR","a+");
-				fprintf (timefunction, "%ld\t%ld\t%ld\n", *current_iter, duration.count(), treestack_ptr->next);
+				fprintf (timefunction, "%ld\t%ld\t%ld\t%ld\n", *current_iter, duration.count(), treestack_ptr->next, best_tree_length);
 				fclose(timefunction);
 
 				}
@@ -406,7 +406,7 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 					// cout << endl << "iter: " << *current_iter << " " << "CompareHashTreeToHashstackAnneal: " << duration.count() << " microseconds | Treestack size: " << treestack_ptr->next << endl;
 
 					FILE *timefunction = fopen("FunctionTimesHASH","a+");
-					fprintf (timefunction, "%ld\t%ld\t%ld\n", *current_iter, duration.count(), treestack_ptr->next);
+					fprintf (timefunction, "%ld\t%ld\t%ld\t%ld\n", *current_iter, duration.count(), treestack_ptr->next, best_tree_length);
 					fclose(timefunction);
 					}
 					#else
@@ -416,7 +416,7 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 					// cout << endl << "iter: " << *current_iter << " " << "CompareTreeToTreestackAnneal: " << duration.count() << " microseconds | Treestack size: " << treestack_ptr->next << endl;
 
 					FILE *timefunction = fopen("FunctionTimesNP","a+");
-					fprintf (timefunction, "%ld\t%ld\t%ld\n", *current_iter, duration.count(), treestack_ptr->next);
+					fprintf (timefunction, "%ld\t%ld\t%ld\t%ld\n", *current_iter, duration.count(), treestack_ptr->next, best_tree_length);
 					fclose(timefunction);
 					}
 					#endif
