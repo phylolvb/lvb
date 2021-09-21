@@ -370,7 +370,7 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 
 				if ((log_progress == LVB_TRUE) && ((treestack_ptr->next % 10) == 0)) {
 
-				cout << endl << "iter: " << *current_iter << " " << "CompareMapReduceAnneal: " << duration.count() << " microseconds | Treestack size: " << treestack_ptr->next << endl;
+				// cout << endl << "iter: " << *current_iter << " " << "CompareMapReduceAnneal: " << duration.count() << " microseconds | Treestack size: " << treestack_ptr->next << endl;
 
 				FILE *timefunction = fopen("FunctionTimesMR","a+");
 				fprintf (timefunction, "%ld\t%ld\t%ld\n", *current_iter, duration.count(), treestack_ptr->next);
@@ -403,7 +403,7 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 
 					if ((log_progress == LVB_TRUE) && ((treestack_ptr->next % 10) == 0)) {
 
-					cout << endl << "iter: " << *current_iter << " " << "CompareHashTreeToHashstackAnneal: " << duration.count() << " microseconds | Treestack size: " << treestack_ptr->next << endl;
+					// cout << endl << "iter: " << *current_iter << " " << "CompareHashTreeToHashstackAnneal: " << duration.count() << " microseconds | Treestack size: " << treestack_ptr->next << endl;
 
 					FILE *timefunction = fopen("FunctionTimesHASH","a+");
 					fprintf (timefunction, "%ld\t%ld\t%ld\n", *current_iter, duration.count(), treestack_ptr->next);
@@ -413,7 +413,7 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 
 					if ((log_progress == LVB_TRUE) && ((treestack_ptr->next % 10) == 0)) {
 
-					cout << endl << "iter: " << *current_iter << " " << "CompareTreeToTreestackAnneal: " << duration.count() << " microseconds | Treestack size: " << treestack_ptr->next << endl;
+					// cout << endl << "iter: " << *current_iter << " " << "CompareTreeToTreestackAnneal: " << duration.count() << " microseconds | Treestack size: " << treestack_ptr->next << endl;
 
 					FILE *timefunction = fopen("FunctionTimesNP","a+");
 					fprintf (timefunction, "%ld\t%ld\t%ld\n", *current_iter, duration.count(), treestack_ptr->next);
@@ -702,8 +702,8 @@ long GetSoln(Dataptr restrict MSA, TREESTACK *treestack_ptr, Parameters rcstruct
 
 		CompareMapReduceTreesGetSoln(MSA, &treestack, tree, initroot, total_count, check_cmp, misc, mrTreeStack, mrBuffer, val);
 
-		if(val = 1) treelength = deterministic_hillclimb(MSA, &treestack, tree, rcstruct, initroot, stdout,
-			iter_p, log_progress, misc, mrTreeStack, mrBuffer);
+		/* if(val = 1) treelength = deterministic_hillclimb(MSA, &treestack, tree, rcstruct, initroot, stdout,
+			iter_p, log_progress, misc, mrTreeStack, mrBuffer); */
 
 	#else
 	    /* find solution(s) */
@@ -719,8 +719,8 @@ long GetSoln(Dataptr restrict MSA, TREESTACK *treestack_ptr, Parameters rcstruct
 		CompareTreeToTreestack(MSA, &treestack, tree, initroot, LVB_FALSE);
 	#endif
 
-    if(val = 1) treelength = deterministic_hillclimb(MSA, &treestack, tree, rcstruct, initroot, stdout,
-				iter_p, log_progress);
+    /* if(val = 1) treelength = deterministic_hillclimb(MSA, &treestack, tree, rcstruct, initroot, stdout,
+				iter_p, log_progress); */
 
 	#endif
 
