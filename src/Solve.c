@@ -126,7 +126,7 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *treestack_ptr, const TREEST
 						current_tree_length = proposed_tree_length;
 					}
 						auto start_timer = high_resolution_clock::now();
-						if(CompareMapReduceTreesHillClimb(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, total_count,
+						if(CompareMapReduceTrees(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, total_count,
 									check_cmp, misc, mrTreeStack, mrBuffer) == 1) {
 							newtree = LVB_TRUE;
 							SwapTrees(&p_current_tree, &root, &p_proposed_tree, &proposed_tree_root);
@@ -701,7 +701,8 @@ long GetSoln(Dataptr restrict MSA, TREESTACK *treestack_ptr, Parameters rcstruct
 
 		auto start_timer = high_resolution_clock::now();
 
-		CompareMapReduceTreesGetSoln(MSA, &treestack, tree, initroot, total_count, check_cmp, misc, mrTreeStack, mrBuffer, val);
+		CompareMapReduceTrees(MSA, treestack_ptr, tree, initroot, total_count,
+									check_cmp, misc, mrTreeStack, mrBuffer);
 
 		/* if(val = 1) treelength = deterministic_hillclimb(MSA, &treestack, tree, rcstruct, initroot, stdout,
 			iter_p, log_progress, misc, mrTreeStack, mrBuffer); */
