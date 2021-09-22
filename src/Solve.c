@@ -362,7 +362,8 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 				auto start_timer = high_resolution_clock::now();
 				if(CompareMapReduceTreesAnneal(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, total_count,
 					check_cmp, accepted, misc, mrTreeStack, mrBuffer) == 1) {
-						// accepted++;
+						accepted++;
+						MPI_Bcast(&accepted,  1, MPI_LONG, 0, MPI_COMM_WORLD);
 					}
 				auto stop = high_resolution_clock::now();
 
