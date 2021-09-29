@@ -285,10 +285,8 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 		misc->SB = 1;
 		tree_setpush(MSA, inittree, root, mrTreeStack, misc);
 	
-	#elif LVB_HASH
-		CompareHashTreeToHashstack(MSA, treestack_ptr, inittree, root, LVB_FALSE);	/* init. tree initially best */
 	#else
-		CompareTreeToTreestack(MSA, treestack_ptr, inittree, root, LVB_FALSE);	/* init. tree initially best */  
+		PushCurrentTreeToStack(MSA, treestack_ptr, inittree, root, LVB_FALSE);	/* init. tree initially best */  
 	#endif
 
 	double trops_counter[3] = {1,1,1};
