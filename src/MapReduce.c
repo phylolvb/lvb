@@ -203,7 +203,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 						mrTreeStack->add(mrBuffer);
 					}
 						free(misc->count);
-						free(total_count);					
+						free(total_count);				
 					}
 					return 1;
 				}
+
+	long CompareMapReduceTreesGetSoln() {
+		
+	}

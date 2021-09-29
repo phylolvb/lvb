@@ -60,8 +60,7 @@ long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool l
 				MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer);
 long CompareMapReduceTreesAnneal(Dataptr, TREESTACK *, TREESTACK_TREE_NODES *const, long, 
                         int *, int, MISC *, MapReduce *, MapReduce *);
-long CompareMapReduceTrees(Dataptr, TREESTACK *, const TREESTACK_TREE_NODES *const, long, 
-                        int *, int, MISC *, MapReduce *, MapReduce *);
+long CompareMapReduceTreesGetSoln();
 #else
 long GetSoln(Dataptr restrict, Parameters, long *, Lvb_bool);
 

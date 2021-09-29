@@ -733,6 +733,8 @@ long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool l
 
 		}
 
+		/* CompareMapReduceTreesGetSoln(); */
+
 	#else
 	    /* find solution(s) */
     treelength = Anneal(MSA, &treestack, &stack_treevo, tree, rcstruct, initroot, t0, maxaccept,
