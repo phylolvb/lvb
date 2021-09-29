@@ -44,9 +44,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Solve.h"
 
-using namespace std;
-using namespace std::chrono;
-
 static void lenlog(FILE *lengthfp, TREESTACK *treestack_ptr, long iteration, long length, double temperature)
 /* write a message to file pointer lengthfp; iteration gives current iteration;
  * crash verbosely on write error */
@@ -120,17 +117,55 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *treestack_ptr, const TREEST
 				MPI_Bcast(&proposed_tree_length,  1, MPI_LONG, 0,    MPI_COMM_WORLD);
 
 					if (tree_length_change <= 0) {
-					if (tree_length_change < 0)  /* very best so far */
-					{
-						ClearTreestack(treestack_ptr);
-						current_tree_length = proposed_tree_length;
-					}
-						auto start_timer = high_resolution_clock::now();
-						if(CompareMapReduceTrees(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, total_count,
-									check_cmp, misc, mrTreeStack, mrBuffer) == 1) {
-							newtree = LVB_TRUE;
-							SwapTrees(&p_current_tree, &root, &p_proposed_tree, &proposed_tree_root);
-									}
+						if (tree_length_change < 0)  /* very best so far */
+						{
+							ClearTreestack(treestack_ptr);
+							PushCurrentTreeToStack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE);
+							misc->ID = treestack_ptr->next;
+							misc->SB = 1;
+							tree_setpush(MSA, p_proposed_tree, proposed_tree_root, mrTreeStack, misc);
+							current_tree_length = proposed_tree_length;
+						} else {
+
+						  misc->SB = 0;
+						  tree_setpush(MSA, p_proposed_tree, proposed_tree_root, mrBuffer, misc);
+						  mrBuffer->add(mrTreeStack);
+						  mrBuffer->collate(NULL);
+
+						  misc->count = (int *) alloc( (treestack_ptr->next+1) * sizeof(int), "int array for tree comp using MR");
+						  total_count = (int *) alloc( (treestack_ptr->next+1) * sizeof(int), "int array for tree comp using MR");
+						  for(int i=0; i<=treestack_ptr->next; i++) misc->count[i] = 0;
+						  mrBuffer->reduce(reduce_count, misc);
+
+						  for(int i=0; i<=treestack_ptr->next; i++) total_count[i] = 0;
+						  MPI_Reduce( misc->count, total_count, treestack_ptr->next+1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD );
+
+						  check_cmp = 1;
+						  if (misc->rank == 0) { /* sum to root process */
+							for(int i=1; i<=treestack_ptr->next; i++) {
+								if (misc->nsets == total_count[i]) {
+									check_cmp = 0; /* different */
+									break;
+								}
+							}
+						  }
+
+						  MPI_Barrier(MPI_COMM_WORLD);
+						  MPI_Bcast(&check_cmp, 1, MPI_INT, 0,    MPI_COMM_WORLD);
+						  if (check_cmp == 0) {
+								misc->SB = 1;
+								tree_setpush(MSA, p_proposed_tree, proposed_tree_root, mrBuffer, misc);
+								mrTreeStack->add(mrBuffer);
+							PushCurrentTreeToStack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE);
+								misc->ID = treestack_ptr->next;
+
+								newtree = LVB_TRUE;
+								SwapTrees(&p_current_tree, &root, &p_proposed_tree, &proposed_tree_root);
+							}
+						  free(misc->count);
+						  free(total_count);
+						}
+
 					#else 
 					if (tree_length_change <= 0) {
 					if (tree_length_change < 0)  /* very best so far */
@@ -139,13 +174,11 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *treestack_ptr, const TREEST
 						current_tree_length = proposed_tree_length;
 					}
 						#ifdef LVB_HASH
-							auto start_timer = high_resolution_clock::now();
 							if (CompareHashTreeToHashstack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE) == 1) 
 						#else
-							auto start_timer = high_resolution_clock::now();
 							if (CompareTreeToTreestack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE) == 1) 
 						#endif
-					{					
+					{
 						newtree = LVB_TRUE;
 						SwapTrees(&p_current_tree, &root, &p_proposed_tree, &proposed_tree_root);
 					}
@@ -246,14 +279,15 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
     best_tree_length = current_tree_length;
 
 	#ifdef LVB_MAPREDUCE  
-		CompareMapReduceTrees(MSA, treestack_ptr, inittree, root, total_count,
-									check_cmp, misc, mrTreeStack, mrBuffer);
+		MPI_Bcast(&best_tree_length,  1, MPI_LONG, 0, MPI_COMM_WORLD);
+		PushCurrentTreeToStack(MSA, treestack_ptr, inittree, root, LVB_FALSE);
+		misc->ID = treestack_ptr->next;
+		misc->SB = 1;
+		tree_setpush(MSA, inittree, root, mrTreeStack, misc);
 	
 	#elif LVB_HASH
-		auto start_timer = high_resolution_clock::now();
-		CompareHashTreeToHashstack(MSA, treestack_ptr, inittree, root, LVB_FALSE);
+		CompareHashTreeToHashstack(MSA, treestack_ptr, inittree, root, LVB_FALSE);	/* init. tree initially best */
 	#else
-		auto start_timer = high_resolution_clock::now();
 		CompareTreeToTreestack(MSA, treestack_ptr, inittree, root, LVB_FALSE);	/* init. tree initially best */  
 	#endif
 
@@ -349,76 +383,81 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 
 		if (tree_length_change <= 0)	/* accept the change */
 		{
-				#ifdef LVB_MAPREDUCE  
-				if (proposed_tree_length <= best_tree_length)	/* store tree if new */
-					{
+			#ifdef LVB_MAPREDUCE  
+			if (proposed_tree_length <= best_tree_length)	/* store tree if new */
+				{
 				if (proposed_tree_length < best_tree_length) {
-						ClearTreestack(treestack_ptr);
-						mrTreeStack->map(mrTreeStack, map_clean, NULL);
-				}
-				auto start_timer = high_resolution_clock::now();
-				if(CompareMapReduceTreesWithoutFree(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, total_count,
-					check_cmp, misc, mrTreeStack, mrBuffer) == 1) {
+					ClearTreestack(treestack_ptr);
+					mrTreeStack->map(mrTreeStack, map_clean, NULL);
+
+					PushCurrentTreeToStack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE);
+					misc->ID = treestack_ptr->next;
+
+					misc->SB = 1;
+					tree_setpush(MSA, p_proposed_tree, proposed_tree_root, mrTreeStack, misc);
+
+					accepted++;
+					MPI_Bcast(&accepted,  1, MPI_LONG, 0, MPI_COMM_WORLD);
+					MPI_Barrier(MPI_COMM_WORLD);
+				} else {
+
+	                misc->SB = 0;
+					tree_setpush(MSA, p_proposed_tree, proposed_tree_root, mrBuffer, misc);
+					mrBuffer->add(mrTreeStack);
+					mrBuffer->collate(NULL);
+
+					misc->count = (int *) alloc( (treestack_ptr->next+1) * sizeof(int), "int array for tree comp using MR");
+					total_count = (int *) alloc( (treestack_ptr->next+1) * sizeof(int), "int array for tree comp using MR");
+
+					for(int i=0; i<=misc->ID; i++) misc->count[i] = 0;
+					mrBuffer->reduce(reduce_count, misc);
+ 					for(int i=0; i<=misc->ID; i++) total_count[i] = 0;
+					MPI_Reduce( misc->count, total_count, misc->ID+1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD );
+
+					check_cmp = 1;
+					if (misc->rank == 0) {
+						for(int i=1; i<=misc->ID; i++) {
+						//	if (misc->nsets == total_count[i]) {
+							if (total_count[0] == total_count[i]) {
+								check_cmp = 0;
+								break;
+							}
+						}
+					}
+
+					MPI_Barrier(MPI_COMM_WORLD);
+					MPI_Bcast(&check_cmp, 1, MPI_INT, 0,    MPI_COMM_WORLD);
+					if (check_cmp == 1) {
+						PushCurrentTreeToStack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE);
+	                                            misc->ID = treestack_ptr->next;
+
+						misc->SB = 1;
+						tree_setpush(MSA, p_proposed_tree, proposed_tree_root, mrBuffer, misc);
+						mrTreeStack->add(mrBuffer);
 						accepted++;
 						MPI_Bcast(&accepted,  1, MPI_LONG, 0, MPI_COMM_WORLD);
 					}
-				auto stop = high_resolution_clock::now();
+						free(misc->count);
+						free(total_count);					
+					}
 
-				auto duration = duration_cast<microseconds>(stop - start_timer);
-
-				if ((log_progress == LVB_TRUE) && ((treestack_ptr->next % 10) == 0)) {
-
-				// cout << endl << "iter: " << *current_iter << " " << "CompareMapReduceAnneal: " << duration.count() << " microseconds | Treestack size: " << treestack_ptr->next << endl;
-
-				FILE *timefunction = fopen("FunctionTimesMR","a+");
-				fprintf (timefunction, "%ld\t%ld\t%ld\t%ld\n", *current_iter, duration.count(), treestack_ptr->next, best_tree_length);
-				fclose(timefunction);
-
-				}
 				}
 				#else
-				if (proposed_tree_length <= best_tree_length)	/* store tree if new */
-					{
+								if (proposed_tree_length <= best_tree_length)	/* store tree if new */
+			{
 				/*printf("%ld\n", *current_iter);*/
 				if (proposed_tree_length < best_tree_length) {
 					ClearTreestack(treestack_ptr);	/* discard old bests */
 				}
 					#ifdef LVB_HASH
-						auto start_timer = high_resolution_clock::now();
 						if(CompareHashTreeToHashstack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE) == 1)
 					#else
-						auto start_timer = high_resolution_clock::now();
 						if(CompareTreeToTreestack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE) == 1)
 					#endif
-					{
-						accepted++;
-					}
-					auto stop = high_resolution_clock::now();
-
-					auto duration = duration_cast<microseconds>(stop - start_timer);
-
-					#ifdef LVB_HASH
-
-					if ((log_progress == LVB_TRUE) && ((treestack_ptr->next % 10) == 0)) {
-
-					// cout << endl << "iter: " << *current_iter << " " << "CompareHashTreeToHashstackAnneal: " << duration.count() << " microseconds | Treestack size: " << treestack_ptr->next << endl;
-
-					FILE *timefunction = fopen("FunctionTimesHASH","a+");
-					fprintf (timefunction, "%ld\t%ld\t%ld\t%ld\n", *current_iter, duration.count(), treestack_ptr->next, best_tree_length);
-					fclose(timefunction);
-					}
-					#else
-
-					if ((log_progress == LVB_TRUE) && ((treestack_ptr->next % 10) == 0)) {
-
-					// cout << endl << "iter: " << *current_iter << " " << "CompareTreeToTreestackAnneal: " << duration.count() << " microseconds | Treestack size: " << treestack_ptr->next << endl;
-
-					FILE *timefunction = fopen("FunctionTimesNP","a+");
-					fprintf (timefunction, "%ld\t%ld\t%ld\t%ld\n", *current_iter, duration.count(), treestack_ptr->next, best_tree_length);
-					fclose(timefunction);
-					}
-					#endif
+				{
+					accepted++;
 				}
+			}
 				#endif
 			/* update current tree and its stats */
 			current_tree_length = proposed_tree_length;
@@ -600,10 +639,10 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 } /* end Anneal() */
 
 #ifdef LVB_MAPREDUCE
-long GetSoln(Dataptr restrict MSA, TREESTACK *treestack_ptr, Parameters rcstruct, long *iter_p, Lvb_bool log_progress,
+long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool log_progress,
 				MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer)
 #else
-long GetSoln(Dataptr restrict MSA, TREESTACK *treestack_ptr, Parameters rcstruct, long *iter_p, Lvb_bool log_progress)
+long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool log_progress)
 
 #endif
 /* get and output solution(s) according to parameters in rcstruct;
@@ -628,7 +667,6 @@ long GetSoln(Dataptr restrict MSA, TREESTACK *treestack_ptr, Parameters rcstruct
     int *p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */
 	#ifdef LVB_MAPREDUCE
 	int *total_count;
-	int check_cmp;
 	#endif
 
     /* NOTE: These variables and their values are "dummies" and are no longer
@@ -692,33 +730,69 @@ long GetSoln(Dataptr restrict MSA, TREESTACK *treestack_ptr, Parameters rcstruct
 		MPI_Barrier(MPI_COMM_WORLD);
 		/* find solution(s) */
 		treelength = Anneal(MSA, &treestack, &stack_treevo, tree, rcstruct, initroot, t0, maxaccept,
-				maxpropose, maxfail, stdout, iter_p, log_progress, misc, mrTreeStack, mrBuffer);
+				maxpropose, maxfail, stdout, iter_p, log_progress, misc, mrTreeStack, mrBuffer );
+
 		long val = PullTreefromTreestack(MSA, tree, &initroot, &treestack, LVB_FALSE);
 		CompareTreeToTreestack(MSA, &treestack, tree, initroot, LVB_FALSE);
 
-		auto start_timer = high_resolution_clock::now();
+		if(val ==  1) {
+			misc->SB = 0;
+			tree_setpush(MSA, tree, initroot, mrBuffer, misc);
+			mrTreeStack->add(mrBuffer);
+			mrTreeStack->collate(NULL);
+			mrTreeStack->reduce(reduce_filter, NULL);
 
-		CompareMapReduceTrees(MSA, treestack_ptr, tree, initroot, total_count,
-									check_cmp, misc, mrTreeStack, mrBuffer);
+			mrBuffer->add(mrTreeStack);
+			mrBuffer->collate(NULL);
 
-		/* if(val = 1) treelength = deterministic_hillclimb(MSA, &treestack, tree, rcstruct, initroot, stdout,
-			iter_p, log_progress, misc, mrTreeStack, mrBuffer); */
+			misc->count = (int *) alloc( (treestack.next+1) * sizeof(int), "integer array for tree compare using MapReduce");
+			total_count = (int *) alloc( (treestack.next+1) * sizeof(int), "integer array for tree compare using MapReduce");
+			for(int i=0; i<=treestack.next; i++) misc->count[i] = 0;
+			mrBuffer->reduce(reduce_count, misc);
+
+			for(int i=0; i<=treestack.next; i++) total_count[i] = 0;
+			MPI_Reduce( misc->count, total_count, treestack.next+1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD );
+
+			int check_cmp = 1;
+			if (misc->rank == 0) {
+				for(int i=1; i<=treestack.next; i++) {
+					if (misc->nsets == total_count[i]) {
+						check_cmp = 0; /* different */
+						break;
+					}
+				}
+			}
+
+			MPI_Barrier(MPI_COMM_WORLD);
+			MPI_Bcast(&check_cmp, 1, MPI_INT, 0,    MPI_COMM_WORLD);
+			if (check_cmp == 1) {
+			//  CompareTreeToTreestack(MSA, &treestack, tree, initroot, LVB_FALSE);
+			  misc->ID = treestack.next;
+				  misc->SB = 1;
+				  tree_setpush(MSA, tree, initroot, mrBuffer, misc);
+				  mrTreeStack->add(mrBuffer);
+			}
+
+			free(misc->count);
+			free(total_count);
+
+			/* treelength = deterministic_hillclimb(MSA, &treestack, tree, rcstruct, initroot, stdout,
+				iter_p, log_progress, misc, mrTreeStack, mrBuffer); */
+		}
 
 	#else
 	    /* find solution(s) */
     treelength = Anneal(MSA, &treestack, &stack_treevo, tree, rcstruct, initroot, t0, maxaccept,
     maxpropose, maxfail, stdout, iter_p, log_progress);
-    long val = PullTreefromTreestack(MSA, tree, &initroot, &treestack, LVB_FALSE);
+    PullTreefromTreestack(MSA, tree, &initroot, &treestack, LVB_FALSE);
 
 	#ifdef LVB_HASH
-		auto start_timer = high_resolution_clock::now();
 		CompareHashTreeToHashstack(MSA, &treestack, tree, initroot, LVB_FALSE);
 	#else
-		auto start_timer = high_resolution_clock::now();
 		CompareTreeToTreestack(MSA, &treestack, tree, initroot, LVB_FALSE);
 	#endif
 
-    /* if(val = 1) treelength = deterministic_hillclimb(MSA, &treestack, tree, rcstruct, initroot, stdout,
+    /* treelength = deterministic_hillclimb(MSA, &treestack, tree, rcstruct, initroot, stdout,
 				iter_p, log_progress); */
 
 	#endif
