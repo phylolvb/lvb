@@ -731,8 +731,6 @@ long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool l
 			free(misc->count);
 			free(total_count);
 
-			/* treelength = deterministic_hillclimb(MSA, &treestack, tree, rcstruct, initroot, stdout,
-				iter_p, log_progress, misc, mrTreeStack, mrBuffer); */
 		}
 
 	#else
