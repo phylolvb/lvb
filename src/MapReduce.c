@@ -158,20 +158,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 	long CompareMapReduceTreesAnneal(Dataptr MSA, TREESTACK *sp, TREESTACK_TREE_NODES *p_proposed_tree, long proposed_tree_root, int *total_count,
 							int check_cmp, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer) {
-		
-       // PART 1, if treestack is empty
-		if(sp->next == 0) {
-		/*	PushCurrentTreeToStack(MSA, sp, p_proposed_tree, proposed_tree_root, LVB_FALSE);
-			misc->ID = sp->next;
-            
-		    misc->SB = 1;
-			tree_setpush(MSA, p_proposed_tree, proposed_tree_root, mrBuffer, misc);
-			mrTreeStack->add(mrBuffer);
-			
-			MPI_Barrier(MPI_COMM_WORLD); */
-
-            // PART 2, if treestack is not empty, compare
-		} else {
+		if(sp->next >= 1) {
 				misc->SB = 0;
 				tree_setpush(MSA, p_proposed_tree, proposed_tree_root, mrBuffer, misc);
 				mrBuffer->add(mrTreeStack);
@@ -196,7 +183,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 					}
 				}
 		}
-                // PART 3, push
 				MPI_Barrier(MPI_COMM_WORLD);
 				MPI_Bcast(&check_cmp, 1, MPI_INT, 0, MPI_COMM_WORLD);
 				
@@ -218,20 +204,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 	long CompareMapReduceTrees(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_NODES *p_proposed_tree, long proposed_tree_root, int *total_count,
 							int check_cmp, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer) {
-
-		// if treestack is not empty
-		if(sp->next == 0) {
-			/*	PushCurrentTreeToStack(MSA, sp, p_proposed_tree, proposed_tree_root, LVB_FALSE);
-			misc->ID = sp->next;
-            
-		    misc->SB = 1;
-			tree_setpush(MSA, p_proposed_tree, proposed_tree_root, mrBuffer, misc);
-			mrTreeStack->add(mrBuffer);
-			
-			MPI_Barrier(MPI_COMM_WORLD); */
-
-            // PART 2, if treestack is not empty, compare
-		} else {
+		if(sp->next >= 1) {
 
 			misc->SB = 0;
 			tree_setpush(MSA, p_proposed_tree, proposed_tree_root, mrBuffer, misc);
@@ -256,7 +229,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 				}
 			}
 		}
-		// Push
 				MPI_Barrier(MPI_COMM_WORLD);
 				MPI_Bcast(&check_cmp, 1, MPI_INT, 0, MPI_COMM_WORLD);
 				
