@@ -246,11 +246,8 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
     best_tree_length = current_tree_length;
 
 	#ifdef LVB_MAPREDUCE  
-		MPI_Bcast(&best_tree_length,  1, MPI_LONG, 0, MPI_COMM_WORLD);
-		PushCurrentTreeToStack(MSA, treestack_ptr, inittree, root, LVB_FALSE);
-		misc->ID = treestack_ptr->next;
-		misc->SB = 1;
-		tree_setpush(MSA, inittree, root, mrTreeStack, misc);
+		CompareMapReduceTrees(MSA, treestack_ptr, inittree, root, total_count,
+									check_cmp, misc, mrTreeStack, mrBuffer);
 	
 	#elif LVB_HASH
 		auto start_timer = high_resolution_clock::now();
@@ -361,7 +358,7 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 				}
 				auto start_timer = high_resolution_clock::now();
 				if(CompareMapReduceTreesAnneal(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, total_count,
-					check_cmp, accepted, misc, mrTreeStack, mrBuffer) == 1) {
+					check_cmp, misc, mrTreeStack, mrBuffer) == 1) {
 						accepted++;
 						MPI_Bcast(&accepted,  1, MPI_LONG, 0, MPI_COMM_WORLD);
 					}

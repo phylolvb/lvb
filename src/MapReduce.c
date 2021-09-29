@@ -156,21 +156,19 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 	}
 
-
-
 	long CompareMapReduceTreesAnneal(Dataptr MSA, TREESTACK *sp, TREESTACK_TREE_NODES *p_proposed_tree, long proposed_tree_root, int *total_count,
-							int check_cmp, long& accepted, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer) {
+							int check_cmp, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer) {
 		
        // PART 1, if treestack is empty
 		if(sp->next == 0) {
-			PushCurrentTreeToStack(MSA, sp, p_proposed_tree, proposed_tree_root, LVB_FALSE);
+		/*	PushCurrentTreeToStack(MSA, sp, p_proposed_tree, proposed_tree_root, LVB_FALSE);
 			misc->ID = sp->next;
             
 		    misc->SB = 1;
 			tree_setpush(MSA, p_proposed_tree, proposed_tree_root, mrBuffer, misc);
 			mrTreeStack->add(mrBuffer);
 			
-			MPI_Barrier(MPI_COMM_WORLD);
+			MPI_Barrier(MPI_COMM_WORLD); */
 
             // PART 2, if treestack is not empty, compare
 		} else {
@@ -185,7 +183,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 				for(int i=0; i<=sp->next; i++) misc->count[i] = 0;
 				mrBuffer->reduce(reduce_count, misc);
 				for(int i=0; i<=sp->next; i++) total_count[i] = 0;
-				MPI_Reduce( misc->count, total_count, sp->next+1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD );
+				MPI_Reduce(misc->count, total_count, sp->next+1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 
 				check_cmp = 1;
 				if (misc->rank == 0) {
@@ -197,6 +195,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 						}
 					}
 				}
+		}
                 // PART 3, push
 				MPI_Barrier(MPI_COMM_WORLD);
 				MPI_Bcast(&check_cmp, 1, MPI_INT, 0, MPI_COMM_WORLD);
@@ -209,19 +208,30 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 				tree_setpush(MSA, p_proposed_tree, proposed_tree_root, mrBuffer, misc);
 				mrTreeStack->add(mrBuffer);
 
-				free(misc->count);
+				// free(misc->count);
 				free(total_count);
 
-	}
+	
 		return 1;
 	}
 
 
-	long CompareMapReduceTrees(Dataptr MSA, TREESTACK *sp, TREESTACK_TREE_NODES *p_proposed_tree, long proposed_tree_root, int *total_count,
+	long CompareMapReduceTrees(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_NODES *p_proposed_tree, long proposed_tree_root, int *total_count,
 							int check_cmp, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer) {
 
 		// if treestack is not empty
-		if (sp->next >= 1) {
+		if(sp->next == 0) {
+			/*	PushCurrentTreeToStack(MSA, sp, p_proposed_tree, proposed_tree_root, LVB_FALSE);
+			misc->ID = sp->next;
+            
+		    misc->SB = 1;
+			tree_setpush(MSA, p_proposed_tree, proposed_tree_root, mrBuffer, misc);
+			mrTreeStack->add(mrBuffer);
+			
+			MPI_Barrier(MPI_COMM_WORLD); */
+
+            // PART 2, if treestack is not empty, compare
+		} else {
 
 			misc->SB = 0;
 			tree_setpush(MSA, p_proposed_tree, proposed_tree_root, mrBuffer, misc);
@@ -247,17 +257,19 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 			}
 		}
 		// Push
-		MPI_Barrier(MPI_COMM_WORLD);
-		MPI_Bcast(&check_cmp, 1, MPI_INT, 0, MPI_COMM_WORLD);
-		
-		misc->SB = 1;
-		tree_setpush(MSA, p_proposed_tree, proposed_tree_root, mrBuffer, misc);
-		mrTreeStack->add(mrBuffer);
-		PushCurrentTreeToStack(MSA, sp, p_proposed_tree, proposed_tree_root, LVB_FALSE);
-		misc->ID = sp->next;
+				MPI_Barrier(MPI_COMM_WORLD);
+				MPI_Bcast(&check_cmp, 1, MPI_INT, 0, MPI_COMM_WORLD);
+				
+				
+				PushCurrentTreeToStack(MSA, sp, p_proposed_tree, proposed_tree_root, LVB_FALSE);
+                misc->ID = sp->next;
 
-		free(misc->count);
-		free(total_count);
+				misc->SB = 1;
+				tree_setpush(MSA, p_proposed_tree, proposed_tree_root, mrBuffer, misc);
+				mrTreeStack->add(mrBuffer);
+
+				free(misc->count);
+				free(total_count);
 
 		return 1;
 	}
