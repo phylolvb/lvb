@@ -156,3 +156,54 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 	}
 
+	long CompareMapReduceTreesAnneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK_TREE_NODES *p_proposed_tree, long proposed_tree_root, int *total_count,
+							int check_cmp, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer) {
+				if(treestack_ptr->next == 0) {
+					PushCurrentTreeToStack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE);
+					misc->ID = treestack_ptr->next;
+
+					misc->SB = 1;
+					tree_setpush(MSA, p_proposed_tree, proposed_tree_root, mrTreeStack, misc);
+
+					MPI_Barrier(MPI_COMM_WORLD);
+				} else {
+
+	                misc->SB = 0;
+					tree_setpush(MSA, p_proposed_tree, proposed_tree_root, mrBuffer, misc);
+					mrBuffer->add(mrTreeStack);
+					mrBuffer->collate(NULL);
+
+					misc->count = (int *) alloc( (treestack_ptr->next+1) * sizeof(int), "int array for tree comp using MR");
+					total_count = (int *) alloc( (treestack_ptr->next+1) * sizeof(int), "int array for tree comp using MR");
+
+					for(int i=0; i<=misc->ID; i++) misc->count[i] = 0;
+					mrBuffer->reduce(reduce_count, misc);
+ 					for(int i=0; i<=misc->ID; i++) total_count[i] = 0;
+					MPI_Reduce( misc->count, total_count, misc->ID+1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD );
+
+					check_cmp = 1;
+					if (misc->rank == 0) {
+						for(int i=1; i<=misc->ID; i++) {
+						//	if (misc->nsets == total_count[i]) {
+							if (total_count[0] == total_count[i]) {
+								check_cmp = 0;
+								return 0;
+							}
+						}
+					}
+
+					MPI_Barrier(MPI_COMM_WORLD);
+					MPI_Bcast(&check_cmp, 1, MPI_INT, 0,    MPI_COMM_WORLD);
+					if (check_cmp == 1) {
+						PushCurrentTreeToStack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE);
+	                                            misc->ID = treestack_ptr->next;
+
+						misc->SB = 1;
+						tree_setpush(MSA, p_proposed_tree, proposed_tree_root, mrBuffer, misc);
+						mrTreeStack->add(mrBuffer);
+					}
+						free(misc->count);
+						free(total_count);					
+					}
+					return 1;
+				}
