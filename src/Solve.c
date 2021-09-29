@@ -389,7 +389,7 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 					mrTreeStack->map(mrTreeStack, map_clean, NULL);
 				}
 				
-				if(CompareMapReduceTreesAnneal(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, total_count,
+				if(CompareMapReduceTrees(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, total_count,
 					check_cmp, misc, mrTreeStack, mrBuffer) == 1) {
 						accepted++; 
 						MPI_Bcast(&accepted, 1, MPI_LONG, 0, MPI_COMM_WORLD);	
@@ -689,7 +689,7 @@ long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool l
 		PullTreefromTreestack(MSA, tree, &initroot, &treestack, LVB_FALSE);
 		CompareTreeToTreestack(MSA, &treestack, tree, initroot, LVB_FALSE);
 
-		CompareMapReduceTreesAnneal(MSA, &treestack, tree, initroot, total_count,
+		CompareMapReduceTrees(MSA, &treestack, tree, initroot, total_count,
 					check_cmp, misc, mrTreeStack, mrBuffer);
 
 	#else

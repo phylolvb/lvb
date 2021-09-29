@@ -156,7 +156,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 	}
 
-	long CompareMapReduceTreesAnneal(Dataptr MSA, TREESTACK *treestack_ptr, const TREESTACK_TREE_NODES *p_proposed_tree, long proposed_tree_root, int *total_count,
+	long CompareMapReduceTrees(Dataptr MSA, TREESTACK *treestack_ptr, const TREESTACK_TREE_NODES *p_proposed_tree, long proposed_tree_root, int *total_count,
 							int check_cmp, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer) {
 				if(treestack_ptr->next == 0) {
 					PushCurrentTreeToStack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE);
