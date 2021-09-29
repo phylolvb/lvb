@@ -622,6 +622,7 @@ long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool l
     int *p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */
 	#ifdef LVB_MAPREDUCE
 	int *total_count;
+	int check_cmp;
 	#endif
 
     /* NOTE: These variables and their values are "dummies" and are no longer
@@ -690,8 +691,8 @@ long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool l
 		PullTreefromTreestack(MSA, tree, &initroot, &treestack, LVB_FALSE);
 		CompareTreeToTreestack(MSA, &treestack, tree, initroot, LVB_FALSE);
 
-		CompareMapReduceTreesGetSoln(MSA, &treestack, tree, initroot, total_count,
-					misc, mrTreeStack, mrBuffer);
+		CompareMapReduceTreesAnneal(MSA, &treestack, tree, initroot, total_count,
+					check_cmp, misc, mrTreeStack, mrBuffer);
 
 	#else
 	    /* find solution(s) */
