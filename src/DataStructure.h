@@ -52,8 +52,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define FORMAT_NEXUS     2
 #define FORMAT_CLUSTAL   3
 
-// #define LVB_HASH_LINEAR
-
 typedef enum { LVB_FALSE, LVB_TRUE } Lvb_bool;  /* boolean type */
 #define LVB_FNAMSIZE 2000  /* maximum bytes for file names */
 

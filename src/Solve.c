@@ -393,22 +393,11 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 					ClearTreestack(treestack_ptr);
 					mrTreeStack->map(mrTreeStack, map_clean, NULL);
 				}
-				auto start_timer = high_resolution_clock::now();
 				
 				if(CompareMapReduceTrees(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, total_count,
 					check_cmp, misc, mrTreeStack, mrBuffer) == 1) {
 						accepted++; 
 						MPI_Bcast(&accepted, 1, MPI_LONG, 0, MPI_COMM_WORLD);	
-				}
-				auto stop = high_resolution_clock::now();
-
-				auto duration = duration_cast<microseconds>(stop - start_timer);
-
-				if ((log_progress == LVB_TRUE) && ((treestack_ptr->next % 10) == 0)) {
-
-				FILE *timefunction = fopen("FunctionTimesMR","a+");
-				fprintf (timefunction, "%ld\t%ld\t%ld\t%ld\n", *current_iter, duration.count(), treestack_ptr->next, best_tree_length);
-				fclose(timefunction);
 				}
 				}
 				#else
@@ -419,36 +408,13 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 					ClearTreestack(treestack_ptr);	/* discard old bests */
 				}
 					#ifdef LVB_HASH
-					auto start_timer = high_resolution_clock::now();
 						if(CompareHashTreeToHashstack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE) == 1)
 					#else
-					auto start_timer = high_resolution_clock::now();
 						if(CompareTreeToTreestack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE) == 1)
 					#endif
 				{
 					accepted++;
 				}
-				auto stop = high_resolution_clock::now();
-
-					auto duration = duration_cast<microseconds>(stop - start_timer);
-
-					#ifdef LVB_HASH
-
-					if ((log_progress == LVB_TRUE) && ((treestack_ptr->next % 10) == 0)) {
-
-					FILE *timefunction = fopen("FunctionTimesHASH","a+");
-					fprintf (timefunction, "%ld\t%ld\t%ld\t%ld\n", *current_iter, duration.count(), treestack_ptr->next, best_tree_length);
-					fclose(timefunction);
-					}
-					#else
-
-					if ((log_progress == LVB_TRUE) && ((treestack_ptr->next % 10) == 0)) {
-
-					FILE *timefunction = fopen("FunctionTimesNP","a+");
-					fprintf (timefunction, "%ld\t%ld\t%ld\t%ld\n", *current_iter, duration.count(), treestack_ptr->next, best_tree_length);
-					fclose(timefunction);
-					}
-					#endif
 			}
 				#endif
 			/* update current tree and its stats */

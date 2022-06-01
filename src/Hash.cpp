@@ -43,8 +43,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* ========== Hash.cpp - hashing functions ========== */
 
 #include "Hash.h"
-using namespace std;
-using namespace std::chrono;
 
 long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_NODES *const BranchArray, const long root, Lvb_bool b_with_sitestate) {
   long i = 0, new_root = 0;
@@ -68,46 +66,14 @@ long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE
     current_site_states_hash = HashSiteSet(current_site_states);
   } else {
     sort(hashstackvector.begin(), hashstackvector.end());
-    #ifdef LVB_HASH_LINEAR
-    auto start_timer = high_resolution_clock::now();
+    
     for (i = sp->next - 1; i >= 0; i--) {
       if (TopologicalHashComparison(MSA, hashstackvector.at(i), copy_2, b_First, current_site_states, current_site_states_hash) == 0) {
         return 0; /* if current hash matches stored hash, exit */
       }
       b_First = LVB_FALSE;
     }
-    auto stop = high_resolution_clock::now();
-
-		auto duration = duration_cast<microseconds>(stop - start_timer);
-
-    if ((sp->next % 1000) == 0) {
-
-					FILE *timefunction = fopen("FunctionTimesHASHLin","a+");
-					fprintf (timefunction, "%ld\t%ld\t%ld\t%ld\n", duration.count(), sp->next);
-					fclose(timefunction);
-					}
     
-    #else
-    auto start_timer = high_resolution_clock::now();
-    if (b_First == LVB_TRUE) {
-    current_site_states = MakeHashSet(MSA, copy_2, 0);
-    current_site_states_hash = HashSiteSet(current_site_states);
-    }
-    if(binary_search(hashstackvector.begin(), hashstackvector.end(), current_site_states_hash)){
-      return 0;
-    }
-    auto stop = high_resolution_clock::now();
-
-		auto duration = duration_cast<microseconds>(stop - start_timer);
-
-    if ((sp->next % 1000) == 0) {
-
-					FILE *timefunction = fopen("FunctionTimesHASHBin","a+");
-					fprintf (timefunction, "%ld\t%ld\t%ld\t%ld\n", duration.count(), sp->next);
-					fclose(timefunction);
-					}
-
-    #endif
   }
   hashstackvector.push_back(current_site_states_hash);
 
