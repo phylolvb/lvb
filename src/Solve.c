@@ -123,6 +123,7 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *treestack_ptr, const TREEST
 						if (tree_length_change < 0)  /* very best so far */
 						{
 							ClearTreestack(treestack_ptr);
+							mrTreeStack->map(mrTreeStack, map_clean, NULL);
 							PushCurrentTreeToStack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE);
 							misc->ID = treestack_ptr->next;
 							misc->SB = 1;
@@ -167,6 +168,7 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *treestack_ptr, const TREEST
 							}
 						  free(misc->count);
 						  free(total_count);
+						  mrBuffer->map(mrBuffer, map_clean, NULL);
 						}
 
 					#else 

@@ -1367,6 +1367,8 @@ void ssarralloc(Dataptr MSA, Objset *nobjset_2)
 	//    mrObj->collate(NULL);
 	//    uint64_t nKV = mrObj->reduce(reduce_sets, NULL);
 
+		free(copy_tree);
+
 		return nKV;
 	}
 
