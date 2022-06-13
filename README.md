@@ -30,23 +30,8 @@ Installation
 
 ***Downloading source code:***
 
-Method 1: initialise and update beagle3
 ~~~~
-git clone https://github.com/phylolvb/lvb -b dev
-
-git submodule init
-
-git submodule update
-~~~~
-
-Method 2: initialise and update recursively
-~~~~
-git clone --recurse-submodules https://github.com/phylolvb/lvb -b dev
-~~~~
-
-Method 3: download without libraries
-~~~~
-git clone https://github.com/phylolvb/lvb -b dev
+git clone https://github.com/phylolvb/lvb 
 ~~~~
 
 ***Building LVB:***
