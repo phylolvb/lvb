@@ -10,6 +10,8 @@ and Chris Wood.
 Fernando Guntoro, Maximilian Strobl and Chris Wood.
 (c) Copyright 2020 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
 Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
+(c) Copyright 2022 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
+Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
 
 All rights reserved.
 
@@ -64,9 +66,7 @@ long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE
     current_site_states = MakeHashSet(MSA, copy_2, new_root);
     hashstackvector.clear();
     current_site_states_hash = HashSiteSet(current_site_states);
-  } else {
-    sort(hashstackvector.begin(), hashstackvector.end());
-    
+  } else {    
     for (i = sp->next - 1; i >= 0; i--) {
       if (TopologicalHashComparison(MSA, hashstackvector.at(i), copy_2, b_First, current_site_states, current_site_states_hash) == 0) {
         return 0; /* if current hash matches stored hash, exit */
