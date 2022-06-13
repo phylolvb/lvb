@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define LVB_VERSION "4.0"
 #define LVB_MAPREDUCE_VERSION "MapReduce Multicore version "
 #define LVB_HASH_VERSION "Hash version "
-#define LVB_RELEASE_DATE "February 2019"
+#define LVB_RELEASE_DATE "June 2022"
 #define LVB_WIKI "github.com/phylolvb/lvb"
 
 void PrintLVBCopyright();
