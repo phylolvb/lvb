@@ -2,26 +2,17 @@ LVB
 ---
 ***Phylogenetic Software Package***
 
-[![](https://img.shields.io/badge/Build-Passing-brightgreen)](https://github.com/phylolvb/lvb/releases/tag/3.5)
-[![](https://img.shields.io/badge/Core%20Tests-Passing-brightgreen)]()
-[![](https://img.shields.io/badge/Current%20Release-3.5-blue)](https://github.com/phylolvb/lvb/releases/tag/3.5)
-[![](https://img.shields.io/badge/Release%20Date-02%2F2019-blue)](https://github.com/phylolvb/lvb/releases/tag/3.5)\
-[![](https://img.shields.io/badge/DOI%3A-https%3A%2F%2Fdoi.org%2F10.1093%2Fbioinformatics%2Fbtg402-blue)](https://doi.org/10.1093/bioinformatics/btg402)
-
-Currently under development by the [*Barker Lab Group*](https://www.ed.ac.uk/profile/daniel-barker) at the University of Edinburgh.
+LVB is a maximum-parsimony (MP) phylogenetic inference tool currently under development by the [*Barker Lab Group*](https://www.ed.ac.uk/profile/daniel-barker) at the University of Edinburgh. LVB utilises a simulated annealing algorithm to aid searches within tree space.
 
 Current Developers:\
 [*Joseph Guscott*](https://github.com/josephguscott)\
 [*Daniel Barker*](https://www.ed.ac.uk/profile/daniel-barker)
 
----
-
-Introduction
----
-
-
-LVB phylogeny reconstruction software. For further details see:
-http://LVB.bio.ed.ac.uk
+[![](https://img.shields.io/badge/Build-Passing-brightgreen)](https://github.com/phylolvb/lvb/releases/tag/3.5)
+[![](https://img.shields.io/badge/Core%20Tests-Passing-brightgreen)]()
+[![](https://img.shields.io/badge/Current%20Release-3.5-blue)](https://github.com/phylolvb/lvb/releases/tag/3.5)
+[![](https://img.shields.io/badge/Release%20Date-02%2F2019-blue)](https://github.com/phylolvb/lvb/releases/tag/3.5)\
+[![](https://img.shields.io/badge/DOI%3A-https%3A%2F%2Fdoi.org%2F10.1093%2Fbioinformatics%2Fbtg402-blue)](https://doi.org/10.1093/bioinformatics/btg402)
 
 ---
 
@@ -36,7 +27,7 @@ git clone https://github.com/phylolvb/lvb
 
 ***Building LVB:***
 
-Serial version:
+Serial array version:
 ~~~~
 make
 ~~~~
