@@ -9,6 +9,8 @@ and Chris Wood.
 Fernando Guntoro, Maximilian Strobl and Chris Wood.
 (c) Copyright 2020 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
 Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
+(c) Copyright 2022 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
+Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
 
 All rights reserved.
  
