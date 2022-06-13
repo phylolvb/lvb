@@ -8,6 +8,12 @@ and Chris Wood
 (c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Chang Sik Kim,
 Maximilian Strobl and Martyn Winn
 All rights reserved.
+(c) Copyright 2019 by Daniel Barker, Miguel Pinheiro, Joseph Guscott,
+Fernando Guntoro, Maximilian Strobl and Chris Wood.
+(c) Copyright 2020 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
+Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
+(c) Copyright 2022 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
+Fernando Guntoro, Maximilian Strobl, Chang Sik Kim, Martyn Winn and Chris Wood.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
