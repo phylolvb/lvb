@@ -58,11 +58,11 @@ This update enabled LVB to carry out TBR branch-swapping, in addition to the alr
 Publications
 ---
 
-- Strobl, M.A. and Barker, D., 2016. On simulated annealing phase transitions in phylogeny reconstruction. Molecular phylogenetics and evolution, 101, pp.46-55.\
+- Strobl, M.A. and Barker, D., 2016. On simulated annealing phase transitions in phylogeny reconstruction. Molecular Phylogenetics and Evolution, 101, 46-55.\
 DOI: [*10.1016/j.ympev.2016.05.001*](https://www.sciencedirect.com/science/article/pii/S1055790316300823?via%3Dihub)
 
 
-- Barker, D., 2004. LVB: parsimony and simulated annealing in the search for phylogenetic trees. Bioinformatics, 20(2), pp.274-275.\
+- Barker, D., 2004. LVB: parsimony and simulated annealing in the search for phylogenetic trees. Bioinformatics, 20, 274-275.\
 DOI: [*10.1093/bioinformatics/btg402*](https://academic.oup.com/bioinformatics/article/20/2/274/204936)
 
 ---
