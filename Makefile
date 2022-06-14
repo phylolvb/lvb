@@ -92,8 +92,8 @@ CFLAGS += -msse4.2
 
 # No warnings
 
-CFLAGS += -g -O3 -fopenmp -DLVB_NP -std=c++11
-CXXFLAGS += -g -O3 -fopenmp -DLVB_NP -std=c++11
+CFLAGS += -msse4.2 -O3 -fopenmp -DLVB_NP -std=c++11
+CXXFLAGS += -msse4.2 -O3 -fopenmp -DLVB_NP -std=c++11
 
 # Warnings
 

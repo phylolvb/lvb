@@ -92,8 +92,8 @@ CXX = mpic++
 
 # No warnings
 
-CFLAGS += -g -O3 -fopenmp -DLVB_MAPREDUCE -std=c++11 
-CXXFLAGS += -g -O3 -fopenmp -DLVB_MAPREDUCE -std=c++11
+CFLAGS += -msse4.2 -O3 -fopenmp -DLVB_MAPREDUCE -std=c++11 
+CXXFLAGS += -msse4.2 -O3 -fopenmp -DLVB_MAPREDUCE -std=c++11
 # Warnings
 
 # CFLAGS += -Wall -g -O3 -fopenmp -DLVB_MAPREDUCE -std=c++11
