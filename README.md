@@ -64,6 +64,6 @@ DOI: [*10.1016/j.ympev.2016.05.001*](https://doi.org/10.1016/j.ympev.2016.05.001
 
 - Barker, D., 2004. LVB: parsimony and simulated annealing in the search for phylogenetic trees. Bioinformatics, 20, 274-275.\
 DOI: [*10.1093/bioinformatics/btg402*](https://doi.org/10.1093/bioinformatics/btg402)
-([*And see here for additional supplementary information*](https://www.research.ed.ac.uk/en/publications/lvb-parsimony-and-simulated-annealing-in-the-search-for-phylogene))
+([*With additional supplementary information available here*](https://www.research.ed.ac.uk/en/publications/lvb-parsimony-and-simulated-annealing-in-the-search-for-phylogene))
 
 ---
