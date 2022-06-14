@@ -106,7 +106,7 @@ CXXFLAGS += -g -O3 -fopenmp -DLVB_MAPREDUCE -std=c++11
 
 # System-dependent macros - OK for Linux and UNIX-like systems, for others will
 # require change
-LM = -lm libs/mrmpi/mrmpi-7Apr14/src/libmrmpi_mpicc.a # UNIX
+LM = -lm $(shell pwd)/libs/mrmpi/mrmpi-7Apr14/src/libmrmpi_mpicc.a # UNIX
 RANLIB = ranlib	# UNIX
 EXE =			# UNIX
 OBJ = o			# UNIX
