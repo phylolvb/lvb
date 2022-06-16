@@ -1,5 +1,5 @@
-LVB
----
+# LVB
+
 ***Phylogenetic Software Package***
 
 LVB is a maximum-parsimony (MP) phylogenetic inference tool currently under development by the [*Barker Lab Group*](https://www.ed.ac.uk/profile/daniel-barker) at the University of Edinburgh. LVB utilises a simulated annealing algorithm to aid searches within tree space.
@@ -14,56 +14,39 @@ Current Developers:\
 [![](https://img.shields.io/badge/Release%20Date-02%2F2019-blue)](https://github.com/phylolvb/lvb/releases/tag/3.5)\
 [![](https://img.shields.io/badge/DOI%3A-https%3A%2F%2Fdoi.org%2F10.1093%2Fbioinformatics%2Fbtg402-blue)](https://doi.org/10.1093/bioinformatics/btg402)
 
----
+***Gettting Started***
 
-Installation
----
-
-***Downloading source code:***
+To checkout the current source code and compile:
 
 ~~~~
-git clone https://github.com/phylolvb/lvb 
+git clone https://github.com/phylolvb/lvb
+cd lvb/
 ~~~~
 
-***Building LVB:***
-
-Serial array version:
-~~~~
-make
-~~~~
-
-Hash version:
+Hash version (recommended):
 ~~~~
 make -f Makefile.HASH
 ~~~~
 
-MapReduce version:
+Array-based version:
 ~~~~
+make
+~~~~
+
+MapReduce version (requires MPI)  
+When compiling the MapReduce version of LVB, the MRMPI library may need to be recompiled to work with some versions of the openMPI library. This can be achieved by carrying out the following:
+~~~
+cd libs/mrmpi/mrmpi-7Apr14/src/
+make clean-all
+make mpicc
+cd ../../../../
 make -f Makefile.MAPREDUCE
-~~~~
+~~~
 
----
+If you use LVB, please cite the following paper:
 
-Version History
----
-***4.0***\
-Currently under development
+* Barker, D., 2004. LVB: parsimony and simulated annealing in the search for phylogenetic trees. Bioinformatics (Oxford, England), 20(2), pp.274-275. https://doi.org/10.1093/bioinformatics/btg402 
 
-***3.5***\
-*February 2019*\
-This update enabled LVB to carry out TBR branch-swapping, in addition to the already previously implemented NNI and SPR. It also saw some development to algorithms that tried to identify the most advantageous combinations in which to run the different branch-swapping procedures. Other changes included refinement of the simulated annealing starting temperature, more detailed output statistics, and removal of the MSF input format, bootstrapping and weighting.   
-
----
-
-Publications
----
-
-- Strobl, M.A. and Barker, D., 2016. On simulated annealing phase transitions in phylogeny reconstruction. Molecular Phylogenetics and Evolution, 101, 46-55.\
-DOI: [*10.1016/j.ympev.2016.05.001*](https://doi.org/10.1016/j.ympev.2016.05.001)
-
-
-- Barker, D., 2004. LVB: parsimony and simulated annealing in the search for phylogenetic trees. Bioinformatics, 20, 274-275.\
-DOI: [*10.1093/bioinformatics/btg402*](https://doi.org/10.1093/bioinformatics/btg402)
-([*With additional supplementary information available here*](https://www.research.ed.ac.uk/en/publications/lvb-parsimony-and-simulated-annealing-in-the-search-for-phylogene))
+The full LVB wiki, is available within the [Wiki](https://github.com/phylolvb/lvb/wiki) tab.
 
 ---
