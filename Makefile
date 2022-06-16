@@ -81,7 +81,7 @@ CXX = mpic++
 # UNCOMMENT THIS FOR 32-BIT LINUX (E.G. OLD INTEL CPUS OR RASPBERRY PI)
 #CFLAGS += -DCOMPILE_32_BITS
 # COMMENT THIS FOR 32-BIT (E.G. OLD INTEL CPUS OR RASPBERRY PI):
-CFLAGS += -msse4.2
+#CFLAGS += -msse4.2
 
 # FOR OS X WITH THE INTEL C++ COMPILER, UNCOMMENT THE NEXT THREE LINES 
 #G++ = icpc
@@ -92,8 +92,8 @@ CFLAGS += -msse4.2
 
 # No warnings
 
-CFLAGS += -msse4.2 -O3 -fopenmp -DLVB_NP -std=c++11
-CXXFLAGS += -msse4.2 -O3 -fopenmp -DLVB_NP -std=c++11
+CFLAGS += -O2 -fopenmp -DLVB_NP -std=c++11
+CXXFLAGS += -O2 -fopenmp -DLVB_NP -std=c++11
 
 # Warnings
 
