@@ -106,6 +106,40 @@ void PrintLVBCopyright() {
   "STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)\n"
   "ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF\n"
   "ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n\n";
+
+  #ifdef LVB_MAPREDUCE
+  std::cout << "Program: MapReduce-MPI (MR-MPI) Library\n"
+  "\n"
+  "Copyright (2009) Sandia Corporation.  Under the terms of Contract\n"
+  "DE-AC04-94AL85000 with Sandia Corporation, the U.S. Government retains\n"
+  "certain rights in this software.\n"
+  "\n"
+  "Redistribution and use in source and binary forms, with or without\n"
+  "modification, are permitted provided that the following conditions are met:\n"
+  "\n"
+  "* Redistributions of source code must retain the above copyright notice,\n"
+  "  this list of conditions and the following disclaimer.\n"
+  "\n"
+  "* Redistributions in binary form must reproduce the above copyright notice,\n"
+  "  this list of conditions and the following disclaimer in the documentation\n"
+  "  and/or other materials provided with the distribution.\n"
+  "\n"
+  "* Neither the name of Sandia Corporation nor the names of contributors\n"
+  "  to this software may be used to endorse or promote products derived\n"
+  "  from this software without specific prior written permission.\n"
+  "\n"
+  "THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''\n"
+  "AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\n"
+  "IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE\n"
+  "ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR\n"
+  "ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL\n"
+  "DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR\n"
+  "SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER\n"
+  "CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,\n"
+  "OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\n"
+  "OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n\n";
+
+  #endif
 }
 
 void PrintOutput(long iter, long trees_output_total, long final_length, double consistency_index, double homoplasy_index, double overall_time_taken, char *file_name_out) {
