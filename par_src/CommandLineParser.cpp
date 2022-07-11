@@ -194,7 +194,7 @@ void read_parameters(Parameters *prms, int argc, char **argv){
 	int c;
 	opterr = 0;
 
-	while ((c = getopt (argc, argv, "t:c:b:vs:i:o:f:a:p:N:SC:h?")) != -1){
+	while ((c = getopt (argc, argv, "t:c:b:vs:i:o:f:a:p:P:n:N:SC:h?")) != -1){
 		switch (c)
 		{
 			case 'c':	/* cooling schedule */
@@ -288,6 +288,26 @@ void read_parameters(Parameters *prms, int argc, char **argv){
 				}
 				prms->n_number_max_trees = atoi(optarg);
 				if (prms->n_number_max_trees < 1) prms->n_number_max_trees = 0;
+				break;
+			case 'P':
+				if (optarg==NULL){
+					fprintf (stderr, "Option -%c requires an argument -P [0|1|2]\n", optopt);
+					usage(argv[0]);
+				}
+				if (strcmp(optarg, "0") == 0) prms->parallel_selection = 0;
+				else if (strcmp(optarg, "1") == 0) prms->parallel_selection = 1;
+				else if (strcmp(optarg, "2") == 0) prms->parallel_selection = 2;
+				else{
+					fprintf (stderr, "Unknown parallelization option\nPlease, choose between multi_run (0), Cluster (1), or Space Partion tree (2).");
+				}
+
+				break;
+			case 'n':
+				if (optarg == NULL){
+					fprintf (stderr, "Option -%c requires an argument -n <int>\n", optopt);
+					usage(argv[0]);
+				}
+				prms->nruns = atoi(optarg);
 				break;
 			case '?':
 			case 'h':

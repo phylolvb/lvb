@@ -88,6 +88,8 @@ typedef struct {
     char file_name_in[LVB_FNAMSIZE];     /* input file name */
     char file_name_out[LVB_FNAMSIZE];    /* output file name */
     int n_number_max_trees;              /* number of EPT to be saved */
+    int parallel_selection;		 /* parallelization selection: 0 is multiple independent instances, 1 is cluster, and 2 is SPT*/ 
+    int nruns;
 } Parameters;
 
 #endif  // SRC_DATASTRUCTURE_H_

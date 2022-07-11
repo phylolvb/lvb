@@ -43,7 +43,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* ========== SearchParameters.c - get and set configurable parameters ========== */
 
 #include "SearchParameters.h"
-
+#ifndef parallel
+#include <mpi.h>
+#endif
 /* it is in CommandLineParser.cpp library */
 void read_parameters(Parameters *prms, int argc, char **argv);
 
@@ -84,6 +86,9 @@ void defaults_params(Parameters *const prms)
     prms->n_file_format = FORMAT_PHYLIP;
     prms->n_processors_available = omp_get_max_threads();
 	prms->n_number_max_trees = 0;			/* default, keep all EPT */
+	
+    prms->parallel_selection=0;/*default, launch multiple independent instances*/
+    prms->nruns=100;
 
 } /* end defaults_params() */
 
@@ -106,6 +111,15 @@ void writeinf(Parameters prms, Dataptr MSA, int argc, char **argv)
 #endif
 /* write initial details to standard output */
 {
+
+#ifndef parallel
+	int rank;
+	MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+	if(rank!=0)
+		return;
+#endif
+
+
 	struct utsname buffer;
 	errno = 0;
 	if (uname(&buffer) !=0)
@@ -159,6 +173,18 @@ void writeinf(Parameters prms, Dataptr MSA, int argc, char **argv)
 			printf("%d ", omp_get_thread_num());
 		}
 	}
+
+#ifndef parallel
+	int nprocs;
+	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);	
+	printf("number of MPI processes: %d\n", nprocs);
+	printf("number of runs: %d\n", prms.nruns);
+	printf("  MPI parallel strategy(Yi): ");
+	if(prms.parallel_selection == 0) printf("          0 (multi independent runs)\n");
+    	else if(prms.parallel_selection == 1) printf("          1 (Cluster)\n");
+    	else if(prms.parallel_selection == 2) printf("          2 (SPT)\n");
+
+#endif
 		
 	printf("\n================================================================================\n");
 	printf("\nInitialising search: \n");

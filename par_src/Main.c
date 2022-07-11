@@ -55,6 +55,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Solve.h"
 #include "Verbose.h"
 
+
+void printMSA(Dataptr MSA)
+{
+	printf(" int n_threads_getplen:%d \n int n_slice_size_getplen:%d\n  long m : %ld\n", MSA->n_threads_getplen, MSA->n_slice_size_getplen, MSA->m);
+	printf("long original_m : %ld  \n long n : %ld  \nlong max_length_seq_name : %ld \n long numberofpossiblebranches : %ld \n long bytes : %ld\n", MSA->original_m, MSA->n, MSA->max_length_seq_name, MSA->numberofpossiblebranches, MSA->bytes);
+	printf("long tree_bytes : %ld    \nlong tree_bytes_without_sitestate : %ld  \nlong nwords : %ld\n", MSA->tree_bytes, MSA->tree_bytes_without_sitestate, MSA->nwords);
+	printf("long min_len_tree : %ld  \nlong nsets : %ld   \nlong mssz : %ld   \n", MSA->min_len_tree, MSA->nsets, MSA->mssz);
+	for (int i = 0; i < MSA->n; i++)
+	{
+		printf("%s: %s\n", MSA->rowtitle[i], MSA->row[i]);
+	}
+
+
+
+}
+
 int main(int argc, char **argv)
 {
 	Dataptr MSA;	/* data MSA */
@@ -67,6 +83,8 @@ int main(int argc, char **argv)
 	FILE *outtreefp;		/* best trees found overall */
 	outtreefp = (FILE *) alloc (sizeof(FILE), "alloc FILE");
 	Lvb_bool log_progress;	/* whether or not to log Anneal search */
+
+
 
 	#ifdef LVB_MAPREDUCE
 
@@ -89,18 +107,35 @@ int main(int argc, char **argv)
 
 	#endif
 
+
+#ifndef parallel
+	int rank;
+	MPI_Init(NULL,NULL);
+	MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+	if(rank==0)
+	{
+		PrintLVBCopyright();
+		PrintLVBInfo();
+	}
+
+#else
     /* entitle standard output */
     PrintLVBCopyright();
 	PrintLVBInfo();
+#endif
+
 
     /* start timer */
     clock_t Start, End;
     double overall_time_taken;
 
     Start = clock();
+if(rank==0)
     lvb_initialize();
 
     getparam(&rcstruct, argc, argv);
+
+if(rank==0)
     StartTime();
 
     /* read and alloc space to the data structure */
@@ -113,12 +148,15 @@ int main(int argc, char **argv)
     stack_treevo = CreateNewTreestack();
 
     matchange(MSA, rcstruct);	/* cut columns */
+
+
 	#ifdef LVB_MAPREDUCE
     writeinf(rcstruct, MSA, argc, argv, misc.nprocs);
 	#else
 	writeinf(rcstruct, MSA, argc, argv);
 	#endif
     calc_distribution_processors(MSA, rcstruct);
+
 
     if (rcstruct.verbose == LVB_TRUE) {
 		printf("MinimumTreeLength: %ld\n\n", MinimumTreeLength(MSA));
@@ -132,6 +170,9 @@ int main(int argc, char **argv)
     if(rcstruct.algorithm_selection ==2)
     treEvo = fopen ("treEvo.tre","w");
 	iter = 0;
+
+
+
 	#ifdef LVB_MAPREDUCE
 	final_length = GetSoln(MSA, rcstruct, &iter, log_progress, &misc, mrTreeStack, mrBuffer);
 	if (misc.rank == 0) {
@@ -140,7 +181,8 @@ int main(int argc, char **argv)
 
 	#else
 	final_length = GetSoln(MSA, rcstruct, &iter, log_progress);
-	trees_output = PrintTreestack(MSA, &treestack, outtreefp, LVB_FALSE);
+	if(rank==0)
+		trees_output = PrintTreestack(MSA, &treestack, outtreefp, LVB_FALSE);
 
 	#endif
 
@@ -148,6 +190,8 @@ int main(int argc, char **argv)
     if(rcstruct.algorithm_selection ==2)
 		PrintTreestack(MSA, &stack_treevo, treEvo, LVB_FALSE);
     ClearTreestack(&treestack);
+
+    if(rank==0)
 	printf("--------------------------------------------------------\n");
 	#ifdef LVB_MAPREDUCE
 	/* clean the TreeStack and buffer */
@@ -164,7 +208,8 @@ int main(int argc, char **argv)
     End = clock();
 
 	overall_time_taken = ((double) (End - Start)) /CLOCKS_PER_SEC;
-
+if(rank==0)
+{
 	PrintLogFile(iter, trees_output_total, final_length, overall_time_taken);
 
 	double consistency_index = MinimumTreeLength(MSA);
@@ -174,7 +219,7 @@ int main(int argc, char **argv)
 	homoplasy_index = 1 - consistency_index;
 
 	PrintOutput(iter, trees_output_total, final_length, consistency_index, homoplasy_index, overall_time_taken, rcstruct.file_name_out);
-
+}
 	/* "file-local" dynamic heap memory */
     if (rcstruct.algorithm_selection ==2)
     FreeTreestackMemory(MSA, &stack_treevo);
@@ -196,5 +241,4 @@ int main(int argc, char **argv)
 	#endif
 
     return val;
-
 } /* end main() */

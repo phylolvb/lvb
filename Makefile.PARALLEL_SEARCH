@@ -140,7 +140,9 @@ LVB_LIB_OBJS = $(LVB_SRC_DIR)/Admin.$(OBJ) \
                $(LVB_SRC_DIR)/Sops.$(OBJ) \
 			   $(LVB_SRC_DIR)/Treestack.$(OBJ) \
                $(LVB_SRC_DIR)/TreeOperations.$(OBJ) \
-               $(LVB_SRC_DIR)/Wrapper.$(OBJ)
+               $(LVB_SRC_DIR)/Wrapper.$(OBJ)\
+	       $(LVB_SRC_DIR)/Para_lib.$(OBJ)
+		
 
 # C++ files
 

@@ -43,6 +43,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* ========== Solve.c - solving functions ========== */
 
 #include "Solve.h"
+#include "Para_lib.h"
+#include "mpi.h"
 
 using namespace std;
 using namespace std::chrono;
@@ -318,8 +320,65 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 	}
 	}
 	tree_minimum_length = (double) MSA->min_len_tree;
+#ifndef parallel
+	//Control parameter for parallel_selection==1(cluster SA)
+	long p=3000;//for cluster SA
+	double r=0.05;
+	long iter_cluster=-1;
+	if(rcstruct.parallel_selection!=1)
+		p=-1;
+
+	int rank,nprocs;	
+	MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
 	
+
+
+#endif	
 	   while (1) {
+#ifndef parallel
+		   iter_cluster++;
+
+		   if(p >= 0)
+		   {
+			   if(iter_cluster==p)
+			   {
+				   Bcast_best_partial_tree_to_root(MSA, current_tree_length , rank, nprocs, p_current_tree, &root);//Bcast best tree with root
+				   //printf("\niter_cluster=%ld,p=%ld\n",iter_cluster,p);
+				   iter_cluster=-1;
+				   p-=r*(double)iter;
+				   //if(rank==0)
+					   //printf("\niter=%d, p=%ld,r=%d\n",iter, p,r);
+				current_tree_length=getplen(MSA, p_current_tree, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);		
+			   }
+
+			   if(p<0)//reset annealing by best initial tree
+			   {
+				   accepted = 0;		/* changes accepted */
+				   failedcnt = 0; 	/* "failed count" for temperatures */
+				   iter = 0;		/* iteration of mutate/evaluate loop */
+				   *current_iter=0;
+				   current_tree_length=getplen(MSA, p_current_tree, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);			/* length of current tree */
+				   t_n = 0;		/* ordinal number of current temperature */
+				   proposed = 0;		/* trees proposed */
+				   t = StartingTemperature(MSA, p_current_tree, rcstruct, root, log_progress);		/* current temperature */
+
+				   w_changes_prop = 0;
+				   w_changes_acc = 0;  
+				   for(int i=0;i<3;i++)
+				   {
+					   trops_counter[i]=1;
+					   trops_probs[i]=0;
+				   }
+				   trops_total = trops_counter[0]+trops_counter[1]+trops_counter[2];
+				   trops_id = 0;
+
+			   }
+			   ClearTreestack(treestack_ptr);
+			   CompareTreeToTreestack(MSA, treestack_ptr, p_current_tree, root, LVB_FALSE);
+		   }
+
+#endif
         int changeAcc = 0;
     	*current_iter += 1;
 		/* occasionally re-root, to prevent influence from root position */
@@ -661,7 +720,36 @@ long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool l
 	int *total_count;
 	int check_cmp;
 	#endif
+	
+#ifndef parallel
 
+	//TREESTACK_TREES best_tree;//the best tree from multiple runs
+	TREESTACK best_treestack;//ts stand for treestack 
+
+
+	long best_treelength=LONG_MAX;// the best final length from multiple runs
+	int rank,nprocs;
+	//MPI_Init(NULL,NULL);
+	MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
+	int nruns_local=rcstruct.nruns/nprocs;
+	if(rank<rcstruct.nruns%nprocs)//distribute the remainder to first several ones
+		nruns_local++;
+
+
+	if(rcstruct.parallel_selection==0)
+		log_progress=LVB_FALSE;//for default, no progressloged
+	else if(rcstruct.parallel_selection==1)//only rank==0, printf progress
+		if(rank!=0)
+			log_progress=LVB_FALSE;
+
+
+
+	//printf("\n\nThere are %d processes; rank %d , runs=%d sss\n\n\n", nprocs,rank, nruns_local);
+
+
+#endif
+	
     /* NOTE: These variables and their values are "dummies" and are no longer
      * used in the current version of LVB. However, in order to keep the
      * formatting of the output compatible with that of previous versions of
@@ -693,12 +781,58 @@ long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool l
         sumfp = NULL;
     }
 
+#ifdef test
+ 
+    TREESTACK_TREE_NODES *test;
+    test=treealloc(MSA, LVB_TRUE);
+    
+     PullRandomTree(MSA, tree);	/* initialise required variables */
+    ss_init(MSA, tree, enc_mat);
+    initroot = 0;
+
+    treecopy(MSA,test,tree,LVB_FALSE);
+
+	t0 = StartingTemperature(MSA, tree, rcstruct, initroot, log_progress);
+
+
+    PullRandomTree(MSA, tree);	/* begin from scratch */
+    ss_init(MSA, tree, enc_mat);
+    initroot = 0;
+    CompareTreeToTreestack(MSA, &treestack, tree, 0, LVB_FALSE);
+
+    if(CompareTreeToTreestack(MSA, &treestack, test, 0, LVB_FALSE)==0)
+	    printf("\n\n************they are same\n\n");
+    else
+	    printf("\n\n***********they are different\n\n\n");
+    crash("just for test");
+
+#endif
+
+
+#ifndef parallel
+    int seed[nruns_local];
+seed[0]= rcstruct.seed;
+/****Cursory random seed****/
+seed[0]+=rank;
+
+if(rcstruct.parallel_selection==1)
+	nruns_local=1;//for select 2, only run once
+
+
+for(int i=0;i<nruns_local;i++)
+{
+	
+    rinit(seed[i]);//reset seed
     /* determine starting temperature */
     PullRandomTree(MSA, tree);	/* initialise required variables */
     ss_init(MSA, tree, enc_mat);
     initroot = 0;
 
+
 	t0 = StartingTemperature(MSA, tree, rcstruct, initroot, log_progress);
+
+	//ProgressInfo.tem=t0;
+#endif
 
     PullRandomTree(MSA, tree);	/* begin from scratch */
     ss_init(MSA, tree, enc_mat);
@@ -773,10 +907,60 @@ long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool l
     CheckStandardOutput();
 
     if (rcstruct.verbose == LVB_TRUE) clnclose(sumfp, SUMFNAM);
+
+#ifndef parallel
+
+/* compare the best tree with last best*/
+    //printf("\n\n rank:%d  seed: %d;treelength=%d",rank, seed[i],treelength);
+
+    if(treelength<best_treelength)
+    {
+	    best_treestack.size=treestack.size;
+	    best_treestack.next=treestack.next;
+	    best_treestack.stack=treestack.stack;
+
+            treestack = CreateNewTreestack();
+
+	    best_treelength=treelength;
+	    
+    }
+    else
+	    ClearTreestack(&treestack);
+
+    if(i<nruns_local-1)
+    {
+	    seed[i+1]=get_other_seed_to_run_a_process();
+    }
+
+
+}
+#endif
+
+
+
     /* "local" dynamic heap memory */
     free(tree);
 	for (i = 0; i < MSA->n; i++) free(enc_mat[i]);
     free(enc_mat);
+
+
+
+#ifndef parallel
+/*Swap the best as return*/
+	FreeTreestackMemory(MSA, &treestack);
+	treestack.size=best_treestack.size;
+	treestack.next=best_treestack.next;
+	treestack.stack=best_treestack.stack;
+	treelength=best_treelength;
+
+	Root_get_best_treestack(MSA, best_treelength, 0, rank, nprocs, &treestack);
+
+
+#endif
+
+
+    //Terminate MPI
+    MPI_Finalize();
 
     return treelength;
 
