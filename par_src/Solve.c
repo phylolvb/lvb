@@ -343,6 +343,8 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 		   {
 			   if(iter_cluster==p)
 			   {
+			//	printf("\nbefore one step, p=%ld, rank=%d, aurrent_treelength: %ld\n",p,rank, current_tree_length);
+
 				   Bcast_best_partial_tree_to_root(MSA, current_tree_length , rank, nprocs, p_current_tree, &root);//Bcast best tree with root
 				   //printf("\niter_cluster=%ld,p=%ld\n",iter_cluster,p);
 				   iter_cluster=-1;
@@ -350,6 +352,7 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 				   //if(rank==0)
 					   //printf("\niter=%d, p=%ld,r=%d\n",iter, p,r);
 				current_tree_length=getplen(MSA, p_current_tree, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);		
+			//	printf("\nAfter one step, p=%ld, rank=%d, aurrent_treelength: %ld\n",p,rank, current_tree_length);
 			   }
 
 			   if(p<0)//reset annealing by best initial tree
@@ -372,10 +375,12 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 				   }
 				   trops_total = trops_counter[0]+trops_counter[1]+trops_counter[2];
 				   trops_id = 0;
-
+					
+				   if(rank==0)
+				   printf("\n\n Generate the best initial tree, current_tree_length=%ld, root=%ld, new start temperature: %f\n\n",current_tree_length,root,t);
 			   }
-			   ClearTreestack(treestack_ptr);
-			   CompareTreeToTreestack(MSA, treestack_ptr, p_current_tree, root, LVB_FALSE);
+			   //ClearTreestack(treestack_ptr);
+			   //CompareTreeToTreestack(MSA, treestack_ptr, p_current_tree, root, LVB_FALSE);
 		   }
 
 #endif

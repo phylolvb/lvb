@@ -50,10 +50,30 @@ void Bcast_best_partial_tree_to_root(Dataptr MSA, long best_treelength, int rank
         old_sitestate[i] = BranchArray[i].sitestate;
     }
 
-    MPI_Bcast(BranchArray, MSA->numberofpossiblebranches, MPI_BRANCH, index_max, MPI_COMM_WORLD);//广播最屌的树
-    //use MPI_BYTE may have data layout problem(wait improvement)
-    //MPI_Bcast(BranchArray, MSA->tree_bytes, MPI_BYTE, index_max, MPI_COMM_WORLD);//广播最屌的树
+    //MPI_Bcast(BranchArray, MSA->numberofpossiblebranches, MPI_BRANCH, index_max, MPI_COMM_WORLD);//广播最屌的树
+    //use MPI_BYTE might have data layout problem(wait improvement)
+    MPI_Bcast(BranchArray, MSA->tree_bytes, MPI_BYTE, index_max, MPI_COMM_WORLD);//广播最屌的树
     MPI_Bcast(tree_root, 1, MPI_LONG, index_max, MPI_COMM_WORLD);//广播最屌的树
+
+//Code below for potential memory alignment(just in case)
+    //unsigned char* TreeArray_uchar_star = (unsigned char*)BranchArray;
+    //unsigned char* ss0_start = TreeArray_uchar_star + MSA->numberofpossiblebranches * sizeof(TREESTACK_TREE_NODES);
+
+    //MPI_Bcast(BranchArray, MSA->numberofpossiblebranches, MPI_BRANCH, index_max, MPI_COMM_WORLD);
+
+
+#ifdef test
+printf("\n\n\n**************UNITL NOW, SUCCESS***********\n");
+printf("\n\n\n**************best_rank=%d, my_rank=%ld root %d\n",index_max,rank,*tree_root);
+for(int i=0;i<MSA->numberofpossiblebranches;i++)
+{
+	printf("parent:%ld, left:%ld,  right: %ld, changes:%d \n",BranchArray[i].parent,BranchArray[i].left,BranchArray[i].right,BranchArray[i].changes);
+}
+
+
+printf("\n\n\n**************UNITL NOW, SUCCESS***********\n\n\n\n");
+#endif
+
 
     for (int i = 0; i < MSA->numberofpossiblebranches; i++)
     {
@@ -64,12 +84,7 @@ void Bcast_best_partial_tree_to_root(Dataptr MSA, long best_treelength, int rank
         BranchArray[i].sitestate[0] == 0U;// make dirty
     }
 
-    //Code below for potential memory alignment(just in case)
-    //unsigned char* TreeArray_uchar_star = (unsigned char*)BranchArray;
-    //unsigned char* ss0_start = TreeArray_uchar_star + MSA->numberofpossiblebranches * sizeof(TREESTACK_TREE_NODES);
-
-    //MPI_Bcast(BranchArray, MSA->numberofpossiblebranches, MPI_BRANCH, index_max, MPI_COMM_WORLD);
-
+    
 
 
     //这里应该pulltree，把最优的树付给现在的tree，再pushtree
