@@ -322,7 +322,7 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 	tree_minimum_length = (double) MSA->min_len_tree;
 #ifndef parallel
 	//Control parameter for parallel_selection==1(cluster SA)
-	long p=3000;//for cluster SA
+	long p=5000;//for cluster SA
 	double r=0.05;
 	long iter_cluster=-1;
 	if(rcstruct.parallel_selection!=1)
@@ -332,6 +332,56 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 	MPI_Comm_rank(MPI_COMM_WORLD,&rank);
 	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
 	
+
+//下面是prototype，等着
+	  if (p_rcstruct->n_flag_is_possible_read_state_files == CHECK_POINT_READ_STATE_FILES)
+	  {
+		  //之前t0=0，现在要真的读statefile了
+		  /*
+		  fp = open_file_by_MPIid(myMPIid, "rb", LVB_FALSE);
+	    	lvb_assert(point_file_pointer_to_block(fp, STATE_BLOCK_ANNEAL) == LVB_TRUE);//把上一句得到的文件指针移动到block（？）
+			restore_anneal(fp, MSA, &accepted, &dect, &deltah, &deltalen,
+					&failedcnt, &iter, current_iter, &len, &lenbest, &lendash, &ln_t,
+					&t_n, &t0, &pacc, &proposed, &r_lenmin, &root, &t, &grad_geom,
+					&grad_linear, p_current_tree, LVB_TRUE, p_proposed_tree, LVB_TRUE);//从lvb_checkpoint_myMPIid.temp里提取checkpoint的state
+			lvb_assert(point_file_pointer_to_block(fp, STATE_BLOCK_TREESTACK) == LVB_TRUE);
+			restore_treestack(fp, bstackp, MSA, LVB_FALSE);
+			lvb_assert(point_file_pointer_to_block(fp, STATE_BLOCK_UNI) == LVB_TRUE);
+			restore_uni(fp);
+			lvb_assert(fclose(fp) == 0);
+			printf("Read checkpoint file MPIid %d successfully...\n", myMPIid);
+
+			log_wrapper_LVB_EPS   = log_wrapper(LVB_EPS);
+			log_wrapper_grad_geom = log_wrapper(grad_geom);
+			log_wrapper_t0        = log_wrapper(t0);
+			*/
+	  }
+	  else
+	  {
+		  
+
+		  log_wrapper_LVB_EPS   = log_wrapper(LVB_EPS);
+	    	log_wrapper_grad_geom = log_wrapper(grad_geom);
+	    	log_wrapper_t0        = log_wrapper(t0);
+
+			treecopy(MSA, p_current_tree, inittree, LVB_TRUE);	/* current configuration */
+
+			len = getplen(MSA, p_current_tree, *p_rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+			dect = LVB_FALSE;		/* made LVB_TRUE as necessary at end of loop */
+
+			lvb_assert( ((float) t >= (float) LVB_EPS) && (t <= 1.0) && (grad_geom >= LVB_EPS) && (grad_linear >= LVB_EPS));
+
+			lenbest = len;
+			CompareTreeToTreestack(MSA, bstackp, inittree, root, LVB_FALSE);	/* init. tree initially best */
+
+			if ((log_progress == LVB_TRUE) && (*current_iter == 0)) {
+				fprintf(lenfp, "\nTemperature:   Rearrangement: TreeStack size: Length:\n");
+			}
+
+			r_lenmin = (double) MSA->min_len_tree;
+	  }
+	  *p_n_state_progress = MESSAGE_ANNEAL_FINISHED_AND_REPEAT; /* we consider always is necessary to repeat */
+	  last_checkpoint_time = time(NULL);
 
 
 #endif	
@@ -393,6 +443,47 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
         		lenlog(lenfp, treestack_ptr, *current_iter, current_tree_length, t);
         	}
 		}
+
+#ifndef parallel
+		/* send temperature to the master process*/
+		if(iter%STAT_LOG_INTERVAL==0)//由iter控制同步
+		{
+					if (request_handle_send != 0) 
+					{ 
+						MPI_Wait(&request_handle_send, MPI_STATUS_IGNORE); //等待成功发送同步信息，是上一个interval发送的
+					}
+
+					p_data_info_to_master->n_iterations = *current_iter;//确定上一个intervel的message已发送成功，即可准备这一轮的信息
+					p_data_info_to_master->n_seed = p_rcstruct->seed;
+					p_data_info_to_master->l_length = lenbest;
+					p_data_info_to_master->temperature = t;
+					/* printf("Process:%d   send temperature:%.3g   iterations:%ld\n", myMPIid, t, *current_iter); */
+					MPI_Isend(p_data_info_to_master, 1, mpi_recv_data, MPI_MAIN_PROCESS, MPI_TAG_SEND_TEMP_MASTER, MPI_COMM_WORLD, &request_handle_send);//发送本轮的信息
+
+					/* now get the message to continue or not, but need in second iteration... */
+					if (request_message_from_master != 0) {
+						MPI_Wait(&request_message_from_master, MPI_STATUS_IGNORE);//确认上一轮要接受的message收到
+						MPI_Test(&request_message_from_master, &nFlag, &mpi_status);
+						if (nFlag == 0) { printf("ERROR, mpi waiting is not working File:%s  Line:%d\n", __FILE__, __LINE__); }
+						if (nFlag == 1)
+						{
+							//Anealing有两种可能方向，killed和finished，后面再根据message判断是否restart
+							//根据从master接受二点message判断是否继续
+							if (p_data_info_from_master->n_is_to_continue == MPI_IS_TO_RESTART_ANNEAL){	/*it's there and need to restart*/
+								MPI_Cancel(&request_handle_send);
+								request_message_from_master = 0;
+								request_handle_send = 0;
+								*p_n_state_progress = MESSAGE_ANNEAL_KILLED;
+								break;
+							}
+							/* otherwise need to proceed... */
+						}
+					}
+					/* printf("Process:%d   receive management\n", myMPIid); */
+					/* need to get other message to proceed... */
+					MPI_Irecv(p_data_info_from_master, 1, mpi_data_from_master, MPI_MAIN_PROCESS, MPI_TAG_MANAGEMENT_MASTER, MPI_COMM_WORLD, &request_message_from_master);//接受这一轮的信息
+		}
+#endif
 
 		lvb_assert(t > DBL_EPSILON);
 
@@ -656,6 +747,28 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 		}
 
 		iter++;
+#ifndef parallel
+		 curr_time = time(NULL);
+		    elapsed_time = difftime(curr_time, last_checkpoint_time);//到一定时间就check一次
+		    if ((p_rcstruct->n_flag_save_read_states == DO_SAVE_READ_STATES && elapsed_time > p_rcstruct->n_checkpoint_interval) ||
+		    		(p_rcstruct->n_make_test == 1 && *current_iter > 300000) ) {
+		    	fp = open_file_by_MPIid(myMPIid, "wb", LVB_TRUE);
+		    	int is_process_finished = CHECK_POINT_PROCESS_NOT_FINISHED, n_number_blocks = 4;
+			//下面的代码是把当前的状态写入lvb_checkpoint_myMPIid.temp，然后把temp去掉
+		    	fwrite(&is_process_finished, sizeof(is_process_finished), 1, fp);
+				fwrite(&n_number_blocks, sizeof(n_number_blocks), 1, fp);
+				checkpoint_treestack(fp, bstackp, MSA, LVB_FALSE);
+				checkpoint_uni(fp);
+				checkpoint_anneal(fp, MSA, accepted, dect, deltah, deltalen, failedcnt, iter, *current_iter, len, lenbest,
+					lendash, ln_t, t_n, t0, pacc, proposed, r_lenmin, root, t, grad_geom, grad_linear,
+					p_current_tree, LVB_TRUE, p_proposed_tree, LVB_TRUE);
+				checkpoint_params(fp, p_rcstruct);
+				last_checkpoint_time = curr_time;
+				lvb_assert(fclose(fp) == 0);
+				rename_file_name(myMPIid); /* atomic operation to rename the file name *///把temp的后缀取消
+				printf("Checkpoint saved MPIid: %d\n", myMPIid);
+		    }
+#endif
 
 		if (rcstruct.n_number_max_trees > 0 && treestack_ptr->next >= rcstruct.n_number_max_trees){
 			break;
@@ -683,6 +796,49 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 		#else 
     }
 		#endif
+
+#ifndef parallel
+if (request_message_from_master != 0) //循环结束了，所以request要取消
+	MPI_Cancel(&request_message_from_master);
+
+	    if (request_handle_send != 0) 
+	MPI_Cancel(&request_handle_send);
+
+	    /* Send FINISH message to master */
+	    if (*p_n_state_progress == MESSAGE_ANNEAL_KILLED || *p_n_state_progress == MESSAGE_ANNEAL_FINISHED_AND_REPEAT){	/* it's necessary to send this message */
+	    	/* send the MPI_ID then the root can translate for the number of tried_seed */
+	    	int n_finish_message = MPI_FINISHED;
+	    	MPI_Isend(&n_finish_message, 1, MPI_INT, MPI_MAIN_PROCESS, MPI_TAG_SEND_FINISHED, MPI_COMM_WORLD, &request_handle_send);
+	    	MPI_Wait(&request_handle_send, MPI_STATUS_IGNORE); /* need to do this because the receiver is asynchronous */
+
+	    	/* need to wait for information if is necessary to run another */
+	    	/* this one need to print the result */
+	    	MPI_Status mpi_status;
+	    	MPI_Recv(p_data_info_from_master, 1, mpi_data_from_master, MPI_MAIN_PROCESS, MPI_TAG_SEND_RESTART, MPI_COMM_WORLD, &mpi_status); /* this one waits until the master receive all confirmations */
+
+	//    	if (mpi_status.MPI_ERROR != MPI_SUCCESS) {
+	//    	   char error_string[BUFSIZ];
+	//    	   int length_of_error_string;
+	//    	   MPI_Error_string(mpi_status.MPI_ERROR, error_string, &length_of_error_string);
+	//    	   printf("Process:%d   %s\n", myMPIid, error_string);
+	//    	}
+
+		//从master接受信息判断是否继续
+	    	if (p_data_info_from_master->n_is_to_continue == MPI_IS_NOT_TO_RESTART){
+	    		if (*p_n_state_progress == MESSAGE_ANNEAL_KILLED) *p_n_state_progress = MESSAGE_ANNEAL_KILLED_AND_NOT_REPEAT;
+	    		else *p_n_state_progress = MESSAGE_ANNEAL_FINISHED_AND_NOT_REPEAT;
+	    	}
+	    	else{
+	    		p_rcstruct->seed = p_data_info_from_master->n_seed;  /* new seed */
+	    		if (*p_n_state_progress == MESSAGE_ANNEAL_KILLED) *p_n_state_progress = MESSAGE_ANNEAL_KILLED_AND_REPEAT;
+	    		else *p_n_state_progress = MESSAGE_ANNEAL_FINISHED_AND_REPEAT;
+	    	}
+	    	*p_n_number_tried_seed = p_data_info_from_master->n_process_tried;  /* it's necessary to create a file with trees */
+	    }
+#endif
+
+
+
 
     /* free "local" dynamic heap memory */
 	if (rcstruct.verbose == LVB_TRUE)
@@ -823,10 +979,24 @@ seed[0]+=rank;
 if(rcstruct.parallel_selection==1)
 	nruns_local=1;//for select 2, only run once
 
-
+int n_state_progress=0;
+int n_number_tried_seed, n_number_tried_seed_next;
+//start  loop of annealing
 for(int i=0;i<nruns_local;i++)
 {
-	
+	if(rcstruct.parallel_selection==2)//old_prototype
+	if(rcstruct.n_flag_is_possible_read_state_files != CHECK_POINT_READ_STATE_FILES)
+	{
+		//需要自己初始化一个tree
+	}
+	else
+	{
+		t0=0;//等会去读state file
+	}
+
+			n_state_progress = 0;	/* there's no state in beginning */
+			n_number_tried_seed = n_number_tried_seed_next;
+
     rinit(seed[i]);//reset seed
     /* determine starting temperature */
     PullRandomTree(MSA, tree);	/* initialise required variables */
