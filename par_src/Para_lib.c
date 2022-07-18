@@ -382,3 +382,75 @@ MPI_Recv(&treestack->next, 1, MPI_LONG, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &stat
 
 }
 
+
+void interval_reached()
+{
+	/* send temperature to the master process*/
+					if (request_handle_send != 0) { MPI_Wait(&request_handle_send, MPI_STATUS_IGNORE); }
+					p_data_info_to_master->n_iterations = *current_iter;
+					p_data_info_to_master->n_seed = p_rcstruct->seed;
+					p_data_info_to_master->l_length = lenbest;
+					p_data_info_to_master->temperature = t;
+					/* printf("Process:%d   send temperature:%.3g   iterations:%ld\n", myMPIid, t, *current_iter); */
+					MPI_Isend(p_data_info_to_master, 1, mpi_recv_data, MPI_MAIN_PROCESS, MPI_TAG_SEND_TEMP_MASTER, MPI_COMM_WORLD, &request_handle_send);
+
+					/* now get the message to continue or not, but need in second iteration... */
+					if (request_message_from_master != 0) {
+						MPI_Wait(&request_message_from_master, MPI_STATUS_IGNORE);
+						MPI_Test(&request_message_from_master, &nFlag, &mpi_status);
+						if (nFlag == 0) { printf("ERROR, mpi waiting is not working File:%s  Line:%d\n", __FILE__, __LINE__); }
+						if (nFlag == 1){
+							if (p_data_info_from_master->n_is_to_continue == MPI_IS_TO_RESTART_ANNEAL){	/*it's there and need to restart*/
+								MPI_Cancel(&request_handle_send);
+								request_message_from_master = 0;
+								request_handle_send = 0;
+								*p_n_state_progress = MESSAGE_ANNEAL_KILLED;
+								break;
+							}
+							/* otherwise need to proceed... */
+						}
+					}
+					/* printf("Process:%d   receive management\n", myMPIid); */
+					/* need to get other message to proceed... */
+					MPI_Irecv(p_data_info_from_master, 1, mpi_data_from_master, MPI_MAIN_PROCESS, MPI_TAG_MANAGEMENT_MASTER, MPI_COMM_WORLD, &request_message_from_master);
+				}
+}
+
+
+
+void wait_final_message()
+{
+	if (request_message_from_master != 0) MPI_Cancel(&request_message_from_master);
+	    if (request_handle_send != 0) MPI_Cancel(&request_handle_send);
+
+	    /* Send FINISH message to master */
+	    if (*p_n_state_progress == MESSAGE_ANNEAL_KILLED || *p_n_state_progress == MESSAGE_ANNEAL_FINISHED_AND_REPEAT){	/* it's necessary to send this message */
+	    	/* send the MPI_ID then the root can translate for the number of tried_seed */
+	    	int n_finish_message = MPI_FINISHED;
+	    	MPI_Isend(&n_finish_message, 1, MPI_INT, MPI_MAIN_PROCESS, MPI_TAG_SEND_FINISHED, MPI_COMM_WORLD, &request_handle_send);
+	    	MPI_Wait(&request_handle_send, MPI_STATUS_IGNORE); /* need to do this because the receiver is asynchronous */
+
+	    	/* need to wait for information if is necessary to run another */
+	    	/* this one need to print the result */
+	    	MPI_Status mpi_status;
+	    	MPI_Recv(p_data_info_from_master, 1, mpi_data_from_master, MPI_MAIN_PROCESS, MPI_TAG_SEND_RESTART, MPI_COMM_WORLD, &mpi_status); /* this one waits until the master receive all confirmations */
+
+	//    	if (mpi_status.MPI_ERROR != MPI_SUCCESS) {
+	//    	   char error_string[BUFSIZ];
+	//    	   int length_of_error_string;
+	//    	   MPI_Error_string(mpi_status.MPI_ERROR, error_string, &length_of_error_string);
+	//    	   printf("Process:%d   %s\n", myMPIid, error_string);
+	//    	}
+
+	    	if (p_data_info_from_master->n_is_to_continue == MPI_IS_NOT_TO_RESTART){
+	    		if (*p_n_state_progress == MESSAGE_ANNEAL_KILLED) *p_n_state_progress = MESSAGE_ANNEAL_KILLED_AND_NOT_REPEAT;
+	    		else *p_n_state_progress = MESSAGE_ANNEAL_FINISHED_AND_NOT_REPEAT;
+	    	}
+	    	else{
+	    		p_rcstruct->seed = p_data_info_from_master->n_seed;  /* new seed */
+	    		if (*p_n_state_progress == MESSAGE_ANNEAL_KILLED) *p_n_state_progress = MESSAGE_ANNEAL_KILLED_AND_REPEAT;
+	    		else *p_n_state_progress = MESSAGE_ANNEAL_FINISHED_AND_REPEAT;
+	    	}
+	    	*p_n_number_tried_seed = p_data_info_from_master->n_process_tried;  /* it's necessary to create a file with trees */
+	    }
+}

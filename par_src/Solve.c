@@ -322,8 +322,8 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 	tree_minimum_length = (double) MSA->min_len_tree;
 #ifndef parallel
 	//Control parameter for parallel_selection==1(cluster SA)
-	long p=5000;//for cluster SA
-	double r=0.05;
+	long p=2000;//for cluster SA
+	double r=0.1;
 	long iter_cluster=-1;
 	if(rcstruct.parallel_selection!=1)
 		p=-1;
@@ -332,57 +332,6 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 	MPI_Comm_rank(MPI_COMM_WORLD,&rank);
 	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
 	
-
-//下面是prototype，等着
-	  if (p_rcstruct->n_flag_is_possible_read_state_files == CHECK_POINT_READ_STATE_FILES)
-	  {
-		  //之前t0=0，现在要真的读statefile了
-		  /*
-		  fp = open_file_by_MPIid(myMPIid, "rb", LVB_FALSE);
-	    	lvb_assert(point_file_pointer_to_block(fp, STATE_BLOCK_ANNEAL) == LVB_TRUE);//把上一句得到的文件指针移动到block（？）
-			restore_anneal(fp, MSA, &accepted, &dect, &deltah, &deltalen,
-					&failedcnt, &iter, current_iter, &len, &lenbest, &lendash, &ln_t,
-					&t_n, &t0, &pacc, &proposed, &r_lenmin, &root, &t, &grad_geom,
-					&grad_linear, p_current_tree, LVB_TRUE, p_proposed_tree, LVB_TRUE);//从lvb_checkpoint_myMPIid.temp里提取checkpoint的state
-			lvb_assert(point_file_pointer_to_block(fp, STATE_BLOCK_TREESTACK) == LVB_TRUE);
-			restore_treestack(fp, bstackp, MSA, LVB_FALSE);
-			lvb_assert(point_file_pointer_to_block(fp, STATE_BLOCK_UNI) == LVB_TRUE);
-			restore_uni(fp);
-			lvb_assert(fclose(fp) == 0);
-			printf("Read checkpoint file MPIid %d successfully...\n", myMPIid);
-
-			log_wrapper_LVB_EPS   = log_wrapper(LVB_EPS);
-			log_wrapper_grad_geom = log_wrapper(grad_geom);
-			log_wrapper_t0        = log_wrapper(t0);
-			*/
-	  }
-	  else
-	  {
-		  
-
-		  log_wrapper_LVB_EPS   = log_wrapper(LVB_EPS);
-	    	log_wrapper_grad_geom = log_wrapper(grad_geom);
-	    	log_wrapper_t0        = log_wrapper(t0);
-
-			treecopy(MSA, p_current_tree, inittree, LVB_TRUE);	/* current configuration */
-
-			len = getplen(MSA, p_current_tree, *p_rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
-			dect = LVB_FALSE;		/* made LVB_TRUE as necessary at end of loop */
-
-			lvb_assert( ((float) t >= (float) LVB_EPS) && (t <= 1.0) && (grad_geom >= LVB_EPS) && (grad_linear >= LVB_EPS));
-
-			lenbest = len;
-			CompareTreeToTreestack(MSA, bstackp, inittree, root, LVB_FALSE);	/* init. tree initially best */
-
-			if ((log_progress == LVB_TRUE) && (*current_iter == 0)) {
-				fprintf(lenfp, "\nTemperature:   Rearrangement: TreeStack size: Length:\n");
-			}
-
-			r_lenmin = (double) MSA->min_len_tree;
-	  }
-	  *p_n_state_progress = MESSAGE_ANNEAL_FINISHED_AND_REPEAT; /* we consider always is necessary to repeat */
-	  last_checkpoint_time = time(NULL);
-
 
 #endif	
 	   while (1) {
@@ -444,7 +393,7 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
         	}
 		}
 
-#ifndef parallel
+#ifdef old
 		/* send temperature to the master process*/
 		if(iter%STAT_LOG_INTERVAL==0)//由iter控制同步
 		{
@@ -747,7 +696,7 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 		}
 
 		iter++;
-#ifndef parallel
+#ifdef old
 		 curr_time = time(NULL);
 		    elapsed_time = difftime(curr_time, last_checkpoint_time);//到一定时间就check一次
 		    if ((p_rcstruct->n_flag_save_read_states == DO_SAVE_READ_STATES && elapsed_time > p_rcstruct->n_checkpoint_interval) ||
@@ -797,7 +746,7 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
     }
 		#endif
 
-#ifndef parallel
+#ifdef old
 if (request_message_from_master != 0) //循环结束了，所以request要取消
 	MPI_Cancel(&request_message_from_master);
 
@@ -979,23 +928,11 @@ seed[0]+=rank;
 if(rcstruct.parallel_selection==1)
 	nruns_local=1;//for select 2, only run once
 
-int n_state_progress=0;
-int n_number_tried_seed, n_number_tried_seed_next;
+
+
 //start  loop of annealing
 for(int i=0;i<nruns_local;i++)
 {
-	if(rcstruct.parallel_selection==2)//old_prototype
-	if(rcstruct.n_flag_is_possible_read_state_files != CHECK_POINT_READ_STATE_FILES)
-	{
-		//需要自己初始化一个tree
-	}
-	else
-	{
-		t0=0;//等会去读state file
-	}
-
-			n_state_progress = 0;	/* there's no state in beginning */
-			n_number_tried_seed = n_number_tried_seed_next;
 
     rinit(seed[i]);//reset seed
     /* determine starting temperature */
