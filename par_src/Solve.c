@@ -257,6 +257,41 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
     long *p_todo_arr; /* [MAX_BRANCHES + 1];	 list of "dirty" branch nos */
     long *p_todo_arr_sum_changes; /*used in openMP, to sum the partial changes */
     int *p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */
+
+#ifdef old
+
+    MPI_Request request_handle_send = 0, request_message_from_master = 0;
+    MPI_Status mpi_status;
+
+    int				nItems = 3;
+    int          	blocklengths[3] = {2, 1, 1};
+    MPI_Datatype 	types[3] = {MPI_INT, MPI_LONG, MPI_DOUBLE};
+    MPI_Datatype 	mpi_recv_data;
+    MPI_Aint     	displacements[3];
+    displacements[0] = offsetof(SendInfoToMaster, n_iterations);
+    displacements[1] = offsetof(SendInfoToMaster, l_length);
+    displacements[2] = offsetof(SendInfoToMaster, temperature);
+    MPI_Type_create_struct(nItems, blocklengths, displacements, types, &mpi_recv_data);
+    MPI_Type_commit(&mpi_recv_data);
+
+    nItems = 1;
+    int          	blocklengths_2[1] = {3};
+    MPI_Datatype 	types_2[1] = {MPI_INT};
+    MPI_Datatype 	mpi_data_from_master;
+    MPI_Aint     	displacements_2[1];
+    displacements_2[0] = offsetof(RecvInfoFromMaster, n_seed);
+    MPI_Type_create_struct(nItems, blocklengths_2, displacements_2, types_2, &mpi_data_from_master);
+    MPI_Type_commit(&mpi_data_from_master);
+
+    /* REND variables that could calculate immediately */
+    SendInfoToMaster * p_data_info_to_master;
+    p_data_info_to_master = (SendInfoToMaster *) malloc(sizeof(SendInfoToMaster));
+    RecvInfoFromMaster * p_data_info_from_master;
+    p_data_info_from_master = (RecvInfoFromMaster *) malloc(sizeof(RecvInfoFromMaster));
+
+#endif
+
+
 	#ifdef LVB_MAPREDUCE  
 		int *total_count;
 	    int check_cmp;
@@ -394,8 +429,9 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 		}
 
 #ifdef old
+
 		/* send temperature to the master process*/
-		if(iter%STAT_LOG_INTERVAL==0)//由iter控制同步
+		if(*current_iter%STAT_LOG_INTERVAL==0)//由iter控制同步
 		{
 					if (request_handle_send != 0) 
 					{ 
