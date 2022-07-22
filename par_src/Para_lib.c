@@ -382,7 +382,7 @@ MPI_Recv(&treestack->next, 1, MPI_LONG, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &stat
 
 }
 
-
+#ifdef old
 void interval_reached()
 {
 	/* send temperature to the master process*/
@@ -454,3 +454,193 @@ void wait_final_message()
 	    	*p_n_number_tried_seed = p_data_info_from_master->n_process_tried;  /* it's necessary to create a file with trees */
 	    }
 }
+
+
+void get_temperature_and_control_process_from_other_process(int num_procs, int n_seeds_to_try){
+
+		int nProcessFinished = 0;
+		MPI_Request *pHandleTemperatureRecv;
+		MPI_Request *pHandleFinishProcess;
+		MPI_Request *pHandleManagementProcess;
+		MPI_Status mpi_status;
+		IterationTemperature *p_calc_iterations;
+		int *pIntFinishedProcessChecked, *pIntFinishedProcess, *pIntProcessControlNumberRunning;
+		int nFlag, i, n_seeds_tried = 0;
+
+		pHandleTemperatureRecv = (MPI_Request *) alloc(num_procs * sizeof(MPI_Request), "MPI_request for temperature...");
+		pHandleFinishProcess = (MPI_Request *) alloc(num_procs * sizeof(MPI_Request), "MPI_request for finish process...");
+		pHandleManagementProcess = (MPI_Request *) alloc(num_procs * sizeof(MPI_Request), "MPI_request for management process...");
+		pIntProcessControlNumberRunning = (int *) alloc(num_procs * sizeof(int), "Buffer with index between process and tried process, but the ones that are running...");
+		pIntFinishedProcess = (int *) alloc(num_procs * sizeof(int), "Buffer for finished processes...");
+		pIntFinishedProcessChecked = (int *) alloc(num_procs * sizeof(int), "Buffer for processes states...");
+		memset(pIntFinishedProcessChecked, 0, num_procs * sizeof(int)); 	/* control the state of a process, but for all seeds tried */
+		memset(pIntProcessControlNumberRunning, 0, num_procs * sizeof(int));		/* has the index number of the process that is running */
+		memset(pIntFinishedProcess, 0, num_procs * sizeof(int));		/* control if a specific process is finished */
+		for (i = 0; i < num_procs; i++) { *(pIntFinishedProcessChecked + i) = MESSAGE_ANNEAL_IS_RUNNING_OR_WAIT_TO_RUN; } /* all the process start with this state */
+
+		/* structure to use sending temperature and number of interactions to master process */
+		int				nItems = 3;
+		int          	blocklengths[3] = {2, 1, 1};
+		MPI_Datatype 	types[3] = {MPI_INT, MPI_LONG, MPI_DOUBLE};
+		MPI_Datatype 	mpi_recv_data;
+		MPI_Aint     	displacements[3];
+		displacements[0] = offsetof(SendInfoToMaster, n_iterations);
+		displacements[1] = offsetof(SendInfoToMaster, l_length);
+		displacements[2] = offsetof(SendInfoToMaster, temperature);
+		MPI_Type_create_struct(nItems, blocklengths, displacements, types, &mpi_recv_data);
+		MPI_Type_commit(&mpi_recv_data);
+
+		nItems = 1;
+		int          	blocklengths_2[1] = {3};
+		MPI_Datatype 	types_2[1] = {MPI_INT};
+		MPI_Datatype 	mpi_send_data;
+		MPI_Aint     	displacements_2[1];
+		displacements_2[0] = offsetof(RecvInfoFromMaster, n_seed);
+		MPI_Type_create_struct(nItems, blocklengths_2, displacements_2, types_2, &mpi_send_data);
+		MPI_Type_commit(&mpi_send_data);
+
+		/* structure with temperature and interaction data */
+		SendInfoToMaster **p_info_temperature;
+		p_info_temperature = (SendInfoToMaster **) malloc(sizeof(SendInfoToMaster *) * (num_procs - 1));
+		for (i = 0; i < num_procs - 1; i++){
+			*(p_info_temperature + i) = (SendInfoToMaster *) malloc(sizeof(SendInfoToMaster));
+		}
+
+		/* structure with management data */
+		RecvInfoFromMaster **p_info_manage;
+		p_info_manage = (RecvInfoFromMaster **) malloc(sizeof(RecvInfoFromMaster *) * (num_procs - 1));
+		for (i = 0; i < num_procs - 1; i++){
+			*(p_info_manage + i) = (RecvInfoFromMaster *) malloc(sizeof(RecvInfoFromMaster));
+		}
+
+		/* first get handles for all receivers */
+		for (i = 1; i < num_procs; i++) {
+			MPI_Irecv(*(p_info_temperature + (i - 1)), 1, mpi_recv_data, i, MPI_TAG_SEND_TEMP_MASTER, MPI_COMM_WORLD, pHandleTemperatureRecv + i);
+			MPI_Irecv(pIntFinishedProcess + i, 1, MPI_INT, i, MPI_TAG_SEND_FINISHED, MPI_COMM_WORLD, pHandleFinishProcess + i);
+			*(pHandleManagementProcess + i) = 0;
+			*(pIntProcessControlNumberRunning + i) = i - 1;   /* the index number of ones that are running */
+		}
+
+		/* alloc memory main calc iterations*/
+		p_calc_iterations = get_alloc_main_calc_iterations();
+		n_seeds_tried = num_procs - 1;	/* we try always these number of seeds in beginning */
+		while (1){
+
+			for (i = 1; i < num_procs; i++) {
+
+				/* if is equal to ANNEAL_STOP_PROCESS it is not necessary to do anything else to this process */
+				/* because the limit of tried process is reached */
+				if (*(pIntFinishedProcessChecked + i) != MESSAGE_ANNEAL_STOP_PROCESS_WAIT_FINAL_MESSAGE && *(pIntFinishedProcessChecked + i) != MESSAGE_ANNEAL_STOP_PROCESS){
+
+					MPI_Test(pHandleTemperatureRecv + i, &nFlag, &mpi_status);
+					if (nFlag == 1){	/* message received */
+						printf("Process:%d    main process getting temperature and length from process:%d   temperature:%-15.8g   length:%ld   iteration:%d\n", mpi_status.MPI_SOURCE,
+							i, (*(p_info_temperature + (i - 1)))->temperature, (*(p_info_temperature + (i - 1)))->l_length,
+							    (*(p_info_temperature + (i - 1)))->n_iterations);
+
+						/* all the processes are synchronized by the number of iterations... */
+						/* upload the data to the structure */
+						/* make calculations to how many standard deviations has */
+						/* if it is less than X standard deviations can continue */
+						/* add data from this process to structure calc temperature iterations */
+						add_temperature_cal_iterations(p_calc_iterations, *(p_info_temperature + (i - 1)), *(pIntProcessControlNumberRunning + i));
+						if (is_possible_to_continue(p_calc_iterations, (*(p_info_temperature + (i - 1)))->temperature,
+								(*(p_info_temperature + (i - 1)))->n_iterations, (*(p_info_temperature + (i - 1)))->l_length, num_procs, 0)){
+
+							(*(p_info_manage + (i - 1)))->n_is_to_continue = MPI_IS_TO_CONTINUE_ANNEAL;
+							/* need to check this one, to see if the previous message was delivered... */
+							if (*(pHandleManagementProcess + i) != 0){
+								/* printf("Process:%d   wait management from process:%d\n", 0, i); */
+								MPI_Wait(pHandleManagementProcess + i, MPI_STATUS_IGNORE);
+							}
+						}
+						else{
+							/* if the previous one was not delivered it can be canceled... */
+							if (*(pHandleManagementProcess + i) != 0{
+								MPI_Test(pHandleManagementProcess + i, &nFlag, &mpi_status);
+								if (nFlag == 0) MPI_Cancel(pHandleManagementProcess + i);
+							}
+
+							*(pIntFinishedProcessChecked + i) = MESSAGE_ANNEAL_STOP_PROCESS_WAIT_FINAL_MESSAGE;
+							(*(p_info_manage + (i - 1)))->n_is_to_continue = MPI_IS_TO_RESTART_ANNEAL;
+						}
+
+						/* send management message */
+						/*printf("Process:%d   send management to process:%d\n", 0, i); */
+						MPI_Isend(*(p_info_manage + (i - 1)), 1, mpi_send_data, i, MPI_TAG_MANAGEMENT_MASTER, MPI_COMM_WORLD, pHandleManagementProcess + i);
+
+						/* launch other receive temperature */
+						/* printf("Process:%d   receive temperature from process:%d\n", 0, i); */
+						if ((*(p_info_manage + (i - 1)))->n_is_to_continue != MPI_IS_TO_RESTART_ANNEAL)
+							MPI_Irecv(*(p_info_temperature + (i - 1)), 1, mpi_recv_data, i, MPI_TAG_SEND_TEMP_MASTER, MPI_COMM_WORLD, pHandleTemperatureRecv + i);
+					}
+				}
+
+				/* test the ones that finish, and all of them need to send this message...  */
+				if (*(pIntFinishedProcessChecked + i) != MESSAGE_ANNEAL_STOP_PROCESS){
+					MPI_Test(pHandleFinishProcess + i, &nFlag, &mpi_status);
+					if (nFlag == 1 && *(pIntFinishedProcess + i) == MPI_FINISHED){
+						MPI_Test(pHandleTemperatureRecv + i, &nFlag, &mpi_status);
+						if (nFlag == 0) MPI_Cancel(pHandleTemperatureRecv + i);
+						if (*(pHandleManagementProcess + i) != 0) MPI_Cancel(pHandleManagementProcess + i);
+						printf("Process:%d    finish\n", i);
+						if (n_seeds_tried < n_seeds_to_try){		/* try another seed */
+							n_seeds_tried += 1;									/* try another seed */
+							*(pIntProcessControlNumberRunning + i) = n_seeds_tried;
+							*(pIntFinishedProcessChecked + i) = MESSAGE_ANNEAL_IS_RUNNING_OR_WAIT_TO_RUN;
+
+							(*(p_info_manage + (i - 1)))->n_seed = get_other_seed_to_run_a_process();
+							(*(p_info_manage + (i - 1)))->n_is_to_continue = MPI_IS_TO_RESTART_ANNEAL;
+							(*(p_info_manage + (i - 1)))->n_process_tried = n_seeds_tried;
+							printf("Process:%d    send to restart\n", i);
+							MPI_Send(*(p_info_manage + (i - 1)), 1, mpi_send_data, i, MPI_TAG_SEND_RESTART, MPI_COMM_WORLD);
+
+							/* launch other wait messages */
+							MPI_Irecv(*(p_info_temperature + (i - 1)), 1, mpi_recv_data, i, MPI_TAG_SEND_TEMP_MASTER, MPI_COMM_WORLD, pHandleTemperatureRecv + i);
+							MPI_Irecv(pIntFinishedProcess + i, 1, MPI_INT, i, MPI_TAG_SEND_FINISHED, MPI_COMM_WORLD, pHandleFinishProcess + i);
+						}
+						else{
+							*(pIntFinishedProcessChecked + i) = MESSAGE_ANNEAL_STOP_PROCESS;
+							(*(p_info_manage + (i - 1)))->n_is_to_continue = MPI_IS_NOT_TO_RESTART;
+							printf("Process:%d    isn't to restart\n", i);
+							MPI_Send(*(p_info_manage + (i - 1)), 1, mpi_send_data, i, MPI_TAG_SEND_RESTART, MPI_COMM_WORLD);
+
+							/* there's no need other MPI messages */
+							*(pHandleTemperatureRecv + i) = 0;
+							*(pHandleFinishProcess + i) = 0;
+						}
+						nProcessFinished += 1;
+					}
+				}
+			}
+
+			/* is it finished, all of then?  */
+			if (nProcessFinished == n_seeds_to_try){
+				/* All processes are finished */
+				/* cancel the requests of temperature */
+				for (i = 1; i < num_procs; i++){
+					if (*(pHandleTemperatureRecv + i) != 0) MPI_Cancel(pHandleTemperatureRecv + i);
+					if (*(pHandleManagementProcess + i) != 0) MPI_Cancel(pHandleManagementProcess + i);
+				}
+				break;
+			}
+		}
+
+		/* release memory main calc iterations */
+		release_main_calc_iterations(p_calc_iterations);
+
+		/* release other memory */
+		for (i = 0; i < num_procs - 1; i++){ free(*(p_info_temperature + i)); }
+		free(p_info_temperature);
+		for (i = 0; i < num_procs - 1; i++){ free(*(p_info_manage + i)); }
+		free(p_info_manage);
+
+		free(pHandleTemperatureRecv);		/* all asynchronous messages */
+		free(pHandleManagementProcess);		/* all asynchronous messages */
+		free(pHandleFinishProcess);			/* all asynchronous messages */
+		free(pIntFinishedProcess);
+		free(pIntProcessControlNumberRunning);
+		free(pIntFinishedProcessChecked);
+	}
+
+#endif

@@ -289,6 +289,8 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
     RecvInfoFromMaster * p_data_info_from_master;
     p_data_info_from_master = (RecvInfoFromMaster *) malloc(sizeof(RecvInfoFromMaster));
 
+    *p_n_state_progress = MESSAGE_ANNEAL_FINISHED_AND_REPEAT; /* we consider always is necessary to repeat */ //来自函数形参
+
 #endif
 
 
@@ -428,12 +430,14 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
         	}
 		}
 
+
+
 #ifdef old
 
 		/* send temperature to the master process*/
 		if(*current_iter%STAT_LOG_INTERVAL==0)//由iter控制同步
 		{
-					if (request_handle_send != 0) 
+					if (request_handle_send != 0)// wait temp send in last interval 
 					{ 
 						MPI_Wait(&request_handle_send, MPI_STATUS_IGNORE); //等待成功发送同步信息，是上一个interval发送的
 					}
@@ -443,19 +447,19 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 					p_data_info_to_master->l_length = lenbest;
 					p_data_info_to_master->temperature = t;
 					/* printf("Process:%d   send temperature:%.3g   iterations:%ld\n", myMPIid, t, *current_iter); */
-					MPI_Isend(p_data_info_to_master, 1, mpi_recv_data, MPI_MAIN_PROCESS, MPI_TAG_SEND_TEMP_MASTER, MPI_COMM_WORLD, &request_handle_send);//发送本轮的信息
+					MPI_Isend(p_data_info_to_master, 1, mpi_recv_data, MPI_MAIN_PROCESS, MPI_TAG_SEND_TEMP_MASTER, MPI_COMM_WORLD, &request_handle_send);//发送本轮的温度
 
 					/* now get the message to continue or not, but need in second iteration... */
-					if (request_message_from_master != 0) {
-						MPI_Wait(&request_message_from_master, MPI_STATUS_IGNORE);//确认上一轮要接受的message收到
+					if (request_message_from_master != 0) {//wait manage recv in last interval
+						MPI_Wait(&request_message_from_master, MPI_STATUS_IGNORE);
 						MPI_Test(&request_message_from_master, &nFlag, &mpi_status);
 						if (nFlag == 0) { printf("ERROR, mpi waiting is not working File:%s  Line:%d\n", __FILE__, __LINE__); }
 						if (nFlag == 1)
 						{
-							//Anealing有两种可能方向，killed和finished，后面再根据message判断是否restart
+							//Anealing有两种可能方向，killed和finished，后面再根据finished后message判断是否restart
 							//根据从master接受二点message判断是否继续
 							if (p_data_info_from_master->n_is_to_continue == MPI_IS_TO_RESTART_ANNEAL){	/*it's there and need to restart*/
-								MPI_Cancel(&request_handle_send);
+								MPI_Cancel(&request_handle_send);//刚才的send没用了
 								request_message_from_master = 0;
 								request_handle_send = 0;
 								*p_n_state_progress = MESSAGE_ANNEAL_KILLED;
@@ -466,7 +470,7 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 					}
 					/* printf("Process:%d   receive management\n", myMPIid); */
 					/* need to get other message to proceed... */
-					MPI_Irecv(p_data_info_from_master, 1, mpi_data_from_master, MPI_MAIN_PROCESS, MPI_TAG_MANAGEMENT_MASTER, MPI_COMM_WORLD, &request_message_from_master);//接受这一轮的信息
+					MPI_Irecv(p_data_info_from_master, 1, mpi_data_from_master, MPI_MAIN_PROCESS, MPI_TAG_MANAGEMENT_MASTER, MPI_COMM_WORLD, &request_message_from_master);//接受这一轮的manage信息
 		}
 #endif
 
@@ -732,28 +736,6 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 		}
 
 		iter++;
-#ifdef old
-		 curr_time = time(NULL);
-		    elapsed_time = difftime(curr_time, last_checkpoint_time);//到一定时间就check一次
-		    if ((p_rcstruct->n_flag_save_read_states == DO_SAVE_READ_STATES && elapsed_time > p_rcstruct->n_checkpoint_interval) ||
-		    		(p_rcstruct->n_make_test == 1 && *current_iter > 300000) ) {
-		    	fp = open_file_by_MPIid(myMPIid, "wb", LVB_TRUE);
-		    	int is_process_finished = CHECK_POINT_PROCESS_NOT_FINISHED, n_number_blocks = 4;
-			//下面的代码是把当前的状态写入lvb_checkpoint_myMPIid.temp，然后把temp去掉
-		    	fwrite(&is_process_finished, sizeof(is_process_finished), 1, fp);
-				fwrite(&n_number_blocks, sizeof(n_number_blocks), 1, fp);
-				checkpoint_treestack(fp, bstackp, MSA, LVB_FALSE);
-				checkpoint_uni(fp);
-				checkpoint_anneal(fp, MSA, accepted, dect, deltah, deltalen, failedcnt, iter, *current_iter, len, lenbest,
-					lendash, ln_t, t_n, t0, pacc, proposed, r_lenmin, root, t, grad_geom, grad_linear,
-					p_current_tree, LVB_TRUE, p_proposed_tree, LVB_TRUE);
-				checkpoint_params(fp, p_rcstruct);
-				last_checkpoint_time = curr_time;
-				lvb_assert(fclose(fp) == 0);
-				rename_file_name(myMPIid); /* atomic operation to rename the file name *///把temp的后缀取消
-				printf("Checkpoint saved MPIid: %d\n", myMPIid);
-		    }
-#endif
 
 		if (rcstruct.n_number_max_trees > 0 && treestack_ptr->next >= rcstruct.n_number_max_trees){
 			break;
@@ -783,23 +765,23 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 		#endif
 
 #ifdef old
-if (request_message_from_master != 0) //循环结束了，所以request要取消
+if (request_message_from_master != 0) //如果frozen，会有manage没receive到，所以request要取消
 	MPI_Cancel(&request_message_from_master);
-
-	    if (request_handle_send != 0) 
+if (request_handle_send != 0) 
 	MPI_Cancel(&request_handle_send);
 
-	    /* Send FINISH message to master */
-	    if (*p_n_state_progress == MESSAGE_ANNEAL_KILLED || *p_n_state_progress == MESSAGE_ANNEAL_FINISHED_AND_REPEAT){	/* it's necessary to send this message */
-	    	/* send the MPI_ID then the root can translate for the number of tried_seed */
-	    	int n_finish_message = MPI_FINISHED;
-	    	MPI_Isend(&n_finish_message, 1, MPI_INT, MPI_MAIN_PROCESS, MPI_TAG_SEND_FINISHED, MPI_COMM_WORLD, &request_handle_send);
-	    	MPI_Wait(&request_handle_send, MPI_STATUS_IGNORE); /* need to do this because the receiver is asynchronous */
+	/* Send FINISH message to master */
+if (*p_n_state_progress == MESSAGE_ANNEAL_KILLED || *p_n_state_progress == MESSAGE_ANNEAL_FINISHED_AND_REPEAT)
+{	/* it's necessary to send this message */
+	/* send the MPI_ID then the root can translate for the number of tried_seed */
+	int n_finish_message = MPI_FINISHED;
+	MPI_Isend(&n_finish_message, 1, MPI_INT, MPI_MAIN_PROCESS, MPI_TAG_SEND_FINISHED, MPI_COMM_WORLD, &request_handle_send);
+	MPI_Wait(&request_handle_send, MPI_STATUS_IGNORE); /* need to do this because the receiver is asynchronous */
 
-	    	/* need to wait for information if is necessary to run another */
-	    	/* this one need to print the result */
-	    	MPI_Status mpi_status;
-	    	MPI_Recv(p_data_info_from_master, 1, mpi_data_from_master, MPI_MAIN_PROCESS, MPI_TAG_SEND_RESTART, MPI_COMM_WORLD, &mpi_status); /* this one waits until the master receive all confirmations */
+	/* need to wait for information if is necessary to run another */
+	/* this one need to print the result */
+	MPI_Status mpi_status;
+	MPI_Recv(p_data_info_from_master, 1, mpi_data_from_master, MPI_MAIN_PROCESS, MPI_TAG_SEND_RESTART, MPI_COMM_WORLD, &mpi_status); /* this one waits until the master receive all confirmations */
 
 	//    	if (mpi_status.MPI_ERROR != MPI_SUCCESS) {
 	//    	   char error_string[BUFSIZ];
@@ -808,18 +790,22 @@ if (request_message_from_master != 0) //循环结束了，所以request要取消
 	//    	   printf("Process:%d   %s\n", myMPIid, error_string);
 	//    	}
 
-		//从master接受信息判断是否继续
-	    	if (p_data_info_from_master->n_is_to_continue == MPI_IS_NOT_TO_RESTART){
-	    		if (*p_n_state_progress == MESSAGE_ANNEAL_KILLED) *p_n_state_progress = MESSAGE_ANNEAL_KILLED_AND_NOT_REPEAT;
-	    		else *p_n_state_progress = MESSAGE_ANNEAL_FINISHED_AND_NOT_REPEAT;
-	    	}
-	    	else{
-	    		p_rcstruct->seed = p_data_info_from_master->n_seed;  /* new seed */
-	    		if (*p_n_state_progress == MESSAGE_ANNEAL_KILLED) *p_n_state_progress = MESSAGE_ANNEAL_KILLED_AND_REPEAT;
-	    		else *p_n_state_progress = MESSAGE_ANNEAL_FINISHED_AND_REPEAT;
-	    	}
-	    	*p_n_number_tried_seed = p_data_info_from_master->n_process_tried;  /* it's necessary to create a file with trees */
-	    }
+	//从master接受信息判断是否继续
+	if (p_data_info_from_master->n_is_to_continue == MPI_IS_NOT_TO_RESTART){
+		if (*p_n_state_progress == MESSAGE_ANNEAL_KILLED) *p_n_state_progress = MESSAGE_ANNEAL_KILLED_AND_NOT_REPEAT;
+		else *p_n_state_progress = MESSAGE_ANNEAL_FINISHED_AND_NOT_REPEAT;
+	}
+	else{
+		p_rcstruct->seed = p_data_info_from_master->n_seed;  /* new seed */
+		if (*p_n_state_progress == MESSAGE_ANNEAL_KILLED) *p_n_state_progress = MESSAGE_ANNEAL_KILLED_AND_REPEAT;
+		else *p_n_state_progress = MESSAGE_ANNEAL_FINISHED_AND_REPEAT;
+	}
+	*p_n_number_tried_seed = p_data_info_from_master->n_process_tried;  /* it's necessary to create a file with trees */
+}
+
+
+    free(p_data_info_to_master);
+    free(p_data_info_from_master);
 #endif
 
 
@@ -982,6 +968,12 @@ for(int i=0;i<nruns_local;i++)
 	//ProgressInfo.tem=t0;
 #endif
 
+#ifdef old
+
+	n_state_progress = 0;	/* there's no state in beginning */
+	n_number_tried_seed = n_number_tried_seed_next;
+#endif
+
     PullRandomTree(MSA, tree);	/* begin from scratch */
     ss_init(MSA, tree, enc_mat);
     initroot = 0;
@@ -1055,6 +1047,57 @@ for(int i=0;i<nruns_local;i++)
     CheckStandardOutput();
 
     if (rcstruct.verbose == LVB_TRUE) clnclose(sumfp, SUMFNAM);
+
+#ifdef old
+    /* 		Several possible outputs */
+    /*		ANNEAL_FINISHED_AND_NOT_REPEAT		0x01
+		ANNEAL_FINISHED_AND_REPEAT			0x02
+		ANNEAL_KILLED_AND_REPEAT			0x03
+		ANNEAL_KILLED_AND_NOT_REPEAT		0x04 */
+
+    /* is is killed is not necesary any data */ //正常frozen
+    if (n_state_progress == MESSAGE_ANNEAL_FINISHED_AND_NOT_REPEAT || n_state_progress == MESSAGE_ANNEAL_FINISHED_AND_REPEAT){
+
+	    /* work on the trees */
+	    int l_pop = PullTreefromTreestack(MSA, tree, &initroot, bstack_overall, LVB_FALSE);
+	    if (l_pop == 0){
+		    printf("\nProcess:%d    Error: can't pop any tree from Treestack.   Rearrangements tried: %ld\n", myMPIid, l_iterations);
+	    }
+	    else{
+		    CompareTreeToTreestack(MSA, bstack_overall, tree, initroot, LVB_FALSE);
+		    treelength = deterministic_hillclimb(MSA, bstack_overall, tree, rcstruct, initroot, stdout, &l_iterations, myMPIid, log_progress);
+		    /* save it */
+		    sprintf(file_name_output, "%s_%d", rcstruct.file_name_out, n_number_tried_seed); /* name of output file for this process */
+		    outtreefp = clnopen(file_name_output, "w");
+		    trees_output = PrintTreestack(MSA, bstack_overall, outtreefp, LVB_FALSE);
+		    clnclose(outtreefp, file_name_output);
+		    printf("\nProcess:%d   Rearrangements tried: %ld\n", myMPIid, l_iterations);
+		    if (trees_output == 1L) { printf("1 most parsimonious tree of length %ld written to file '%s'\n", treelength, file_name_output); }
+		    else { printf("%ld equally parsimonious trees of length %ld written to file '%s'\n", trees_output, treelength, file_name_output); }
+	    }
+    }
+
+    //要repeat，或不
+    if (n_state_progress == MESSAGE_ANNEAL_FINISHED_AND_REPEAT || n_state_progress == MESSAGE_ANNEAL_KILLED_AND_REPEAT){
+	    l_iterations = 0;		/* start iterations from zero */
+	    free(tree);
+	    FreeTreestackMemory(bstack_overall);
+	    printf("Process:%d   try seed number process:%d   new seed:%d", myMPIid, n_number_tried_seed_next, rcstruct.seed);
+	    rinit(rcstruct.seed); /* at this point the structure has a need see passed by master process */ //用从master得到的新seed重启， Main.c:479:生产新seed
+    }
+    else{
+	    /* Save the finish state file */
+	    if (rcstruct.n_flag_save_read_states == DO_SAVE_READ_STATES){
+		    save_finish_state_file(&rcstruct, myMPIid);
+	    }
+	    break; /* it is not necessary to repeat again */
+    }
+
+    check_stdout();
+    if (rcstruct.verbose == LVB_TRUE) printf("Ending start %ld cycle %ld\n", start, cyc);
+    if (rcstruct.verbose == LVB_TRUE) clnclose(sumfp, SUMFNAM);
+#endif
+
 
 #ifndef parallel
 
