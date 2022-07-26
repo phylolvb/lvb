@@ -21,7 +21,7 @@ void Bcast_best_partial_tree_to_root(Dataptr MSA, long best_treelength, int rank
 
     all_len = (long*)alloc(sizeof(long) * nprocs, "all_len");
 
-    MPI_Allgather(&best_treelength, 1, MPI_LONG, all_len, 1, MPI_LONG, MPI_COMM_WORLD);
+    MPI_Allgather(best_treelength, 1, MPI_LONG, all_len, 1, MPI_LONG, MPI_COMM_WORLD);
 
     int index_max = 0;
 
@@ -94,60 +94,63 @@ printf("\n\n\n**************UNITL NOW, SUCCESS***********\n\n\n\n");
 
 }
 
-void Root_get_best_treestack(Dataptr MSA, long best_treelength_local, int root, int rank, int nprocs, TREESTACK* treestack)
+void Root_get_best_treestack(Dataptr MSA, long *best_treelength_local, int root, int rank, int nprocs, TREESTACK* treestack)
 {
-    long * all_len;
+	long * all_len;
 
-    //printf("\n\n\nlocal best length %ld,  rank %d ----\n\n",best_treelength, rank);
-    //if(rank==1)
-	    //best_treelength=1;
+	//printf("\n\n\nlocal best length %ld,  rank %d ----\n\n",best_treelength, rank);
+	//if(rank==1)
+	//best_treelength=1;
 
-    all_len = (long*)alloc(sizeof(long) * nprocs,"all_len");
+	all_len = (long*)alloc(sizeof(long) * nprocs,"all_len");
 
-    MPI_Allgather(&best_treelength_local, 1, MPI_LONG, all_len, 1, MPI_LONG, MPI_COMM_WORLD);
+	MPI_Allgather(best_treelength_local, 1, MPI_LONG, all_len, 1, MPI_LONG, MPI_COMM_WORLD);
 #ifdef test
-if(rank==0)
-{
-	printf("\n");
-   for(int i=0;i<nprocs;i++)
-	  printf("%ld,",all_len[i]);
-}
+	if(rank==0)
+	{
+		printf("\n");
+		for(int i=0;i<nprocs;i++)
+			printf("%ld,",all_len[i]);
+	}
 #endif
 
-    int index_max = 0;
-    int nsame = 0;//equivalently best
-    /*
-    int is_best=1;//there might be several best
-    for (int i = 0; i < nprocs; i++)
-    {
-        if (best_treelength[i] < best_treelength[is_best])
-        {
-            is_best = 0;
-            break;
-        }
-    }
+	int index_max = 0;
+	int nsame = 0;//equivalently best
+	/*
+	   int is_best=1;//there might be several best
+	   for (int i = 0; i < nprocs; i++)
+	   {
+	   if (best_treelength[i] < best_treelength[is_best])
+	   {
+	   is_best = 0;
+	   break;
+	   }
+	   }
 
-    return is_best;
-    */
+	   return is_best;
+	   */
 
-    for (int i = 0; i < nprocs; i++)
-    {
-        if (all_len[i] < all_len[index_max])//返回第一个最短的
-        {
-            index_max = i;
-            nsame = 1;
+	for (int i = 0; i < nprocs; i++)
+	{
+		if (all_len[i] < all_len[index_max])//返回第一个最短的
+		{
+			index_max = i;
+			nsame = 1;
 
-        }
+		}
 
-        if (all_len[i] == all_len[index_max])
-            nsame++;
-    }
+		if (all_len[i] == all_len[index_max])
+			nsame++;
+	}
 
-    //if (rank == index_max)
-        //printf("\n\n\nbest rank:%d, length %ld-------------\n\n", rank, all_len[index_max]);
+	//if (rank == index_max)
+	//printf("\n\n\nbest rank:%d, length %ld-------------\n\n", rank, all_len[index_max]);
 
-    Send_best_treestack_to_root(MSA, rank, 0, index_max, nprocs, treestack);
-    
+	Send_best_treestack_to_root(MSA, rank, 0, index_max, nprocs, treestack);
+
+	if(rank==0)
+		*best_treelength_local=all_len[index_max];
+
 
 }
 
@@ -546,7 +549,14 @@ void Slave_after_anneal_once(Dataptr MSA, TREESTACK_TREE_NODES *tree, int *n_sta
 
 }
 
-void get_temperature_and_control_process_from_other_process(int num_procs, int n_seeds_to_try){
+void get_temperature_and_control_process_from_other_process(int num_procs, int n_seeds_to_try)
+{
+	
+
+
+
+
+
 
 		int nProcessFinished = 0;
 		MPI_Request *pHandleTemperatureRecv;

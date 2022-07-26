@@ -153,6 +153,7 @@ if(rank==0)
 	#ifdef LVB_MAPREDUCE
     writeinf(rcstruct, MSA, argc, argv, misc.nprocs);
 	#else
+    if(rank==0)//only master print inf
 	writeinf(rcstruct, MSA, argc, argv);
 	#endif
     calc_distribution_processors(MSA, rcstruct);
@@ -162,13 +163,22 @@ if(rank==0)
 		printf("MinimumTreeLength: %ld\n\n", MinimumTreeLength(MSA));
     }
     rinit(rcstruct.seed);
+    if(rank==0)
 	log_progress = LVB_TRUE;
+    else
+	    log_progress = LVB_FALSE;
 
     outtreefp = clnopen(rcstruct.file_name_out, "w");
     FILE * treEvo;
 	treEvo = (FILE *) alloc(sizeof(FILE), "alloc FILE");
+
+#ifndef parallel
+	char filename_alg2[200];//sprintf，把lvb_checkpoint_myMPIid.temp作为存放state的文件
+	sprintf(filename_alg2, "%s_%d.tre", "treEvo", rank); /* name of output file for this process */
     if(rcstruct.algorithm_selection ==2)
-    treEvo = fopen ("treEvo.tre","w");
+    	treEvo = fopen (filename_alg2,"w");
+
+#endif
 	iter = 0;
 
 
@@ -181,8 +191,9 @@ if(rank==0)
 
 	#else
 	final_length = GetSoln(MSA, rcstruct, &iter, log_progress);
-	if(rank==0)
-		trees_output = PrintTreestack(MSA, &treestack, outtreefp, LVB_FALSE);
+	if(rank != 0)
+		goto Slave_finish;//Only Master/rank 0 output the best treestack ever found
+	trees_output = PrintTreestack(MSA, &treestack, outtreefp, LVB_FALSE);
 
 	#endif
 
@@ -191,7 +202,6 @@ if(rank==0)
 		PrintTreestack(MSA, &stack_treevo, treEvo, LVB_FALSE);
     ClearTreestack(&treestack);
 
-    if(rank==0)
 	printf("--------------------------------------------------------\n");
 	#ifdef LVB_MAPREDUCE
 	/* clean the TreeStack and buffer */
@@ -208,8 +218,7 @@ if(rank==0)
     End = clock();
 
 	overall_time_taken = ((double) (End - Start)) /CLOCKS_PER_SEC;
-if(rank==0)
-{
+
 	PrintLogFile(iter, trees_output_total, final_length, overall_time_taken);
 
 	double consistency_index = MinimumTreeLength(MSA);
@@ -219,7 +228,8 @@ if(rank==0)
 	homoplasy_index = 1 - consistency_index;
 
 	PrintOutput(iter, trees_output_total, final_length, consistency_index, homoplasy_index, overall_time_taken, rcstruct.file_name_out);
-}
+
+Slave_finish:
 	/* "file-local" dynamic heap memory */
     if (rcstruct.algorithm_selection ==2)
     FreeTreestackMemory(MSA, &stack_treevo);
