@@ -791,7 +791,8 @@ long Slave_Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, cons
     long *p_todo_arr_sum_changes; /*used in openMP, to sum the partial changes */
     int *p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */
 
-#ifdef old
+#ifndef old
+    int nFlag;
 
     MPI_Request request_handle_send = 0, request_message_from_master = 0;
     MPI_Status mpi_status;
@@ -956,21 +957,59 @@ long Slave_Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, cons
 #endif
         int changeAcc = 0;
     	*current_iter += 1;
-		/* occasionally re-root, to prevent influence from root position */
-		if ((*current_iter % REROOT_INTERVAL) == 0){
-			root = arbreroot(MSA, p_current_tree, root);
-			if ((log_progress == LVB_TRUE) && ((*current_iter % STAT_LOG_INTERVAL) == 0)) {
-        		lenlog(lenfp, treestack_ptr, *current_iter, current_tree_length, t);
-        	}
+
+	/* occasionally re-root, to prevent influence from root position */
+	if ((*current_iter % REROOT_INTERVAL) == 0){
+		root = arbreroot(MSA, p_current_tree, root);
+		if ((log_progress == LVB_TRUE) && ((*current_iter % STAT_LOG_INTERVAL) == 0)) {
+			lenlog(lenfp, treestack_ptr, *current_iter, current_tree_length, t);
 		}
+#ifndef old
 
+		if((rcstruct.parallel_selection==0||rcstruct.parallel_selection==2)&&((*current_iter % STAT_LOG_INTERVAL) == 0))
+		{
+			//Slave_interval_reached(&request_handle_send, p_data_info_to_master, mpi_recv_data, &request_message_from_master,p_data_info_from_master,mpi_data_from_master, p_n_state_progress);
+			if (request_handle_send != 0) 
+			{ 
+				MPI_Wait(&request_handle_send, MPI_STATUS_IGNORE); 
+			}
+			p_data_info_to_master->n_iterations = *current_iter;
+			p_data_info_to_master->n_seed = rcstruct.seed;
+			p_data_info_to_master->l_length = best_tree_length;
+			p_data_info_to_master->temperature = t;
+			/* printf("Process:%d   send temperature:%.3g   iterations:%ld\n", myMPIid, t, *current_iter); */
+			MPI_Isend(p_data_info_to_master, 1, mpi_recv_data, MPI_MAIN_PROCESS, MPI_TAG_SEND_TEMP_MASTER, MPI_COMM_WORLD, &request_handle_send);
+			/* now get the message to continue or not, but need in second iteration... */
+			if (request_message_from_master != 0) 
+			{
+				MPI_Wait(&request_message_from_master, MPI_STATUS_IGNORE);
+				MPI_Test(&request_message_from_master, &nFlag, &mpi_status);
+				if (nFlag == 0) { printf("ERROR, mpi waiting is not working File:%s  Line:%d\n", __FILE__, __LINE__); }
+				if (nFlag == 1)
+				{
+					if (p_data_info_from_master->n_is_to_continue == MPI_IS_TO_RESTART_ANNEAL)
+					{	/*it's there and need to restart*/
+						MPI_Cancel(&request_handle_send);
+						request_message_from_master = 0;
+						request_handle_send = 0;
+						*p_n_state_progress = MESSAGE_ANNEAL_KILLED;
+						break;
+					}
+					/* otherwise need to proceed... */
+				}
+			}
+			/* printf("Process:%d   receive management\n", myMPIid); */
+			/* need to get other message to proceed... */
+			MPI_Irecv(p_data_info_from_master, 1, mpi_data_from_master, MPI_MAIN_PROCESS, MPI_TAG_MANAGEMENT_MASTER, MPI_COMM_WORLD, &request_message_from_master);
 
-
-#ifdef old
-		Slave_interval_reached(&request_handle_send, p_data_info_to_master, mpi_recv_data, &request_message_from_master,p_data_info_from_master,mpi_data_from_master, p_n_state_progress);
-
+		}
 #endif
 
+	}
+
+
+
+	
 		lvb_assert(t > DBL_EPSILON);
 
 		/* mutation: alternate between the two mutation functions */
@@ -1263,7 +1302,21 @@ long Slave_Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, cons
 
 #ifdef old
 
-Slave_wait_finalmessage(&request_message_from_master,&request_handle_sned,p_n_state_progress,p_data_info_from_master,mpi_data_from_master,rcstruct, p_n_number_tried_seed,long best_tree_length);
+  //int n_iterations;		/* number of iterations */
+        //int n_seed;				/* seed for this temperature and iteration */
+        //long l_length;			/* length of the tree */
+        //double temperature;
+			p_data_info_to_master->n_iterations = *current_iter;
+			p_data_info_to_master->n_seed = rcstruct.seed;
+			p_data_info_to_master->l_length = best_tree_length;
+			p_data_info_to_master->temperature = t;
+			if(*p_n_state_progress == MESSAGE_ANNEAL_KILLED)
+				p_data_info_to_master->l_length = -1;
+
+
+
+	
+Slave_wait_finalmessage(&request_message_from_master,&request_handle_sned,p_n_state_progress,p_data_info_from_master,mpi_data_from_master,rcstruct, p_n_number_tried_seed,p_data_info_to_master, mpi_rec_data, mpi_data_from_master);
 
 
     free(p_data_info_to_master);
@@ -1322,6 +1375,15 @@ long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool l
 	int check_cmp;
 	#endif
 	
+     /* NOTE: These variables and their values are "dummies" and are no longer
+     * used in the current version of LVB. However, in order to keep the
+     * formatting of the output compatible with that of previous versions of
+     * LVB these variables will continue to be used and written to the summary
+     * files.  */
+    long cyc = 0;	/* current cycle number */
+    long start = 0;	/* current random (re)start number */
+
+
 #ifndef parallel
 
 	//TREESTACK_TREES best_tree;//the best tree from multiple runs
@@ -1339,38 +1401,35 @@ long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool l
 		//nruns_local++;
 
 
+	    int n_state_progress;		/* has a state to see if is necessary to repeat or finish */
+	    int n_number_tried_seed_next = rank; 	/* it has the number of tried seed, (the number of next seed this proc will try */
+	    int n_number_tried_seed = rank;	 	/* it has the number of tried seed */
 
-	/*collect final result length of -1 means killed*/
-	SendInfoToMaster Final_results[rcstruct.nruns];
 
-	if(rank==0&&rcstruct.Parallel_selection==2)
+
+	//Rank 0 send initial seed for Slaves
+	if(rank==0&&(rcstruct.parallel_selection==2||rcstruct.parallel_selection==0))
 	{
-		for (i = 1; i < num_procs; i++) 
+		for (i = 1; i < nprocs; i++) 
 		{
 			/* send binary data of each sample */
 			MPI_Send(&rcstruct.seed, 1, MPI_INT, i, MPI_TAG_PARAMS, MPI_COMM_WORLD); //, &request);
 			rcstruct.seed = get_other_seed_to_run_a_process();
 		}
-		get_temperature_and_control_process_from_other_process(nprocs, rcstruct.nruns,SendInfoToMaster *Final_results);
+		get_temperature_and_control_process_from_other_process(nprocs, rcstruct.nruns);
 		goto finish;
 	}
-	else
+	else if(rcstruct.parallel_selection==2||rcstruct.parallel_selection==0)
 	{
 		MPI_Recv(&rcstruct.seed, 1, MPI_INT, MPI_MAIN_PROCESS, MPI_TAG_PARAMS, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+		rinit(rcstruct.seed);//reset seed
+
 	}
 
 
 #endif
 	
-    /* NOTE: These variables and their values are "dummies" and are no longer
-     * used in the current version of LVB. However, in order to keep the
-     * formatting of the output compatible with that of previous versions of
-     * LVB these variables will continue to be used and written to the summary
-     * files.  */
-    long cyc = 0;	/* current cycle number */
-    long start = 0;	/* current random (re)start number */
-
-    /* dynamic "local" heap memory */
+        /* dynamic "local" heap memory */
     tree = treealloc(MSA, LVB_TRUE);
 
     /* Allocation of the initial encoded MSA is non-contiguous because
@@ -1421,15 +1480,13 @@ long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool l
 
 
 #ifndef parallel
-    	    int n_state_progress;		/* has a state to see if is necessary to repeat or finish */
-	    int n_number_tried_seed_next = rank; 	/* it has the number of tried seed, (the number of next seed this proc will try */
-	    int n_number_tried_seed = rank;	 	/* it has the number of tried seed */
-
-
+    	    
 //start  loop of annealing
 do{
+	//reset seed at the end of the loop
+    //rinit(rcstruct.seed);
+    
 
-    rinit(seed[i]);//reset seed
     /* determine starting temperature */
     PullRandomTree(MSA, tree);	/* initialise required variables */
     ss_init(MSA, tree, enc_mat);
@@ -1438,10 +1495,10 @@ do{
 
 	t0 = StartingTemperature(MSA, tree, rcstruct, initroot, log_progress);
 
-	//ProgressInfo.tem=t0;
 
 	n_state_progress = 0;	/* there's no state in beginning */
-	n_number_tried_seed = n_number_tried_seed_next;
+	n_number_tried_seed = n_number_tried_seed_next;//seed_next was received from alst anneal
+	
 #endif
 
     PullRandomTree(MSA, tree);	/* begin from scratch */
@@ -1476,9 +1533,16 @@ do{
 					check_cmp, misc, mrTreeStack, mrBuffer);
 
 	#else
+
+
 	    /* find solution(s) */
-    treelength = Anneal(MSA, &treestack, &stack_treevo, tree, rcstruct, initroot, t0, maxaccept,
-    maxpropose, maxfail, stdout, iter_p, log_progress);
+		if(rcstruct.parallel_selection==2||rcstruct.parallel_selection==0)
+			treelength = Slave_Anneal(MSA, &treestack, &stack_treevo, tree, rcstruct, initroot, t0, maxaccept,
+					maxpropose, maxfail, stdout, iter_p, log_progress,&n_state_progress,&n_number_tried_seed_next, rank);
+		else
+			treelength = Anneal(MSA, &treestack, &stack_treevo, tree, rcstruct, initroot, t0, maxaccept,
+					maxpropose, maxfail, stdout, iter_p, log_progress);
+
     PullTreefromTreestack(MSA, tree, &initroot, &treestack, LVB_FALSE);
 
 	#ifdef LVB_HASH
@@ -1520,7 +1584,7 @@ do{
 
 
 
-#ifdef parallel
+#ifndef parallel
 
 /* compare the best tree with last best*/
     //printf("\n\n rank:%d  seed: %d;treelength=%d",rank, seed[i],treelength);
@@ -1547,25 +1611,27 @@ do{
     ClearTreestack(&treestack);
 
 
-#ifdef old
-    int is_conti = Slave_after_anneal_once(MSA,tree,&n_state_progress,&initroot,&treestack,&best_treestack,rnak,iter_p,&treelength,&best_treelength);
+if(rcstruct.parallel_selection==1)
+	break;
+
+    int is_conti = Slave_after_anneal_once(MSA,tree,&n_state_progress,&initroot,&treestack,&best_treestack,rank,iter_p,&treelength,&best_treelength, n_number_tried_seed_next);
     if(!is_conti)
 	    break;
-#endif
 
 
-}while(1)
+}while(1);
 #endif
 
 #ifndef old
 finish:
+/*
 //printf final results
 printf("\n");
 for(int i=0;i<rcstruct.nruns;i++)
 {
-	int n_iterations;		/* number of iterations */
-	int n_seed;				/* seed for this temperature and iteration */
-	long l_length;			/* length of the tree */
+	int n_iterations;		
+	int n_seed;			
+	long l_length;			
 	double temperature;	
 	printf("Seed used:%d: number of iterations:%d,", Final_results[i].n_seed,Final_results[i].n_iterations);
 	if(Final_results[i].l_length==-1)
@@ -1575,8 +1641,7 @@ for(int i=0;i<rcstruct.nruns;i++)
 
 	printf("temperature: %lf \n",Final_results[i].temperature);
 }
-
-
+*/
 
 //find best treestack
 //output best treestack

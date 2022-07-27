@@ -1,5 +1,5 @@
 #include "Para_lib.h"
-#include "mpi.h"
+//#include "mpi.h"
 #include "RandomNumberGenerator.h"
 
 
@@ -21,7 +21,7 @@ void Bcast_best_partial_tree_to_root(Dataptr MSA, long best_treelength, int rank
 
     all_len = (long*)alloc(sizeof(long) * nprocs, "all_len");
 
-    MPI_Allgather(best_treelength, 1, MPI_LONG, all_len, 1, MPI_LONG, MPI_COMM_WORLD);
+    MPI_Allgather(&best_treelength, 1, MPI_LONG, all_len, 1, MPI_LONG, MPI_COMM_WORLD);
 
     int index_max = 0;
 
@@ -385,7 +385,8 @@ MPI_Recv(&treestack->next, 1, MPI_LONG, MPI_ANY_SOURCE, 0, MPI_COMM_WORLD, &stat
 
 }
 
-#ifndef old
+
+#ifdef test
 void Slave_interval_reached(MPI_Request *request_handle_send,SendInfoToMaster *p_data_info_to_master, MPI_Datatype mpi_recv_data, MPI_Request *request_message_from_master, RecvInfoFromMaster * p_data_info_from_master, MPI_Datatype mpi_data_from_master, int *p_n_state_progress)//mpi_recv_data is slave-> master, mpi_data_from_master is master->slave
 {
 	int nFlag;
@@ -426,9 +427,10 @@ void Slave_interval_reached(MPI_Request *request_handle_send,SendInfoToMaster *p
 }
 }
 
+#endif
 
-
-void Slave_wait_final_message(MPI_Request *request_message_from_master, MPI_Request *request_handle_send,int *p_n_state_progress, RecvInfoFromMaster *p_data_info_from_master, MPI_Datatype mpi_data_from_master, Parameters *p_rcstruct, int *p_n_number_tried_seed, long best_tree_length)
+#ifndef old
+void Slave_wait_final_message(MPI_Request *request_message_from_master, MPI_Request *request_handle_send,int *p_n_state_progress, RecvInfoFromMaster *p_data_info_from_master, Parameters *p_rcstruct, int *p_n_number_tried_seed, SendInfoToMaster * p_data_info_to_master, MPI_Datatype mpi_rec_data, MPI_Datatype mpi_data_from_master)
 {
 	if (request_message_from_master != 0) 
 		MPI_Cancel(request_message_from_master);
@@ -440,12 +442,13 @@ void Slave_wait_final_message(MPI_Request *request_message_from_master, MPI_Requ
 	{	/* it's necessary to send this message */
 		/* send the MPI_ID then the root can translate for the number of tried_seed */
 		int n_finish_message = MPI_FINISHED;
-		MPI_Isend(n_finish_message, 1, MPI_INT, MPI_MAIN_PROCESS, MPI_TAG_SEND_FINISHED, MPI_COMM_WORLD, request_handle_send);
-		MPI_Wait(&request_handle_send, MPI_STATUS_IGNORE); /* need to do this because the receiver is asynchronous */
+		MPI_Isend(&n_finish_message, 1, MPI_INT, MPI_MAIN_PROCESS, MPI_TAG_SEND_FINISHED, MPI_COMM_WORLD, request_handle_send);
+		MPI_Wait(request_handle_send, MPI_STATUS_IGNORE); /* need to do this because the receiver is asynchronous */
 
 		/*For collecting result sned send length if frozen, sned -1 of length if killed*/
-		MPI_Isend(&best_tree_length, 1, MPI_LONG, MPI_MAIN_PROCESS, MPI_TAG_SEND_FINISHED, MPI_COMM_WORLD, request_handle_send);
-		MPI_Wait(&request_handle_send,MPI_STATUS_IGNORE);
+
+		MPI_Isend(p_data_info_to_master, 1, mpi_rec_data, MPI_MAIN_PROCESS, MPI_TAG_SEND_FINISHED, MPI_COMM_WORLD, request_handle_send);
+		MPI_Wait(request_handle_send,MPI_STATUS_IGNORE);
 
 
 		/* need to wait for information if is necessary to run another */
@@ -479,8 +482,9 @@ void Slave_wait_final_message(MPI_Request *request_message_from_master, MPI_Requ
 }
 
 
-void Slave_after_anneal_once(Dataptr MSA, TREESTACK_TREE_NODES *tree, int *n_state_progress, long * initroot, TREESTACK *treestack, 
-		TREESTACK *best_treestack, int myMPIid, long *l_iterations, long *treelength, long *best_treelength)
+int Slave_after_anneal_once(Dataptr MSA, TREESTACK_TREE_NODES *tree, int n_state_progress, long * initroot, TREESTACK *treestack, 
+		TREESTACK *best_treestack, int myMPIid, long *l_iterations, long *treelength, long *best_treelength, 
+		int n_number_tried_seed_next)
 {
     /* 		Several possible outputs */
     /*		ANNEAL_FINISHED_AND_NOT_REPEAT		0x01
@@ -691,11 +695,17 @@ void get_temperature_and_control_process_from_other_process(int num_procs, int n
 						if (nFlag == 0) MPI_Cancel(pHandleTemperatureRecv + i);
 						if (*(pHandleManagementProcess + i) != 0) MPI_Cancel(pHandleManagementProcess + i);
 						printf("Process:%d    finish\n", i);
-						
+
 						/*receive final tree length*/
 						MPI_Recv(&final_results[idx], 1, mpi_recv_data, i, MPI_TAG_SEND_FINISHED, MPI_COMM_WORLD, &mpi_status); /* this one waits until the master receive all confirmations */
+						printf("Seed used:%d: number of iterations:%d,", Final_results[idx].n_seed,Final_results[idx].n_iterations);
+						if(Final_results[idx].l_length==-1)
+							printf("Killed,");
+						else
+							printf("final tree length:%ld,", Final_results[idx].l_length);
+
+						printf("final temperature: %lf \n",Final_results[idx].temperature);
 						idx++;
-						printf("seed %d generates result: final temp iter\n",)
 
 
 
