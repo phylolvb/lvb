@@ -191,6 +191,10 @@ if(rank==0)
 
 	#else
 	final_length = GetSoln(MSA, rcstruct, &iter, log_progress);
+
+	double consistency_index = MinimumTreeLength(MSA);
+	double homoplasy_index = 0;
+
 	if(rank != 0)
 		goto Slave_finish;//Only Master/rank 0 output the best treestack ever found
 	trees_output = PrintTreestack(MSA, &treestack, outtreefp, LVB_FALSE);
@@ -221,8 +225,8 @@ if(rank==0)
 
 	PrintLogFile(iter, trees_output_total, final_length, overall_time_taken);
 
-	double consistency_index = MinimumTreeLength(MSA);
-	double homoplasy_index = 0;
+	//double consistency_index = MinimumTreeLength(MSA);
+	//double homoplasy_index = 0;
 
 	consistency_index = consistency_index/final_length;
 	homoplasy_index = 1 - consistency_index;

@@ -1,6 +1,6 @@
-#include "Para_lib.h"
-//#include "mpi.h"
 #include "RandomNumberGenerator.h"
+#include "InteractionTemperature.h"
+#include "Para_lib.h"
 
 
 
@@ -430,8 +430,11 @@ void Slave_interval_reached(MPI_Request *request_handle_send,SendInfoToMaster *p
 #endif
 
 #ifndef old
-void Slave_wait_final_message(MPI_Request *request_message_from_master, MPI_Request *request_handle_send,int *p_n_state_progress, RecvInfoFromMaster *p_data_info_from_master, Parameters *p_rcstruct, int *p_n_number_tried_seed, SendInfoToMaster * p_data_info_to_master, MPI_Datatype mpi_rec_data, MPI_Datatype mpi_data_from_master)
+void Slave_wait_final_message(MPI_Request *request_message_from_master, MPI_Request *request_handle_send,int *p_n_state_progress, 
+	RecvInfoFromMaster *p_data_info_from_master, Parameters *p_rcstruct, int *p_n_number_tried_seed, SendInfoToMaster * p_data_info_to_master, 
+	MPI_Datatype mpi_recv_data, MPI_Datatype mpi_data_from_master)
 {
+	printf("\n\n wait final message \n\n");
 	if (request_message_from_master != 0) 
 		MPI_Cancel(request_message_from_master);
 	if (request_handle_send != 0) 
@@ -447,7 +450,7 @@ void Slave_wait_final_message(MPI_Request *request_message_from_master, MPI_Requ
 
 		/*For collecting result sned send length if frozen, sned -1 of length if killed*/
 
-		MPI_Isend(p_data_info_to_master, 1, mpi_rec_data, MPI_MAIN_PROCESS, MPI_TAG_SEND_FINISHED, MPI_COMM_WORLD, request_handle_send);
+		MPI_Isend(p_data_info_to_master, 1, mpi_recv_data, MPI_MAIN_PROCESS, MPI_TAG_SEND_FINISHED, MPI_COMM_WORLD, request_handle_send);
 		MPI_Wait(request_handle_send,MPI_STATUS_IGNORE);
 
 
@@ -482,9 +485,9 @@ void Slave_wait_final_message(MPI_Request *request_message_from_master, MPI_Requ
 }
 
 
-int Slave_after_anneal_once(Dataptr MSA, TREESTACK_TREE_NODES *tree, int n_state_progress, long * initroot, TREESTACK *treestack, 
+int Slave_after_anneal_once(Dataptr MSA, TREESTACK_TREE_NODES *tree, int n_state_progress, long initroot, TREESTACK *treestack, 
 		TREESTACK *best_treestack, int myMPIid, long *l_iterations, long *treelength, long *best_treelength, 
-		int n_number_tried_seed_next)
+		int n_number_tried_seed_next, Parameters rcstruct)
 {
     /* 		Several possible outputs */
     /*		ANNEAL_FINISHED_AND_NOT_REPEAT		0x01
@@ -500,7 +503,7 @@ int Slave_after_anneal_once(Dataptr MSA, TREESTACK_TREE_NODES *tree, int n_state
 	    int l_pop = PullTreefromTreestack(MSA, tree, &initroot, treestack, LVB_FALSE);
 	    if (l_pop == 0)
 	    {
-		    printf("\nProcess:%d    Error: can't pop any tree from Treestack.   Rearrangements tried: %ld\n", myMPIid, l_iterations);
+		    printf("\nProcess:%d    Error: can't pop any tree from Treestack.   Rearrangements tried: %ld\n", myMPIid, *l_iterations);
 	    }
 	    else
 	    {
@@ -537,8 +540,6 @@ int Slave_after_anneal_once(Dataptr MSA, TREESTACK_TREE_NODES *tree, int n_state
     if (n_state_progress == MESSAGE_ANNEAL_FINISHED_AND_REPEAT || n_state_progress == MESSAGE_ANNEAL_KILLED_AND_REPEAT)
     {
 	    *l_iterations = 0;		/* start iterations from zero */
-	    free(tree);
-	    FreeTreestackMemory(treestack);
 	    printf("Process:%d   try seed number process:%d   new seed:%d", myMPIid, n_number_tried_seed_next, rcstruct.seed);
 	    rinit(rcstruct.seed); /* at this point the structure has a need see passed by master process */ //repeat using seeds from master (Main.c:479 produce new seed)
 	    return 1;
@@ -549,7 +550,6 @@ int Slave_after_anneal_once(Dataptr MSA, TREESTACK_TREE_NODES *tree, int n_state
 	    //break; /* it is not necessary to repeat again */
 	    return 0;//not repeat
     }
-
 
 }
 
@@ -573,7 +573,7 @@ void get_temperature_and_control_process_from_other_process(int num_procs, int n
 
 
 		/*collect final result length of -1 means killed*/
-		SendInfoToMaster final_results[n_seeds_need_to_try]; 
+		SendInfoToMaster Final_results[n_seeds_to_try]; 
 		int idx=0;
 
 
@@ -667,7 +667,7 @@ void get_temperature_and_control_process_from_other_process(int num_procs, int n
 						}
 						else{
 							/* if the previous one was not delivered it can be canceled... */
-							if (*(pHandleManagementProcess + i) != 0{
+							if (*(pHandleManagementProcess + i) != 0){
 								MPI_Test(pHandleManagementProcess + i, &nFlag, &mpi_status);
 								if (nFlag == 0) MPI_Cancel(pHandleManagementProcess + i);
 							}
@@ -697,7 +697,7 @@ void get_temperature_and_control_process_from_other_process(int num_procs, int n
 						printf("Process:%d    finish\n", i);
 
 						/*receive final tree length*/
-						MPI_Recv(&final_results[idx], 1, mpi_recv_data, i, MPI_TAG_SEND_FINISHED, MPI_COMM_WORLD, &mpi_status); /* this one waits until the master receive all confirmations */
+						MPI_Recv(&Final_results[idx], 1, mpi_recv_data, i, MPI_TAG_SEND_FINISHED, MPI_COMM_WORLD, &mpi_status); /* this one waits until the master receive all confirmations */
 						printf("Seed used:%d: number of iterations:%d,", Final_results[idx].n_seed,Final_results[idx].n_iterations);
 						if(Final_results[idx].l_length==-1)
 							printf("Killed,");

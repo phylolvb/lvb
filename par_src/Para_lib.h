@@ -1,6 +1,9 @@
 #include "LVB.h"
 #include "mpi.h"
 
+
+#ifndef STRUCT_PARA
+#define STRUCT_PARA
 /* MPI definitions... */
 #define MPI_MAIN_PROCESS	0		/* main process */
 
@@ -34,6 +37,7 @@
 #define MESSAGE_BEGIN_CONTROL								0x08
 /* Anneal state */
 
+
 typedef struct
 {
         int n_iterations;		/* number of iterations */
@@ -50,6 +54,23 @@ typedef struct
         int n_process_tried;	/* id of the seed tried */
 } RecvInfoFromMaster;
 
+/* structures for calculation of averages temperatures and std */
+typedef struct IndividualTemperature
+{
+    double d_temperature;	/* temperature */
+    int n_try_process;		/* number of process tried, is sequential...*/
+    int n_seed;				/* seed for this temperature and iteration */
+                            /* the seed is here because it's easier to perform the algorithm */
+    long l_length;			/* length of the tree */
+    struct IndividualTemperature* p_next_temperature; /* next memory structure */
+}IndividualTemperature;
+
+typedef struct IterationTemperature
+{
+    int n_iteration;
+    IndividualTemperature* p_temperature;
+    struct IterationTemperature* p_next_iteration;
+}IterationTemperature;
 
 
 int get_other_seed_to_run_a_process();
@@ -60,9 +81,12 @@ void Root_get_best_treestack(Dataptr MSA, long *best_treelength_local, int root,
 void Bcast_best_partial_tree_to_root(Dataptr MSA, long best_treelength, int rank, int nprocs, TREESTACK_TREE_NODES* BranchArray, long* tree_root);
 void Slave_interval_reached(MPI_Request *request_handle_send,SendInfoToMaster *p_data_info_to_master, MPI_Datatype mpi_recv_data, MPI_Request *request_message_from_master, RecvInfoFromMaster * p_data_info_from_master, MPI_Datatype mpi_data_from_master, int *p_n_state_progress);
 
-void Slave_wait_final_message(MPI_Request *request_message_from_master, MPI_Request *request_handle_send,int *p_n_state_progress, RecvInfoFromMaster *p_data_info_from_master, Parameters *p_rcstruct, int *p_n_number_tried_seed, SendInfoToMaster * p_data_info_to_master, MPI_Datatype mpi_rec_data, MPI_Datatype mpi_data_from_master);
-
-int Slave_after_anneal_once(Dataptr MSA, TREESTACK_TREE_NODES *tree, int n_state_progress, long * initroot, TREESTACK *treestack, 
-		TREESTACK *best_treestack, int myMPIid, long *l_iterations, long *treelength, long *best_treelength, int n_number_tried_seed_next);
+void Slave_wait_final_message(MPI_Request* request_message_from_master, MPI_Request* request_handle_send, int* p_n_state_progress,
+    RecvInfoFromMaster* p_data_info_from_master, Parameters* p_rcstruct, int* p_n_number_tried_seed, SendInfoToMaster* p_data_info_to_master,
+    MPI_Datatype mpi_recv_data, MPI_Datatype mpi_data_from_master);
+int Slave_after_anneal_once(Dataptr MSA, TREESTACK_TREE_NODES* tree, int n_state_progress, long initroot, TREESTACK* treestack,
+    TREESTACK* best_treestack, int myMPIid, long* l_iterations, long* treelength, long* best_treelength,
+    int n_number_tried_seed_next, Parameters rcstruct);
 void get_temperature_and_control_process_from_other_process(int num_procs, int n_seeds_to_try);
 
+#endif

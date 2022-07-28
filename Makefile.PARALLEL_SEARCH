@@ -141,6 +141,7 @@ LVB_LIB_OBJS = $(LVB_SRC_DIR)/Admin.$(OBJ) \
 			   $(LVB_SRC_DIR)/Treestack.$(OBJ) \
                $(LVB_SRC_DIR)/TreeOperations.$(OBJ) \
                $(LVB_SRC_DIR)/Wrapper.$(OBJ)\
+	       $(LVB_SRC_DIR)/InteractionTemperature.$(OBJ)\
 	       $(LVB_SRC_DIR)/Para_lib.$(OBJ)
 		
 

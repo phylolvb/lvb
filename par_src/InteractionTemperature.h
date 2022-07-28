@@ -46,5 +46,21 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define LVB_INTERACTIONTEMPEARTURE_H_
 
 #include "LVB.h"
-
+#include "Para_lib.h"
 #endif
+
+/* test if is possible to continue */
+#define CALC_ITERATION_ONLY_RELEASE_AFTER_NUMBER_CHUNCHS 5
+#define CALC_ITERATION_NUMBER_STD_TO_RESTART_PROCESS 5
+
+
+IterationTemperature* get_alloc_main_calc_iterations(void);
+IndividualTemperature* get_alloc_temperature(SendInfoToMaster* p_info_temp, int n_try_process);
+void add_temperature(IndividualTemperature* p_temperature, SendInfoToMaster* p_info_temp, int n_try_process);
+void add_temperature_cal_iterations(IterationTemperature* p_data, SendInfoToMaster* p_info_temp, int n_try_process);
+double get_threshold_temperature(IndividualTemperature* p_temperature, int n_max_number_process);
+double get_threshold_length(IndividualTemperature* p_temperature, int n_max_number_process);
+Lvb_bool is_possible_to_continue(IterationTemperature* p_data, double d_temperature, int n_iteration,
+	int l_tree_length, int n_max_number_process, int n_count_call);
+void free_next_temperature(IndividualTemperature* p_temperature);
+void release_main_calc_iterations(IterationTemperature* p_data);

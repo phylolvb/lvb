@@ -133,9 +133,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		return l_avg + (l_std * (double) CALC_ITERATION_NUMBER_STD_TO_RESTART_PROCESS);
 	}
 
-	/* test if is possible to continue */
-	// #define CALC_ITERATION_ONLY_RELEASE_AFTER_NUMBER_CHUNCHS
-	// #define CALC_ITERATION_NUMBER_STD_TO_RESTART_PROCESS
+	
 	Lvb_bool is_possible_to_continue(IterationTemperature *p_data, double d_temperature, int n_iteration,
 				int l_tree_length, int n_max_number_process, int n_count_call){
 
