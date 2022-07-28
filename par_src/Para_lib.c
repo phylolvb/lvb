@@ -435,9 +435,9 @@ void Slave_wait_final_message(MPI_Request *request_message_from_master, MPI_Requ
 	MPI_Datatype mpi_recv_data, MPI_Datatype mpi_data_from_master)
 {
 	printf("\n\n wait final message \n\n");
-	if (request_message_from_master != 0) 
+	if (*request_message_from_master != 0) 
 		MPI_Cancel(request_message_from_master);
-	if (request_handle_send != 0) 
+	if (*request_handle_send != 0) 
 		MPI_Cancel(request_handle_send);
 
 	/* Send FINISH message to master */
@@ -511,8 +511,8 @@ int Slave_after_anneal_once(Dataptr MSA, TREESTACK_TREE_NODES *tree, int n_state
 		    //no climbing in the newest version
 		    //treelength = deterministic_hillclimb(MSA, bstack_overall, tree, rcstruct, initroot, stdout, &l_iterations, myMPIid, log_progress);
 		    //Send and keep the best tree stack this process ever have
-		    
-		    
+
+			/* compare the best tree with last best*/
 		    if(*treelength<*best_treelength)
 		    {
 			    //swap best treestack and the working treestacki, reduce complexity of creating new tree
@@ -645,9 +645,9 @@ void get_temperature_and_control_process_from_other_process(int num_procs, int n
 
 					MPI_Test(pHandleTemperatureRecv + i, &nFlag, &mpi_status);
 					if (nFlag == 1){	/* message received */
-						printf("Process:%d    main process getting temperature and length from process:%d   temperature:%-15.8g   length:%ld   iteration:%d\n", mpi_status.MPI_SOURCE,
-							i, (*(p_info_temperature + (i - 1)))->temperature, (*(p_info_temperature + (i - 1)))->l_length,
-							    (*(p_info_temperature + (i - 1)))->n_iterations);
+						//printf("Process:%d    main process getting temperature and length from process:%d   temperature:%-15.8g   length:%ld   iteration:%d\n", mpi_status.MPI_SOURCE,
+							//i, (*(p_info_temperature + (i - 1)))->temperature, (*(p_info_temperature + (i - 1)))->l_length,
+							    //(*(p_info_temperature + (i - 1)))->n_iterations);
 
 						/* all the processes are synchronized by the number of iterations... */
 						/* upload the data to the structure */

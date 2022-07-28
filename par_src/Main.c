@@ -233,7 +233,9 @@ if(rank==0)
 
 	PrintOutput(iter, trees_output_total, final_length, consistency_index, homoplasy_index, overall_time_taken, rcstruct.file_name_out);
 
-Slave_finish:
+	printf("\n\nok\n");
+ Slave_finish:
+	
 	/* "file-local" dynamic heap memory */
     if (rcstruct.algorithm_selection ==2)
     FreeTreestackMemory(MSA, &stack_treevo);

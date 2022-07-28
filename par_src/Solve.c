@@ -851,19 +851,20 @@ long Slave_Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, cons
 	MPI_Comm_rank(MPI_COMM_WORLD,&rank);
 	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
 
+	Parameters rcstruct = *p_rcstruct;
+
 #endif	
 
-	   while (1) {
+	while (1) {
+		int changeAcc = 0;
+		*current_iter += 1;
+		/* occasionally re-root, to prevent influence from root position */
+		if ((*current_iter % REROOT_INTERVAL) == 0) {
+			root = arbreroot(MSA, p_current_tree, root);
+			if ((log_progress == LVB_TRUE) && ((*current_iter % STAT_LOG_INTERVAL) == 0)) {
+				lenlog(lenfp, treestack_ptr, *current_iter, current_tree_length, t);
+			}
 
-        int changeAcc = 0;
-    	*current_iter += 1;
-
-	/* occasionally re-root, to prevent influence from root position */
-	if ((*current_iter % REROOT_INTERVAL) == 0){
-		root = arbreroot(MSA, p_current_tree, root);
-		if ((log_progress == LVB_TRUE) && ((*current_iter % STAT_LOG_INTERVAL) == 0)) {
-			lenlog(lenfp, treestack_ptr, *current_iter, current_tree_length, t);
-		}
 #ifdef old
 
 		if((p_rcstruct->parallel_selection==0||p_rcstruct->parallel_selection==2)&&((*current_iter % STAT_LOG_INTERVAL) == 0))
@@ -907,90 +908,132 @@ long Slave_Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, cons
 
 	}
 
-
-
 	
 		lvb_assert(t > DBL_EPSILON);
 
 		/* mutation: alternate between the two mutation functions */
 		proposed_tree_root = root;
-		if (p_rcstruct->algorithm_selection ==2)
+		if (rcstruct.algorithm_selection == 2)
 		{
-			trops_total = trops_counter[0]+trops_counter[1]+trops_counter[2];
-		trops_probs[0]=trops_counter[0]/trops_total;
-		trops_probs[1]=trops_counter[1]/trops_total;
-		trops_probs[2]=trops_counter[2]/trops_total; 
+			trops_total = trops_counter[0] + trops_counter[1] + trops_counter[2];
+			trops_probs[0] = trops_counter[0] / trops_total;
+			trops_probs[1] = trops_counter[1] / trops_total;
+			trops_probs[2] = trops_counter[2] / trops_total;
 		}
 
-		  if (p_rcstruct->algorithm_selection >= 1)
-		  {
-		double random_val = uni();
- 		if (random_val < trops_probs[0]) {
-        		mutate_nni(MSA, p_proposed_tree, p_current_tree, root);	/* local change */
-			strcpy(change,"NNI");
-			if (p_rcstruct->algorithm_selection == 2)
-			trops_id = 0;
+		if (rcstruct.algorithm_selection >= 1)
+		{
+			double random_val = uni();
+			if (random_val < trops_probs[0]) {
+				mutate_nni(MSA, p_proposed_tree, p_current_tree, root);	/* local change */
+				strcpy(change, "NNI");
+				if (rcstruct.algorithm_selection == 2)
+					trops_id = 0;
+			}
+			else if (random_val < trops_probs[0] + trops_probs[1]) {
+				mutate_spr(MSA, p_proposed_tree, p_current_tree, root);	/* global change */
+				strcpy(change, "SPR");
+				if (rcstruct.algorithm_selection == 2)
+					trops_id = 1;
+			}
+			else {
+				mutate_tbr(MSA, p_proposed_tree, p_current_tree, root);	/* global change */
+				strcpy(change, "TBR");
+				if (rcstruct.algorithm_selection == 2)
+					trops_id = 2;
+			}
 		}
-    	else if (random_val < trops_probs[0] + trops_probs[1]) {
-        	mutate_spr(MSA, p_proposed_tree, p_current_tree, root);	/* global change */
-            strcpy(change,"SPR");
-			if (p_rcstruct->algorithm_selection == 2)
-			trops_id = 1;
-        }
-    	else {
-    	   	mutate_tbr(MSA, p_proposed_tree, p_current_tree, root);	/* global change */
-            strcpy(change,"TBR");
-			if (p_rcstruct->algorithm_selection == 2)
-			trops_id = 2;
-        }
-		  }
 		else
 		{
-		if (iter & 0x01) { mutate_spr(MSA, p_proposed_tree, p_current_tree, root);	/* global change */
-		strcpy(change,"SPR"); }
-		else { mutate_nni (MSA, p_proposed_tree, p_current_tree, root);	/* local change */
-		strcpy(change,"NNI"); }
+			if (iter & 0x01) {
+				mutate_spr(MSA, p_proposed_tree, p_current_tree, root);	/* global change */
+				strcpy(change, "SPR");
+			}
+			else {
+				mutate_nni(MSA, p_proposed_tree, p_current_tree, root);	/* local change */
+				strcpy(change, "NNI");
+			}
 		}
-		
-		proposed_tree_length = getplen(MSA, p_proposed_tree, *p_rcstruct, proposed_tree_root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
-		lvb_assert (proposed_tree_length >= 1L);
+
+		proposed_tree_length = getplen(MSA, p_proposed_tree, rcstruct, proposed_tree_root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+		lvb_assert(proposed_tree_length >= 1L);
 		tree_length_change = proposed_tree_length - current_tree_length;
-		deltah = (tree_minimum_length / (double) current_tree_length) - (tree_minimum_length / (double) proposed_tree_length);
+		deltah = (tree_minimum_length / (double)current_tree_length) - (tree_minimum_length / (double)proposed_tree_length);
 		if (deltah > 1.0) deltah = 1.0; /* MinimumTreeLength() problem with ambiguous sites */
 
-
+#ifdef LVB_MAPREDUCE  
+		MPI_Bcast(&tree_length_change, 1, MPI_LONG, 0, MPI_COMM_WORLD);
+		MPI_Bcast(&deltah, 1, MPI_LONG, 0, MPI_COMM_WORLD);
+		MPI_Bcast(&proposed_tree_length, 1, MPI_LONG, 0, MPI_COMM_WORLD);
+#endif
 
 		if (tree_length_change <= 0)	/* accept the change */
 		{
+#ifdef LVB_MAPREDUCE  
+			if (proposed_tree_length <= best_tree_length)	/* store tree if new */
+			{
+				if (proposed_tree_length < best_tree_length) {
+					ClearTreestack(treestack_ptr);
+					mrTreeStack->map(mrTreeStack, map_clean, NULL);
+				}
+				auto start_timer = high_resolution_clock::now();
 
-								if (proposed_tree_length <= best_tree_length)	/* store tree if new */
+				if (CompareMapReduceTrees(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, total_count,
+					check_cmp, misc, mrTreeStack, mrBuffer) == 1) {
+					accepted++;
+					MPI_Bcast(&accepted, 1, MPI_LONG, 0, MPI_COMM_WORLD);
+				}
+				auto stop = high_resolution_clock::now();
+
+				auto duration = duration_cast<microseconds>(stop - start_timer);
+
+				if ((log_progress == LVB_TRUE) && ((treestack_ptr->next % 10) == 0)) {
+
+					FILE* timefunction = fopen("FunctionTimesMR", "a+");
+					fprintf(timefunction, "%ld\t%ld\t%ld\t%ld\n", *current_iter, duration.count(), treestack_ptr->next, best_tree_length);
+					fclose(timefunction);
+				}
+			}
+#else
+			if (proposed_tree_length <= best_tree_length)	/* store tree if new */
 			{
 				/*printf("%ld\n", *current_iter);*/
 				if (proposed_tree_length < best_tree_length) {
 					ClearTreestack(treestack_ptr);	/* discard old bests */
 				}
-
-					auto start_timer = high_resolution_clock::now();
-						if(CompareTreeToTreestack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE) == 1)
-			
+#ifdef LVB_HASH
+				auto start_timer = high_resolution_clock::now();
+				if (CompareHashTreeToHashstack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE) == 1)
+#else
+				auto start_timer = high_resolution_clock::now();
+				if (CompareTreeToTreestack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE) == 1)
+#endif
 				{
 					accepted++;
 				}
 				auto stop = high_resolution_clock::now();
 
-					auto duration = duration_cast<microseconds>(stop - start_timer);
+				auto duration = duration_cast<microseconds>(stop - start_timer);
 
+#ifdef LVB_HASH
 
+				if ((log_progress == LVB_TRUE) && ((treestack_ptr->next % 10) == 0)) {
 
-					if ((log_progress == LVB_TRUE) && ((treestack_ptr->next % 10) == 0)) {
-
-					FILE *timefunction = fopen("FunctionTimesNP","a+");
-					fprintf (timefunction, "%ld\t%ld\t%ld\t%ld\n", *current_iter, duration.count(), treestack_ptr->next, best_tree_length);
+					FILE* timefunction = fopen("FunctionTimesHASH", "a+");
+					fprintf(timefunction, "%ld\t%ld\t%ld\t%ld\n", *current_iter, duration.count(), treestack_ptr->next, best_tree_length);
 					fclose(timefunction);
-					}
+				}
+#else
 
+				if ((log_progress == LVB_TRUE) && ((treestack_ptr->next % 10) == 0)) {
+
+					FILE* timefunction = fopen("FunctionTimesNP", "a+");
+					fprintf(timefunction, "%ld\t%ld\t%ld\t%ld\n", *current_iter, duration.count(), treestack_ptr->next, best_tree_length);
+					fclose(timefunction);
+				}
+#endif
 			}
-
+#endif
 			/* update current tree and its stats */
 			current_tree_length = proposed_tree_length;
 			SwapTrees(&p_current_tree, &root, &p_proposed_tree, &proposed_tree_root);
@@ -998,18 +1041,18 @@ long Slave_Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, cons
 			/* very best so far */
 			if (proposed_tree_length < best_tree_length) {
 				best_tree_length = proposed_tree_length;
-			#ifdef LVB_MAPREDUCE  
-			MPI_Bcast(&best_tree_length,  1, MPI_LONG, 0, MPI_COMM_WORLD);
-			#endif
+#ifdef LVB_MAPREDUCE  
+				MPI_Bcast(&best_tree_length, 1, MPI_LONG, 0, MPI_COMM_WORLD);
+#endif
 			}
-			if (p_rcstruct->algorithm_selection == 1)
-			changeAcc = 1;
+			if (rcstruct.algorithm_selection == 1)
+				changeAcc = 1;
 
 		}
 		else	/* poss. accept change for the worse */
 		{
-			if (p_rcstruct->algorithm_selection == 2)
-			w_changes_prop ++; 
+			if (rcstruct.algorithm_selection == 2)
+				w_changes_prop++;
 			/* Mathematically,
 			 *     Pacc = e ** (-1/T * deltaH)
 			 *     therefore ln Pacc = -1/T * deltaH
@@ -1036,37 +1079,45 @@ long Slave_Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, cons
 				 * would have been called in LVB 1.0A, so this
 				 * helps make results identical to results with
 				 * that version. */
-				(void) uni();
+				(void)uni();
 			}
 			else	/* possibly accept the change */
 			{
-				pacc = exp_wrapper(-deltah/t);
+				pacc = exp_wrapper(-deltah / t);
 				if (uni() < pacc)	/* do accept the change */
 				{
 					SwapTrees(&p_current_tree, &root, &p_proposed_tree, &proposed_tree_root);
-				if (p_rcstruct->algorithm_selection == 2)
-				w_changes_acc++; 
+					if (rcstruct.algorithm_selection == 2)
+						w_changes_acc++;
 					current_tree_length = proposed_tree_length;
-					if (p_rcstruct->algorithm_selection == 1)
-					changeAcc = 1; 
+					if (rcstruct.algorithm_selection == 1)
+						changeAcc = 1;
 				}
 			}
 		}
 		proposed++;
+#ifdef LVB_MAPREDUCE  
+		MPI_Bcast(&proposed, 1, MPI_LONG, 0, MPI_COMM_WORLD);
+#endif
 
 
-		
 		/* decide whether to reduce temperature */
-		if (accepted >= maxaccept){	/* enough new trees */
-      
+		if (accepted >= maxaccept) {	/* enough new trees */
+
 			failedcnt = 0;  /* this temperature a 'success' */
 			dect = LVB_TRUE;
 		}
-		else if (proposed >= maxpropose){	/* enough proposals */
+		else if (proposed >= maxpropose) {	/* enough proposals */
 			failedcnt++;
-
-
-
+#ifdef LVB_MAPREDUCE  
+			int check_stop = 0;
+			if (misc->rank == 0 && failedcnt >= maxfail && t < FROZEN_T) check_stop = 1;
+			MPI_Bcast(&check_stop, 1, MPI_INT, 0, MPI_COMM_WORLD);
+			if (check_stop == 1) {
+				MPI_Bcast(&failedcnt, 1, MPI_LONG, 0, MPI_COMM_WORLD);
+				MPI_Bcast(&t, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+			}
+#endif
 			if (failedcnt >= maxfail && t < FROZEN_T)	/* system frozen */
 			{
 				/* Preliminary experiments yielded that the freezing
@@ -1079,7 +1130,7 @@ long Slave_Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, cons
 				 * maxpropose, maxaccept and maxfail directly. */
 				break; /* end of cooling */
 			}
-			else{	/* system not frozen, so further decrease temp. */
+			else {	/* system not frozen, so further decrease temp. */
 				dect = LVB_TRUE;
 			}
 		}
@@ -1088,18 +1139,18 @@ long Slave_Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, cons
 		{
 			t_n++;	/* originally n is 0 */
 
-			if (p_rcstruct->algorithm_selection == 0)  /* Geometric cooling */
+			if (rcstruct.cooling_schedule == 0)  /* Geometric cooling */
 			{
 				/* Ensure t doesn't go out of bound */
-				ln_t = ((double) t_n) * log_wrapper_grad_geom + log_wrapper_t0;
+				ln_t = ((double)t_n) * log_wrapper_grad_geom + log_wrapper_t0;
 				if (ln_t < log_wrapper_LVB_EPS) t = LVB_EPS;
-				else t = pow_wrapper(grad_geom, (double) t_n) * t0; /* decrease the temperature */
-		if (p_rcstruct->algorithm_selection == 1)
-		{
-        trops_probs[2] = t/t0;
-        trops_probs[1] = (1 - trops_probs[2])/2;
-        trops_probs[0] = trops_probs[1];
-		}
+				else t = pow_wrapper(grad_geom, (double)t_n) * t0; /* decrease the temperature */
+				if (rcstruct.algorithm_selection == 1)
+				{
+					trops_probs[2] = t / t0;
+					trops_probs[1] = (1 - trops_probs[2]) / 2;
+					trops_probs[0] = trops_probs[1];
+				}
 			}
 			else /* Linear cooling */
 			{
@@ -1108,46 +1159,52 @@ long Slave_Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, cons
 				if (t < DBL_EPSILON || t <= LVB_EPS) t = LVB_EPS;
 			}
 			proposed = 0;
-		#ifdef LVB_MAPREDUCE  
-		MPI_Bcast(&proposed,  1, MPI_LONG, 0, MPI_COMM_WORLD);
-		accepted = 0;
-		MPI_Bcast(&accepted,  1, MPI_LONG, 0, MPI_COMM_WORLD);
-		dect = LVB_FALSE;
-		#else
-		accepted = 0;
-		dect = LVB_FALSE;
-		#endif
-		if (p_rcstruct->algorithm_selection == 2)
-			{ w_changes_prop = 0;
-        w_changes_acc = 0; 
+#ifdef LVB_MAPREDUCE  
+			MPI_Bcast(&proposed, 1, MPI_LONG, 0, MPI_COMM_WORLD);
+			accepted = 0;
+			MPI_Bcast(&accepted, 1, MPI_LONG, 0, MPI_COMM_WORLD);
+			dect = LVB_FALSE;
+#else
+			accepted = 0;
+			dect = LVB_FALSE;
+#endif
+			if (rcstruct.algorithm_selection == 2)
+			{
+				w_changes_prop = 0;
+				w_changes_acc = 0;
 			}
 		}
 
 		iter++;
 
-
-		if (p_rcstruct->n_number_max_trees > 0 && treestack_ptr->next >= p_rcstruct->n_number_max_trees){
+		if (rcstruct.n_number_max_trees > 0 && treestack_ptr->next >= rcstruct.n_number_max_trees) {
 			break;
 		}
 
-	if (p_rcstruct->algorithm_selection == 2)
-	{
-	if (changeAcc == 1) {
-	    trops_counter[trops_id]++;
-	}
-	else {
-	    for (int i=0; i < 3; i++) {
-	     if (trops_id != i)
-	        trops_counter[i] = trops_counter[i] + 0.5;
-	    }
-	}
-	}
-	if (p_rcstruct->verbose == LVB_TRUE)
-	fprintf (pFile, "%ld\t%s\t%d\t%ld\t%lf\t%ld\n", iter, change, changeAcc, current_tree_length, t*10000, treestack_ptr->next);
+		if (rcstruct.algorithm_selection == 2)
+		{
+			if (changeAcc == 1) {
+				trops_counter[trops_id]++;
+			}
+			else {
+				for (int i = 0; i < 3; i++) {
+					if (trops_id != i)
+						trops_counter[i] = trops_counter[i] + 0.5;
+				}
+			}
+		}
+		if (rcstruct.verbose == LVB_TRUE)
+			fprintf(pFile, "%ld\t%s\t%d\t%ld\t%lf\t%ld\n", iter, change, changeAcc, current_tree_length, t * 10000, treestack_ptr->next);
+#ifdef LVB_MAPREDUCE  
+		MPI_Barrier(MPI_COMM_WORLD);
 
-	printf("\n\nloop over");
-    }
+	}
+	print_sets(MSA, treestack_ptr, misc);
+#else 
+	}
+#endif
 
+	printf("\nloop over\n");
 	
 #ifndef old
 
@@ -1433,7 +1490,7 @@ do{
 
 
 
-#ifndef parallel
+#ifdef parallel
 
 /* compare the best tree with last best*/
     //printf("\n\n rank:%d  seed: %d;treelength=%d",rank, seed[i],treelength);
@@ -1455,11 +1512,11 @@ do{
 
 	    best_treelength=treelength; 
     }
+	//clear working treestack for next iteration
+	ClearTreestack(&treestack);
+#endif
 
-    //clear working treestack for next iteration
-    ClearTreestack(&treestack);
-
-
+#ifndef old
 if(rcstruct.parallel_selection==1)
 	break;
 
