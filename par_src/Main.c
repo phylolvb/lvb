@@ -198,7 +198,7 @@ if(rank==0)
 	if(rank != 0)
 		goto Slave_finish;//Only Master/rank 0 output the best treestack ever found
 	trees_output = PrintTreestack(MSA, &treestack, outtreefp, LVB_FALSE);
-
+	
 	#endif
 
 	trees_output_total += trees_output;
@@ -233,7 +233,7 @@ if(rank==0)
 
 	PrintOutput(iter, trees_output_total, final_length, consistency_index, homoplasy_index, overall_time_taken, rcstruct.file_name_out);
 
-	printf("\n\nok\n");
+	
  Slave_finish:
 	
 	/* "file-local" dynamic heap memory */
@@ -255,6 +255,8 @@ if(rank==0)
 
 	MPI_Finalize();
 	#endif
+	//Terminate MPI
+	MPI_Finalize();
 
     return val;
 } /* end main() */

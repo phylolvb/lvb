@@ -865,7 +865,7 @@ long Slave_Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, cons
 				lenlog(lenfp, treestack_ptr, *current_iter, current_tree_length, t);
 			}
 
-#ifdef old
+#ifndef old
 
 		if((p_rcstruct->parallel_selection==0||p_rcstruct->parallel_selection==2)&&((*current_iter % STAT_LOG_INTERVAL) == 0))
 		{
@@ -1203,15 +1203,9 @@ long Slave_Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, cons
 #else 
 	}
 #endif
-
-	printf("\nloop over\n");
 	
 #ifndef old
 
-  //int n_iterations;		/* number of iterations */
-        //int n_seed;				/* seed for this temperature and iteration */
-        //long l_length;			/* length of the tree */
-        //double temperature;
 			p_data_info_to_master->n_iterations = *current_iter;
 			p_data_info_to_master->n_seed = p_rcstruct->seed;
 			p_data_info_to_master->l_length = best_tree_length;
@@ -1299,7 +1293,7 @@ long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool l
 
 	long best_treelength=LONG_MAX;// the best final length from multiple runs
 	int rank,nprocs;
-	//MPI_Init(NULL,NULL);
+
 	MPI_Comm_rank(MPI_COMM_WORLD,&rank);
 	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
 	//int nruns_local=rcstruct.nruns/nprocs;
@@ -1533,25 +1527,15 @@ if(rcstruct.parallel_selection==1)
 #endif
 
 #ifndef old
-finish:
-/*
-//printf final results
-printf("\n");
-for(int i=0;i<rcstruct.nruns;i++)
-{
-	int n_iterations;		
-	int n_seed;			
-	long l_length;			
-	double temperature;	
-	printf("Seed used:%d: number of iterations:%d,", Final_results[i].n_seed,Final_results[i].n_iterations);
-	if(Final_results[i].l_length==-1)
-		printf("Killed,");
-	else
-		printf("tree length:%ld,", Final_results[i].l_length);
 
-	printf("temperature: %lf \n",Final_results[i].temperature);
-}
-*/
+
+/* "local" dynamic heap memory */
+free(tree);
+for (i = 0; i < MSA->n; i++) free(enc_mat[i]);
+free(enc_mat);
+
+
+finish:
 
 //find best treestack
 //output best treestack
@@ -1565,18 +1549,8 @@ for(int i=0;i<rcstruct.nruns;i++)
 
 //for master in parallel option of multi-instance, treelength == LONG_MAX
 	Root_get_best_treestack(MSA, &treelength, 0, rank, nprocs, &treestack);
-
+	
 #endif
-
-    /* "local" dynamic heap memory */
-    free(tree);
-	for (i = 0; i < MSA->n; i++) free(enc_mat[i]);
-    free(enc_mat);
-
-
-
-    //Terminate MPI
-    MPI_Finalize();
 
     return treelength;
 

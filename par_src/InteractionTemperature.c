@@ -127,7 +127,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		/* calc std */
 		l_ss = 0.0;
 		for (IndividualTemperature *p_temp = p_temperature; p_temp != NULL; p_temp = p_temp->p_next_temperature){
-			l_ss += pow_wrapper(l_avg - p_temp->l_length, 2);
+			//printf("\nerr:%f, result: %f\n", l_avg - (double)(p_temp->l_length), pow_wrapper(fabs(l_avg - (double)(p_temp->l_length)), 2));
+			l_ss += pow_wrapper(fabs(l_avg - (double)(p_temp->l_length)), 2);
 		}
 		l_std = sqrt(l_ss / (double) n_count);
 		return l_avg + (l_std * (double) CALC_ITERATION_NUMBER_STD_TO_RESTART_PROCESS);

@@ -98,7 +98,7 @@ void Root_get_best_treestack(Dataptr MSA, long *best_treelength_local, int root,
 {
 	long * all_len;
 
-	//printf("\n\n\nlocal best length %ld,  rank %d ----\n\n",best_treelength, rank);
+	printf("\n\n\nlocal best length %ld,  rank %d ----\n\n",*best_treelength_local, rank);
 	//if(rank==1)
 	//best_treelength=1;
 
@@ -151,6 +151,7 @@ void Root_get_best_treestack(Dataptr MSA, long *best_treelength_local, int root,
 	if(rank==0)
 		*best_treelength_local=all_len[index_max];
 
+	free(all_len);
 
 }
 
@@ -434,7 +435,7 @@ void Slave_wait_final_message(MPI_Request *request_message_from_master, MPI_Requ
 	RecvInfoFromMaster *p_data_info_from_master, Parameters *p_rcstruct, int *p_n_number_tried_seed, SendInfoToMaster * p_data_info_to_master, 
 	MPI_Datatype mpi_recv_data, MPI_Datatype mpi_data_from_master)
 {
-	printf("\n\n wait final message \n\n");
+	//printf("\n\n wait final message \n\n");
 	if (*request_message_from_master != 0) 
 		MPI_Cancel(request_message_from_master);
 	if (*request_handle_send != 0) 
@@ -530,17 +531,18 @@ int Slave_after_anneal_once(Dataptr MSA, TREESTACK_TREE_NODES *tree, int n_state
 
 			    *best_treelength=*treelength; 
 		    }
-		    //clear working treestack for next iteration
-		    ClearTreestack(treestack);
-
 	    }
     }
 
-    //repeat, or not
+    
+	//clear working treestack for next iteration, whether it is frozen or killed
+	ClearTreestack(treestack);
+	
+	//repeat, or not
     if (n_state_progress == MESSAGE_ANNEAL_FINISHED_AND_REPEAT || n_state_progress == MESSAGE_ANNEAL_KILLED_AND_REPEAT)
     {
 	    *l_iterations = 0;		/* start iterations from zero */
-	    printf("Process:%d   try seed number process:%d   new seed:%d", myMPIid, n_number_tried_seed_next, rcstruct.seed);
+	    printf("Process:%d   try seed number process:%d   new seed:%d\n", myMPIid, n_number_tried_seed_next, rcstruct.seed);
 	    rinit(rcstruct.seed); /* at this point the structure has a need see passed by master process */ //repeat using seeds from master (Main.c:479 produce new seed)
 	    return 1;
     }
@@ -555,12 +557,6 @@ int Slave_after_anneal_once(Dataptr MSA, TREESTACK_TREE_NODES *tree, int n_state
 
 void get_temperature_and_control_process_from_other_process(int num_procs, int n_seeds_to_try)
 {
-	
-
-
-
-
-
 
 		int nProcessFinished = 0;
 		MPI_Request *pHandleTemperatureRecv;
@@ -694,7 +690,7 @@ void get_temperature_and_control_process_from_other_process(int num_procs, int n
 						MPI_Test(pHandleTemperatureRecv + i, &nFlag, &mpi_status);
 						if (nFlag == 0) MPI_Cancel(pHandleTemperatureRecv + i);
 						if (*(pHandleManagementProcess + i) != 0) MPI_Cancel(pHandleManagementProcess + i);
-						printf("Process:%d    finish\n", i);
+						//printf("Process:%d    finish\n", i);
 
 						/*receive final tree length*/
 						MPI_Recv(&Final_results[idx], 1, mpi_recv_data, i, MPI_TAG_SEND_FINISHED, MPI_COMM_WORLD, &mpi_status); /* this one waits until the master receive all confirmations */
@@ -704,7 +700,7 @@ void get_temperature_and_control_process_from_other_process(int num_procs, int n
 						else
 							printf("final tree length:%ld,", Final_results[idx].l_length);
 
-						printf("final temperature: %lf \n",Final_results[idx].temperature);
+						printf("final temperature: %lf , the proc is ",Final_results[idx].temperature);
 						idx++;
 
 
