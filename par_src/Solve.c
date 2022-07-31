@@ -878,6 +878,7 @@ long Slave_Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, cons
 			p_data_info_to_master->n_seed = p_rcstruct->seed;
 			p_data_info_to_master->l_length = best_tree_length;
 			p_data_info_to_master->temperature = t;
+			printf("0 ");
 			/* printf("Process:%d   send temperature:%.3g   iterations:%ld\n", myMPIid, t, *current_iter); */
 			MPI_Isend(p_data_info_to_master, 1, mpi_recv_data, MPI_MAIN_PROCESS, MPI_TAG_SEND_TEMP_MASTER, MPI_COMM_WORLD, &request_handle_send);
 			/* now get the message to continue or not, but need in second iteration... */
@@ -891,6 +892,9 @@ long Slave_Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, cons
 					if (p_data_info_from_master->n_is_to_continue == MPI_IS_TO_RESTART_ANNEAL)
 					{	/*it's there and need to restart*/
 						MPI_Cancel(&request_handle_send);
+						//MPI_Wait(&request_handle_send, MPI_STATUS_IGNORE);
+						MPI_Request_free(&request_handle_send);
+
 						request_message_from_master = 0;
 						request_handle_send = 0;
 						*p_n_state_progress = MESSAGE_ANNEAL_KILLED;

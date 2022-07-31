@@ -16,7 +16,8 @@
 #define MPI_TAG_SEND_RESTART			7
 #define MPI_TAG_MANAGEMENT_MASTER		8
 
-
+//Master 里面 pIntFinishedProcess的值（初始版本只会是MPI_FINISHED）；也是(*(p_info_manage + (i - 1)))->n_is_to_continue的值有#define MPI_IS_TO_RESTART_ANNEAL				0x01
+//#define MPI_IS_TO_CONTINUE_ANNEAL， #define MPI_IS_NOT_TO_RESTART	三种可能性
 #define MPI_FINISHED							0x00
 #define MPI_IS_TO_RESTART_ANNEAL				0x01
 #define MPI_IS_TO_CONTINUE_ANNEAL				0x02
@@ -25,15 +26,16 @@
 
 /* END MPI definitions... */
 
-/* Anneal state *///在anneal里会有int *p_n_state_progress存放下面的属性
-#define MESSAGE_ANNEAL_IS_RUNNING_OR_WAIT_TO_RUN			0x00
+/* Anneal state *///在anneal里会有int *p_n_state_progress，以及pIntFinishedProcessChecked数组存放下面的属性
+#define MESSAGE_ANNEAL_IS_RUNNING_OR_WAIT_TO_RUN			0x00//正在跑，或者master发了新seed，还不知道slave就没接受到
 #define MESSAGE_ANNEAL_FINISHED_AND_NOT_REPEAT				0x01
 #define MESSAGE_ANNEAL_FINISHED_AND_REPEAT					0x02
 #define MESSAGE_ANNEAL_KILLED								0x03
 #define MESSAGE_ANNEAL_KILLED_AND_REPEAT					0x04
 #define MESSAGE_ANNEAL_KILLED_AND_NOT_REPEAT				0x05
-#define MESSAGE_ANNEAL_STOP_PROCESS_WAIT_FINAL_MESSAGE		0x06
-#define MESSAGE_ANNEAL_STOP_PROCESS							0x07
+#define MESSAGE_ANNEAL_STOP_PROCESS_WAIT_FINAL_MESSAGE		0x06//wait final message指在master kill这个proc了，然后等待slave发送FinishMessage了，
+//finalmessage特指这个finishmessage，若还有种子，状态就会变成MESSAGE_ANNEAL_IS_RUNNING_OR_WAIT_TO_RUN，反之变为MESSAGE_ANNEAL_STOP_PROCESS
+#define MESSAGE_ANNEAL_STOP_PROCESS							0x07//种子已经用完
 #define MESSAGE_BEGIN_CONTROL								0x08
 /* Anneal state */
 
