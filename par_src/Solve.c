@@ -872,18 +872,20 @@ long Slave_Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, cons
 			//Slave_interval_reached(&request_handle_send, p_data_info_to_master, mpi_recv_data, &request_message_from_master,p_data_info_from_master,mpi_data_from_master, p_n_state_progress);
 			if (request_handle_send != 0) 
 			{ 
+				printf("\nwait,  Slave_anneal for send_temp\n");
 				MPI_Wait(&request_handle_send, MPI_STATUS_IGNORE); 
 			}
 			p_data_info_to_master->n_iterations = *current_iter;
 			p_data_info_to_master->n_seed = p_rcstruct->seed;
 			p_data_info_to_master->l_length = best_tree_length;
 			p_data_info_to_master->temperature = t;
-			printf("0 ");
+			
 			/* printf("Process:%d   send temperature:%.3g   iterations:%ld\n", myMPIid, t, *current_iter); */
-			MPI_Isend(p_data_info_to_master, 1, mpi_recv_data, MPI_MAIN_PROCESS, MPI_TAG_SEND_TEMP_MASTER, MPI_COMM_WORLD, &request_handle_send);
+			MPI_Issend(p_data_info_to_master, 1, mpi_recv_data, MPI_MAIN_PROCESS, MPI_TAG_SEND_TEMP_MASTER, MPI_COMM_WORLD, &request_handle_send);
 			/* now get the message to continue or not, but need in second iteration... */
 			if (request_message_from_master != 0) 
 			{
+				printf("\nwait,  Slave_anneal for recv_manage\n");
 				MPI_Wait(&request_message_from_master, MPI_STATUS_IGNORE);
 				MPI_Test(&request_message_from_master, &nFlag, &mpi_status);
 				if (nFlag == 0) { printf("ERROR, mpi waiting is not working File:%s  Line:%d\n", __FILE__, __LINE__); }
