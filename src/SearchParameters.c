@@ -97,13 +97,7 @@ void getparam(Parameters *prms, int argc, char **argv)
 
 } /* end getparam() */
 
-#ifdef LVB_MAPREDUCE
-void writeinf(Parameters prms, Dataptr MSA, int argc, char **argv, int n_process)
-
-#else
 void writeinf(Parameters prms, Dataptr MSA, int argc, char **argv)
-
-#endif
 /* write initial details to standard output */
 {
 	struct utsname buffer;
@@ -145,9 +139,6 @@ void writeinf(Parameters prms, Dataptr MSA, int argc, char **argv)
     else if(prms.algorithm_selection == 2) printf("          2 (PBS)\n");
 
 	printf("\nParallelisation Properties: \n");
-	#ifdef LVB_MAPREDUCE
-	printf("  Processes:           %d\n", n_process);
-	#endif
 
 	if(prms.n_processors_available != omp_get_max_threads()) {
 		printf("  PThreads:            %d\n", prms.n_processors_available);

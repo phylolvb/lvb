@@ -48,12 +48,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdbool.h>
 #include "LVB.h"
 
-#ifdef LVB_MAPREDUCE
-  #define LVB_IMPLEMENTATION "MR  "
-#elif LVB_HASH
+#ifdef LVB_HASH
   #define LVB_IMPLEMENTATION "HASH"
 #else
-  #define LVB_IMPLEMENTATION "NP  "
+  #define LVB_IMPLEMENTATION "AB  "
 #endif
 
 bool LogFileExists(const char *filename);

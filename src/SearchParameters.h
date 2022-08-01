@@ -52,10 +52,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Clock.h"
 #include "CommandLineParser.h"
 
-#ifdef LVB_MAPREDUCE
-    void writeinf(Parameters rcstruct, Dataptr restrict, int, char**, int);
-#else
-	void writeinf(Parameters rcstruct, Dataptr restrict, int, char**);
-#endif
+void writeinf(Parameters rcstruct, Dataptr restrict, int, char**);
 
 #endif

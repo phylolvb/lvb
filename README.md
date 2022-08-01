@@ -33,16 +33,6 @@ Array-based version:
 make
 ~~~~
 
-MapReduce version (requires MPI)  
-When compiling the MapReduce version of LVB, the MRMPI library may need to be recompiled to work with some versions of the openMPI library. This can be achieved by carrying out the following:
-~~~
-cd libs/mrmpi/mrmpi-7Apr14/src/
-make clean-all
-make mpicc
-cd ../../../../
-make -f Makefile.MAPREDUCE
-~~~
-
 If you use LVB, please cite the following paper:
 
 * Barker, D., 2004. LVB: parsimony and simulated annealing in the search for phylogenetic trees. Bioinformatics (Oxford, England), 20(2), pp.274-275. https://doi.org/10.1093/bioinformatics/btg402 

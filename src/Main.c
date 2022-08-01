@@ -68,27 +68,6 @@ int main(int argc, char **argv)
 	outtreefp = (FILE *) alloc (sizeof(FILE), "alloc FILE");
 	Lvb_bool log_progress;	/* whether or not to log Anneal search */
 
-	#ifdef LVB_MAPREDUCE
-
-	MPI_Init(&argc,&argv);
-
-	MISC misc;
-
-	MPI_Comm_rank(MPI_COMM_WORLD,&misc.rank);
-	MPI_Comm_size(MPI_COMM_WORLD,&misc.nprocs);
-
-	MapReduce *mrTreeStack = new MapReduce(MPI_COMM_WORLD);
-	mrTreeStack->memsize = 1024;
-	mrTreeStack->verbosity = 0;
-	mrTreeStack->timer = 0;
-
-	MapReduce *mrBuffer = new MapReduce(MPI_COMM_WORLD);
-	mrBuffer->memsize = 1024;
-	mrBuffer->verbosity = 0;
-	mrBuffer->timer = 0;
-
-	#endif
-
     /* entitle standard output */
     PrintLVBCopyright();
 	PrintLVBInfo();
@@ -113,11 +92,7 @@ int main(int argc, char **argv)
     stack_treevo = CreateNewTreestack();
 
     matchange(MSA, rcstruct);	/* cut columns */
-	#ifdef LVB_MAPREDUCE
-    writeinf(rcstruct, MSA, argc, argv, misc.nprocs);
-	#else
 	writeinf(rcstruct, MSA, argc, argv);
-	#endif
     calc_distribution_processors(MSA, rcstruct);
 
     if (rcstruct.verbose == LVB_TRUE) {
@@ -132,29 +107,14 @@ int main(int argc, char **argv)
     if(rcstruct.algorithm_selection ==2)
     treEvo = fopen ("treEvo.tre","w");
 	iter = 0;
-	#ifdef LVB_MAPREDUCE
-	final_length = GetSoln(MSA, rcstruct, &iter, log_progress, &misc, mrTreeStack, mrBuffer);
-	if (misc.rank == 0) {
-		trees_output = PrintTreestack(MSA, &treestack, outtreefp, LVB_FALSE);
-	}
-
-	#else
 	final_length = GetSoln(MSA, rcstruct, &iter, log_progress);
 	trees_output = PrintTreestack(MSA, &treestack, outtreefp, LVB_FALSE);
-
-	#endif
 
 	trees_output_total += trees_output;
     if(rcstruct.algorithm_selection ==2)
 		PrintTreestack(MSA, &stack_treevo, treEvo, LVB_FALSE);
     ClearTreestack(&treestack);
 	printf("--------------------------------------------------------\n");
-	#ifdef LVB_MAPREDUCE
-	/* clean the TreeStack and buffer */
-	mrTreeStack->map( mrTreeStack, map_clean, NULL );
-	mrBuffer->map( mrBuffer, map_clean, NULL );
-	/* END clean the TreeStack and buffer */
-	#endif
 
 	if(rcstruct.algorithm_selection ==2)
     fclose(treEvo);
@@ -184,16 +144,6 @@ int main(int argc, char **argv)
 
     if (cleanup() == LVB_TRUE) val = EXIT_FAILURE;
     else val = EXIT_SUCCESS;
-
-	#ifdef LVB_MAPREDUCE
-	FreeTreestackMemory(MSA, &treestack);
-	MPI_Barrier(MPI_COMM_WORLD);
-
-	delete mrTreeStack;
-	delete mrBuffer;
-
-	MPI_Finalize();
-	#endif
 
     return val;
 
