@@ -753,7 +753,7 @@ long Slave_Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, cons
     MPI_Status mpi_status;
 
     int				nItems = 3;
-    int          	blocklengths[3] = {2, 1, 1};
+    int          	blocklengths[3] = {3, 1, 1};
     MPI_Datatype 	types[3] = {MPI_INT, MPI_LONG, MPI_DOUBLE};
     MPI_Datatype 	mpi_recv_data;
     MPI_Aint     	displacements[3];
@@ -872,43 +872,35 @@ long Slave_Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, cons
 			//Slave_interval_reached(&request_handle_send, p_data_info_to_master, mpi_recv_data, &request_message_from_master,p_data_info_from_master,mpi_data_from_master, p_n_state_progress);
 			if (request_handle_send != 0) 
 			{ 
-				printf("\nwait,  Slave_anneal for send_temp\n");
+				//printf("\nwait,  Slave_anneal for send_temp\n");
 				MPI_Wait(&request_handle_send, MPI_STATUS_IGNORE); 
 			}
-			p_data_info_to_master->n_iterations = *current_iter;
-			p_data_info_to_master->n_seed = p_rcstruct->seed;
-			p_data_info_to_master->l_length = best_tree_length;
-			p_data_info_to_master->temperature = t;
-			
-			/* printf("Process:%d   send temperature:%.3g   iterations:%ld\n", myMPIid, t, *current_iter); */
-			MPI_Issend(p_data_info_to_master, 1, mpi_recv_data, MPI_MAIN_PROCESS, MPI_TAG_SEND_TEMP_MASTER, MPI_COMM_WORLD, &request_handle_send);
-			/* now get the message to continue or not, but need in second iteration... */
-			if (request_message_from_master != 0) 
+
+			if (request_message_from_master != 0)
 			{
-				printf("\nwait,  Slave_anneal for recv_manage\n");
+				//printf("\nwait,  Slave_anneal for recv_manage\n");
 				MPI_Wait(&request_message_from_master, MPI_STATUS_IGNORE);
-				MPI_Test(&request_message_from_master, &nFlag, &mpi_status);
-				if (nFlag == 0) { printf("ERROR, mpi waiting is not working File:%s  Line:%d\n", __FILE__, __LINE__); }
-				if (nFlag == 1)
-				{
-					if (p_data_info_from_master->n_is_to_continue == MPI_IS_TO_RESTART_ANNEAL)
-					{	/*it's there and need to restart*/
-						MPI_Cancel(&request_handle_send);
-						//MPI_Wait(&request_handle_send, MPI_STATUS_IGNORE);
-						MPI_Request_free(&request_handle_send);
-
-						request_message_from_master = 0;
-						request_handle_send = 0;
-						*p_n_state_progress = MESSAGE_ANNEAL_KILLED;
-						break;
-					}
-					/* otherwise need to proceed... */
-				}
 			}
-			//printf("Process:%d   receive management\n", myMPIid);
-			/* need to get other message to proceed... */
-			MPI_Irecv(p_data_info_from_master, 1, mpi_data_from_master, MPI_MAIN_PROCESS, MPI_TAG_MANAGEMENT_MASTER, MPI_COMM_WORLD, &request_message_from_master);
 
+			//上一轮的temp，算出来不用kill
+			if (p_data_info_from_master->n_is_to_continue == MPI_IS_TO_CONTINUE_ANNEAL)
+			{
+
+				p_data_info_to_master->n_iterations = *current_iter;
+				p_data_info_to_master->n_seed = p_rcstruct->seed;
+				p_data_info_to_master->l_length = best_tree_length;
+				p_data_info_to_master->temperature = t;
+				p_data_info_to_master->n_finish_message = MPI_IS_TO_CONTINUE;
+
+				/* printf("Process:%d   send temperature:%.3g   iterations:%ld\n", myMPIid, t, *current_iter); */
+				MPI_Issend(p_data_info_to_master, 1, mpi_recv_data, MPI_MAIN_PROCESS, MPI_TAG_SEND_TEMP_MASTER, MPI_COMM_WORLD, &request_handle_send);
+				MPI_Irecv(p_data_info_from_master, 1, mpi_data_from_master, MPI_MAIN_PROCESS, MPI_TAG_MANAGEMENT_MASTER, MPI_COMM_WORLD, &request_message_from_master);
+			}
+			else if (p_data_info_from_master->n_is_to_continue == MPI_IS_TO_RESTART_ANNEAL|| p_data_info_from_master->n_is_to_continue == MPI_IS_NOT_TO_RESTART)
+			{
+				*p_n_state_progress = MESSAGE_ANNEAL_KILLED;
+				break;
+			}
 		}
 #endif
 
@@ -1211,16 +1203,29 @@ long Slave_Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, cons
 #endif
 	
 #ifndef old
+	if (*p_n_state_progress == MESSAGE_ANNEAL_FINISHED_AND_REPEAT)//frozen
+	{
+		if (request_handle_send != 0)
+		{
+			//printf("\nwait,  Slave_anneal for send_temp\n");
+			MPI_Wait(&request_handle_send, MPI_STATUS_IGNORE);
+		}
+
+		if (request_message_from_master != 0)
+		{
+			//printf("\nwait,  Slave_anneal for recv_manage\n");
+			MPI_Wait(&request_message_from_master, MPI_STATUS_IGNORE);
+		}
+		p_data_info_to_master->n_finish_message = MPI_FINISHED;
+	}
+	
 
 			p_data_info_to_master->n_iterations = *current_iter;
 			p_data_info_to_master->n_seed = p_rcstruct->seed;
 			p_data_info_to_master->l_length = best_tree_length;
 			p_data_info_to_master->temperature = t;
-			if(*p_n_state_progress == MESSAGE_ANNEAL_KILLED)
-				p_data_info_to_master->l_length = -1;
+			
 
-	
-	
 			Slave_wait_final_message(&request_message_from_master,&request_handle_send,p_n_state_progress,p_data_info_from_master,p_rcstruct,
 	p_n_number_tried_seed,p_data_info_to_master, mpi_recv_data, mpi_data_from_master);
 
