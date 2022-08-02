@@ -49,9 +49,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Para_lib.h"
 #endif
 
-/* test if is possible to continue */
-#define CALC_ITERATION_ONLY_RELEASE_AFTER_NUMBER_CHUNCHS 5
-#define CALC_ITERATION_NUMBER_STD_TO_RESTART_PROCESS 5
 
 
 IterationTemperature* get_alloc_main_calc_iterations(void);

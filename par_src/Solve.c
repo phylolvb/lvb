@@ -208,654 +208,182 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *treestack_ptr, const TREEST
 } /* end deterministic_hillclimb */
 
 #ifdef LVB_MAPREDUCE  
-long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREESTACK_TREE_NODES *const inittree, Parameters rcstruct,
+long Anneal(Dataptr MSA, TREESTACK* treestack_ptr, TREESTACK* treevo, const TREESTACK_TREE_NODES* const inittree, Parameters rcstruct,
 	long root, const double t0, const long maxaccept, const long maxpropose,
-	const long maxfail, FILE *const lenfp, long *current_iter,
-	Lvb_bool log_progress, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer)
+	const long maxfail, FILE* const lenfp, long* current_iter,
+	Lvb_bool log_progress, MISC* misc, MapReduce* mrTreeStack, MapReduce* mrBuffer)
 
 #else
-long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREESTACK_TREE_NODES *const inittree, Parameters rcstruct,
+long Anneal(Dataptr MSA, TREESTACK* treestack_ptr, TREESTACK* treevo, const TREESTACK_TREE_NODES* const inittree, Parameters rcstruct,
 	long root, const double t0, const long maxaccept, const long maxpropose,
-	const long maxfail, FILE *const lenfp, long *current_iter,
+	const long maxfail, FILE* const lenfp, long* current_iter,
 	Lvb_bool log_progress)
 
 #endif
-/* seek parsimonious tree from initial tree in inittree (of root root)
- * with initial temperature t0, and subsequent temperatures obtained by
- * multiplying the current temperature by (t1 / t0) ** n * t0 where n is
- * the ordinal number of this temperature, after at least maxaccept changes
- * have been accepted or maxpropose changes have been proposed, whichever is
- * sooner;
- * return the length of the best tree(s) found after maxfail consecutive
- * temperatures have led to no new accepted solution;
- * lenfp is for output of current tree length and associated details;
- * *current_iter should give the iteration number at the start of this call and
- * will be used in any statistics sent to lenfp, and will be updated on
- * return */
+	/* seek parsimonious tree from initial tree in inittree (of root root)
+	 * with initial temperature t0, and subsequent temperatures obtained by
+	 * multiplying the current temperature by (t1 / t0) ** n * t0 where n is
+	 * the ordinal number of this temperature, after at least maxaccept changes
+	 * have been accepted or maxpropose changes have been proposed, whichever is
+	 * sooner;
+	 * return the length of the best tree(s) found after maxfail consecutive
+	 * temperatures have led to no new accepted solution;
+	 * lenfp is for output of current tree length and associated details;
+	 * *current_iter should give the iteration number at the start of this call and
+	 * will be used in any statistics sent to lenfp, and will be updated on
+	 * return */
 {
-    long accepted = 0;		/* changes accepted */
-    Lvb_bool dect;		/* should decrease temperature */
-    double deltah;		/* change in energy (1 - C.I.) */
-    long tree_length_change;		/* change in length with new tree */
-    long failedcnt = 0; 	/* "failed count" for temperatures */
-    long iter = 0;		/* iteration of mutate/evaluate loop */
-    long current_tree_length;			/* length of current tree */
-    long best_tree_length;		/* best length found so far */
-    long proposed_tree_length;		/* length of proposed new tree */
+	long accepted = 0;		/* changes accepted */
+	Lvb_bool dect;		/* should decrease temperature */
+	double deltah;		/* change in energy (1 - C.I.) */
+	long tree_length_change;		/* change in length with new tree */
+	long failedcnt = 0; 	/* "failed count" for temperatures */
+	long iter = 0;		/* iteration of mutate/evaluate loop */
+	long current_tree_length;			/* length of current tree */
+	long best_tree_length;		/* best length found so far */
+	long proposed_tree_length;		/* length of proposed new tree */
 	double ln_t;		/* ln(current temperature) */
-    long t_n = 0;		/* ordinal number of current temperature */
-    double pacc;		/* prob. of accepting new config. */
-    long proposed = 0;		/* trees proposed */
-    double tree_minimum_length;		/* minimum length for any tree */
-    long proposed_tree_root;		/* root of new configuration */
-    double t = t0;		/* current temperature */
-    double grad_geom = 0.99;		/* "gradient" of the geometric schedule */
+	long t_n = 0;		/* ordinal number of current temperature */
+	double pacc;		/* prob. of accepting new config. */
+	long proposed = 0;		/* trees proposed */
+	double tree_minimum_length;		/* minimum length for any tree */
+	long proposed_tree_root;		/* root of new configuration */
+	double t = t0;		/* current temperature */
+	double grad_geom = 0.99;		/* "gradient" of the geometric schedule */
 	double grad_linear = 10 * LVB_EPS; /* gradient of the linear schedule */
 	/* double grad_linear = 10 * LVB_EPS; */ /* gradient of the linear schedule */
-    TREESTACK_TREE_NODES *p_current_tree;			/* current configuration */
-    TREESTACK_TREE_NODES *p_proposed_tree;		/* proposed new configuration */
-    long *p_todo_arr; /* [MAX_BRANCHES + 1];	 list of "dirty" branch nos */
-    long *p_todo_arr_sum_changes; /*used in openMP, to sum the partial changes */
-    int *p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */
+	TREESTACK_TREE_NODES* p_current_tree;			/* current configuration */
+	TREESTACK_TREE_NODES* p_proposed_tree;		/* proposed new configuration */
+	long* p_todo_arr; /* [MAX_BRANCHES + 1];	 list of "dirty" branch nos */
+	long* p_todo_arr_sum_changes; /*used in openMP, to sum the partial changes */
+	int* p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */
+#ifdef LVB_MAPREDUCE  
+	int* total_count;
+	int check_cmp;
+#endif
 
-
-
-	#ifdef LVB_MAPREDUCE  
-		int *total_count;
-	    int check_cmp;
-	#endif
-
-    /* variables that could calculate immediately */
-    const double log_wrapper_LVB_EPS = log_wrapper(LVB_EPS);
-    const double log_wrapper_grad_geom = log_wrapper(grad_geom);
-    const double log_wrapper_t0 =  log_wrapper(t0);
-    /* REND variables that could calculate immediately */
+	/* variables that could calculate immediately */
+	const double log_wrapper_LVB_EPS = log_wrapper(LVB_EPS);
+	const double log_wrapper_grad_geom = log_wrapper(grad_geom);
+	const double log_wrapper_t0 = log_wrapper(t0);
+	/* REND variables that could calculate immediately */
 
 	long w_changes_prop = 0;
-    long w_changes_acc = 0;  
-    p_proposed_tree = treealloc(MSA, LVB_TRUE);
-    p_current_tree = treealloc(MSA, LVB_TRUE);
+	long w_changes_acc = 0;
+	p_proposed_tree = treealloc(MSA, LVB_TRUE);
+	p_current_tree = treealloc(MSA, LVB_TRUE);
 
-    treecopy(MSA, p_current_tree, inittree, LVB_TRUE);	/* current configuration */
+	treecopy(MSA, p_current_tree, inittree, LVB_TRUE);	/* current configuration */
 
-    alloc_memory_to_getplen(MSA, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-    current_tree_length = getplen(MSA, p_current_tree, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
-    dect = LVB_FALSE;		/* made LVB_TRUE as necessary at end of loop */
+	alloc_memory_to_getplen(MSA, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
+	current_tree_length = getplen(MSA, p_current_tree, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+	dect = LVB_FALSE;		/* made LVB_TRUE as necessary at end of loop */
 
-    lvb_assert( ((float) t >= (float) LVB_EPS) && (t <= 1.0) && (grad_geom >= LVB_EPS) && (grad_linear >= LVB_EPS));
+	lvb_assert(((float)t >= (float)LVB_EPS) && (t <= 1.0) && (grad_geom >= LVB_EPS) && (grad_linear >= LVB_EPS));
 
-    best_tree_length = current_tree_length;
+	best_tree_length = current_tree_length;
 
-	#ifdef LVB_MAPREDUCE  
-		MPI_Bcast(&best_tree_length,  1, MPI_LONG, 0, MPI_COMM_WORLD);
-		PushCurrentTreeToStack(MSA, treestack_ptr, inittree, root, LVB_FALSE);
-		misc->ID = treestack_ptr->next;
-		misc->SB = 1;
-		tree_setpush(MSA, inittree, root, mrTreeStack, misc);
-	
-	#elif LVB_HASH
-		CompareHashTreeToHashstack(MSA, treestack_ptr, inittree, root, LVB_FALSE);	/* init. tree initially best */
-	#else
-		CompareTreeToTreestack(MSA, treestack_ptr, inittree, root, LVB_FALSE);	/* init. tree initially best */ 
-	#endif
+#ifdef LVB_MAPREDUCE  
+	MPI_Bcast(&best_tree_length, 1, MPI_LONG, 0, MPI_COMM_WORLD);
+	PushCurrentTreeToStack(MSA, treestack_ptr, inittree, root, LVB_FALSE);
+	misc->ID = treestack_ptr->next;
+	misc->SB = 1;
+	tree_setpush(MSA, inittree, root, mrTreeStack, misc);
 
-	double trops_counter[3] = {1,1,1};
-	double trops_probs[3] = {0,0,0};
-	long trops_total = trops_counter[0]+trops_counter[1]+trops_counter[2];
+#elif LVB_HASH
+	CompareHashTreeToHashstack(MSA, treestack_ptr, inittree, root, LVB_FALSE);	/* init. tree initially best */
+#else
+	CompareTreeToTreestack(MSA, treestack_ptr, inittree, root, LVB_FALSE);	/* init. tree initially best */
+#endif
+
+	double trops_counter[3] = { 1,1,1 };
+	double trops_probs[3] = { 0,0,0 };
+	long trops_total = trops_counter[0] + trops_counter[1] + trops_counter[2];
 	long trops_id = 0;
-	
 
-    if ((log_progress == LVB_TRUE) && (*current_iter == 0)) {
 
-	printf("\n--------------------------------------------------------");
-	fprintf(lenfp, "\n  Temperature:   Rearrangement: TreeStack size: Length:\n");
-	printf("--------------------------------------------------------\n");
+	if ((log_progress == LVB_TRUE) && (*current_iter == 0)) {
+
+		printf("\n--------------------------------------------------------");
+		fprintf(lenfp, "\n  Temperature:   Rearrangement: TreeStack size: Length:\n");
+		printf("--------------------------------------------------------\n");
 	}
-		
+
 	/*Writing output to table.tsv*/
-    FILE * pFile;
-    char change[10]="";
-    if ((log_progress == LVB_TRUE) && (*current_iter == 0)) {
+	FILE* pFile;
+	char change[10] = "";
+	if ((log_progress == LVB_TRUE) && (*current_iter == 0)) {
 		if (rcstruct.verbose == LVB_TRUE)
 		{
-	   pFile = fopen ("changeAccepted.tsv","w");
-	   fprintf (pFile, "Iteration\tAlgorithm\tAccepted\tLength\tTemperature\tTreestack Size\n");
+			pFile = fopen("changeAccepted.tsv", "w");
+			fprintf(pFile, "Iteration\tAlgorithm\tAccepted\tLength\tTemperature\tTreestack Size\n");
+		}
 	}
-	}
-	tree_minimum_length = (double) MSA->min_len_tree;
+	tree_minimum_length = (double)MSA->min_len_tree;
 #ifndef parallel
 	//Control parameter for parallel_selection==1(cluster SA)
-	long p=2000;//for cluster SA
-	double r=0.1;
-	long iter_cluster=-1;
-	if(rcstruct.parallel_selection!=1)
-		p=-1;
+	long p = 3000;//for cluster SA
+	double r = 0.05;
+	long iter_cluster = -1;
+	if (rcstruct.parallel_selection != 1)
+		p = -1;
 
-	int rank,nprocs;	
-	MPI_Comm_rank(MPI_COMM_WORLD,&rank);
-	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
-	
+	int rank, nprocs;
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+
+
 
 #endif	
-	   while (1) {
-#ifndef parallel
-		   iter_cluster++;
-
-		   if(p >= 0)
-		   {
-			   if(iter_cluster==p)
-			   {
-			//	printf("\nbefore one step, p=%ld, rank=%d, aurrent_treelength: %ld\n",p,rank, current_tree_length);
-
-				   Bcast_best_partial_tree_to_root(MSA, current_tree_length , rank, nprocs, p_current_tree, &root);//Bcast best tree with root
-				   //printf("\niter_cluster=%ld,p=%ld\n",iter_cluster,p);
-				   iter_cluster=-1;
-				   p-=r*(double)iter;
-				   //if(rank==0)
-					   //printf("\niter=%d, p=%ld,r=%d\n",iter, p,r);
-				current_tree_length=getplen(MSA, p_current_tree, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);		
-			//	printf("\nAfter one step, p=%ld, rank=%d, aurrent_treelength: %ld\n",p,rank, current_tree_length);
-			   }
-
-			   if(p<0)//reset annealing by best initial tree
-			   {
-				   accepted = 0;		/* changes accepted */
-				   failedcnt = 0; 	/* "failed count" for temperatures */
-				   iter = 0;		/* iteration of mutate/evaluate loop */
-				   *current_iter=0;
-				   current_tree_length=getplen(MSA, p_current_tree, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);			/* length of current tree */
-				   t_n = 0;		/* ordinal number of current temperature */
-				   proposed = 0;		/* trees proposed */
-				   t = StartingTemperature(MSA, p_current_tree, rcstruct, root, log_progress);		/* current temperature */
-
-				   w_changes_prop = 0;
-				   w_changes_acc = 0;  
-				   for(int i=0;i<3;i++)
-				   {
-					   trops_counter[i]=1;
-					   trops_probs[i]=0;
-				   }
-				   trops_total = trops_counter[0]+trops_counter[1]+trops_counter[2];
-				   trops_id = 0;
-					
-				   if(rank==0)
-				   printf("\n\n Generate the best initial tree, current_tree_length=%ld, root=%ld, new start temperature: %f\n\n",current_tree_length,root,t);
-			   }
-			   //ClearTreestack(treestack_ptr);
-			   //CompareTreeToTreestack(MSA, treestack_ptr, p_current_tree, root, LVB_FALSE);
-		   }
-
-#endif
-        int changeAcc = 0;
-    	*current_iter += 1;
-		/* occasionally re-root, to prevent influence from root position */
-		if ((*current_iter % REROOT_INTERVAL) == 0){
-			root = arbreroot(MSA, p_current_tree, root);
-			if ((log_progress == LVB_TRUE) && ((*current_iter % STAT_LOG_INTERVAL) == 0)) {
-        		lenlog(lenfp, treestack_ptr, *current_iter, current_tree_length, t);
-        	}
-		}
-
-
-		lvb_assert(t > DBL_EPSILON);
-
-		/* mutation: alternate between the two mutation functions */
-		proposed_tree_root = root;
-		if (rcstruct.algorithm_selection ==2)
-		{
-			trops_total = trops_counter[0]+trops_counter[1]+trops_counter[2];
-		trops_probs[0]=trops_counter[0]/trops_total;
-		trops_probs[1]=trops_counter[1]/trops_total;
-		trops_probs[2]=trops_counter[2]/trops_total; 
-		}
-
-		  if (rcstruct.algorithm_selection >= 1)
-		  {
-		double random_val = uni();
- 		if (random_val < trops_probs[0]) {
-        		mutate_nni(MSA, p_proposed_tree, p_current_tree, root);	/* local change */
-			strcpy(change,"NNI");
-			if (rcstruct.algorithm_selection == 2)
-			trops_id = 0;
-		}
-    	else if (random_val < trops_probs[0] + trops_probs[1]) {
-        	mutate_spr(MSA, p_proposed_tree, p_current_tree, root);	/* global change */
-            strcpy(change,"SPR");
-			if (rcstruct.algorithm_selection == 2)
-			trops_id = 1;
-        }
-    	else {
-    	   	mutate_tbr(MSA, p_proposed_tree, p_current_tree, root);	/* global change */
-            strcpy(change,"TBR");
-			if (rcstruct.algorithm_selection == 2)
-			trops_id = 2;
-        }
-		  }
-		else
-		{
-		if (iter & 0x01) { mutate_spr(MSA, p_proposed_tree, p_current_tree, root);	/* global change */
-		strcpy(change,"SPR"); }
-		else { mutate_nni (MSA, p_proposed_tree, p_current_tree, root);	/* local change */
-		strcpy(change,"NNI"); }
-		}
-		
-		proposed_tree_length = getplen(MSA, p_proposed_tree, rcstruct, proposed_tree_root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
-		lvb_assert (proposed_tree_length >= 1L);
-		tree_length_change = proposed_tree_length - current_tree_length;
-		deltah = (tree_minimum_length / (double) current_tree_length) - (tree_minimum_length / (double) proposed_tree_length);
-		if (deltah > 1.0) deltah = 1.0; /* MinimumTreeLength() problem with ambiguous sites */
-
-		#ifdef LVB_MAPREDUCE  
-			MPI_Bcast(&tree_length_change, 1, MPI_LONG, 0, MPI_COMM_WORLD);
-			MPI_Bcast(&deltah,   1, MPI_LONG, 0, MPI_COMM_WORLD);
-			MPI_Bcast(&proposed_tree_length,  1, MPI_LONG, 0, MPI_COMM_WORLD);
-		#endif
-
-		if (tree_length_change <= 0)	/* accept the change */
-		{
-			#ifdef LVB_MAPREDUCE  
-			if (proposed_tree_length <= best_tree_length)	/* store tree if new */
-				{
-				if (proposed_tree_length < best_tree_length) {
-					ClearTreestack(treestack_ptr);
-					mrTreeStack->map(mrTreeStack, map_clean, NULL);
-				}
-				auto start_timer = high_resolution_clock::now();
-				
-				if(CompareMapReduceTrees(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, total_count,
-					check_cmp, misc, mrTreeStack, mrBuffer) == 1) {
-						accepted++; 
-						MPI_Bcast(&accepted, 1, MPI_LONG, 0, MPI_COMM_WORLD);	
-				}
-				auto stop = high_resolution_clock::now();
-
-				auto duration = duration_cast<microseconds>(stop - start_timer);
-
-				if ((log_progress == LVB_TRUE) && ((treestack_ptr->next % 10) == 0)) {
-
-				FILE *timefunction = fopen("FunctionTimesMR","a+");
-				fprintf (timefunction, "%ld\t%ld\t%ld\t%ld\n", *current_iter, duration.count(), treestack_ptr->next, best_tree_length);
-				fclose(timefunction);
-				}
-				}
-				#else
-								if (proposed_tree_length <= best_tree_length)	/* store tree if new */
-			{
-				/*printf("%ld\n", *current_iter);*/
-				if (proposed_tree_length < best_tree_length) {
-					ClearTreestack(treestack_ptr);	/* discard old bests */
-				}
-					#ifdef LVB_HASH
-					auto start_timer = high_resolution_clock::now();
-						if(CompareHashTreeToHashstack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE) == 1)
-					#else
-					auto start_timer = high_resolution_clock::now();
-						if(CompareTreeToTreestack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE) == 1)
-					#endif
-				{
-					accepted++;
-				}
-				auto stop = high_resolution_clock::now();
-
-					auto duration = duration_cast<microseconds>(stop - start_timer);
-
-					#ifdef LVB_HASH
-
-					if ((log_progress == LVB_TRUE) && ((treestack_ptr->next % 10) == 0)) {
-
-					FILE *timefunction = fopen("FunctionTimesHASH","a+");
-					fprintf (timefunction, "%ld\t%ld\t%ld\t%ld\n", *current_iter, duration.count(), treestack_ptr->next, best_tree_length);
-					fclose(timefunction);
-					}
-					#else
-
-					if ((log_progress == LVB_TRUE) && ((treestack_ptr->next % 10) == 0)) {
-
-					FILE *timefunction = fopen("FunctionTimesNP","a+");
-					fprintf (timefunction, "%ld\t%ld\t%ld\t%ld\n", *current_iter, duration.count(), treestack_ptr->next, best_tree_length);
-					fclose(timefunction);
-					}
-					#endif
-			}
-				#endif
-			/* update current tree and its stats */
-			current_tree_length = proposed_tree_length;
-			SwapTrees(&p_current_tree, &root, &p_proposed_tree, &proposed_tree_root);
-
-			/* very best so far */
-			if (proposed_tree_length < best_tree_length) {
-				best_tree_length = proposed_tree_length;
-			#ifdef LVB_MAPREDUCE  
-			MPI_Bcast(&best_tree_length,  1, MPI_LONG, 0, MPI_COMM_WORLD);
-			#endif
-			}
-			if (rcstruct.algorithm_selection == 1)
-			changeAcc = 1;
-
-		}
-		else	/* poss. accept change for the worse */
-		{
-			if (rcstruct.algorithm_selection == 2)
-			w_changes_prop ++; 
-			/* Mathematically,
-			 *     Pacc = e ** (-1/T * deltaH)
-			 *     therefore ln Pacc = -1/T * deltaH
-			 *
-			 * Computationally, if Pacc is going to be small, we
-			 * can assume Pacc is 0 without actually working it
-			 * out.
-			 * i.e.,
-			 *     if ln Pacc < ln eps, let Pacc = 0
-			 * substituting,
-			 *     if -deltaH / T < ln eps, let Pacc = 0
-			 * rearranging,
-			 *     if -deltaH < T * ln eps, let Pacc = 0
-			 * This lets us work out whether Pacc will be very
-			 * close to zero without dividing anything by T. This
-			 * should prevent overflow. Since T is no less
-			 * than eps and ln eps is going to have greater
-			 * magnitude than eps, underflow when calculating
-			 * T * ln eps is not possible. */
-			if (-deltah < t * log_wrapper_LVB_EPS)
-			{
-				pacc = 0.0;
-				/* Call uni() even though its not required. It
-				 * would have been called in LVB 1.0A, so this
-				 * helps make results identical to results with
-				 * that version. */
-				(void) uni();
-			}
-			else	/* possibly accept the change */
-			{
-				pacc = exp_wrapper(-deltah/t);
-				if (uni() < pacc)	/* do accept the change */
-				{
-					SwapTrees(&p_current_tree, &root, &p_proposed_tree, &proposed_tree_root);
-				if (rcstruct.algorithm_selection == 2)
-				w_changes_acc++; 
-					current_tree_length = proposed_tree_length;
-					if (rcstruct.algorithm_selection == 1)
-					changeAcc = 1; 
-				}
-			}
-		}
-		proposed++;
-		#ifdef LVB_MAPREDUCE  
-		MPI_Bcast(&proposed,  1, MPI_LONG, 0, MPI_COMM_WORLD);
-		#endif
-
-		
-		/* decide whether to reduce temperature */
-		if (accepted >= maxaccept){	/* enough new trees */
-      
-			failedcnt = 0;  /* this temperature a 'success' */
-			dect = LVB_TRUE;
-		}
-		else if (proposed >= maxpropose){	/* enough proposals */
-			failedcnt++;
-			#ifdef LVB_MAPREDUCE  
-			int check_stop = 0;
-				if (misc->rank == 0 && failedcnt >= maxfail && t < FROZEN_T) check_stop = 1;
-				MPI_Bcast(&check_stop,  1, MPI_INT, 0, MPI_COMM_WORLD);
-				if (check_stop == 1) {
-					MPI_Bcast(&failedcnt,  1, MPI_LONG, 0, MPI_COMM_WORLD);
-					MPI_Bcast(&t,  1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-				}
-			#endif
-			if (failedcnt >= maxfail && t < FROZEN_T)	/* system frozen */
-			{
-				/* Preliminary experiments yielded that the freezing
-				 * criterion used in previous versions of LVB is not
-				 * suitable for the new version and regularly results
-				 * in premature termination of the search. An easy fix
-				 * is to only apply the freezing criterion in the
-				 * temperature ranges of previous versions of LVB
-				 * (LVB_EPS < t < 10^-4). Future work will look at optimising
-				 * maxpropose, maxaccept and maxfail directly. */
-				break; /* end of cooling */
-			}
-			else{	/* system not frozen, so further decrease temp. */
-				dect = LVB_TRUE;
-			}
-		}
-
-		if (dect == LVB_TRUE)
-		{
-			t_n++;	/* originally n is 0 */
-
-			if (rcstruct.cooling_schedule == 0)  /* Geometric cooling */
-			{
-				/* Ensure t doesn't go out of bound */
-				ln_t = ((double) t_n) * log_wrapper_grad_geom + log_wrapper_t0;
-				if (ln_t < log_wrapper_LVB_EPS) t = LVB_EPS;
-				else t = pow_wrapper(grad_geom, (double) t_n) * t0; /* decrease the temperature */
-		if (rcstruct.algorithm_selection == 1)
-		{
-        trops_probs[2] = t/t0;
-        trops_probs[1] = (1 - trops_probs[2])/2;
-        trops_probs[0] = trops_probs[1];
-		}
-			}
-			else /* Linear cooling */
-			{
-				t = t0 - grad_linear * t_n;
-				/* Make sure t doesn't go out of bounce */
-				if (t < DBL_EPSILON || t <= LVB_EPS) t = LVB_EPS;
-			}
-			proposed = 0;
-		#ifdef LVB_MAPREDUCE  
-		MPI_Bcast(&proposed,  1, MPI_LONG, 0, MPI_COMM_WORLD);
-		accepted = 0;
-		MPI_Bcast(&accepted,  1, MPI_LONG, 0, MPI_COMM_WORLD);
-		dect = LVB_FALSE;
-		#else
-		accepted = 0;
-		dect = LVB_FALSE;
-		#endif
-		if (rcstruct.algorithm_selection == 2)
-			{ w_changes_prop = 0;
-        w_changes_acc = 0; 
-			}
-		}
-
-		iter++;
-
-		if (rcstruct.n_number_max_trees > 0 && treestack_ptr->next >= rcstruct.n_number_max_trees){
-			break;
-		}
-
-	if (rcstruct.algorithm_selection == 2)
-	{
-	if (changeAcc == 1) {
-	    trops_counter[trops_id]++;
-	}
-	else {
-	    for (int i=0; i < 3; i++) {
-	     if (trops_id != i)
-	        trops_counter[i] = trops_counter[i] + 0.5;
-	    }
-	}
-	}
-	if (rcstruct.verbose == LVB_TRUE)
-	fprintf (pFile, "%ld\t%s\t%d\t%ld\t%lf\t%ld\n", iter, change, changeAcc, current_tree_length, t*10000, treestack_ptr->next);
-		#ifdef LVB_MAPREDUCE  
-			MPI_Barrier(MPI_COMM_WORLD);
-
-	    }
-	    print_sets(MSA, treestack_ptr, misc);
-		#else 
-    }
-		#endif
-
-
-
-
-
-
-    /* free "local" dynamic heap memory */
-	if (rcstruct.verbose == LVB_TRUE)
-	fclose(pFile);
-    free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-    free(p_current_tree);
-    free(p_proposed_tree);
-    return best_tree_length;
-
-} /* end Anneal() */
-
-
-//pointer of rcstruct, instead of rcstruct itself
-long Slave_Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREESTACK_TREE_NODES *const inittree, Parameters* p_rcstruct,
-	long root, const double t0, const long maxaccept, const long maxpropose,
-	const long maxfail, FILE *const lenfp, long *current_iter,
-	Lvb_bool log_progress, int *p_n_state_progress, int *p_n_number_tried_seed, int myMPIid)
-/* seek parsimonious tree from initial tree in inittree (of root root)
- * with initial temperature t0, and subsequent temperatures obtained by
- * multiplying the current temperature by (t1 / t0) ** n * t0 where n is
- * the ordinal number of this temperature, after at least maxaccept changes
- * have been accepted or maxpropose changes have been proposed, whichever is
- * sooner;
- * return the length of the best tree(s) found after maxfail consecutive
- * temperatures have led to no new accepted solution;
- * lenfp is for output of current tree length and associated details;
- * *current_iter should give the iteration number at the start of this call and
- * will be used in any statistics sent to lenfp, and will be updated on
- * return */
-{
-    long accepted = 0;		/* changes accepted */
-    Lvb_bool dect;		/* should decrease temperature */
-    double deltah;		/* change in energy (1 - C.I.) */
-    long tree_length_change;		/* change in length with new tree */
-    long failedcnt = 0; 	/* "failed count" for temperatures */
-    long iter = 0;		/* iteration of mutate/evaluate loop */
-    long current_tree_length;			/* length of current tree */
-    long best_tree_length;		/* best length found so far */
-    long proposed_tree_length;		/* length of proposed new tree */
-	double ln_t;		/* ln(current temperature) */
-    long t_n = 0;		/* ordinal number of current temperature */
-    double pacc;		/* prob. of accepting new config. */
-    long proposed = 0;		/* trees proposed */
-    double tree_minimum_length;		/* minimum length for any tree */
-    long proposed_tree_root;		/* root of new configuration */
-    double t = t0;		/* current temperature */
-    double grad_geom = 0.99;		/* "gradient" of the geometric schedule */
-	double grad_linear = 10 * LVB_EPS; /* gradient of the linear schedule */
-	/* double grad_linear = 10 * LVB_EPS; */ /* gradient of the linear schedule */
-    TREESTACK_TREE_NODES *p_current_tree;			/* current configuration */
-    TREESTACK_TREE_NODES *p_proposed_tree;		/* proposed new configuration */
-    long *p_todo_arr; /* [MAX_BRANCHES + 1];	 list of "dirty" branch nos */
-    long *p_todo_arr_sum_changes; /*used in openMP, to sum the partial changes */
-    int *p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */
-
-#ifndef old
-    int nFlag;
-
-    MPI_Request request_handle_send = 0, request_message_from_master = 0;
-    MPI_Status mpi_status;
-
-    int				nItems = 3;
-    int          	blocklengths[3] = {3, 1, 1};
-    MPI_Datatype 	types[3] = {MPI_INT, MPI_LONG, MPI_DOUBLE};
-    MPI_Datatype 	mpi_recv_data;
-    MPI_Aint     	displacements[3];
-    displacements[0] = offsetof(SendInfoToMaster, n_iterations);
-    displacements[1] = offsetof(SendInfoToMaster, l_length);
-    displacements[2] = offsetof(SendInfoToMaster, temperature);
-    MPI_Type_create_struct(nItems, blocklengths, displacements, types, &mpi_recv_data);
-    MPI_Type_commit(&mpi_recv_data);
-
-    nItems = 1;
-    int          	blocklengths_2[1] = {3};
-    MPI_Datatype 	types_2[1] = {MPI_INT};
-    MPI_Datatype 	mpi_data_from_master;
-    MPI_Aint     	displacements_2[1];
-    displacements_2[0] = offsetof(RecvInfoFromMaster, n_seed);
-    MPI_Type_create_struct(nItems, blocklengths_2, displacements_2, types_2, &mpi_data_from_master);
-    MPI_Type_commit(&mpi_data_from_master);
-
-    /* REND variables that could calculate immediately */
-    SendInfoToMaster * p_data_info_to_master;
-    p_data_info_to_master = (SendInfoToMaster *) malloc(sizeof(SendInfoToMaster));
-    RecvInfoFromMaster * p_data_info_from_master;
-    p_data_info_from_master = (RecvInfoFromMaster *) malloc(sizeof(RecvInfoFromMaster));
-
-    *p_n_state_progress = MESSAGE_ANNEAL_FINISHED_AND_REPEAT; /* we consider always is necessary to repeat */ //来自函数形参
-
-#endif
-
-
-	#ifdef LVB_MAPREDUCE  
-		int *total_count;
-	    int check_cmp;
-	#endif
-
-    /* variables that could calculate immediately */
-    const double log_wrapper_LVB_EPS = log_wrapper(LVB_EPS);
-    const double log_wrapper_grad_geom = log_wrapper(grad_geom);
-    const double log_wrapper_t0 =  log_wrapper(t0);
-    /* REND variables that could calculate immediately */
-
-	long w_changes_prop = 0;
-    long w_changes_acc = 0;  
-    p_proposed_tree = treealloc(MSA, LVB_TRUE);
-    p_current_tree = treealloc(MSA, LVB_TRUE);
-
-    treecopy(MSA, p_current_tree, inittree, LVB_TRUE);	/* current configuration */
-
-    alloc_memory_to_getplen(MSA, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-    current_tree_length = getplen(MSA, p_current_tree, *p_rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
-    dect = LVB_FALSE;		/* made LVB_TRUE as necessary at end of loop */
-
-    lvb_assert( ((float) t >= (float) LVB_EPS) && (t <= 1.0) && (grad_geom >= LVB_EPS) && (grad_linear >= LVB_EPS));
-
-    best_tree_length = current_tree_length;
-
-	#ifdef LVB_MAPREDUCE  
-		MPI_Bcast(&best_tree_length,  1, MPI_LONG, 0, MPI_COMM_WORLD);
-		PushCurrentTreeToStack(MSA, treestack_ptr, inittree, root, LVB_FALSE);
-		misc->ID = treestack_ptr->next;
-		misc->SB = 1;
-		tree_setpush(MSA, inittree, root, mrTreeStack, misc);
-	
-	#elif LVB_HASH
-		CompareHashTreeToHashstack(MSA, treestack_ptr, inittree, root, LVB_FALSE);	/* init. tree initially best */
-	#else
-		CompareTreeToTreestack(MSA, treestack_ptr, inittree, root, LVB_FALSE);	/* init. tree initially best */ 
-	#endif
-
-	double trops_counter[3] = {1,1,1};
-	double trops_probs[3] = {0,0,0};
-	long trops_total = trops_counter[0]+trops_counter[1]+trops_counter[2];
-	long trops_id = 0;
-	
-
-    if ((log_progress == LVB_TRUE) && (*current_iter == 0)) {
-
-	printf("\n--------------------------------------------------------");
-	fprintf(lenfp, "\n  Temperature:   Rearrangement: TreeStack size: Length:\n");
-	printf("--------------------------------------------------------\n");
-	}
-		
-	/*Writing output to table.tsv*/
-    FILE * pFile;
-    char change[10]="";
-    if ((log_progress == LVB_TRUE) && (*current_iter == 0)) {
-		if (p_rcstruct->verbose == LVB_TRUE)
-		{
-	   pFile = fopen ("changeAccepted.tsv","w");
-	   fprintf (pFile, "Iteration\tAlgorithm\tAccepted\tLength\tTemperature\tTreestack Size\n");
-	}
-	}
-	tree_minimum_length = (double) MSA->min_len_tree;
-#ifndef parallel
-	int rank,nprocs;	
-	MPI_Comm_rank(MPI_COMM_WORLD,&rank);
-	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);
-
-	Parameters rcstruct = *p_rcstruct;
-
-#endif	
-
 	while (1) {
+#ifndef parallel
+		iter_cluster++;
+
+		if (p >= 0)
+		{
+			if (iter_cluster == p)
+			{
+				//	printf("\nbefore one step, p=%ld, rank=%d, aurrent_treelength: %ld\n",p,rank, current_tree_length);
+
+				Bcast_best_partial_tree_to_root(MSA, current_tree_length, rank, nprocs, p_current_tree, &root);//Bcast best tree with root
+				//printf("\niter_cluster=%ld,p=%ld\n",iter_cluster,p);
+				iter_cluster = -1;
+				p -= r * (double)iter;
+				//if(rank==0)
+					//printf("\niter=%d, p=%ld,r=%d\n",iter, p,r);
+				current_tree_length = getplen(MSA, p_current_tree, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+				//	printf("\nAfter one step, p=%ld, rank=%d, aurrent_treelength: %ld\n",p,rank, current_tree_length);
+			}
+
+			if (p < 0)//reset annealing by best initial tree
+			{
+				accepted = 0;		/* changes accepted */
+				failedcnt = 0; 	/* "failed count" for temperatures */
+				iter = 0;		/* iteration of mutate/evaluate loop */
+				*current_iter = 0;
+				current_tree_length = getplen(MSA, p_current_tree, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);			/* length of current tree */
+				t_n = 0;		/* ordinal number of current temperature */
+				proposed = 0;		/* trees proposed */
+				t = StartingTemperature(MSA, p_current_tree, rcstruct, root, log_progress);		/* current temperature */
+
+				w_changes_prop = 0;
+				w_changes_acc = 0;
+				for (int i = 0; i < 3; i++)
+				{
+					trops_counter[i] = 1;
+					trops_probs[i] = 0;
+				}
+				trops_total = trops_counter[0] + trops_counter[1] + trops_counter[2];
+				trops_id = 0;
+
+				if (rank == 0)
+					printf("\n\n Generate the best initial tree, current_tree_length=%ld, root=%ld, new start temperature: %f\n\n", current_tree_length, root, t);
+			}
+			//ClearTreestack(treestack_ptr);
+			//CompareTreeToTreestack(MSA, treestack_ptr, p_current_tree, root, LVB_FALSE);
+		}
+
+#endif
 		int changeAcc = 0;
 		*current_iter += 1;
 		/* occasionally re-root, to prevent influence from root position */
@@ -864,49 +392,8 @@ long Slave_Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, cons
 			if ((log_progress == LVB_TRUE) && ((*current_iter % STAT_LOG_INTERVAL) == 0)) {
 				lenlog(lenfp, treestack_ptr, *current_iter, current_tree_length, t);
 			}
-
-#ifndef old
-
-		if((p_rcstruct->parallel_selection==0||p_rcstruct->parallel_selection==2)&&((*current_iter % STAT_LOG_INTERVAL) == 0))
-		{
-			//Slave_interval_reached(&request_handle_send, p_data_info_to_master, mpi_recv_data, &request_message_from_master,p_data_info_from_master,mpi_data_from_master, p_n_state_progress);
-			if (request_handle_send != 0) 
-			{ 
-				//printf("\nwait,  Slave_anneal for send_temp\n");
-				MPI_Wait(&request_handle_send, MPI_STATUS_IGNORE); 
-			}
-
-			if (request_message_from_master != 0)
-			{
-				//printf("\nwait,  Slave_anneal for recv_manage\n");
-				MPI_Wait(&request_message_from_master, MPI_STATUS_IGNORE);
-			}
-
-			//上一轮的temp，算出来不用kill
-			if (p_data_info_from_master->n_is_to_continue == MPI_IS_TO_CONTINUE_ANNEAL)
-			{
-
-				p_data_info_to_master->n_iterations = *current_iter;
-				p_data_info_to_master->n_seed = p_rcstruct->seed;
-				p_data_info_to_master->l_length = best_tree_length;
-				p_data_info_to_master->temperature = t;
-				p_data_info_to_master->n_finish_message = MPI_IS_TO_CONTINUE;
-
-				/* printf("Process:%d   send temperature:%.3g   iterations:%ld\n", myMPIid, t, *current_iter); */
-				MPI_Issend(p_data_info_to_master, 1, mpi_recv_data, MPI_MAIN_PROCESS, MPI_TAG_SEND_TEMP_MASTER, MPI_COMM_WORLD, &request_handle_send);
-				MPI_Irecv(p_data_info_from_master, 1, mpi_data_from_master, MPI_MAIN_PROCESS, MPI_TAG_MANAGEMENT_MASTER, MPI_COMM_WORLD, &request_message_from_master);
-			}
-			else if (p_data_info_from_master->n_is_to_continue == MPI_IS_TO_RESTART_ANNEAL|| p_data_info_from_master->n_is_to_continue == MPI_IS_NOT_TO_RESTART)
-			{
-				*p_n_state_progress = MESSAGE_ANNEAL_KILLED;
-				break;
-			}
 		}
-#endif
 
-	}
-
-	
 		lvb_assert(t > DBL_EPSILON);
 
 		/* mutation: alternate between the two mutation functions */
@@ -1199,51 +686,558 @@ long Slave_Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, cons
 	}
 	print_sets(MSA, treestack_ptr, misc);
 #else 
-	}
+}
 #endif
-	
+
+	/* free "local" dynamic heap memory */
+	if (rcstruct.verbose == LVB_TRUE)
+		fclose(pFile);
+	free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
+	free(p_current_tree);
+	free(p_proposed_tree);
+	return best_tree_length;
+
+} /* end Anneal() */
+
+
+//pointer of rcstruct, instead of rcstruct itself
+long Slave_Anneal(Dataptr MSA, TREESTACK* treestack_ptr, TREESTACK* treevo, const TREESTACK_TREE_NODES* const inittree, Parameters* p_rcstruct,
+	long root, const double t0, const long maxaccept, const long maxpropose,
+	const long maxfail, FILE* const lenfp, long* current_iter,
+	Lvb_bool log_progress, int* p_n_state_progress, int* p_n_number_tried_seed, int myMPIid)
+	/* seek parsimonious tree from initial tree in inittree (of root root)
+	 * with initial temperature t0, and subsequent temperatures obtained by
+	 * multiplying the current temperature by (t1 / t0) ** n * t0 where n is
+	 * the ordinal number of this temperature, after at least maxaccept changes
+	 * have been accepted or maxpropose changes have been proposed, whichever is
+	 * sooner;
+	 * return the length of the best tree(s) found after maxfail consecutive
+	 * temperatures have led to no new accepted solution;
+	 * lenfp is for output of current tree length and associated details;
+	 * *current_iter should give the iteration number at the start of this call and
+	 * will be used in any statistics sent to lenfp, and will be updated on
+	 * return */
+{
+	long accepted = 0;		/* changes accepted */
+	Lvb_bool dect;		/* should decrease temperature */
+	double deltah;		/* change in energy (1 - C.I.) */
+	long tree_length_change;		/* change in length with new tree */
+	long failedcnt = 0; 	/* "failed count" for temperatures */
+	long iter = 0;		/* iteration of mutate/evaluate loop */
+	long current_tree_length;			/* length of current tree */
+	long best_tree_length;		/* best length found so far */
+	long proposed_tree_length;		/* length of proposed new tree */
+	double ln_t;		/* ln(current temperature) */
+	long t_n = 0;		/* ordinal number of current temperature */
+	double pacc;		/* prob. of accepting new config. */
+	long proposed = 0;		/* trees proposed */
+	double tree_minimum_length;		/* minimum length for any tree */
+	long proposed_tree_root;		/* root of new configuration */
+	double t = t0;		/* current temperature */
+	double grad_geom = 0.99;		/* "gradient" of the geometric schedule */
+	double grad_linear = 10 * LVB_EPS; /* gradient of the linear schedule */
+	/* double grad_linear = 10 * LVB_EPS; */ /* gradient of the linear schedule */
+	TREESTACK_TREE_NODES* p_current_tree;			/* current configuration */
+	TREESTACK_TREE_NODES* p_proposed_tree;		/* proposed new configuration */
+	long* p_todo_arr; /* [MAX_BRANCHES + 1];	 list of "dirty" branch nos */
+	long* p_todo_arr_sum_changes; /*used in openMP, to sum the partial changes */
+	int* p_runs; 				/*used in openMP, 0 if not run yet, 1 if it was processed */
+
 #ifndef old
-	if (*p_n_state_progress == MESSAGE_ANNEAL_FINISHED_AND_REPEAT)//frozen
-	{
-		if (request_handle_send != 0)
-		{
-			//printf("\nwait,  Slave_anneal for send_temp\n");
-			MPI_Wait(&request_handle_send, MPI_STATUS_IGNORE);
-		}
+	int nFlag;
 
-		if (request_message_from_master != 0)
-		{
-			//printf("\nwait,  Slave_anneal for recv_manage\n");
-			MPI_Wait(&request_message_from_master, MPI_STATUS_IGNORE);
-		}
-		p_data_info_to_master->n_finish_message = MPI_FINISHED;
+	MPI_Request request_handle_send, request_message_from_master;
+	MPI_Status mpi_status;
+
+	int				nItems = 3;
+	int          	blocklengths[3] = { 3, 1, 1 };
+	MPI_Datatype 	types[3] = { MPI_INT, MPI_LONG, MPI_DOUBLE };
+	MPI_Datatype 	mpi_recv_data;
+	MPI_Aint     	displacements[3];
+	displacements[0] = offsetof(SendInfoToMaster, n_iterations);
+	displacements[1] = offsetof(SendInfoToMaster, l_length);
+	displacements[2] = offsetof(SendInfoToMaster, temperature);
+	MPI_Type_create_struct(nItems, blocklengths, displacements, types, &mpi_recv_data);
+	MPI_Type_commit(&mpi_recv_data);
+
+	nItems = 1;
+	int          	blocklengths_2[1] = { 3 };
+	MPI_Datatype 	types_2[1] = { MPI_INT };
+	MPI_Datatype 	mpi_data_from_master;
+	MPI_Aint     	displacements_2[1];
+	displacements_2[0] = offsetof(RecvInfoFromMaster, n_seed);
+	MPI_Type_create_struct(nItems, blocklengths_2, displacements_2, types_2, &mpi_data_from_master);
+	MPI_Type_commit(&mpi_data_from_master);
+
+	/* REND variables that could calculate immediately */
+	SendInfoToMaster* p_data_info_to_master;
+	p_data_info_to_master = (SendInfoToMaster*)malloc(sizeof(SendInfoToMaster));
+	RecvInfoFromMaster* p_data_info_from_master;
+	p_data_info_from_master = (RecvInfoFromMaster*)malloc(sizeof(RecvInfoFromMaster));
+
+	*p_n_state_progress = MESSAGE_ANNEAL_FINISHED_AND_REPEAT; /* we consider always is necessary to repeat */ //来自函数形参
+
+#endif
+
+
+#ifdef LVB_MAPREDUCE  
+	int* total_count;
+	int check_cmp;
+#endif
+
+	/* variables that could calculate immediately */
+	const double log_wrapper_LVB_EPS = log_wrapper(LVB_EPS);
+	const double log_wrapper_grad_geom = log_wrapper(grad_geom);
+	const double log_wrapper_t0 = log_wrapper(t0);
+	/* REND variables that could calculate immediately */
+
+	long w_changes_prop = 0;
+	long w_changes_acc = 0;
+	p_proposed_tree = treealloc(MSA, LVB_TRUE);
+	p_current_tree = treealloc(MSA, LVB_TRUE);
+
+	treecopy(MSA, p_current_tree, inittree, LVB_TRUE);	/* current configuration */
+
+	alloc_memory_to_getplen(MSA, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
+	current_tree_length = getplen(MSA, p_current_tree, *p_rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+	dect = LVB_FALSE;		/* made LVB_TRUE as necessary at end of loop */
+
+	lvb_assert(((float)t >= (float)LVB_EPS) && (t <= 1.0) && (grad_geom >= LVB_EPS) && (grad_linear >= LVB_EPS));
+
+	best_tree_length = current_tree_length;
+
+#ifdef LVB_MAPREDUCE  
+	MPI_Bcast(&best_tree_length, 1, MPI_LONG, 0, MPI_COMM_WORLD);
+	PushCurrentTreeToStack(MSA, treestack_ptr, inittree, root, LVB_FALSE);
+	misc->ID = treestack_ptr->next;
+	misc->SB = 1;
+	tree_setpush(MSA, inittree, root, mrTreeStack, misc);
+
+#elif LVB_HASH
+	CompareHashTreeToHashstack(MSA, treestack_ptr, inittree, root, LVB_FALSE);	/* init. tree initially best */
+#else
+	CompareTreeToTreestack(MSA, treestack_ptr, inittree, root, LVB_FALSE);	/* init. tree initially best */
+#endif
+
+	double trops_counter[3] = { 1,1,1 };
+	double trops_probs[3] = { 0,0,0 };
+	long trops_total = trops_counter[0] + trops_counter[1] + trops_counter[2];
+	long trops_id = 0;
+
+
+	if ((log_progress == LVB_TRUE) && (*current_iter == 0)) {
+
+		printf("\n--------------------------------------------------------");
+		fprintf(lenfp, "\n  Temperature:   Rearrangement: TreeStack size: Length:\n");
+		printf("--------------------------------------------------------\n");
 	}
-	
 
-			p_data_info_to_master->n_iterations = *current_iter;
-			p_data_info_to_master->n_seed = p_rcstruct->seed;
-			p_data_info_to_master->l_length = best_tree_length;
-			p_data_info_to_master->temperature = t;
-			
+	/*Writing output to table.tsv*/
+	FILE* pFile;
+	char change[10] = "";
+	if ((log_progress == LVB_TRUE) && (*current_iter == 0)) {
+		if (p_rcstruct->verbose == LVB_TRUE)
+		{
+			pFile = fopen("changeAccepted.tsv", "w");
+			fprintf(pFile, "Iteration\tAlgorithm\tAccepted\tLength\tTemperature\tTreestack Size\n");
+		}
+	}
+	tree_minimum_length = (double)MSA->min_len_tree;
+#ifndef parallel
+	int rank, nprocs;
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
 
-			Slave_wait_final_message(&request_message_from_master,&request_handle_send,p_n_state_progress,p_data_info_from_master,p_rcstruct,
-	p_n_number_tried_seed,p_data_info_to_master, mpi_recv_data, mpi_data_from_master);
+	Parameters rcstruct = *p_rcstruct;
+
+	int first_commu_to_master = 1;
+	p_data_info_from_master->n_is_to_continue = MPI_IS_TO_CONTINUE_ANNEAL;
+#endif	
+
+	while (1) {
+		int changeAcc = 0;
+		*current_iter += 1;
+		/* occasionally re-root, to prevent influence from root position */
+		if ((*current_iter % REROOT_INTERVAL) == 0) {
+			root = arbreroot(MSA, p_current_tree, root);
+			if ((log_progress == LVB_TRUE) && ((*current_iter % STAT_LOG_INTERVAL) == 0)) {
+				lenlog(lenfp, treestack_ptr, *current_iter, current_tree_length, t);
+			}
+
+#ifndef old
+			//Only Dynamic multi-instances needs to decide if being killed
+			if (p_rcstruct->parallel_selection == 2 && ((*current_iter % STAT_LOG_INTERVAL) == 0))
+			{
+				//printf("%d", request_handle_send);
+				//Slave_interval_reached(&request_handle_send, p_data_info_to_master, mpi_recv_data, &request_message_from_master,p_data_info_from_master,mpi_data_from_master, p_n_state_progress);
+				//if (request_handle_send != 0)
+				if(first_commu_to_master!=1)
+				{
+					
+					MPI_Wait(&request_handle_send, MPI_STATUS_IGNORE);
+					//printf("\nwarn after wait,  Slave_anneal for send_temp\n");
+				}
+
+				//if (request_message_from_master != 0)
+				if(first_commu_to_master!=1)
+				{
+					//printf("\nwait,  Slave_anneal for recv_manage\n");
+					MPI_Wait(&request_message_from_master, MPI_STATUS_IGNORE);
+				}
+				
+				
+				
+
+				//上一轮的temp，算出来不用kill;之前出错是因为第一轮没收到from_master故根本没有送与发，此时wait自然会sigment 11错误
+				if (p_data_info_from_master->n_is_to_continue == MPI_IS_TO_CONTINUE_ANNEAL)
+				{
+					//printf("\nwarn test\n");
+					p_data_info_to_master->n_iterations = *current_iter;
+					p_data_info_to_master->n_seed = p_rcstruct->seed;
+					p_data_info_to_master->l_length = best_tree_length;
+					p_data_info_to_master->temperature = t;
+					p_data_info_to_master->n_finish_message = MPI_IS_TO_CONTINUE;//it means this message is from reaching STAT_LOG_INTERVAL
+
+					//printf("Process:%d   send temperature:%.3g   iterations:%ld\n", myMPIid, t, *current_iter); 
+					MPI_Issend(p_data_info_to_master, 1, mpi_recv_data, MPI_MAIN_PROCESS, MPI_TAG_SEND_TEMP_MASTER, MPI_COMM_WORLD, &request_handle_send);
+					MPI_Irecv(p_data_info_from_master, 1, mpi_data_from_master, MPI_MAIN_PROCESS, MPI_TAG_MANAGEMENT_MASTER, MPI_COMM_WORLD, &request_message_from_master);
+					//printf("After Process:%d   send temperature:%.3g   iterations:%ld\n", myMPIid, t, *current_iter);
+
+				}
+				else if (p_data_info_from_master->n_is_to_continue == MPI_IS_TO_RESTART_ANNEAL || p_data_info_from_master->n_is_to_continue == MPI_IS_NOT_TO_RESTART)
+				{
+					*p_n_state_progress = MESSAGE_ANNEAL_KILLED;
+					break;
+				}
+
+				first_commu_to_master = 0;
+			}
+#endif
+
+		}
 
 
-    free(p_data_info_to_master);
-    free(p_data_info_from_master);
+		lvb_assert(t > DBL_EPSILON);
+
+		/* mutation: alternate between the two mutation functions */
+		proposed_tree_root = root;
+		if (rcstruct.algorithm_selection == 2)
+		{
+			trops_total = trops_counter[0] + trops_counter[1] + trops_counter[2];
+			trops_probs[0] = trops_counter[0] / trops_total;
+			trops_probs[1] = trops_counter[1] / trops_total;
+			trops_probs[2] = trops_counter[2] / trops_total;
+		}
+
+		if (rcstruct.algorithm_selection >= 1)
+		{
+			double random_val = uni();
+			if (random_val < trops_probs[0]) {
+				mutate_nni(MSA, p_proposed_tree, p_current_tree, root);	/* local change */
+				strcpy(change, "NNI");
+				if (rcstruct.algorithm_selection == 2)
+					trops_id = 0;
+			}
+			else if (random_val < trops_probs[0] + trops_probs[1]) {
+				mutate_spr(MSA, p_proposed_tree, p_current_tree, root);	/* global change */
+				strcpy(change, "SPR");
+				if (rcstruct.algorithm_selection == 2)
+					trops_id = 1;
+			}
+			else {
+				mutate_tbr(MSA, p_proposed_tree, p_current_tree, root);	/* global change */
+				strcpy(change, "TBR");
+				if (rcstruct.algorithm_selection == 2)
+					trops_id = 2;
+			}
+		}
+		else
+		{
+			if (iter & 0x01) {
+				mutate_spr(MSA, p_proposed_tree, p_current_tree, root);	/* global change */
+				strcpy(change, "SPR");
+			}
+			else {
+				mutate_nni(MSA, p_proposed_tree, p_current_tree, root);	/* local change */
+				strcpy(change, "NNI");
+			}
+		}
+
+		proposed_tree_length = getplen(MSA, p_proposed_tree, rcstruct, proposed_tree_root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+		lvb_assert(proposed_tree_length >= 1L);
+		tree_length_change = proposed_tree_length - current_tree_length;
+		deltah = (tree_minimum_length / (double)current_tree_length) - (tree_minimum_length / (double)proposed_tree_length);
+		if (deltah > 1.0) deltah = 1.0; /* MinimumTreeLength() problem with ambiguous sites */
+
+#ifdef LVB_MAPREDUCE  
+		MPI_Bcast(&tree_length_change, 1, MPI_LONG, 0, MPI_COMM_WORLD);
+		MPI_Bcast(&deltah, 1, MPI_LONG, 0, MPI_COMM_WORLD);
+		MPI_Bcast(&proposed_tree_length, 1, MPI_LONG, 0, MPI_COMM_WORLD);
+#endif
+
+		if (tree_length_change <= 0)	/* accept the change */
+		{
+#ifdef LVB_MAPREDUCE  
+			if (proposed_tree_length <= best_tree_length)	/* store tree if new */
+			{
+				if (proposed_tree_length < best_tree_length) {
+					ClearTreestack(treestack_ptr);
+					mrTreeStack->map(mrTreeStack, map_clean, NULL);
+				}
+				auto start_timer = high_resolution_clock::now();
+
+				if (CompareMapReduceTrees(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, total_count,
+					check_cmp, misc, mrTreeStack, mrBuffer) == 1) {
+					accepted++;
+					MPI_Bcast(&accepted, 1, MPI_LONG, 0, MPI_COMM_WORLD);
+				}
+				auto stop = high_resolution_clock::now();
+
+				auto duration = duration_cast<microseconds>(stop - start_timer);
+
+				if ((log_progress == LVB_TRUE) && ((treestack_ptr->next % 10) == 0)) {
+
+					FILE* timefunction = fopen("FunctionTimesMR", "a+");
+					fprintf(timefunction, "%ld\t%ld\t%ld\t%ld\n", *current_iter, duration.count(), treestack_ptr->next, best_tree_length);
+					fclose(timefunction);
+				}
+			}
+#else
+			if (proposed_tree_length <= best_tree_length)	/* store tree if new */
+			{
+				/*printf("%ld\n", *current_iter);*/
+				if (proposed_tree_length < best_tree_length) {
+					ClearTreestack(treestack_ptr);	/* discard old bests */
+				}
+#ifdef LVB_HASH
+				auto start_timer = high_resolution_clock::now();
+				if (CompareHashTreeToHashstack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE) == 1)
+#else
+				auto start_timer = high_resolution_clock::now();
+				if (CompareTreeToTreestack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE) == 1)
+#endif
+				{
+					accepted++;
+				}
+				auto stop = high_resolution_clock::now();
+
+				auto duration = duration_cast<microseconds>(stop - start_timer);
+
+#ifdef LVB_HASH
+
+				if ((log_progress == LVB_TRUE) && ((treestack_ptr->next % 10) == 0)) {
+
+					FILE* timefunction = fopen("FunctionTimesHASH", "a+");
+					fprintf(timefunction, "%ld\t%ld\t%ld\t%ld\n", *current_iter, duration.count(), treestack_ptr->next, best_tree_length);
+					fclose(timefunction);
+				}
+#else
+
+				if ((log_progress == LVB_TRUE) && ((treestack_ptr->next % 10) == 0)) {
+
+					FILE* timefunction = fopen("FunctionTimesNP", "a+");
+					fprintf(timefunction, "%ld\t%ld\t%ld\t%ld\n", *current_iter, duration.count(), treestack_ptr->next, best_tree_length);
+					fclose(timefunction);
+				}
+#endif
+			}
+#endif
+			/* update current tree and its stats */
+			current_tree_length = proposed_tree_length;
+			SwapTrees(&p_current_tree, &root, &p_proposed_tree, &proposed_tree_root);
+
+			/* very best so far */
+			if (proposed_tree_length < best_tree_length) {
+				best_tree_length = proposed_tree_length;
+#ifdef LVB_MAPREDUCE  
+				MPI_Bcast(&best_tree_length, 1, MPI_LONG, 0, MPI_COMM_WORLD);
+#endif
+			}
+			if (rcstruct.algorithm_selection == 1)
+				changeAcc = 1;
+
+		}
+		else	/* poss. accept change for the worse */
+		{
+			if (rcstruct.algorithm_selection == 2)
+				w_changes_prop++;
+			/* Mathematically,
+			 *     Pacc = e ** (-1/T * deltaH)
+			 *     therefore ln Pacc = -1/T * deltaH
+			 *
+			 * Computationally, if Pacc is going to be small, we
+			 * can assume Pacc is 0 without actually working it
+			 * out.
+			 * i.e.,
+			 *     if ln Pacc < ln eps, let Pacc = 0
+			 * substituting,
+			 *     if -deltaH / T < ln eps, let Pacc = 0
+			 * rearranging,
+			 *     if -deltaH < T * ln eps, let Pacc = 0
+			 * This lets us work out whether Pacc will be very
+			 * close to zero without dividing anything by T. This
+			 * should prevent overflow. Since T is no less
+			 * than eps and ln eps is going to have greater
+			 * magnitude than eps, underflow when calculating
+			 * T * ln eps is not possible. */
+			if (-deltah < t * log_wrapper_LVB_EPS)
+			{
+				pacc = 0.0;
+				/* Call uni() even though its not required. It
+				 * would have been called in LVB 1.0A, so this
+				 * helps make results identical to results with
+				 * that version. */
+				(void)uni();
+			}
+			else	/* possibly accept the change */
+			{
+				pacc = exp_wrapper(-deltah / t);
+				if (uni() < pacc)	/* do accept the change */
+				{
+					SwapTrees(&p_current_tree, &root, &p_proposed_tree, &proposed_tree_root);
+					if (rcstruct.algorithm_selection == 2)
+						w_changes_acc++;
+					current_tree_length = proposed_tree_length;
+					if (rcstruct.algorithm_selection == 1)
+						changeAcc = 1;
+				}
+			}
+		}
+		proposed++;
+#ifdef LVB_MAPREDUCE  
+		MPI_Bcast(&proposed, 1, MPI_LONG, 0, MPI_COMM_WORLD);
+#endif
+
+
+		/* decide whether to reduce temperature */
+		if (accepted >= maxaccept) {	/* enough new trees */
+
+			failedcnt = 0;  /* this temperature a 'success' */
+			dect = LVB_TRUE;
+		}
+		else if (proposed >= maxpropose) {	/* enough proposals */
+			failedcnt++;
+#ifdef LVB_MAPREDUCE  
+			int check_stop = 0;
+			if (misc->rank == 0 && failedcnt >= maxfail && t < FROZEN_T) check_stop = 1;
+			MPI_Bcast(&check_stop, 1, MPI_INT, 0, MPI_COMM_WORLD);
+			if (check_stop == 1) {
+				MPI_Bcast(&failedcnt, 1, MPI_LONG, 0, MPI_COMM_WORLD);
+				MPI_Bcast(&t, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+			}
+#endif
+			if (failedcnt >= maxfail && t < FROZEN_T)	/* system frozen */
+			{
+				/* Preliminary experiments yielded that the freezing
+				 * criterion used in previous versions of LVB is not
+				 * suitable for the new version and regularly results
+				 * in premature termination of the search. An easy fix
+				 * is to only apply the freezing criterion in the
+				 * temperature ranges of previous versions of LVB
+				 * (LVB_EPS < t < 10^-4). Future work will look at optimising
+				 * maxpropose, maxaccept and maxfail directly. */
+				break; /* end of cooling */
+			}
+			else {	/* system not frozen, so further decrease temp. */
+				dect = LVB_TRUE;
+			}
+		}
+
+		if (dect == LVB_TRUE)
+		{
+			t_n++;	/* originally n is 0 */
+
+			if (rcstruct.cooling_schedule == 0)  /* Geometric cooling */
+			{
+				/* Ensure t doesn't go out of bound */
+				ln_t = ((double)t_n) * log_wrapper_grad_geom + log_wrapper_t0;
+				if (ln_t < log_wrapper_LVB_EPS) t = LVB_EPS;
+				else t = pow_wrapper(grad_geom, (double)t_n) * t0; /* decrease the temperature */
+				if (rcstruct.algorithm_selection == 1)
+				{
+					trops_probs[2] = t / t0;
+					trops_probs[1] = (1 - trops_probs[2]) / 2;
+					trops_probs[0] = trops_probs[1];
+				}
+			}
+			else /* Linear cooling */
+			{
+				t = t0 - grad_linear * t_n;
+				/* Make sure t doesn't go out of bounce */
+				if (t < DBL_EPSILON || t <= LVB_EPS) t = LVB_EPS;
+			}
+			proposed = 0;
+#ifdef LVB_MAPREDUCE  
+			MPI_Bcast(&proposed, 1, MPI_LONG, 0, MPI_COMM_WORLD);
+			accepted = 0;
+			MPI_Bcast(&accepted, 1, MPI_LONG, 0, MPI_COMM_WORLD);
+			dect = LVB_FALSE;
+#else
+			accepted = 0;
+			dect = LVB_FALSE;
+#endif
+			if (rcstruct.algorithm_selection == 2)
+			{
+				w_changes_prop = 0;
+				w_changes_acc = 0;
+			}
+		}
+
+		iter++;
+
+		if (rcstruct.n_number_max_trees > 0 && treestack_ptr->next >= rcstruct.n_number_max_trees) {
+			break;
+		}
+
+		if (rcstruct.algorithm_selection == 2)
+		{
+			if (changeAcc == 1) {
+				trops_counter[trops_id]++;
+			}
+			else {
+				for (int i = 0; i < 3; i++) {
+					if (trops_id != i)
+						trops_counter[i] = trops_counter[i] + 0.5;
+				}
+			}
+		}
+		if (rcstruct.verbose == LVB_TRUE)
+			fprintf(pFile, "%ld\t%s\t%d\t%ld\t%lf\t%ld\n", iter, change, changeAcc, current_tree_length, t * 10000, treestack_ptr->next);
+#ifdef LVB_MAPREDUCE  
+		MPI_Barrier(MPI_COMM_WORLD);
+
+	}
+	print_sets(MSA, treestack_ptr, misc);
+#else 
+}
+#endif
+
+#ifndef old
+
+	p_data_info_to_master->n_iterations = *current_iter;
+	p_data_info_to_master->n_seed = p_rcstruct->seed;
+	p_data_info_to_master->l_length = best_tree_length;
+	p_data_info_to_master->temperature = t;
+
+
+	Slave_wait_final_message(&request_message_from_master, &request_handle_send, p_n_state_progress, p_data_info_from_master, p_rcstruct,
+		p_n_number_tried_seed, p_data_info_to_master, mpi_recv_data, mpi_data_from_master, first_commu_to_master);
+
+
+	free(p_data_info_to_master);
+	free(p_data_info_from_master);
 #endif
 
 
 
 
-    /* free "local" dynamic heap memory */
+	/* free "local" dynamic heap memory */
 	if (p_rcstruct->verbose == LVB_TRUE)
-	fclose(pFile);
-    free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-    free(p_current_tree);
-    free(p_proposed_tree);
-    return best_tree_length;
+		fclose(pFile);
+	free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
+	free(p_current_tree);
+	free(p_proposed_tree);
+	return best_tree_length;
 
 } /* end Anneal() */
 
@@ -1319,23 +1313,27 @@ long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool l
 
 
 	//Rank 0 send initial seed for Slaves
-	if(rank==0&&(rcstruct.parallel_selection==2||rcstruct.parallel_selection==0))
+	if(rank==0)
 	{
 		for (i = 1; i < nprocs; i++) 
 		{
-			/* send binary data of each sample */
-			MPI_Send(&rcstruct.seed, 1, MPI_INT, i, MPI_TAG_PARAMS, MPI_COMM_WORLD); //, &request);
+			/* send different to each proc */
+			MPI_Send(&rcstruct.seed, 1, MPI_INT, i, MPI_TAG_PARAMS, MPI_COMM_WORLD); 
 			rcstruct.seed = get_other_seed_to_run_a_process();
 		}
-		get_temperature_and_control_process_from_other_process(nprocs, rcstruct.nruns);
-		goto finish;
+
+		//Master start monitoring Slave, and do not need run SA
+		if (rcstruct.parallel_selection == 2 || rcstruct.parallel_selection == 0)
+		{
+			get_temperature_and_control_process_from_other_process(nprocs, rcstruct.nruns);
+			goto finish;
+		}
 	}
-	else if(rcstruct.parallel_selection==2||rcstruct.parallel_selection==0)
+	else
 	{
 		MPI_Recv(&rcstruct.seed, 1, MPI_INT, MPI_MAIN_PROCESS, MPI_TAG_PARAMS, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-		rinit(rcstruct.seed);//reset seed
-
 	}
+	rinit(rcstruct.seed);//reset seed
 
 
 #endif
@@ -1522,12 +1520,8 @@ do{
 #endif
 
 #ifndef old
-if(rcstruct.parallel_selection==1)
-	break;
-
-//int Slave_after_anneal_once(Dataptr MSA, TREESTACK_TREE_NODES* tree, int n_state_progress, long initroot, TREESTACK* treestack,
-	//TREESTACK* best_treestack, int myMPIid, long* l_iterations, long* treelength, long* best_treelength,
-	//int n_number_tried_seed_next, Parameters rcstruct)
+	if (rcstruct.parallel_selection == 1)
+		break;
 
     int is_conti = Slave_after_anneal_once(MSA,tree,n_state_progress,initroot,&treestack,&best_treestack,rank,iter_p,&treelength,&best_treelength, n_number_tried_seed_next,rcstruct);
     if(!is_conti)

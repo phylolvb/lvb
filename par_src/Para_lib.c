@@ -98,7 +98,7 @@ void Root_get_best_treestack(Dataptr MSA, long *best_treelength_local, int root,
 {
 	long * all_len;
 
-	printf("\n\n\nlocal best length %ld,  rank %d ----\n\n",*best_treelength_local, rank);
+	//printf("\n\n\nlocal best length %ld,  rank %d ----\n\n",*best_treelength_local, rank);
 	//if(rank==1)
 	//best_treelength=1;
 
@@ -187,7 +187,7 @@ void  Send_best_treestack_to_root(Dataptr MSA, int rank,int root, int best_rank,
         return;
     else if (best_rank == rank)
     {
-        printf("\n\nbest_rank %d, has stack size %ld and next %ld\n\n", rank, treestack->size, treestack->next);
+        //printf("\n\nbest_rank %d, has stack size %ld and next %ld\n\n", rank, treestack->size, treestack->next);
         MPI_Ssend(&treestack->next, 1, MPI_LONG, root,0, MPI_COMM_WORLD);
 
         MPI_Request req_1[treestack->next], req_2[treestack->next];
@@ -433,7 +433,7 @@ void Slave_interval_reached(MPI_Request *request_handle_send,SendInfoToMaster *p
 #ifndef old
 void Slave_wait_final_message(MPI_Request *request_message_from_master, MPI_Request *request_handle_send,int *p_n_state_progress, 
 	RecvInfoFromMaster *p_data_info_from_master, Parameters *p_rcstruct, int *p_n_number_tried_seed, SendInfoToMaster * p_data_info_to_master, 
-	MPI_Datatype mpi_recv_data, MPI_Datatype mpi_data_from_master)
+	MPI_Datatype mpi_recv_data, MPI_Datatype mpi_data_from_master, int first_commu_to_master)
 {
 	
 
@@ -441,15 +441,15 @@ void Slave_wait_final_message(MPI_Request *request_message_from_master, MPI_Requ
 
 
 		//frozen,需要等temp与manage,需要现在发送temp与等待manage；killed则不需要
-		if (*p_n_state_progress == MESSAGE_ANNEAL_FINISHED_AND_REPEAT)
+		if ( *p_n_state_progress == MESSAGE_ANNEAL_FINISHED_AND_REPEAT)
 		{
-			if (*request_handle_send != 0)
+			if (first_commu_to_master != 1)
 			{
-				//printf("\nwait,  Slave_anneal for send_temp\n");
 				MPI_Wait(request_handle_send, MPI_STATUS_IGNORE);
 			}
 
-			if (*request_message_from_master != 0)
+			//if (request_message_from_master != 0)
+			if (first_commu_to_master != 1)
 			{
 				//printf("\nwait,  Slave_anneal for recv_manage\n");
 				MPI_Wait(request_message_from_master, MPI_STATUS_IGNORE);
@@ -470,9 +470,8 @@ void Slave_wait_final_message(MPI_Request *request_message_from_master, MPI_Requ
 				MPI_Wait(request_handle_send, MPI_STATUS_IGNORE);
 
 				/* need to wait for information if is necessary to run another */
-				/* this one need to print the result */
 				MPI_Status mpi_status;
-				MPI_Recv(p_data_info_from_master, 1, mpi_data_from_master, MPI_MAIN_PROCESS, MPI_TAG_SEND_RESTART, MPI_COMM_WORLD, &mpi_status); /* this one waits until the master receive all confirmations */
+				MPI_Recv(p_data_info_from_master, 1, mpi_data_from_master, MPI_MAIN_PROCESS, MPI_TAG_MANAGEMENT_MASTER, MPI_COMM_WORLD, &mpi_status); /* this one waits until the master receive all confirmations */
 			}
 			
 		}
@@ -496,7 +495,7 @@ void Slave_wait_final_message(MPI_Request *request_message_from_master, MPI_Requ
 			else
 				*p_n_state_progress = MESSAGE_ANNEAL_FINISHED_AND_REPEAT;
 
-			*p_n_number_tried_seed = p_data_info_from_master->n_process_tried;  /* it's necessary to create a file with trees */
+			*p_n_number_tried_seed = p_data_info_from_master->n_process_tried;  
 		}
 
 
@@ -572,6 +571,13 @@ int Slave_after_anneal_once(Dataptr MSA, TREESTACK_TREE_NODES *tree, int n_state
 
 }
 
+
+
+
+
+
+
+
 void get_temperature_and_control_process_from_other_process(int num_procs, int n_seeds_to_try)
 {
 
@@ -640,28 +646,40 @@ void get_temperature_and_control_process_from_other_process(int num_procs, int n
 			*(p_info_manage + i) = (RecvInfoFromMaster *) malloc(sizeof(RecvInfoFromMaster));
 		}
 
+
+		int killCall_counts[num_procs - 1];//counts of call to is_possible_to_continue, first CALC_ITERATION_ONLY_RELEASE_AFTER_NUMBER_CHUNCHS calls won't kill
+
 		/* first get handles for all receivers */
 		for (i = 1; i < num_procs; i++) {//temp从0开始用，finish从1开始用，
 			MPI_Irecv(*(p_info_temperature + (i - 1)), 1, mpi_recv_data, i, MPI_TAG_SEND_TEMP_MASTER, MPI_COMM_WORLD, pHandleTemperatureRecv + i);
-			//MPI_Irecv(pIntFinishedProcess + i, 1, MPI_INT, i, MPI_TAG_SEND_FINISHED, MPI_COMM_WORLD, pHandleFinishProcess + i);//对面只会送来，int n_finish_message = MPI_FINISHED;
 			*(pHandleManagementProcess + i) = 0;
 			*(pIntProcessControlNumberRunning + i) = i;   /* the index number of ones that are running *///从第0个seed开始算，应该是bug，应该从i开始
+			killCall_counts[i - 1] = 0;
 		}
 
 		/* alloc memory main calc iterations*/
 		p_calc_iterations = get_alloc_main_calc_iterations();
 		n_seeds_tried = num_procs - 1;	/* we try always these number of seeds in beginning */
+
+		printf("\nCALC_ITERATION_ONLY_RELEASE_AFTER_NUMBER_CHUNCHS: %d\nCALC_ITERATION_NUMBER_STD_TO_RESTART_PROCESS:%d \n", 
+			CALC_ITERATION_ONLY_RELEASE_AFTER_NUMBER_CHUNCHS, CALC_ITERATION_NUMBER_STD_TO_RESTART_PROCESS);
+
+		printf("\n--------------------------------------------------------");
+		printf("\n  No.\tSeed used\tnumber of iterations\tFinal esult\tLength\ttemperature\tRestart\n");
+		printf("--------------------------------------------------------\n");
+
+		
 		while (1){
 
 			for (i = 1; i < num_procs; i++) {
 
 				/* if is equal to ANNEAL_STOP_PROCESS it is not necessary to do anything else to this process */
 				/* because the limit of tried process is reached */
-				if (*(pIntFinishedProcessChecked + i) != MESSAGE_ANNEAL_STOP_PROCESS_WAIT_FINAL_MESSAGE && *(pIntFinishedProcessChecked + i) != MESSAGE_ANNEAL_STOP_PROCESS){
-
+				if (*(pIntFinishedProcessChecked + i) != MESSAGE_ANNEAL_STOP_PROCESS)
+				{
 					MPI_Test(pHandleTemperatureRecv + i, &nFlag, &mpi_status);
 					if (nFlag == 1) {	/* message received */
-						//printf("Process:%d    main process getting temperature and length from process:%d   temperature:%-15.8g   length:%ld   iteration:%d\n", mpi_status.MPI_SOURCE,
+						//printf("\nProcess:%d    main process getting temperature and length from process:%d   temperature:%-15.8g   length:%ld   iteration:%d\n", mpi_status.MPI_SOURCE,
 							//i, (*(p_info_temperature + (i - 1)))->temperature, (*(p_info_temperature + (i - 1)))->l_length,
 								//(*(p_info_temperature + (i - 1)))->n_iterations);
 
@@ -678,11 +696,12 @@ void get_temperature_and_control_process_from_other_process(int num_procs, int n
 						//while 里interval到了，发送的
 						if ((*(p_info_temperature + (i - 1)))->n_finish_message == MPI_IS_TO_CONTINUE)
 						{
-
 							add_temperature_cal_iterations(p_calc_iterations, *(p_info_temperature + (i - 1)), *(pIntProcessControlNumberRunning + i));
 							if (is_possible_to_continue(p_calc_iterations, (*(p_info_temperature + (i - 1)))->temperature,
-								(*(p_info_temperature + (i - 1)))->n_iterations, (*(p_info_temperature + (i - 1)))->l_length, num_procs, 0)) {
+								(*(p_info_temperature + (i - 1)))->n_iterations, (*(p_info_temperature + (i - 1)))->l_length, num_procs, killCall_counts[i-1])) {
 								(*(p_info_manage + (i - 1)))->n_is_to_continue = MPI_IS_TO_CONTINUE_ANNEAL;
+
+								killCall_counts[i - 1]++;
 
 								/* send management message */
 								/*printf("Process:%d   send management to process:%d\n", 0, i); */
@@ -695,11 +714,16 @@ void get_temperature_and_control_process_from_other_process(int num_procs, int n
 
 							}
 							else {//kill
+
+								killCall_counts[i - 1] = 0;
 								/*receive final tree length*/
 								Final_results[idx] = *(*(p_info_temperature + (i - 1)));
-								printf("Seed used:%d: number of iterations:%d,", Final_results[idx].n_seed, Final_results[idx].n_iterations);
-								printf("Killed, final tree length:%ld,", Final_results[idx].l_length);
-								printf("final temperature: %lf ,  ", Final_results[idx].temperature);
+								//printf("Seed used:%d: number of iterations:%d,", Final_results[idx].n_seed, Final_results[idx].n_iterations);
+								//printf("Killed, final tree length:%ld,", Final_results[idx].l_length);
+								//printf("final temperature: %lf ,  ", Final_results[idx].temperature);
+								printf("%d\t%d\t%d\t\t\t", *(pIntProcessControlNumberRunning + i), Final_results[idx].n_seed, Final_results[idx].n_iterations);
+								printf("Killed\t\t");
+								printf("%ld\t%lf\t", Final_results[idx].l_length, Final_results[idx].temperature);
 								idx++;
 
 
@@ -715,18 +739,23 @@ void get_temperature_and_control_process_from_other_process(int num_procs, int n
 									(*(p_info_manage + (i - 1)))->n_is_to_continue = MPI_IS_TO_RESTART_ANNEAL;
 									(*(p_info_manage + (i - 1)))->n_process_tried = n_seeds_tried;
 									//printf("Process:%d    send to restart\n", i);
-									printf("the proc is Process:%d, restart try seed number process:%d   new seed:%d\n", i, n_seeds_tried, (*(p_info_manage + (i - 1)))->n_seed);
+									//printf("the proc is Process:%d, restart try seed number process:%d   new seed:%d\n", i, n_seeds_tried, (*(p_info_manage + (i - 1)))->n_seed);
+									printf("Yes\n");
 
-									MPI_Ssend(*(p_info_manage + (i - 1)), 1, mpi_send_data, i, MPI_TAG_SEND_RESTART, MPI_COMM_WORLD);//必须等slave得到这个restart的control
+									//MPI_Ssend(*(p_info_manage + (i - 1)), 1, mpi_send_data, i, MPI_TAG_MANAGEMENT_MASTER, MPI_COMM_WORLD);//必须等slave得到这个restart的control
+									MPI_Issend(*(p_info_manage + (i - 1)), 1, mpi_send_data, i, MPI_TAG_MANAGEMENT_MASTER, MPI_COMM_WORLD, pHandleManagementProcess + i);
 									MPI_Irecv(*(p_info_temperature + (i - 1)), 1, mpi_recv_data, i, MPI_TAG_SEND_TEMP_MASTER, MPI_COMM_WORLD, pHandleTemperatureRecv + i);
 
 								}
 								else {
 									*(pIntFinishedProcessChecked + i) = MESSAGE_ANNEAL_STOP_PROCESS;
 									(*(p_info_manage + (i - 1)))->n_is_to_continue = MPI_IS_NOT_TO_RESTART;
-									printf("the proc is Process:%d    isn't to restart\n", i);
-									//printf("\nwarn rank %d, stuck_1\n");
-									MPI_Ssend(*(p_info_manage + (i - 1)), 1, mpi_send_data, i, MPI_TAG_SEND_RESTART, MPI_COMM_WORLD);
+									//printf("the proc is Process:%d    isn't to restart\n", i);
+									printf("No\n");
+									
+									//Must wait for this slave receiving manage message
+									//MPI_Ssend(*(p_info_manage + (i - 1)), 1, mpi_send_data, i, MPI_TAG_MANAGEMENT_MASTER, MPI_COMM_WORLD);
+									MPI_Issend(*(p_info_manage + (i - 1)), 1, mpi_send_data, i, MPI_TAG_MANAGEMENT_MASTER, MPI_COMM_WORLD, pHandleManagementProcess + i);
 									//printf("\nrank %d, stuck_2\n");
 
 									*(pHandleTemperatureRecv + i) = 0;//无需在接收temp了，因为这个slave不会restart
@@ -736,12 +765,16 @@ void get_temperature_and_control_process_from_other_process(int num_procs, int n
 						}
 						else if ((*(p_info_temperature + (i - 1)))->n_finish_message == MPI_FINISHED)//frozen送来的
 						{
+							killCall_counts[i - 1] = 0;
 
 							/*receive final tree length*/
 							Final_results[idx] = *(*(p_info_temperature + (i - 1)));
-							printf("Seed used:%d: number of iterations:%d,", Final_results[idx].n_seed, Final_results[idx].n_iterations);
-							printf("Frozen, final tree length:%ld,", Final_results[idx].l_length);
-							printf("final temperature: %lf ,  ", Final_results[idx].temperature);
+							//printf("Seed used:%d: number of iterations:%d,", Final_results[idx].n_seed, Final_results[idx].n_iterations);
+							//printf("Frozen, final tree length:%ld,", Final_results[idx].l_length);
+							//printf("final temperature: %lf ,  ", Final_results[idx].temperature);
+							printf("%d\t%d\t%d\t\t\t", *(pIntProcessControlNumberRunning + i), Final_results[idx].n_seed, Final_results[idx].n_iterations);
+							printf("Frozen\t\t");
+							printf("%ld\t%lf\t", Final_results[idx].l_length, Final_results[idx].temperature);
 							idx++;
 
 
@@ -755,9 +788,11 @@ void get_temperature_and_control_process_from_other_process(int num_procs, int n
 								(*(p_info_manage + (i - 1)))->n_is_to_continue = MPI_IS_TO_RESTART_ANNEAL;
 								(*(p_info_manage + (i - 1)))->n_process_tried = n_seeds_tried;
 								//printf("Process:%d    send to restart\n", i);
-								printf("the proc is Process:%d, restart try seed number process:%d   new seed:%d\n", i, n_seeds_tried, (*(p_info_manage + (i - 1)))->n_seed);
+								//printf("the proc is Process:%d, restart try seed number process:%d   new seed:%d\n", i, n_seeds_tried, (*(p_info_manage + (i - 1)))->n_seed);
+								printf("Yes\n");
 
-								MPI_Ssend(*(p_info_manage + (i - 1)), 1, mpi_send_data, i, MPI_TAG_SEND_RESTART, MPI_COMM_WORLD);
+								//MPI_Ssend(*(p_info_manage + (i - 1)), 1, mpi_send_data, i, MPI_TAG_MANAGEMENT_MASTER, MPI_COMM_WORLD);
+								MPI_Issend(*(p_info_manage + (i - 1)), 1, mpi_send_data, i, MPI_TAG_MANAGEMENT_MASTER, MPI_COMM_WORLD, pHandleManagementProcess + i);
 
 								/* launch other wait messages */
 								MPI_Irecv(*(p_info_temperature + (i - 1)), 1, mpi_recv_data, i, MPI_TAG_SEND_TEMP_MASTER, MPI_COMM_WORLD, pHandleTemperatureRecv + i);
@@ -766,9 +801,12 @@ void get_temperature_and_control_process_from_other_process(int num_procs, int n
 							else {
 								*(pIntFinishedProcessChecked + i) = MESSAGE_ANNEAL_STOP_PROCESS;
 								(*(p_info_manage + (i - 1)))->n_is_to_continue = MPI_IS_NOT_TO_RESTART;
-								printf("the proc is Process:%d    isn't to restart\n", i);
-								//printf("\nwarn rank %d, stuck_1\n");
-								MPI_Ssend(*(p_info_manage + (i - 1)), 1, mpi_send_data, i, MPI_TAG_SEND_RESTART, MPI_COMM_WORLD);
+								//printf("the proc is Process:%d    isn't to restart\n", i);
+								printf("No\n");
+
+
+								//MPI_Ssend(*(p_info_manage + (i - 1)), 1, mpi_send_data, i, MPI_TAG_SEND_RESTART, MPI_COMM_WORLD);
+								MPI_Issend(*(p_info_manage + (i - 1)), 1, mpi_send_data, i, MPI_TAG_MANAGEMENT_MASTER, MPI_COMM_WORLD, pHandleManagementProcess + i);
 								//printf("\nrank %d, stuck_2\n");
 								/* there's no need other MPI messages */
 								*(pHandleTemperatureRecv + i) = 0;
@@ -786,26 +824,12 @@ void get_temperature_and_control_process_from_other_process(int num_procs, int n
 			}
 
 			/* is it finished, all of then?  */
-			if (nProcessFinished == n_seeds_to_try){
+			if (nProcessFinished == n_seeds_to_try)
+			{
+				//Wait all not-to-restart manage
+				MPI_Waitall(num_procs - 1, pHandleManagementProcess + 1, MPI_STATUSES_IGNORE);
 				/* All processes are finished */
 				/* cancel the requests of temperature */
-				/*
-				for (i = 1; i < num_procs; i++){
-					if (*(pHandleTemperatureRecv + i) != 0)
-					{
-						MPI_Cancel(pHandleTemperatureRecv + i);
-						//MPI_Wait(pHandleTemperatureRecv + i, MPI_STATUS_IGNORE);
-						MPI_Request_free(pHandleTemperatureRecv + i);
-					}
-						
-					if (*(pHandleManagementProcess + i) != 0)
-					{
-						MPI_Cancel(pHandleManagementProcess + i);
-						//MPI_Wait(pHandleManagementProcess + i, MPI_STATUS_IGNORE);
-						MPI_Request_free(pHandleManagementProcess + i);
-					}
-				}
-				*/
 				break;
 			}
 		}

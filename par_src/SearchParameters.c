@@ -87,7 +87,7 @@ void defaults_params(Parameters *const prms)
     prms->n_processors_available = omp_get_max_threads();
 	prms->n_number_max_trees = 0;			/* default, keep all EPT */
 	
-    prms->parallel_selection=0;/*default, launch multiple independent instances*/
+    prms->parallel_selection=0;/*default, launch static multiple independent instances*/
     prms->nruns=100;
 
 } /* end defaults_params() */
@@ -177,12 +177,12 @@ void writeinf(Parameters prms, Dataptr MSA, int argc, char **argv)
 #ifndef parallel
 	int nprocs;
 	MPI_Comm_size(MPI_COMM_WORLD,&nprocs);	
-	printf("number of MPI processes: %d\n", nprocs);
-	printf("number of runs: %d\n", prms.nruns);
+	printf("  Number of MPI processes: %d\n", nprocs);
+	printf("  Number of runs: %d\n", prms.nruns);
 	printf("  MPI parallel strategy(Yi): ");
-	if(prms.parallel_selection == 0) printf("          0 (multi independent runs)\n");
+	if(prms.parallel_selection == 0) printf("          0 (Static-multiple )\n");
     	else if(prms.parallel_selection == 1) printf("          1 (Cluster)\n");
-    	else if(prms.parallel_selection == 2) printf("          2 (SPT)\n");
+    	else if(prms.parallel_selection == 2) printf("          2 (Dynamic-multiple)\n");
 
 #endif
 		

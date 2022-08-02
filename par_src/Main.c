@@ -56,21 +56,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Verbose.h"
 
 
-void printMSA(Dataptr MSA)
-{
-	printf(" int n_threads_getplen:%d \n int n_slice_size_getplen:%d\n  long m : %ld\n", MSA->n_threads_getplen, MSA->n_slice_size_getplen, MSA->m);
-	printf("long original_m : %ld  \n long n : %ld  \nlong max_length_seq_name : %ld \n long numberofpossiblebranches : %ld \n long bytes : %ld\n", MSA->original_m, MSA->n, MSA->max_length_seq_name, MSA->numberofpossiblebranches, MSA->bytes);
-	printf("long tree_bytes : %ld    \nlong tree_bytes_without_sitestate : %ld  \nlong nwords : %ld\n", MSA->tree_bytes, MSA->tree_bytes_without_sitestate, MSA->nwords);
-	printf("long min_len_tree : %ld  \nlong nsets : %ld   \nlong mssz : %ld   \n", MSA->min_len_tree, MSA->nsets, MSA->mssz);
-	for (int i = 0; i < MSA->n; i++)
-	{
-		printf("%s: %s\n", MSA->rowtitle[i], MSA->row[i]);
-	}
-
-
-
-}
-
 int main(int argc, char **argv)
 {
 	Dataptr MSA;	/* data MSA */
@@ -164,7 +149,7 @@ if(rank==0)
     }
     rinit(rcstruct.seed);
     if(rank==0)
-	log_progress = LVB_TRUE;
+		log_progress = LVB_TRUE;
     else
 	    log_progress = LVB_FALSE;
 
@@ -197,6 +182,7 @@ if(rank==0)
 
 	if(rank != 0)
 		goto Slave_finish;//Only Master/rank 0 output the best treestack ever found
+
 	trees_output = PrintTreestack(MSA, &treestack, outtreefp, LVB_FALSE);
 	
 	#endif

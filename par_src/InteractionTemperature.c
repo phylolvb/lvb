@@ -127,10 +127,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		/* calc std */
 		l_ss = 0.0;
 		for (IndividualTemperature *p_temp = p_temperature; p_temp != NULL; p_temp = p_temp->p_next_temperature){
-			//printf("\nerr:%f, result: %f\n", l_avg - (double)(p_temp->l_length), pow_wrapper(fabs(l_avg - (double)(p_temp->l_length)), 2));
 			l_ss += pow_wrapper(fabs(l_avg - (double)(p_temp->l_length)), 2);
 		}
 		l_std = sqrt(l_ss / (double) n_count);
+		//printf("std:%lf\n", l_std);
 		return l_avg + (l_std * (double) CALC_ITERATION_NUMBER_STD_TO_RESTART_PROCESS);
 	}
 
@@ -140,10 +140,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 		if (p_data == NULL) return LVB_TRUE;	/* default is always true */
 		if (p_data->n_iteration == n_iteration) {	/* is this one to get the std + average */
-			if (n_count_call < CALC_ITERATION_ONLY_RELEASE_AFTER_NUMBER_CHUNCHS) return LVB_TRUE;
+			if (n_count_call < CALC_ITERATION_ONLY_RELEASE_AFTER_NUMBER_CHUNCHS) return LVB_TRUE; //first several calls, won't kill
+
+			//printf("\nn_iter: %d", n_iteration);
 
 			double d_threshold_value = get_threshold_length(p_data->p_temperature, n_max_number_process);
-	//		printf("Iteration:%d     threshold:%.8f    temperature:%.8f\n", n_iteration, d_threshold_value, d_temperature);
 			if (d_threshold_value == 0)  return LVB_TRUE;
 			if ((double) l_tree_length > d_threshold_value) return LVB_FALSE;
 			return LVB_TRUE;
