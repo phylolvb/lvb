@@ -4,7 +4,7 @@
 
 #ifndef STRUCT_PARA
 #define STRUCT_PARA
-
+#include "Clock.h"
 
 /* test if is possible to continue */
 #define CALC_ITERATION_ONLY_RELEASE_AFTER_NUMBER_CHUNCHS 3
@@ -84,13 +84,33 @@ typedef struct IterationTemperature
 }IterationTemperature;
 
 
+typedef struct Info_record
+{
+    int frozen_or_kill; //0 ->killed, 1->frozen
+    clock_t start;
+    clock_t end;
+    double time_consumed;
+    double slave_time_consumed;
+    double slave_comm_cost;
+    int proc; //which process/rank deal with
+    SendInfoToMaster result;
+}Info_record;
+
+typedef struct Slave_record
+{
+    double anneal_once;
+    double comm_cost;
+    int no_seed;
+    struct Slave_record* next;
+}Slave_record;
+
 int get_other_seed_to_run_a_process();
 //void Root_get_best_treestack(Dataptr MSA, long best_length, int root, int rank, int nprocs, TREESTACK* treestack);
 //void  Send_best_treestack_to_root(Dataptr MSA, int rank, int root, int best_rank, int nprocs, long best_treelength, TREESTACK* treestack);
 void  Send_best_treestack_to_root(Dataptr MSA, int rank, int root, int best_rank, int nprocs, TREESTACK* treestack);
 void Root_get_best_treestack(Dataptr MSA, long *best_treelength_local, int root, int rank, int nprocs, TREESTACK* treestack);
 void Bcast_best_partial_tree_to_root(Dataptr MSA, long best_treelength, int rank, int nprocs, TREESTACK_TREE_NODES* BranchArray, long* tree_root);
-void Slave_interval_reached(MPI_Request *request_handle_send,SendInfoToMaster *p_data_info_to_master, MPI_Datatype mpi_recv_data, MPI_Request *request_message_from_master, RecvInfoFromMaster * p_data_info_from_master, MPI_Datatype mpi_data_from_master, int *p_n_state_progress);
+//void Slave_interval_reached(MPI_Request *request_handle_send,SendInfoToMaster *p_data_info_to_master, MPI_Datatype mpi_recv_data, MPI_Request *request_message_from_master, RecvInfoFromMaster * p_data_info_from_master, MPI_Datatype mpi_data_from_master, int *p_n_state_progress);
 
 void Slave_wait_final_message(MPI_Request* request_message_from_master, MPI_Request* request_handle_send, int* p_n_state_progress,
     RecvInfoFromMaster* p_data_info_from_master, Parameters* p_rcstruct, int* p_n_number_tried_seed, SendInfoToMaster* p_data_info_to_master,
@@ -98,6 +118,8 @@ void Slave_wait_final_message(MPI_Request* request_message_from_master, MPI_Requ
 int Slave_after_anneal_once(Dataptr MSA, TREESTACK_TREE_NODES* tree, int n_state_progress, long initroot, TREESTACK* treestack,
     TREESTACK* best_treestack, int myMPIid, long* l_iterations, long* treelength, long* best_treelength,
     int n_number_tried_seed_next, Parameters rcstruct);
-void get_temperature_and_control_process_from_other_process(int num_procs, int n_seeds_to_try);
-
+void get_temperature_and_control_process_from_other_process(int num_procs, int n_seeds_to_try, Info_record* record);
+void write_final_results(Info_record* record, Parameters rcstruct, double overall_time_taken);
+void Slave_send_record_to_Master(int depth, Slave_record* record_slave);
+void Master_recv_record_from_Slave(Info_record* record, int nruns);
 #endif

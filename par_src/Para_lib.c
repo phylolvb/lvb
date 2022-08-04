@@ -574,11 +574,128 @@ int Slave_after_anneal_once(Dataptr MSA, TREESTACK_TREE_NODES *tree, int n_state
 
 
 
+void write_final_results(Info_record* record, Parameters rcstruct, double overall_time_taken)
+{
+	char statistics_output[200];
+	sprintf(statistics_output, "%s_%d.txt", rcstruct.file_name_in, rcstruct.nruns); /* name of output file for this process */
+	char* p = statistics_output;
+	while (*p != '\0')
+	{
+		if (*p == '/')
+			*p = '_';
+		p++;
+	}
+	//printf("\n%s\n", statistics_output);
+	FILE* out = (FILE*)alloc(sizeof(FILE), "alloc statistics output"); 
+	out = fopen(statistics_output, "w");
+
+
+	//calculate average and std and percentage of killing
+	int frozen_count = 0;
+	long l_len = 0;
+	double l_temp = 0.0;
+	double l_time = 0.0;
+	double l_len_avg, l_temp_avg, l_time_avg, l_len_std, l_temp_std,l_time_std, l_len_ss, l_temp_ss, l_time_ss;
+
+	/* calc average */
+	for (int i = 0; i < rcstruct.nruns; i++)
+	{
+		if (record[i].frozen_or_kill == 1)
+		{
+			frozen_count++;
+			l_len += record[i].result.l_length;
+			l_temp += record[i].result.temperature;
+			l_time+=record[i].time_consumed;
+		}
+	}
+
+	l_len_avg = (double)l_len / (double)frozen_count;
+	l_temp_avg = (double)l_temp / (double)frozen_count;
+	l_time_avg = (double)l_time / (double)frozen_count;
+
+	l_len_ss = 0.0;
+	l_temp_ss = 0.0;
+	l_time_ss = 0.0;
+
+	l_len_std = 0.0;
+	l_temp_std = 0.0;
+	l_time_std = 0.0;
+
+	for (int i = 0; i < rcstruct.nruns; i++) 
+	{
+		if (record[i].frozen_or_kill == 1)
+		{
+			l_len_ss += pow_wrapper(fabs(l_len_avg - (double)(record[i].result.l_length)), 2);
+			l_temp_ss += pow_wrapper(fabs(l_temp_avg - (double)(record[i].result.temperature)), 2);
+			l_time_ss += pow_wrapper(fabs(l_time_avg - (double)(record[i].time_consumed)), 2);
+		}
+		
+	}
+
+	l_len_std = sqrt(l_len_ss / (double)frozen_count);
+	l_temp_std = sqrt(l_temp_ss / (double)frozen_count);
+	l_time_std = sqrt(l_time_ss / (double)frozen_count);
 
 
 
 
-void get_temperature_and_control_process_from_other_process(int num_procs, int n_seeds_to_try)
+
+	fprintf(out, "\nCALC_ITERATION_ONLY_RELEASE_AFTER_NUMBER_CHUNCHS: %d\nCALC_ITERATION_NUMBER_STD_TO_RESTART_PROCESS:%d \n",
+		CALC_ITERATION_ONLY_RELEASE_AFTER_NUMBER_CHUNCHS, CALC_ITERATION_NUMBER_STD_TO_RESTART_PROCESS);
+
+	fprintf(out, "\nAverage of temperature: %lf \n", l_temp_avg);
+	fprintf(out, "\nDeviation of temperature: %lf \n", l_temp_std);
+	fprintf(out, "\nAverage of length: %lf \n", l_len_avg);
+	fprintf(out, "\nDeviation of length: %lf \n", l_len_std);
+	fprintf(out, "\nAverage of time taken(only those frozen): %.2lf \n", l_time_avg);
+	fprintf(out, "\nDeviation of time: %lf \n", l_time_std);
+	fprintf(out, "\nPercentage of killing: %lf \n", (double)(rcstruct.nruns - frozen_count) / (double)rcstruct.nruns);
+
+	fprintf(out, "\nTime: %.2lf \n",overall_time_taken);
+
+	fprintf(out, "\n--------------------------------------------------------");
+	fprintf(out, "\nNo.\tSeed used\tnumber of iterations\tFinal esult\tLength\ttemperature\tTime\tSlave time\tcommu cost\n");
+	fprintf(out, "--------------------------------------------------------\n");
+
+	for (int i = 0; i < rcstruct.nruns; i++)
+	{
+		fprintf(out, "%d\t%d\t%d\t\t\t",i+1, record[i].result.n_seed, record[i].result.n_iterations);
+		if(record[i].frozen_or_kill==0)
+			fprintf(out, "Killed\t\t");
+		else
+			fprintf(out, "Frozen\t\t");
+		fprintf(out, "%ld\t%lf\t%.2lf\t%.2lf\t\t%.2lf\n", 
+			record[i].result.l_length, record[i].result.temperature,record[i].time_consumed,record[i].slave_time_consumed,record[i].slave_comm_cost);
+	}
+	fclose(out);
+}
+
+void Slave_send_record_to_Master(int depth, Slave_record* record_slave)
+{
+	//printf("\n%d, time:%.2lf, no_seed:%d\n", depth,record_slave->anneal_once, record_slave->no_seed);
+	if (depth > 1)
+		Slave_send_record_to_Master(depth - 1, record_slave->next);
+
+	MPI_Ssend(&(record_slave->anneal_once), 1, MPI_DOUBLE, 0, record_slave->no_seed, MPI_COMM_WORLD);
+	MPI_Ssend(&(record_slave->comm_cost), 1, MPI_DOUBLE, 0, record_slave->no_seed, MPI_COMM_WORLD);
+	free(record_slave);
+}
+
+void Master_recv_record_from_Slave(Info_record* record, int nruns)
+{
+
+	MPI_Status mpi_status;
+	for (int i = 0; i < nruns; i++)
+	{
+		
+		MPI_Recv(&(record[i].slave_time_consumed), 1, MPI_DOUBLE, MPI_ANY_SOURCE, i+1, MPI_COMM_WORLD, &mpi_status);
+		MPI_Recv(&(record[i].slave_comm_cost), 1, MPI_DOUBLE, MPI_ANY_SOURCE, i+1, MPI_COMM_WORLD, &mpi_status);
+	}
+	
+}
+
+
+void get_temperature_and_control_process_from_other_process(int num_procs, int n_seeds_to_try, Info_record * record)
 {
 
 		int nProcessFinished = 0;
@@ -595,8 +712,9 @@ void get_temperature_and_control_process_from_other_process(int num_procs, int n
 
 
 		/*collect final result length of -1 means killed*/
-		SendInfoToMaster Final_results[n_seeds_to_try]; 
-		int idx=0;
+		//SendInfoToMaster Final_results[n_seeds_to_try]; 
+		//int Final_frozen_or_kill[n_seeds_to_try];//0->killed,1->frozen
+		//int idx=0;
 
 
 
@@ -691,7 +809,15 @@ void get_temperature_and_control_process_from_other_process(int num_procs, int n
 
 						//等待之前的manage到达
 						if (*(pHandleManagementProcess + i) != 0)
+						{
 							MPI_Wait(pHandleManagementProcess + i, MPI_STATUS_IGNORE);
+							//MPI_Test(pHandleManagementProcess + i, &nFlag, &mpi_status);
+							//if (nFlag != 1)
+								//continue;
+							
+						}
+						
+							
 
 						//while 里interval到了，发送的
 						if ((*(p_info_temperature + (i - 1)))->n_finish_message == MPI_IS_TO_CONTINUE)
@@ -717,14 +843,22 @@ void get_temperature_and_control_process_from_other_process(int num_procs, int n
 
 								killCall_counts[i - 1] = 0;
 								/*receive final tree length*/
-								Final_results[idx] = *(*(p_info_temperature + (i - 1)));
+								//Final_results[idx] = *(*(p_info_temperature + (i - 1)));
+								//Final_frozen_or_kill[idx]=0;
+								record[pIntProcessControlNumberRunning[i] - 1].result = *(*(p_info_temperature + (i - 1)));
+								record[pIntProcessControlNumberRunning[i] - 1].frozen_or_kill = 0;
+								record[pIntProcessControlNumberRunning[i] - 1].end = clock();
+								record[pIntProcessControlNumberRunning[i] - 1].time_consumed 
+									= ((double)(record[pIntProcessControlNumberRunning[i] - 1].end - record[pIntProcessControlNumberRunning[i] - 1].start)) / CLOCKS_PER_SEC;
+
+
 								//printf("Seed used:%d: number of iterations:%d,", Final_results[idx].n_seed, Final_results[idx].n_iterations);
 								//printf("Killed, final tree length:%ld,", Final_results[idx].l_length);
 								//printf("final temperature: %lf ,  ", Final_results[idx].temperature);
-								printf("%d\t%d\t%d\t\t\t", *(pIntProcessControlNumberRunning + i), Final_results[idx].n_seed, Final_results[idx].n_iterations);
+								printf("%d\t%d\t%d\t\t\t", *(pIntProcessControlNumberRunning + i), record[pIntProcessControlNumberRunning[i] - 1].result.n_seed, record[pIntProcessControlNumberRunning[i] - 1].result.n_iterations);
 								printf("Killed\t\t");
-								printf("%ld\t%lf\t", Final_results[idx].l_length, Final_results[idx].temperature);
-								idx++;
+								printf("%ld\t%lf\t", record[pIntProcessControlNumberRunning[i] - 1].result.l_length, record[pIntProcessControlNumberRunning[i] - 1].result.temperature);
+								//idx++;
 
 
 								//*(pIntFinishedProcessChecked + i) = MESSAGE_ANNEAL_STOP_PROCESS_WAIT_FINAL_MESSAGE;
@@ -734,17 +868,22 @@ void get_temperature_and_control_process_from_other_process(int num_procs, int n
 									n_seeds_tried += 1;									/* try another seed */
 									*(pIntProcessControlNumberRunning + i) = n_seeds_tried;
 									*(pIntFinishedProcessChecked + i) = MESSAGE_ANNEAL_IS_RUNNING_OR_WAIT_TO_RUN;
+									printf("Yes\n");
+
 
 									(*(p_info_manage + (i - 1)))->n_seed = get_other_seed_to_run_a_process();
 									(*(p_info_manage + (i - 1)))->n_is_to_continue = MPI_IS_TO_RESTART_ANNEAL;
 									(*(p_info_manage + (i - 1)))->n_process_tried = n_seeds_tried;
 									//printf("Process:%d    send to restart\n", i);
 									//printf("the proc is Process:%d, restart try seed number process:%d   new seed:%d\n", i, n_seeds_tried, (*(p_info_manage + (i - 1)))->n_seed);
-									printf("Yes\n");
 
 									//MPI_Ssend(*(p_info_manage + (i - 1)), 1, mpi_send_data, i, MPI_TAG_MANAGEMENT_MASTER, MPI_COMM_WORLD);//必须等slave得到这个restart的control
 									MPI_Issend(*(p_info_manage + (i - 1)), 1, mpi_send_data, i, MPI_TAG_MANAGEMENT_MASTER, MPI_COMM_WORLD, pHandleManagementProcess + i);
 									MPI_Irecv(*(p_info_temperature + (i - 1)), 1, mpi_recv_data, i, MPI_TAG_SEND_TEMP_MASTER, MPI_COMM_WORLD, pHandleTemperatureRecv + i);
+
+									//record start time
+									record[pIntProcessControlNumberRunning[i] - 1].start = clock();
+
 
 								}
 								else {
@@ -768,14 +907,22 @@ void get_temperature_and_control_process_from_other_process(int num_procs, int n
 							killCall_counts[i - 1] = 0;
 
 							/*receive final tree length*/
-							Final_results[idx] = *(*(p_info_temperature + (i - 1)));
+							//Final_results[idx] = *(*(p_info_temperature + (i - 1)));
+							//Final_frozen_or_kill[idx] = 1;
+							record[pIntProcessControlNumberRunning[i] - 1].result = *(*(p_info_temperature + (i - 1)));
+							record[pIntProcessControlNumberRunning[i] - 1].frozen_or_kill = 1;
+							record[pIntProcessControlNumberRunning[i] - 1].end = clock();
+							record[pIntProcessControlNumberRunning[i] - 1].time_consumed
+								= ((double)(record[pIntProcessControlNumberRunning[i] - 1].end - record[pIntProcessControlNumberRunning[i] - 1].start)) / CLOCKS_PER_SEC;
+
+
 							//printf("Seed used:%d: number of iterations:%d,", Final_results[idx].n_seed, Final_results[idx].n_iterations);
 							//printf("Frozen, final tree length:%ld,", Final_results[idx].l_length);
 							//printf("final temperature: %lf ,  ", Final_results[idx].temperature);
-							printf("%d\t%d\t%d\t\t\t", *(pIntProcessControlNumberRunning + i), Final_results[idx].n_seed, Final_results[idx].n_iterations);
+							printf("%d\t%d\t%d\t\t\t", *(pIntProcessControlNumberRunning + i), record[pIntProcessControlNumberRunning[i] - 1].result.n_seed, record[pIntProcessControlNumberRunning[i] - 1].result.n_iterations);
 							printf("Frozen\t\t");
-							printf("%ld\t%lf\t", Final_results[idx].l_length, Final_results[idx].temperature);
-							idx++;
+							printf("%ld\t%lf\t", record[pIntProcessControlNumberRunning[i] - 1].result.l_length, record[pIntProcessControlNumberRunning[i] - 1].result.temperature);
+							
 
 
 
@@ -797,6 +944,10 @@ void get_temperature_and_control_process_from_other_process(int num_procs, int n
 								/* launch other wait messages */
 								MPI_Irecv(*(p_info_temperature + (i - 1)), 1, mpi_recv_data, i, MPI_TAG_SEND_TEMP_MASTER, MPI_COMM_WORLD, pHandleTemperatureRecv + i);
 								//MPI_Irecv(pIntFinishedProcess + i, 1, MPI_INT, i, MPI_TAG_SEND_FINISHED, MPI_COMM_WORLD, pHandleFinishProcess + i);
+
+								//record start time
+								record[pIntProcessControlNumberRunning[i] - 1].start = clock();
+
 							}
 							else {
 								*(pIntFinishedProcessChecked + i) = MESSAGE_ANNEAL_STOP_PROCESS;
@@ -833,6 +984,8 @@ void get_temperature_and_control_process_from_other_process(int num_procs, int n
 				break;
 			}
 		}
+
+		
 
 		/* release memory main calc iterations */
 		release_main_calc_iterations(p_calc_iterations);

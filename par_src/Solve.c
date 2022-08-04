@@ -45,6 +45,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Solve.h"
 #include "Para_lib.h"
 #include "mpi.h"
+#include "Clock.h"
 
 using namespace std;
 using namespace std::chrono;
@@ -704,7 +705,8 @@ long Anneal(Dataptr MSA, TREESTACK* treestack_ptr, TREESTACK* treevo, const TREE
 long Slave_Anneal(Dataptr MSA, TREESTACK* treestack_ptr, TREESTACK* treevo, const TREESTACK_TREE_NODES* const inittree, Parameters* p_rcstruct,
 	long root, const double t0, const long maxaccept, const long maxpropose,
 	const long maxfail, FILE* const lenfp, long* current_iter,
-	Lvb_bool log_progress, int* p_n_state_progress, int* p_n_number_tried_seed, int myMPIid)
+	Lvb_bool log_progress, int* p_n_state_progress, int* p_n_number_tried_seed, int myMPIid,
+	Slave_record *record_slave)
 	/* seek parsimonious tree from initial tree in inittree (of root root)
 	 * with initial temperature t0, and subsequent temperatures obtained by
 	 * multiplying the current temperature by (t1 / t0) ** n * t0 where n is
@@ -854,7 +856,20 @@ long Slave_Anneal(Dataptr MSA, TREESTACK* treestack_ptr, TREESTACK* treevo, cons
 	p_data_info_from_master->n_is_to_continue = MPI_IS_TO_CONTINUE_ANNEAL;
 #endif	
 
+	clock_t anneal_start, anneal_end;
+	clock_t comm_start, comm_end;
+	double t1 = 0, t2 = 0;//t1 is for whole anneal, t2 is just for communication
+	
+	Slave_record* tmp;
+	tmp = (Slave_record*)malloc(sizeof(Slave_record));
+	tmp->no_seed = *p_n_number_tried_seed;
+
+
+	anneal_start = clock();
 	while (1) {
+
+		
+
 		int changeAcc = 0;
 		*current_iter += 1;
 		/* occasionally re-root, to prevent influence from root position */
@@ -868,6 +883,10 @@ long Slave_Anneal(Dataptr MSA, TREESTACK* treestack_ptr, TREESTACK* treevo, cons
 			//Only Dynamic multi-instances needs to decide if being killed
 			if (p_rcstruct->parallel_selection == 2 && ((*current_iter % STAT_LOG_INTERVAL) == 0))
 			{
+				//record communication time
+				comm_start = clock();
+				
+
 				//printf("%d", request_handle_send);
 				//Slave_interval_reached(&request_handle_send, p_data_info_to_master, mpi_recv_data, &request_message_from_master,p_data_info_from_master,mpi_data_from_master, p_n_state_progress);
 				//if (request_handle_send != 0)
@@ -903,20 +922,35 @@ long Slave_Anneal(Dataptr MSA, TREESTACK* treestack_ptr, TREESTACK* treevo, cons
 					MPI_Irecv(p_data_info_from_master, 1, mpi_data_from_master, MPI_MAIN_PROCESS, MPI_TAG_MANAGEMENT_MASTER, MPI_COMM_WORLD, &request_message_from_master);
 					//printf("After Process:%d   send temperature:%.3g   iterations:%ld\n", myMPIid, t, *current_iter);
 
+					//end of this communication
+					comm_end = clock();
+					t2 += ((double)(comm_end - comm_start)) / CLOCKS_PER_SEC;
+
 				}
 				else if (p_data_info_from_master->n_is_to_continue == MPI_IS_TO_RESTART_ANNEAL || p_data_info_from_master->n_is_to_continue == MPI_IS_NOT_TO_RESTART)
 				{
 					*p_n_state_progress = MESSAGE_ANNEAL_KILLED;
+
+					//end of this communication
+					comm_end = clock();
+					t2 += ((double)(comm_end - comm_start)) / CLOCKS_PER_SEC;
+
 					break;
 				}
 
 				first_commu_to_master = 0;
+
+
+				
+				
 			}
 #endif
 
 		}
 
 
+
+		
 		lvb_assert(t > DBL_EPSILON);
 
 		/* mutation: alternate between the two mutation functions */
@@ -1209,20 +1243,41 @@ long Slave_Anneal(Dataptr MSA, TREESTACK* treestack_ptr, TREESTACK* treevo, cons
 	}
 	print_sets(MSA, treestack_ptr, misc);
 #else 
+		
 }
 #endif
 
+
+
 #ifndef old
+
+
+	
+
+	
 
 	p_data_info_to_master->n_iterations = *current_iter;
 	p_data_info_to_master->n_seed = p_rcstruct->seed;
 	p_data_info_to_master->l_length = best_tree_length;
 	p_data_info_to_master->temperature = t;
 
-
+	
+	comm_start = clock();
 	Slave_wait_final_message(&request_message_from_master, &request_handle_send, p_n_state_progress, p_data_info_from_master, p_rcstruct,
 		p_n_number_tried_seed, p_data_info_to_master, mpi_recv_data, mpi_data_from_master, first_commu_to_master);
+	comm_end = clock();
+	t2 += ((double)(comm_end - comm_start)) / CLOCKS_PER_SEC;
 
+	anneal_end = clock();
+	t1 = ((double)(anneal_end - anneal_start)) / CLOCKS_PER_SEC;
+	
+	tmp->anneal_once = t1;
+	tmp->comm_cost = t2;
+	tmp->next = record_slave->next;
+	record_slave->next = tmp;
+
+	//printf("\n\nwarn Cal  cost %lf\n\n", ti);
+	
 
 	free(p_data_info_to_master);
 	free(p_data_info_from_master);
@@ -1311,23 +1366,45 @@ long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool l
 	    int n_number_tried_seed = rank;	 	/* it has the number of tried seed */
 
 
-
+		//Variables below are for collecting experimental data
+		Info_record *record;
+		Slave_record* record_slave;
+		record_slave = (Slave_record *)malloc(sizeof(Slave_record));//header
+		record_slave->next = NULL;
+		int num_anneal = 0;
+		clock_t Start, End;
 	//Rank 0 send initial seed for Slaves
 	if(rank==0)
 	{
+		record = (Info_record*)malloc(rcstruct.nruns * sizeof(Info_record));
+
+		Start = clock();
 		for (i = 1; i < nprocs; i++) 
 		{
 			/* send different to each proc */
 			MPI_Send(&rcstruct.seed, 1, MPI_INT, i, MPI_TAG_PARAMS, MPI_COMM_WORLD); 
 			rcstruct.seed = get_other_seed_to_run_a_process();
+
+			//record start time
+			record[i - 1].start = clock();
 		}
 
 		//Master start monitoring Slave, and do not need run SA
 		if (rcstruct.parallel_selection == 2 || rcstruct.parallel_selection == 0)
 		{
-			get_temperature_and_control_process_from_other_process(nprocs, rcstruct.nruns);
+			//Final_results = (SendInfoToMaster *)malloc(rcstruct.nruns * sizeof(SendInfoToMaster));
+			//Final_frozen_or_kill= (int*)malloc(rcstruct.nruns * sizeof(int));
+			
+
+			get_temperature_and_control_process_from_other_process(nprocs, rcstruct.nruns, record);
+			End= clock();
+
+			Master_recv_record_from_Slave(record, rcstruct.nruns);
+			write_final_results(record, rcstruct, ((double)(End - Start)) / CLOCKS_PER_SEC);
 			goto finish;
 		}
+
+		free(record);
 	}
 	else
 	{
@@ -1392,6 +1469,7 @@ long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool l
     	    
 //start  loop of annealing
 do{
+
 	//reset seed at the end of the loop
     //rinit(rcstruct.seed);
 	*iter_p = 0;
@@ -1447,7 +1525,7 @@ do{
 	    /* find solution(s) */
 		if(rcstruct.parallel_selection==2||rcstruct.parallel_selection==0)
 			treelength = Slave_Anneal(MSA, &treestack, &stack_treevo, tree, &rcstruct, initroot, t0, maxaccept,
-					maxpropose, maxfail, stdout, iter_p, log_progress,&n_state_progress,&n_number_tried_seed_next, rank);
+					maxpropose, maxfail, stdout, iter_p, log_progress,&n_state_progress,&n_number_tried_seed_next, rank, record_slave);
 		else
 			treelength = Anneal(MSA, &treestack, &stack_treevo, tree, rcstruct, initroot, t0, maxaccept,
 					maxpropose, maxfail, stdout, iter_p, log_progress);
@@ -1520,10 +1598,14 @@ do{
 #endif
 
 #ifndef old
+	num_anneal++;
+
 	if (rcstruct.parallel_selection == 1)
 		break;
 
+	
     int is_conti = Slave_after_anneal_once(MSA,tree,n_state_progress,initroot,&treestack,&best_treestack,rank,iter_p,&treelength,&best_treelength, n_number_tried_seed_next,rcstruct);
+	
     if(!is_conti)
 	    break;
 
@@ -1534,14 +1616,17 @@ do{
 #ifndef old
 
 
+
+
 /* "local" dynamic heap memory */
 free(tree);
 for (i = 0; i < MSA->n; i++) free(enc_mat[i]);
 free(enc_mat);
 
-
+if (rcstruct.parallel_selection == 0 || rcstruct.parallel_selection == 2)
+	Slave_send_record_to_Master(num_anneal, record_slave->next);
 finish:
-
+free(record_slave);
 //find best treestack
 //output best treestack
 
@@ -1554,6 +1639,9 @@ finish:
 
 //for master in parallel option of multi-instance, treelength == LONG_MAX
 	Root_get_best_treestack(MSA, &treelength, 0, rank, nprocs, &treestack);
+
+	//send record_slave to master
+
 	
 #endif
 
