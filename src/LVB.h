@@ -246,4 +246,10 @@ long deterministic_hillclimb(Dataptr, TREESTACK *, const TREESTACK_TREE_NODES *c
 	long, FILE * const, long *, Lvb_bool);
 void dump_stack_to_screen(Dataptr MSA, TREESTACK *sp);
 
+#ifdef LVB_MPI
+int PrintMPITreestack(Dataptr, TREESTACK *, FILE *const, int, Lvb_bool onerandom);
+#else
+
+#endif
+
 #endif /* LVB_LVB_H */

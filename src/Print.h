@@ -57,4 +57,8 @@ void PrintLVBCopyright();
 void PrintLVBInfo();
 void PrintOutput(long, long, long, double, double, double, char *);
 
+#ifdef LVB_MPI
+    void PrintMPIOutput(long, long, long, double, double, double, char *, int);
+#endif
+
 #endif  // LVB_INFO_H_

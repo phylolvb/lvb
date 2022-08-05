@@ -119,3 +119,22 @@ void PrintOutput(long iter, long trees_output_total, long final_length, double c
 	printf("  Total runtime (seconds):  %.2lf\n", overall_time_taken);
 	printf("\nAll topologies written to '%s'\n", file_name_out);
 }
+
+#ifdef LVB_MPI
+
+  void PrintMPIOutput(long iter, long trees_output_total, long final_length, double consistency_index, double homoplasy_index, double overall_time_taken, char *file_name_out, int seedMPI) {
+	
+	  printf("\nSearch Complete\n");
+	  printf("\n================================================================================\n");
+	  printf("\nSearch Results:\n");
+    printf("  Seed:                     %d\n", seedMPI);
+	  printf("  Rearrangements evaluated: %ld\n", iter);
+	  printf("  Topologies recovered:     %ld\n", trees_output_total);
+	  printf("  Tree score:               %ld\n", final_length);
+	  printf("  Consistency index:        %.2lf\n", consistency_index);
+	  printf("  Homoplasy index:          %.2lf\n", homoplasy_index);
+	  printf("  Total runtime (seconds):  %.2lf\n", overall_time_taken);
+	  printf("\nAll topologies written to '%s'\n", file_name_out);
+  }
+
+#endif
