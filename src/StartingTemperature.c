@@ -10,6 +10,7 @@ Fernando Guntoro, Maximilian Strobl and Chris Wood.
 (c) Copyright 2022 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
 Chang Sik Kim, Fernando Guntoro, Maximilian Strobl, Chris Wood
 and Martyn Winn.
+(c) Copyright 2022 by Joseph Guscott and Daniel Barker.
 
 All rights reserved.
 
@@ -178,7 +179,8 @@ double StartingTemperature(Dataptr MSA, const TREESTACK_TREE_NODES *const inittr
     free(xdash);
 
     /* Log progress if chosen*/
-	if (log_progress) printf("  SA Starting Temperature: %-.8f\n", (t - increment_size));
+	if (rcstruct.verbose == LVB_TRUE)
+		if (log_progress) printf("  SA Starting Temperature: %-.8f\n", (t - increment_size));
 
     /* Return the temperature last used */
     return (t - increment_size);
