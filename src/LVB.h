@@ -239,18 +239,18 @@ long TopologyComparison(Dataptr restrict, Objset *, const TREESTACK_TREE_NODES *
 double StartingTemperature(Dataptr, const TREESTACK_TREE_NODES *const, Parameters rcstruct, long, Lvb_bool);
 long PushCurrentTreeToStack(Dataptr, TREESTACK *, const TREESTACK_TREE_NODES *const, const long, Lvb_bool b_with_sitestate);
 
-long Anneal(Dataptr restrict, TREESTACK *, TREESTACK *, const TREESTACK_TREE_NODES *const, Parameters rcstruct, long, const double,
- const long, const long, const long, FILE *const, long *, Lvb_bool);
-
 void defaults_params(Parameters *const prms);
 long deterministic_hillclimb(Dataptr, TREESTACK *, const TREESTACK_TREE_NODES *const, Parameters rcstruct,
 	long, FILE * const, long *, Lvb_bool);
 void dump_stack_to_screen(Dataptr MSA, TREESTACK *sp);
 
 #ifdef LVB_MPI
-int PrintMPITreestack(Dataptr, TREESTACK *, FILE *const, int, Lvb_bool onerandom);
+	int PrintMPITreestack(Dataptr, TREESTACK *, FILE *const, int, Lvb_bool onerandom);
+	long Anneal(Dataptr restrict, TREESTACK *, TREESTACK *, const TREESTACK_TREE_NODES *const, Parameters rcstruct, long, const double,
+		const long, const long, const long, FILE *const, long *, Lvb_bool, int);
 #else
-
+	long Anneal(Dataptr restrict, TREESTACK *, TREESTACK *, const TREESTACK_TREE_NODES *const, Parameters rcstruct, long, const double,
+ 		const long, const long, const long, FILE *const, long *, Lvb_bool);
 #endif
 
 #endif /* LVB_LVB_H */

@@ -151,7 +151,7 @@ int main(int argc, char **argv)
 
 	#ifdef LVB_MPI
 		if(rank == 0)
-			writeinf(rcstruct, MSA, argc, argv);
+			writeinf(rcstruct, MSA, argc, argv, clusterSize);
 	#else
 		writeinf(rcstruct, MSA, argc, argv);
 	#endif
@@ -171,9 +171,9 @@ int main(int argc, char **argv)
 				MPIVect.push_back(seedMPI + i);
 		}
 
-		for(auto i: MPIVect)
+		/* for(auto i: MPIVect)
 			cout << i << ' ';
-		cout << endl;
+		cout << endl; */
 
 		MPI_Scatter(MPIVect.data(), 1, MPI_INT, &seedMPI, 1, MPI_INT, 0, MPI_COMM_WORLD);
     	rinit(seedMPI);
@@ -189,7 +189,13 @@ int main(int argc, char **argv)
     if(rcstruct.algorithm_selection ==2)
     treEvo = fopen ("treEvo.tre","w");
 	iter = 0;
-	final_length = GetSoln(MSA, rcstruct, &iter, log_progress);
+
+	#ifdef LVB_MPI
+		final_length = GetSoln(MSA, rcstruct, &iter, log_progress, rank);
+	#else
+		final_length = GetSoln(MSA, rcstruct, &iter, log_progress);
+	#endif
+
 	trees_output = PrintTreestack(MSA, &treestack, outtreefp, LVB_FALSE);
 
 	#ifdef LVB_MPI
@@ -205,17 +211,17 @@ int main(int argc, char **argv)
 
 		MPI_Gather(&final_length, 1, MPI_INT, MPIVect.data(), 1, MPI_INT, 0, MPI_COMM_WORLD);
 
-		for(auto i: MPIVect)
+		/* for(auto i: MPIVect)
 			cout << i << ' ';
-		cout << endl;
+		cout << endl; */
 
 		MPI_Barrier(MPI_COMM_WORLD);
 
 		int position = 0;
 
-		vector<int>::iterator minValue = min_element(MPIVect.begin(), MPIVect.end());
+		 vector<int>::iterator minValue = min_element(MPIVect.begin(), MPIVect.end());
 		position = distance(MPIVect.begin(), minValue);
-		cout << "Position, rank: " << position << ", " << rank << endl;
+		/* cout << "Position, rank: " << position << ", " << rank << endl; */
 
 		MPI_Barrier(MPI_COMM_WORLD);
 	#endif
@@ -258,8 +264,8 @@ int main(int argc, char **argv)
 	homoplasy_index = 1 - consistency_index;
 
 	#ifdef LVB_MPI
-		if(rank == 0)
-			PrintMPIOutput(iter, trees_output_total, final_length, consistency_index, homoplasy_index, overall_time_taken, fileNameMPI, seedMPI);
+		/* if(rank == 0) */
+		PrintMPIOutput(iter, trees_output_total, final_length, consistency_index, homoplasy_index, overall_time_taken, fileNameMPI, seedMPI);
 	#else
 		PrintOutput(iter, trees_output_total, final_length, consistency_index, homoplasy_index, overall_time_taken, rcstruct.file_name_out);
 	#endif

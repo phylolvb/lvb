@@ -10,6 +10,7 @@ Fernando Guntoro, Maximilian Strobl and Chris Wood.
 (c) Copyright 2022 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
 Chang Sik Kim, Fernando Guntoro, Maximilian Strobl, Chris Wood
 and Martyn Winn.
+(c) Copyright 2022 by Joseph Guscott and Daniel Barker.
 
 All rights reserved.
 
@@ -52,6 +53,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Clock.h"
 #include "CommandLineParser.h"
 
-void writeinf(Parameters rcstruct, Dataptr restrict, int, char**);
+#ifdef LVB_MPI
+    void writeinf(Parameters rcstruct, Dataptr restrict, int, char**, int);
+#else
+    void writeinf(Parameters rcstruct, Dataptr restrict, int, char**);
+#endif
+
 
 #endif

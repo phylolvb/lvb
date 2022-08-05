@@ -10,6 +10,7 @@ Fernando Guntoro, Maximilian Strobl and Chris Wood.
 (c) Copyright 2022 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
 Chang Sik Kim, Fernando Guntoro, Maximilian Strobl, Chris Wood
 and Martyn Winn.
+(c) Copyright 2022 by Joseph Guscott and Daniel Barker.
 
 All rights reserved.
 
@@ -137,10 +138,18 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *treestack_ptr, const TREEST
     return current_tree_length;
 } /* end deterministic_hillclimb */
 
-long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREESTACK_TREE_NODES *const inittree, Parameters rcstruct,
-	long root, const double t0, const long maxaccept, const long maxpropose,
-	const long maxfail, FILE *const lenfp, long *current_iter,
-	Lvb_bool log_progress)
+
+#ifdef LVB_MPI
+	long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREESTACK_TREE_NODES *const inittree, Parameters rcstruct,
+		long root, const double t0, const long maxaccept, const long maxpropose,
+		const long maxfail, FILE *const lenfp, long *current_iter,
+		Lvb_bool log_progress, int rank)
+#else
+	long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREESTACK_TREE_NODES *const inittree, Parameters rcstruct,
+		long root, const double t0, const long maxaccept, const long maxpropose,
+		const long maxfail, FILE *const lenfp, long *current_iter,
+		Lvb_bool log_progress)
+#endif
 /* seek parsimonious tree from initial tree in inittree (of root root)
  * with initial temperature t0, and subsequent temperatures obtained by
  * multiplying the current temperature by (t1 / t0) ** n * t0 where n is
@@ -214,9 +223,17 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 
     if ((log_progress == LVB_TRUE) && (*current_iter == 0)) {
 
-	printf("\n--------------------------------------------------------");
-	fprintf(lenfp, "\n  Temperature:   Rearrangement: TreeStack size: Length:\n");
-	printf("--------------------------------------------------------\n");
+	#ifdef LVB_MPI
+		if(rank == 0) {
+			printf("\n--------------------------------------------------------");
+			fprintf(lenfp, "\n  Temperature:   Rearrangement: TreeStack size: Length:\n");
+			printf("--------------------------------------------------------\n");
+		}
+	#else
+		printf("\n--------------------------------------------------------");
+		fprintf(lenfp, "\n  Temperature:   Rearrangement: TreeStack size: Length:\n");
+		printf("--------------------------------------------------------\n");
+	#endif
 	}
 		
 	/*Writing output to table.tsv*/
@@ -456,7 +473,11 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 
 } /* end Anneal() */
 
-long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool log_progress)
+#ifdef LVB_MPI
+	long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool log_progress, int rank)
+#else
+	long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool log_progress)
+#endif
 /* get and output solution(s) according to parameters in rcstruct;
  * return length of shortest tree(s) found */
 {
@@ -535,8 +556,15 @@ long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool l
 		PrintInitialTree(MSA, tree, start, cyc, initroot);
     }
 	    /* find solution(s) */
-    treelength = Anneal(MSA, &treestack, &stack_treevo, tree, rcstruct, initroot, t0, maxaccept,
-    maxpropose, maxfail, stdout, iter_p, log_progress);
+
+	#ifdef LVB_MPI
+    	treelength = Anneal(MSA, &treestack, &stack_treevo, tree, rcstruct, initroot, t0, maxaccept,
+    		maxpropose, maxfail, stdout, iter_p, log_progress, rank);
+	#else
+		treelength = Anneal(MSA, &treestack, &stack_treevo, tree, rcstruct, initroot, t0, maxaccept,
+    		maxpropose, maxfail, stdout, iter_p, log_progress);
+	#endif
+
     PullTreefromTreestack(MSA, tree, &initroot, &treestack, LVB_FALSE);
 
 	#ifdef LVB_HASH
