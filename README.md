@@ -33,6 +33,11 @@ Array-based version:
 make
 ~~~~
 
+MPI version:
+~~~~
+make -f Makefile.MPI
+~~~~
+
 If you use LVB, please cite the following paper:
 
 * Barker, D., 2004. LVB: parsimony and simulated annealing in the search for phylogenetic trees. Bioinformatics (Oxford, England), 20(2), pp.274-275. https://doi.org/10.1093/bioinformatics/btg402 
