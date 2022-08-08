@@ -9,7 +9,9 @@ int get_other_seed_to_run_a_process() {
     return randpint(900000000);
 }
 
-void Bcast_best_partial_tree_to_root(Dataptr MSA, long best_treelength, int rank, int nprocs, TREESTACK_TREE_NODES* BranchArray, long *tree_root)
+
+
+void Bcast_best_partial_tree(Dataptr MSA, long best_treelength, int rank, int nprocs, TREESTACK_TREE_NODES* BranchArray, long *tree_root, int* from_rank)
 {
     //TREESTACK* treestack_ptr, long iteration, long length, double temperature
     //先算出来最小的length，
@@ -32,6 +34,9 @@ void Bcast_best_partial_tree_to_root(Dataptr MSA, long best_treelength, int rank
             index_max = i;
         }
     }
+
+	*from_rank = index_max;
+
     //传送用的结构
     int pad_size = sizeof(Lvb_bit_length*);
     int nItems = 2;
@@ -50,29 +55,11 @@ void Bcast_best_partial_tree_to_root(Dataptr MSA, long best_treelength, int rank
         old_sitestate[i] = BranchArray[i].sitestate;
     }
 
-    //MPI_Bcast(BranchArray, MSA->numberofpossiblebranches, MPI_BRANCH, index_max, MPI_COMM_WORLD);//广播最屌的树
+
+    MPI_Bcast(BranchArray, MSA->numberofpossiblebranches, MPI_BRANCH, index_max, MPI_COMM_WORLD);
     //use MPI_BYTE might have data layout problem(wait improvement)
-    MPI_Bcast(BranchArray, MSA->tree_bytes, MPI_BYTE, index_max, MPI_COMM_WORLD);//广播最屌的树
-    MPI_Bcast(tree_root, 1, MPI_LONG, index_max, MPI_COMM_WORLD);//广播最屌的树
-
-//Code below for potential memory alignment(just in case)
-    //unsigned char* TreeArray_uchar_star = (unsigned char*)BranchArray;
-    //unsigned char* ss0_start = TreeArray_uchar_star + MSA->numberofpossiblebranches * sizeof(TREESTACK_TREE_NODES);
-
-    //MPI_Bcast(BranchArray, MSA->numberofpossiblebranches, MPI_BRANCH, index_max, MPI_COMM_WORLD);
-
-
-#ifdef test
-printf("\n\n\n**************UNITL NOW, SUCCESS***********\n");
-printf("\n\n\n**************best_rank=%d, my_rank=%ld root %d\n",index_max,rank,*tree_root);
-for(int i=0;i<MSA->numberofpossiblebranches;i++)
-{
-	printf("parent:%ld, left:%ld,  right: %ld, changes:%d \n",BranchArray[i].parent,BranchArray[i].left,BranchArray[i].right,BranchArray[i].changes);
-}
-
-
-printf("\n\n\n**************UNITL NOW, SUCCESS***********\n\n\n\n");
-#endif
+    //MPI_Bcast(BranchArray, MSA->tree_bytes, MPI_BYTE, index_max, MPI_COMM_WORLD);//广播最屌的树,//广播bit会导致存叶子的顺序不同节点间是不同的
+    MPI_Bcast(tree_root, 1, MPI_LONG, index_max, MPI_COMM_WORLD);
 
 
     for (int i = 0; i < MSA->numberofpossiblebranches; i++)
@@ -81,15 +68,8 @@ printf("\n\n\n**************UNITL NOW, SUCCESS***********\n\n\n\n");
     }
     for (int i = MSA->n; i < MSA->numberofpossiblebranches; i++) 
     {
-        BranchArray[i].sitestate[0] == 0U;// make dirty
+        BranchArray[i].sitestate[0] = 0U;// make dirty
     }
-
-    
-
-
-    //这里应该pulltree，把最优的树付给现在的tree，再pushtree
-    //PullTreefromTreestack(MSA, brancharray);//没搞完
-
 
 
 }
