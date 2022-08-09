@@ -232,8 +232,14 @@ int main(int argc, char **argv)
     ClearTreestack(&treestack);
 
 	#ifdef LVB_MPI
-		if(rank == 0)
+		if(rank == 0) {
 			printf("--------------------------------------------------------\n");
+			printf("================================================================================\n");
+			printf("\nMPI Search Results: \n\n");
+			printf("----------------------------------------------------------------------\n");
+			printf (" File:        Seed:          Topologies:     Score:         Runtime-:\n");
+			printf("----------------------------------------------------------------------\n");
+		}
 	#else
 		printf("--------------------------------------------------------\n");
 	#endif
@@ -265,7 +271,7 @@ int main(int argc, char **argv)
 
 	#ifdef LVB_MPI
 		/* if(rank == 0) */
-		PrintMPIOutput(iter, trees_output_total, final_length, consistency_index, homoplasy_index, overall_time_taken, fileNameMPI, seedMPI);
+		PrintMPIOutput(iter, trees_output_total, final_length, consistency_index, homoplasy_index, overall_time_taken, fileNameMPI, seedMPI, rank);
 	#else
 		PrintOutput(iter, trees_output_total, final_length, consistency_index, homoplasy_index, overall_time_taken, rcstruct.file_name_out);
 	#endif
@@ -282,6 +288,10 @@ int main(int argc, char **argv)
 
 	#ifdef LVB_MPI
 		MPI_Finalize();
+		if(rank == 0) {
+			printf("----------------------------------------------------------------------");
+			printf("\n================================================================================\n");
+		}
 	#endif
 
     return val;
