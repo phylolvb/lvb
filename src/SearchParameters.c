@@ -145,13 +145,15 @@ void getparam(Parameters *prms, int argc, char **argv)
     else if(prms.algorithm_selection == 1) printf("          1 (SEQ-TNS)\n");
     else if(prms.algorithm_selection == 2) printf("          2 (PBS)\n");
 
-	printf("\nParallelisation Properties: \n");
+	#ifdef LVB_MPI
+		printf("\nParallelisation Properties: \n");
 
-	printf("  Additional MPI Seeds: %d: ", clusterSize - 1);
+		printf("  Additional MPI Seeds: %d: ", clusterSize - 1);
 
-	for(int i = 1; i < clusterSize; i++) {
-		printf("%d ", prms.seed + i);
-	}
+		for(int i = 1; i < clusterSize; i++) {
+			printf("%d ", prms.seed + i);
+		}
+	#endif
 
 	printf("\n================================================================================\n");
 	printf("\nInitialising search: \n");

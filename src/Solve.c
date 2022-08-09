@@ -573,8 +573,8 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *treestack_ptr, const TREEST
 		CompareTreeToTreestack(MSA, &treestack, tree, initroot, LVB_FALSE);
 	#endif
 
-    /* treelength = deterministic_hillclimb(MSA, &treestack, tree, rcstruct, initroot, stdout,
-				iter_p, log_progress); */
+    treelength = deterministic_hillclimb(MSA, &treestack, tree, rcstruct, initroot, stdout,
+				iter_p, log_progress);
 
 	/* log this cycle's solution and its details
 	 * NOTE: There are no cycles anymore in the current version

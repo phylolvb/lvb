@@ -260,7 +260,7 @@ int main(int argc, char **argv)
 	#ifdef LVB_MPI
 		PrintMPILogFile(iter, trees_output_total, final_length, overall_time_taken, seedMPI);
 	#else
-		PrintLogFile(iter, trees_output_total, final_length, overall_time_taken);
+		PrintLogFile(iter, trees_output_total, final_length, overall_time_taken, rcstruct.seed);
 	#endif
 
 	double consistency_index = MinimumTreeLength(MSA);
