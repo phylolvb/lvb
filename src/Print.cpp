@@ -49,7 +49,9 @@ void PrintLVBInfo() {
   std::cout << "==============================================="
           "=================================\n\n";
   std::cout << "LVB v." << LVB_VERSION << " ";
-  #ifdef LVB_HASH
+  #ifdef LVB_MPI
+    std::cout << LVB_MPI_VERSION;
+  #elif LVB_HASH
     std::cout << LVB_HASH_VERSION;
   #endif
   std::cout << "built for Linux 64-bit \n";
