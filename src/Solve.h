@@ -10,6 +10,7 @@ Fernando Guntoro, Maximilian Strobl and Chris Wood.
 (c) Copyright 2022 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
 Chang Sik Kim, Fernando Guntoro, Maximilian Strobl, Chris Wood
 and Martyn Winn.
+(c) Copyright 2022 by Joseph Guscott and Daniel Barker.
 
 All rights reserved.
 
@@ -55,12 +56,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static TREESTACK treestack;	/* overall best tree stack */
 static TREESTACK stack_treevo;
 
-#ifdef LVB_MAPREDUCE
-long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool log_progress,
-				MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer);
-#else
-long GetSoln(Dataptr restrict, Parameters, long *, Lvb_bool);
 
+#ifdef LVB_MPI
+    long GetSoln(Dataptr restrict, Parameters, long *, Lvb_bool, int);
+#else
+    long GetSoln(Dataptr restrict, Parameters, long *, Lvb_bool);
 #endif
 
 #endif

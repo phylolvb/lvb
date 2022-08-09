@@ -10,6 +10,7 @@ Fernando Guntoro, Maximilian Strobl and Chris Wood.
 (c) Copyright 2022 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
 Chang Sik Kim, Fernando Guntoro, Maximilian Strobl, Chris Wood
 and Martyn Winn.
+(c) Copyright 2022 by Joseph Guscott and Daniel Barker.
 
 All rights reserved.
 
@@ -49,7 +50,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define PROGNAM "LVB "
 #define LVB_VERSION "4.0"
-#define LVB_MAPREDUCE_VERSION "MapReduce Multicore version "
 #define LVB_HASH_VERSION "Hash version "
 #define LVB_RELEASE_DATE "June 2022"
 #define LVB_WIKI "github.com/phylolvb/lvb"
@@ -57,5 +57,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 void PrintLVBCopyright();
 void PrintLVBInfo();
 void PrintOutput(long, long, long, double, double, double, char *);
+
+#ifdef LVB_MPI
+    void PrintMPIOutput(long, long, long, double, double, double, char *, int);
+#endif
 
 #endif  // LVB_INFO_H_

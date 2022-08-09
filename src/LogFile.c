@@ -10,6 +10,7 @@ Fernando Guntoro, Maximilian Strobl and Chris Wood.
 (c) Copyright 2022 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
 Chang Sik Kim, Fernando Guntoro, Maximilian Strobl, Chris Wood
 and Martyn Winn.
+(c) Copyright 2022 by Joseph Guscott and Daniel Barker.
 
 All rights reserved.
 
@@ -67,3 +68,22 @@ void PrintLogFile(long iter, long trees_output_total, long final_length, double 
 		fprintf (logfile, "%s\t%ld\t%ld\t%ld\t%.2lf\n", LVB_IMPLEMENTATION, iter, trees_output_total, final_length, overall_time_taken);
 		fclose(logfile);
 }
+
+#ifdef LVB_MPI
+  void PrintMPILogFile(long iter, long trees_output_total, long final_length, double overall_time_taken, int seedMPI){
+  Lvb_bool logfile_exists = LVB_FALSE;
+
+  if (LogFileExists ("logfile.tsv")) {
+    logfile_exists = LVB_TRUE;
+  }
+  
+  FILE * logfile;
+  logfile = fopen ("logfile.tsv","a+");
+  
+  if (logfile_exists == LVB_FALSE){
+    fprintf (logfile, "Implementation\tSeed\tRearrangements\tTopologies\tScore\tRuntime\n");
+  }
+		fprintf (logfile, "%s\t%d\t%ld\t%ld\t%ld\t%.2lf\n", LVB_IMPLEMENTATION, seedMPI, iter, trees_output_total, final_length, overall_time_taken);
+		fclose(logfile);
+  }
+#endif

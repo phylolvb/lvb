@@ -10,6 +10,7 @@ Fernando Guntoro, Maximilian Strobl and Chris Wood.
 (c) Copyright 2022 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
 Chang Sik Kim, Fernando Guntoro, Maximilian Strobl, Chris Wood
 and Martyn Winn.
+(c) Copyright 2022 by Joseph Guscott and Daniel Barker.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -64,16 +65,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "MyMaths.h"
 #include "RandomNumberGenerator.h"
 #include "sys/stat.h"
-
-#ifdef LVB_MAPREDUCE
-	#include <iostream>
-	#include <mpi.h>
-	#include <omp.h>
-	#include "MapReduce.h"
-
-	using namespace MAPREDUCE_NS;
-	#define __STDC_LIMIT_MACROS
-#endif
 
 /* DNA bases: bits to set in statesets */
 #define A_BIT 0b0001		/* (1U << 0) */
@@ -174,23 +165,6 @@ typedef struct
 /* PHYLIP global data */
 //extern long chars;	/* defined in dnapars.c */
 
-#ifdef LVB_MAPREDUCE
-	struct MISC {
-		int rank,nprocs;
-
-		int ID;
-		long num;
-		bool SB;
-
-		int ntrees;
-		long nsets;
-		long mssz;
-
-		int *count;
-	};
-
-#endif
-
 #ifdef __cplusplus
 	#define restrict    /* nothing */
 #endif
@@ -265,29 +239,18 @@ long TopologyComparison(Dataptr restrict, Objset *, const TREESTACK_TREE_NODES *
 double StartingTemperature(Dataptr, const TREESTACK_TREE_NODES *const, Parameters rcstruct, long, Lvb_bool);
 long PushCurrentTreeToStack(Dataptr, TREESTACK *, const TREESTACK_TREE_NODES *const, const long, Lvb_bool b_with_sitestate);
 
-#ifdef LVB_MAPREDUCE
-long Anneal(Dataptr restrict, TREESTACK *, TREESTACK *, const TREESTACK_TREE_NODES *const, Parameters rcstruct, long, const double,
-	const long, const long, const long, FILE *const, long *, Lvb_bool, MISC *misc, MapReduce *mrStackTree, MapReduce *mrBuffer);
-
-void defaults_params(Parameters *const);
-long deterministic_hillclimb(Dataptr, TREESTACK *, const TREESTACK_TREE_NODES *const, Parameters rcstruct,
-	long, FILE * const, long *, Lvb_bool, MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer);
-uint64_t tree_setpush(Dataptr MSA, const TREESTACK_TREE_NODES *const tree, const long root, MapReduce *mrObj, MISC *misc);
-void map_clean(uint64_t itask, char *key, int keybytes, char *value, int valuebytes, KeyValue *kv, void *ptr);
-void reduce_count(char *key, int keybytes, char *multivalue, int nvalues, int *valuebytes, KeyValue *kv, void *ptr);
-void reduce_sets(char *key, int keybytes, char *multivalue, int nvalues, int *valuebytes, KeyValue *kv, void *ptr);
-void reduce_filter(char *key, int keybytes, char *multivalue, int nvalues, int *valuebytes, KeyValue *kv, void *ptr);
-void print_sets(Dataptr MSA, TREESTACK *sp, MISC *misc);
-
-#else
-long Anneal(Dataptr restrict, TREESTACK *, TREESTACK *, const TREESTACK_TREE_NODES *const, Parameters rcstruct, long, const double,
- const long, const long, const long, FILE *const, long *, Lvb_bool);
-
 void defaults_params(Parameters *const prms);
 long deterministic_hillclimb(Dataptr, TREESTACK *, const TREESTACK_TREE_NODES *const, Parameters rcstruct,
 	long, FILE * const, long *, Lvb_bool);
 void dump_stack_to_screen(Dataptr MSA, TREESTACK *sp);
 
+#ifdef LVB_MPI
+	int PrintMPITreestack(Dataptr, TREESTACK *, FILE *const, int, Lvb_bool onerandom);
+	long Anneal(Dataptr restrict, TREESTACK *, TREESTACK *, const TREESTACK_TREE_NODES *const, Parameters rcstruct, long, const double,
+		const long, const long, const long, FILE *const, long *, Lvb_bool, int);
+#else
+	long Anneal(Dataptr restrict, TREESTACK *, TREESTACK *, const TREESTACK_TREE_NODES *const, Parameters rcstruct, long, const double,
+ 		const long, const long, const long, FILE *const, long *, Lvb_bool);
 #endif
 
 #endif /* LVB_LVB_H */

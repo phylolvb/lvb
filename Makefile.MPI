@@ -10,6 +10,7 @@
 # (c) Copyright 2022 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
 # Chang Sik Kim, Fernando Guntoro, Maximilian Strobl, Chris Wood
 # and Martyn Winn.
+# (c) Copyright 2022 by Joseph Guscott and Daniel Barker.
 #
 # All rights reserved.
 #
@@ -60,24 +61,6 @@
 #
 # make test
 #
-# Depending on how LVB is built, it may require the Map Reduce library.
-# Here are instructions on how to incorporate this library into LVB.
-#
-# 1) get the Map Reduce library:
-#
-# Download MapReduce-mpi from http://MapReduce.sandia.gov/
-# From download page select select "MR-MPI" and download
-#
-# 2) Compile Map Reduce library:
-#
-# cd <install directory>/mrmpi<version>/src
-# make mpicc
-# The last command creates a static library "libmrmpi_mpicc.a" in the same
-# path.
-#
-# 3) compile LVB Map Reduce
-#
-# Change the line (101) giving the actual path of MapReduce mpi, below:
 #
 # Directories
 TEST_DIR = ./test/src
@@ -92,21 +75,22 @@ CXX = mpic++
 
 # No warnings
 
-CFLAGS += -O2 -fopenmp -DLVB_MAPREDUCE -std=c++11 
-CXXFLAGS += -O2 -fopenmp -DLVB_MAPREDUCE -std=c++11
+CFLAGS += -O2 -fopenmp -DLVB_NP -DLVB_HASH -DLVB_MPI -std=c++11
+CXXFLAGS += -O2 -fopenmp -DLVB_NP -DLVB_HASH -DLVB_MPI -std=c++11
+
 # Warnings
 
-# CFLAGS += -Wall -g -O3 -fopenmp -DLVB_MAPREDUCE -std=c++11
-# CXXFLAGS += -Wall -g -O3 -fopenmp -DLVB_MAPREDUCE -std=c++11
+# CFLAGS += -Wall -g -O3 -fopenmp -DLVB_NP -DLVB_MPI -std=c++11
+# CXXFLAGS += -Wall -g -O3 -fopenmp -DLVB_NP -DLVB_MPI -std=c++11
 
 # Profiling
 
-# CFLAGS += -g -O3 -fopenmp -DLVB_MAPREDUCE -std=c++11 -ftest-coverage -fprofile-arcs -pg
-# CXXFLAGS += -g -O3 -fopenmp -DLVB_MAPREDUCE -std=c++11 -ftest-coverage -fprofile-arcs -pg
+# CFLAGS += -g -O3 -fopenmp -DLVB_NP -DLVB_MPI -std=c++11 -ftest-coverage -fprofile-arcs -pg
+# CXXFLAGS += -g -O3 -fopenmp -DLVB_NP -DLVB_MPI -std=c++11 -ftest-coverage -fprofile-arcs -pg
 
 # System-dependent macros - OK for Linux and UNIX-like systems, for others will
 # require change
-LM = -lm $(shell pwd)/libs/mrmpi/mrmpi-7Apr14/src/libmrmpi_mpicc.a # UNIX
+LM = -lm		# UNIX
 RANLIB = ranlib	# UNIX
 EXE =			# UNIX
 OBJ = o			# UNIX
@@ -118,39 +102,39 @@ LIB_EXT = a		# UNIX
 # LVB library
 LVB_LIB = libLVB.$(LIB_EXT)
 LIBS += $(LVB_LIB)
-LVB_PROG = lvb_mapreduce$(EXE)
+LVB_PROG = lvb_mpi$(EXE)
 
 # Object files that will go into the LVB library
 
 # C files
 
 LVB_LIB_OBJS = $(LVB_SRC_DIR)/Admin.$(OBJ) \
-				$(LVB_SRC_DIR)/Cleanup.$(OBJ) \
-				$(LVB_SRC_DIR)/Clock.$(OBJ) \
-				$(LVB_SRC_DIR)/DataOperations.$(OBJ) \
-				$(LVB_SRC_DIR)/Error.$(OBJ) \
-				$(LVB_SRC_DIR)/FileOperations.$(OBJ) \
-				$(LVB_SRC_DIR)/LogFile.$(OBJ) \
-				$(LVB_SRC_DIR)/MemoryOperations.$(OBJ) \
-				$(LVB_SRC_DIR)/MyMaths.$(OBJ) \
-				$(LVB_SRC_DIR)/RandomNumberGenerator.$(OBJ) \
-				$(LVB_SRC_DIR)/SearchParameters.$(OBJ) \
-				$(LVB_SRC_DIR)/Solve.$(OBJ) \
-				$(LVB_SRC_DIR)/Sops.$(OBJ) \
-				$(LVB_SRC_DIR)/StartingTemperature.$(OBJ) \
-				$(LVB_SRC_DIR)/TreeEvaluation.$(OBJ) \
-				$(LVB_SRC_DIR)/Treestack.$(OBJ) \
-				$(LVB_SRC_DIR)/TreeOperations.$(OBJ) \
-    			$(LVB_SRC_DIR)/Wrapper.$(OBJ)
+               $(LVB_SRC_DIR)/Cleanup.$(OBJ) \
+			   $(LVB_SRC_DIR)/Clock.$(OBJ) \
+               $(LVB_SRC_DIR)/DataOperations.$(OBJ) \
+               $(LVB_SRC_DIR)/Error.$(OBJ) \
+               $(LVB_SRC_DIR)/FileOperations.$(OBJ) \
+			   $(LVB_SRC_DIR)/LogFile.$(OBJ) \
+               $(LVB_SRC_DIR)/MemoryOperations.$(OBJ) \
+               $(LVB_SRC_DIR)/MyMaths.$(OBJ) \
+               $(LVB_SRC_DIR)/RandomNumberGenerator.$(OBJ) \
+               $(LVB_SRC_DIR)/TreeEvaluation.$(OBJ) \
+			   $(LVB_SRC_DIR)/SearchParameters.$(OBJ) \
+               $(LVB_SRC_DIR)/Solve.$(OBJ) \
+               $(LVB_SRC_DIR)/Sops.$(OBJ) \
+			   $(LVB_SRC_DIR)/StartingTemperature.$(OBJ) \
+			   $(LVB_SRC_DIR)/Treestack.$(OBJ) \
+               $(LVB_SRC_DIR)/TreeOperations.$(OBJ) \
+               $(LVB_SRC_DIR)/Wrapper.$(OBJ)
 
 # C++ files
 
 LVB_READ_FILE_OBJS = 	$(LVB_SRC_DIR)/CommandLineParser.$(OBJ) \
-						$(LVB_SRC_DIR)/MapReduce.$(OBJ) \
+						$(LVB_SRC_DIR)/Hash.$(OBJ) \
 						$(LVB_SRC_DIR)/MSAInput.$(OBJ) \
 						$(LVB_SRC_DIR)/Print.$(OBJ) \
-						$(LVB_SRC_DIR)/Verbose.$(OBJ)					
-
+						$(LVB_SRC_DIR)/Verbose.$(OBJ)
+						
 
 LVB_LIB_OBJS_OUTPUT = $(LVB_LIB_OBJS)
 
@@ -166,7 +150,7 @@ LVB_PROG_OBJS = $(LVB_SRC_DIR)/Main.$(OBJ)
 
 DOCS = $(DOCS_PROGRAMMER) \
        $(TEST_MANUAL) \
-	   $(LVB_MANUAL)
+       $(LVB_MANUAL)
 
 # Default rule for documentation files (not suitable for user's
 # documentation files, which are derived from *.pod not *.c, or for
@@ -183,24 +167,25 @@ lvb : LVB_PROG $(DOCS)
 #	soffice --headless --convert-to pdf:writer_pdf_Export LVBManual.odt
 
 LVB_PROG : $(LVB_LIB) $(LVB_PROG_OBJS)
-		$(G++) $(CFLAGS) $(LDFLAGS) -o $(LVB_PROG) $(LVB_PROG_OBJS) $(LVB_READ_FILE_OBJS) $(LIBS) $(LM)
+	$(G++) $(CFLAGS) $(LDFLAGS) -o $(LVB_PROG) $(LVB_PROG_OBJS) $(LVB_READ_FILE_OBJS) $(LIBS) $(LM)
 
-$(LVB_LIB) : $(LVB_LIB_OBJS) $(LVB_READ_FILE_OBJS) 
-		ar rv $@ $(LVB_LIB_OBJS_OUTPUT) 
-		$(RANLIB) $(LVB_LIB)
+$(LVB_LIB) : $(LVB_LIB_OBJS) $(LVB_READ_FILE_OBJS)
+	ar rv $@ $(LVB_LIB_OBJS_OUTPUT)
+	$(RANLIB) $(LVB_LIB)
 
 # If the main test script has changed, we should run the tests
-$(TEST_MANUAL) : $(TEST_DIR)/MAPREDUCE/go
-		pod2html $< >$@
+$(TEST_MANUAL) : $(TEST_DIR)/COMMON/go
+	pod2html $< >$@
 
 test : FORCE
-		cd test/src/COMMON ; env LVB_EXECUTABLE="`pwd`/../../../$(LVB_PROG)" LVB_LIBRARY="`pwd`/../../../$(LVB_LIB)" LVB_OTHERLIBS="`pwd`/../../../libs/mrmpi/mrmpi-7Apr14/src/libmrmpi_mpicc.a" LVB_HEADER_PATH=".." GPLUSPLUS="$(G++)" LINKERCPLUSPLUS="$(G++)" CFLAGS="$(CFLAGS)" ./go; cd ..;
-		
+	cd test/src/COMMON ; env LVB_EXECUTABLE="`pwd`/../../../$(LVB_PROG)" LVB_LIBRARY="`pwd`/../../../$(LVB_LIB)" LVB_OTHERLIBS="$(LM)" LVB_HEADER_PATH=".." GPLUSPLUS="$(G++)" LINKERCPLUSPLUS="$(G++)" CFLAGS="$(CFLAGS)" ./go; cd ..;
+	cd test/src/HASH ; env LVB_EXECUTABLE="`pwd`/../../../$(LVB_PROG)" LVB_LIBRARY="`pwd`/../../../$(LVB_LIB)" LVB_OTHERLIBS="$(LM)" LVB_HEADER_PATH=".." GPLUSPLUS="$(G++)" LINKERCPLUSPLUS="$(G++)" CFLAGS="$(CFLAGS)" ./go; cd ..;
+
 tests : test	# allow 'make tests' as synonym for 'make test'
 
 # make clean to remove files generated by a previous make, leaving
 # source files
-clean : FORCE 
+clean : FORCE
 	rm -f $(LVB_PROG) \
 	rm -f test/test*/*.o \
 	rm -f test/test*/testprog.exe \
@@ -208,7 +193,6 @@ clean : FORCE
 	rm pod2htmi.tmp \
 	$(LVB_LIB) \
 	$(LVB_LIB_OBJS) \
-	$(LVB_LIB_OBJS_OUTPUT) \
 	$(LVB_READ_FILE_OBJS) \
 	$(LVB_PROG_OBJS) \
 	$(DOCS)

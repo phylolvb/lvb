@@ -10,6 +10,7 @@ Fernando Guntoro, Maximilian Strobl and Chris Wood.
 (c) Copyright 2022 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
 Chang Sik Kim, Fernando Guntoro, Maximilian Strobl, Chris Wood
 and Martyn Winn.
+(c) Copyright 2022 by Joseph Guscott and Daniel Barker.
 
 All rights reserved.
 
@@ -40,7 +41,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== Main.c ========== */
+/* ========== Main.cpp ========== */
+
+#ifdef LVB_MPI
+	#include <mpi.h>
+	#include <iostream>
+	#include <vector>
+	#include <algorithm>
+
+using namespace std;
+#endif
 
 #include "Admin.h"
 #include "Clock.h"
@@ -68,30 +78,49 @@ int main(int argc, char **argv)
 	outtreefp = (FILE *) alloc (sizeof(FILE), "alloc FILE");
 	Lvb_bool log_progress;	/* whether or not to log Anneal search */
 
-	#ifdef LVB_MAPREDUCE
+	#ifdef LVB_MPI
+		/* Parallel properties */
 
-	MPI_Init(&argc,&argv);
+		int clusterSize;
+		int rank;
+		int rootProcess = 0;
+		int errorMPI;
+		char fileNameMPI[3000];
 
-	MISC misc;
+		MPI_Status status;
 
-	MPI_Comm_rank(MPI_COMM_WORLD,&misc.rank);
-	MPI_Comm_size(MPI_COMM_WORLD,&misc.nprocs);
+		errorMPI = MPI_Init(&argc, &argv);
 
-	MapReduce *mrTreeStack = new MapReduce(MPI_COMM_WORLD);
-	mrTreeStack->memsize = 1024;
-	mrTreeStack->verbosity = 0;
-	mrTreeStack->timer = 0;
+		errorMPI += MPI_Comm_size(MPI_COMM_WORLD, & clusterSize);
+		errorMPI += MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-	MapReduce *mrBuffer = new MapReduce(MPI_COMM_WORLD);
-	mrBuffer->memsize = 1024;
-	mrBuffer->verbosity = 0;
-	mrBuffer->timer = 0;
+		/* Quick checks */
 
+		if(errorMPI != 0) {
+			printf("MPI failed to initialise\n");
+			exit(1);
+		}
+
+		if(clusterSize <= 1) {
+			printf("Number of MPI processes must be greater than one\n");
+			MPI_Finalize();
+			exit(1);
+		}
 	#endif
 
+
+
     /* entitle standard output */
-    PrintLVBCopyright();
-	PrintLVBInfo();
+
+	#ifdef LVB_MPI
+		if(rank == 0) {
+    		PrintLVBCopyright();
+			PrintLVBInfo();
+		}
+	#else
+		PrintLVBCopyright();
+		PrintLVBInfo();
+	#endif
 
     /* start timer */
     clock_t Start, End;
@@ -101,7 +130,13 @@ int main(int argc, char **argv)
     lvb_initialize();
 
     getparam(&rcstruct, argc, argv);
-    StartTime();
+
+	#ifdef LVB_MPI
+		if(rank == 0)
+    		StartTime();
+	#else
+		StartTime();
+	#endif
 
     /* read and alloc space to the data structure */
 	MSA = (data *) alloc(sizeof(DataStructure), "alloc data structure");
@@ -113,17 +148,39 @@ int main(int argc, char **argv)
     stack_treevo = CreateNewTreestack();
 
     matchange(MSA, rcstruct);	/* cut columns */
-	#ifdef LVB_MAPREDUCE
-    writeinf(rcstruct, MSA, argc, argv, misc.nprocs);
+
+	#ifdef LVB_MPI
+		if(rank == 0)
+			writeinf(rcstruct, MSA, argc, argv, clusterSize);
 	#else
-	writeinf(rcstruct, MSA, argc, argv);
+		writeinf(rcstruct, MSA, argc, argv);
 	#endif
+
     calc_distribution_processors(MSA, rcstruct);
 
     if (rcstruct.verbose == LVB_TRUE) {
 		printf("MinimumTreeLength: %ld\n\n", MinimumTreeLength(MSA));
     }
-    rinit(rcstruct.seed);
+
+	#ifdef LVB_MPI
+		int seedMPI = rcstruct.seed;
+		vector<int> MPIVect;
+
+		if(rank == 0) {
+			for(int i = 0; i < clusterSize; i++)
+				MPIVect.push_back(seedMPI + i);
+		}
+
+		/* for(auto i: MPIVect)
+			cout << i << ' ';
+		cout << endl; */
+
+		MPI_Scatter(MPIVect.data(), 1, MPI_INT, &seedMPI, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    	rinit(seedMPI);
+	#else
+		rinit(rcstruct.seed);
+	#endif
+    
 	log_progress = LVB_TRUE;
 
     outtreefp = clnopen(rcstruct.file_name_out, "w");
@@ -132,40 +189,73 @@ int main(int argc, char **argv)
     if(rcstruct.algorithm_selection ==2)
     treEvo = fopen ("treEvo.tre","w");
 	iter = 0;
-	#ifdef LVB_MAPREDUCE
-	final_length = GetSoln(MSA, rcstruct, &iter, log_progress, &misc, mrTreeStack, mrBuffer);
-	if (misc.rank == 0) {
-		trees_output = PrintTreestack(MSA, &treestack, outtreefp, LVB_FALSE);
-	}
 
+	#ifdef LVB_MPI
+		final_length = GetSoln(MSA, rcstruct, &iter, log_progress, rank);
 	#else
-	final_length = GetSoln(MSA, rcstruct, &iter, log_progress);
+		final_length = GetSoln(MSA, rcstruct, &iter, log_progress);
+	#endif
+
 	trees_output = PrintTreestack(MSA, &treestack, outtreefp, LVB_FALSE);
 
+	#ifdef LVB_MPI
+		MPI_Barrier(MPI_COMM_WORLD);
+
+		for(int i = 0; i < clusterSize; i++) {
+			if(rank == i) {
+				sprintf(fileNameMPI, "%s_%d", rcstruct.file_name_out, i);
+				outtreefp = clnopen(fileNameMPI, "w");
+				trees_output = PrintMPITreestack(MSA, &treestack, outtreefp, rank, LVB_FALSE);
+			}
+		}
+
+		MPI_Gather(&final_length, 1, MPI_INT, MPIVect.data(), 1, MPI_INT, 0, MPI_COMM_WORLD);
+
+		/* for(auto i: MPIVect)
+			cout << i << ' ';
+		cout << endl; */
+
+		MPI_Barrier(MPI_COMM_WORLD);
+
+		int position = 0;
+
+		 vector<int>::iterator minValue = min_element(MPIVect.begin(), MPIVect.end());
+		position = distance(MPIVect.begin(), minValue);
+		/* cout << "Position, rank: " << position << ", " << rank << endl; */
+
+		MPI_Barrier(MPI_COMM_WORLD);
 	#endif
 
 	trees_output_total += trees_output;
     if(rcstruct.algorithm_selection ==2)
 		PrintTreestack(MSA, &stack_treevo, treEvo, LVB_FALSE);
     ClearTreestack(&treestack);
-	printf("--------------------------------------------------------\n");
-	#ifdef LVB_MAPREDUCE
-	/* clean the TreeStack and buffer */
-	mrTreeStack->map( mrTreeStack, map_clean, NULL );
-	mrBuffer->map( mrBuffer, map_clean, NULL );
-	/* END clean the TreeStack and buffer */
+
+	#ifdef LVB_MPI
+		if(rank == 0)
+			printf("--------------------------------------------------------\n");
+	#else
+		printf("--------------------------------------------------------\n");
 	#endif
 
 	if(rcstruct.algorithm_selection ==2)
     fclose(treEvo);
 	
-	clnclose(outtreefp, rcstruct.file_name_out);
+	#ifdef LVB_MPI
+		clnclose(outtreefp, fileNameMPI);
+	#else
+		clnclose(outtreefp, rcstruct.file_name_out);
+	#endif
 
     End = clock();
 
 	overall_time_taken = ((double) (End - Start)) /CLOCKS_PER_SEC;
 
-	PrintLogFile(iter, trees_output_total, final_length, overall_time_taken);
+	#ifdef LVB_MPI
+		PrintMPILogFile(iter, trees_output_total, final_length, overall_time_taken, seedMPI);
+	#else
+		PrintLogFile(iter, trees_output_total, final_length, overall_time_taken);
+	#endif
 
 	double consistency_index = MinimumTreeLength(MSA);
 	double homoplasy_index = 0;
@@ -173,7 +263,12 @@ int main(int argc, char **argv)
 	consistency_index = consistency_index/final_length;
 	homoplasy_index = 1 - consistency_index;
 
-	PrintOutput(iter, trees_output_total, final_length, consistency_index, homoplasy_index, overall_time_taken, rcstruct.file_name_out);
+	#ifdef LVB_MPI
+		/* if(rank == 0) */
+		PrintMPIOutput(iter, trees_output_total, final_length, consistency_index, homoplasy_index, overall_time_taken, fileNameMPI, seedMPI);
+	#else
+		PrintOutput(iter, trees_output_total, final_length, consistency_index, homoplasy_index, overall_time_taken, rcstruct.file_name_out);
+	#endif
 
 	/* "file-local" dynamic heap memory */
     if (rcstruct.algorithm_selection ==2)
@@ -185,14 +280,8 @@ int main(int argc, char **argv)
     if (cleanup() == LVB_TRUE) val = EXIT_FAILURE;
     else val = EXIT_SUCCESS;
 
-	#ifdef LVB_MAPREDUCE
-	FreeTreestackMemory(MSA, &treestack);
-	MPI_Barrier(MPI_COMM_WORLD);
-
-	delete mrTreeStack;
-	delete mrBuffer;
-
-	MPI_Finalize();
+	#ifdef LVB_MPI
+		MPI_Finalize();
 	#endif
 
     return val;

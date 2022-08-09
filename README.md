@@ -33,15 +33,10 @@ Array-based version:
 make
 ~~~~
 
-MapReduce version (requires MPI)  
-When compiling the MapReduce version of LVB, the MRMPI library may need to be recompiled to work with some versions of the openMPI library. This can be achieved by carrying out the following:
-~~~
-cd libs/mrmpi/mrmpi-7Apr14/src/
-make clean-all
-make mpicc
-cd ../../../../
-make -f Makefile.MAPREDUCE
-~~~
+MPI version:
+~~~~
+make -f Makefile.MPI
+~~~~
 
 If you use LVB, please cite the following paper:
 

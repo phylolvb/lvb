@@ -10,6 +10,7 @@ Fernando Guntoro, Maximilian Strobl and Chris Wood.
 (c) Copyright 2022 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
 Chang Sik Kim, Fernando Guntoro, Maximilian Strobl, Chris Wood
 and Martyn Winn.
+(c) Copyright 2022 by Joseph Guscott and Daniel Barker.
 
 All rights reserved.
  
@@ -97,13 +98,13 @@ void getparam(Parameters *prms, int argc, char **argv)
 
 } /* end getparam() */
 
-#ifdef LVB_MAPREDUCE
-void writeinf(Parameters prms, Dataptr MSA, int argc, char **argv, int n_process)
 
+#ifdef LVB_MPI
+	void writeinf(Parameters prms, Dataptr MSA, int argc, char **argv, int clusterSize)
 #else
-void writeinf(Parameters prms, Dataptr MSA, int argc, char **argv)
-
+	void writeinf(Parameters prms, Dataptr MSA, int argc, char **argv)
 #endif
+
 /* write initial details to standard output */
 {
 	struct utsname buffer;
@@ -145,21 +146,13 @@ void writeinf(Parameters prms, Dataptr MSA, int argc, char **argv)
     else if(prms.algorithm_selection == 2) printf("          2 (PBS)\n");
 
 	printf("\nParallelisation Properties: \n");
-	#ifdef LVB_MAPREDUCE
-	printf("  Processes:           %d\n", n_process);
-	#endif
 
-	if(prms.n_processors_available != omp_get_max_threads()) {
-		printf("  PThreads:            %d\n", prms.n_processors_available);
-	} else {
-		printf("  PThreads:  %d\n", omp_get_max_threads());
-		printf("  PThread IDs:         ");
-		#pragma omp parallel
-		{
-			printf("%d ", omp_get_thread_num());
-		}
+	printf("  Additional MPI Seeds: %d: ", clusterSize - 1);
+
+	for(int i = 1; i < clusterSize; i++) {
+		printf("%d ", prms.seed + i);
 	}
-		
+
 	printf("\n================================================================================\n");
 	printf("\nInitialising search: \n");
 }

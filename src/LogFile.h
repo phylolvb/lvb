@@ -10,6 +10,7 @@ Fernando Guntoro, Maximilian Strobl and Chris Wood.
 (c) Copyright 2022 by Joseph Guscott, Daniel Barker, Miguel Pinheiro,
 Chang Sik Kim, Fernando Guntoro, Maximilian Strobl, Chris Wood
 and Martyn Winn.
+(c) Copyright 2022 by Joseph Guscott and Daniel Barker.
 
 All rights reserved.
 
@@ -48,15 +49,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdbool.h>
 #include "LVB.h"
 
-#ifdef LVB_MAPREDUCE
-  #define LVB_IMPLEMENTATION "MR  "
-#elif LVB_HASH
+#ifdef LVB_HASH
   #define LVB_IMPLEMENTATION "HASH"
 #else
-  #define LVB_IMPLEMENTATION "NP  "
+  #define LVB_IMPLEMENTATION "AB  "
 #endif
 
 bool LogFileExists(const char *filename);
 void PrintLogFile(long, long, long, double);
+
+#ifdef LVB_MPI
+  void PrintMPILogFile(long, long, long, double, int);
+#endif
 
 #endif  // LVB_LOG_FILE_H_
