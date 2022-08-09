@@ -297,8 +297,10 @@ void read_parameters(Parameters *prms, int argc, char **argv){
 				if (strcmp(optarg, "0") == 0) prms->parallel_selection = 0;
 				else if (strcmp(optarg, "1") == 0) prms->parallel_selection = 1;
 				else if (strcmp(optarg, "2") == 0) prms->parallel_selection = 2;
+				else if (strcmp(optarg, "3") == 0) prms->parallel_selection = 3;
+				else if (strcmp(optarg, "4") == 0) prms->parallel_selection = 4;
 				else{
-					fprintf (stderr, "Unknown parallelization option\nPlease, choose between Static-multi (0), Cluster (1), or Dynamic-multi (2).");
+					fprintf (stderr, "Unknown parallelization option\nPlease, choose between Static-multi (0), Cluster (1), or Dynamic-multi (2/3/4).");
 				}
 
 				break;

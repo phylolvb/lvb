@@ -182,7 +182,10 @@ void writeinf(Parameters prms, Dataptr MSA, int argc, char **argv)
 	printf("  MPI parallel strategy(Yi): ");
 	if(prms.parallel_selection == 0) printf("          0 (Static-multiple )\n");
     	else if(prms.parallel_selection == 1) printf("          1 (Cluster)\n");
-    	else if(prms.parallel_selection == 2) printf("          2 (Dynamic-multiple)\n");
+    	else if(prms.parallel_selection == 2) printf("          2 (Dynamic-multiple with killing)\n");
+		else if (prms.parallel_selection == 3) printf("          3 (Dynamic-multiple with phase transition)\n");
+		else if (prms.parallel_selection == 4) printf("          4 (Dynamic-multiple with killing and phase transition)\n");
+
 
 #endif
 		
