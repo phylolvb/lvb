@@ -148,6 +148,8 @@ if(rank==0)
 		printf("MinimumTreeLength: %ld\n\n", MinimumTreeLength(MSA));
     }
     rinit(rcstruct.seed);
+	
+	//Only rank 0(master) will print some info on screen
     if(rank==0)
 		log_progress = LVB_TRUE;
     else

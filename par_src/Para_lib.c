@@ -10,8 +10,47 @@ int get_other_seed_to_run_a_process() {
 }
 
 
+void Create_MPI_Datatype(MPI_Datatype *MPI_BRANCH, MPI_Datatype *MPI_SLAVEtoMASTER, MPI_Datatype* MPI_MASTERtoSLAVE)
+{
+	//Bcast_best_partial_tree 以及Send_best_treestack_to_root 需要MPI_BRANCH
+	//get_temperature_and_control_process_from_other_process 与 SLAVE_anneal需要 send message 与recvmessage
+	//这个函数可以在 getsol里调用
+	//ps: 原本的slave里的branch还是单独创立的，因为如果想改成getsol传过去，还要改Solve.h太麻烦
+		//传送用的结构
+	int pad_size = sizeof(Lvb_bit_length*);
+	int nItems = 2;
+	int          	blocklengths_1[2] = { 4, pad_size };//content of sitestate doesn't matter
+	MPI_Datatype 	types_1[2] = { MPI_LONG, MPI_BYTE };
+	//MPI_Datatype 	MPI_BRANCH;
+	MPI_Aint     	displacements_1[2];
+	displacements_1[0] = offsetof(TREESTACK_TREE_NODES, parent);
+	displacements_1[1] = offsetof(TREESTACK_TREE_NODES, sitestate);
+	MPI_Type_create_struct(nItems, blocklengths_1, displacements_1, types_1, MPI_BRANCH);
+	MPI_Type_commit(MPI_BRANCH);
 
-void Bcast_best_partial_tree(Dataptr MSA, long best_treelength, int rank, int nprocs, TREESTACK_TREE_NODES* BranchArray, long *tree_root, int* from_rank)
+
+	/* structure to use sending temperature and number of interactions to master process */
+	nItems = 3;
+	int          	blocklengths_2[3] = { 3, 1, 1 };
+	MPI_Datatype 	types_2[3] = { MPI_INT, MPI_LONG, MPI_DOUBLE };
+	MPI_Aint     	displacements_2[3];
+	displacements_2[0] = offsetof(SendInfoToMaster, n_iterations);
+	displacements_2[1] = offsetof(SendInfoToMaster, l_length);
+	displacements_2[2] = offsetof(SendInfoToMaster, temperature);
+	MPI_Type_create_struct(nItems, blocklengths_2, displacements_2, types_2, MPI_SLAVEtoMASTER);
+	MPI_Type_commit(MPI_SLAVEtoMASTER);
+
+	nItems = 1;
+	int          	blocklengths_3[1] = { 3 };
+	MPI_Datatype 	types_3[1] = { MPI_INT };
+	MPI_Aint     	displacements_3[1];
+	displacements_3[0] = offsetof(RecvInfoFromMaster, n_seed);
+	MPI_Type_create_struct(nItems, blocklengths_3, displacements_3, types_3, MPI_MASTERtoSLAVE);
+	MPI_Type_commit(MPI_MASTERtoSLAVE);
+
+}
+
+void Bcast_best_partial_tree(Dataptr MSA, long best_treelength, int rank, int nprocs, TREESTACK_TREE_NODES* BranchArray, long *tree_root, int* from_rank, MPI_Datatype 	MPI_BRANCH)
 {
     //TREESTACK* treestack_ptr, long iteration, long length, double temperature
     //先算出来最小的length，
@@ -37,6 +76,7 @@ void Bcast_best_partial_tree(Dataptr MSA, long best_treelength, int rank, int np
 
 	*from_rank = index_max;
 
+	/*
     //传送用的结构
     int pad_size = sizeof(Lvb_bit_length*);
     int nItems = 2;
@@ -48,6 +88,8 @@ void Bcast_best_partial_tree(Dataptr MSA, long best_treelength, int rank, int np
     displacements_2[1] = offsetof(TREESTACK_TREE_NODES, sitestate);
     MPI_Type_create_struct(nItems, blocklengths_2, displacements_2, types_2, &MPI_BRANCH);
     MPI_Type_commit(&MPI_BRANCH);
+	*/
+
 
     Lvb_bit_length** old_sitestate = (Lvb_bit_length**)alloc(sizeof(Lvb_bit_length*) * MSA->numberofpossiblebranches, "array saving old sitestate");//save original sitestate
     for (int i = 0; i < MSA->numberofpossiblebranches; i++)
@@ -74,7 +116,7 @@ void Bcast_best_partial_tree(Dataptr MSA, long best_treelength, int rank, int np
 
 }
 
-void Root_get_best_treestack(Dataptr MSA, long *best_treelength_local, int root, int rank, int nprocs, TREESTACK* treestack)
+void Root_get_best_treestack(Dataptr MSA, long *best_treelength_local, int root, int rank, int nprocs, TREESTACK* treestack, MPI_Datatype MPI_BRANCH)
 {
 	long * all_len;
 
@@ -126,7 +168,7 @@ void Root_get_best_treestack(Dataptr MSA, long *best_treelength_local, int root,
 	//if (rank == index_max)
 	//printf("\n\n\nbest rank:%d, length %ld-------------\n\n", rank, all_len[index_max]);
 
-	Send_best_treestack_to_root(MSA, rank, 0, index_max, nprocs, treestack);
+	Send_best_treestack_to_root(MSA, rank, 0, index_max, nprocs, treestack,MPI_BRANCH);
 
 	if(rank==0)
 		*best_treelength_local=all_len[index_max];
@@ -137,7 +179,7 @@ void Root_get_best_treestack(Dataptr MSA, long *best_treelength_local, int root,
 
 
 
-void  Send_best_treestack_to_root(Dataptr MSA, int rank,int root, int best_rank, int nprocs, TREESTACK * treestack)
+void  Send_best_treestack_to_root(Dataptr MSA, int rank,int root, int best_rank, int nprocs, TREESTACK * treestack, MPI_Datatype MPI_BRANCH)
 {
     //每个process保留使用的seeds，得到的best_length, iteration, 最终_temperature, 
     //（记得每一次都要rinit(seed)），并把最好的一个seed对应的treestack，temperature，
@@ -145,7 +187,7 @@ void  Send_best_treestack_to_root(Dataptr MSA, int rank,int root, int best_rank,
     //注意stack里面brancharray的sitestate是不拷贝进去的
     
 
-
+	/*
     //传送用的结构
     int pad_size = sizeof(Lvb_bit_length*);
     int nItems = 2;
@@ -157,7 +199,7 @@ void  Send_best_treestack_to_root(Dataptr MSA, int rank,int root, int best_rank,
     displacements_2[1] = offsetof(TREESTACK_TREE_NODES, sitestate);
     MPI_Type_create_struct(nItems, blocklengths_2, displacements_2, types_2, &MPI_BRANCH);
     MPI_Type_commit(&MPI_BRANCH);
-
+	*/
     
 
 
@@ -675,7 +717,7 @@ void Master_recv_record_from_Slave(Info_record* record, int nruns)
 }
 
 
-void get_temperature_and_control_process_from_other_process(int num_procs, int n_seeds_to_try, Info_record * record)
+void get_temperature_and_control_process_from_other_process(int num_procs, int n_seeds_to_try, Info_record * record, MPI_Datatype mpi_recv_data, MPI_Datatype mpi_send_data)
 {
 
 		int nProcessFinished = 0;
@@ -709,7 +751,9 @@ void get_temperature_and_control_process_from_other_process(int num_procs, int n
 		//memset(pIntFinishedProcess, 0, num_procs * sizeof(int));		/* control if a specific process is finished */
 		for (i = 0; i < num_procs; i++) { *(pIntFinishedProcessChecked + i) = MESSAGE_ANNEAL_IS_RUNNING_OR_WAIT_TO_RUN; } /* all the process start with this state */
 
+		
 		/* structure to use sending temperature and number of interactions to master process */
+		/*
 		int				nItems = 3;
 		int          	blocklengths[3] = {3, 1, 1};
 		MPI_Datatype 	types[3] = {MPI_INT, MPI_LONG, MPI_DOUBLE};
@@ -729,6 +773,7 @@ void get_temperature_and_control_process_from_other_process(int num_procs, int n
 		displacements_2[0] = offsetof(RecvInfoFromMaster, n_seed);
 		MPI_Type_create_struct(nItems, blocklengths_2, displacements_2, types_2, &mpi_send_data);
 		MPI_Type_commit(&mpi_send_data);
+		*/
 
 		/* structure with temperature and interaction data */
 		SendInfoToMaster **p_info_temperature;
