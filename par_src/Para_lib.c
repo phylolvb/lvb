@@ -621,7 +621,7 @@ int Slave_after_anneal_once(Dataptr MSA, TREESTACK_TREE_NODES *tree, int n_state
 
 
 
-void write_final_results(Info_record* record, Parameters rcstruct, double overall_time_taken)
+void write_final_results(Info_record* record, Parameters rcstruct, int no_first_critical_temp, double critical_temp, double overall_time_taken)
 {
 	char statistics_output[200];
 	sprintf(statistics_output, "%s_%d.sta", rcstruct.file_name_in, rcstruct.nruns); /* name of output file for this process */
@@ -690,15 +690,27 @@ void write_final_results(Info_record* record, Parameters rcstruct, double overal
 	fprintf(out, "\nCALC_ITERATION_ONLY_RELEASE_AFTER_NUMBER_CHUNCHS: %d\nCALC_ITERATION_NUMBER_STD_TO_RESTART_PROCESS:%d \n",
 		CALC_ITERATION_ONLY_RELEASE_AFTER_NUMBER_CHUNCHS, CALC_ITERATION_NUMBER_STD_TO_RESTART_PROCESS);
 
-	fprintf(out, "\nAverage of temperature: %lf \n", l_temp_avg);
-	fprintf(out, "\nDeviation of temperature: %lf \n", l_temp_std);
-	fprintf(out, "\nAverage of length: %lf \n", l_len_avg);
-	fprintf(out, "\nDeviation of length: %lf \n", l_len_std);
-	fprintf(out, "\nAverage of time taken(only those frozen): %.2lf \n", l_time_avg);
-	fprintf(out, "\nDeviation of time: %lf \n", l_time_std);
-	fprintf(out, "\nPercentage of killing: %lf \n", (double)(rcstruct.nruns - frozen_count) / (double)rcstruct.nruns);
+	fprintf(out, "\nAverage of temperature: %lf ", l_temp_avg);
+	fprintf(out, "\nDeviation of temperature: %lf ", l_temp_std);
+	fprintf(out, "\nAverage of length: %lf ", l_len_avg);
+	fprintf(out, "\nDeviation of length: %lf ", l_len_std);
+	fprintf(out, "\nAverage of time taken(only those frozen): %.2lf ", l_time_avg);
+	fprintf(out, "\nDeviation of time: %lf ", l_time_std);
+	fprintf(out, "\nPercentage of killing: %lf ", (double)(rcstruct.nruns - frozen_count) / (double)rcstruct.nruns);
 
-	fprintf(out, "\nTime: %.2lf \n",overall_time_taken);
+	if (rcstruct.parallel_selection == PARALLEL_DYNAMIC_AMI_PHASE_TRANSITION || rcstruct.parallel_selection == PARALLEL_DYNAMIC_AMI_KILL_PHASE_TRANSITION)
+	{
+		if (no_first_critical_temp != -1)
+		{
+			fprintf(out, "\nThe number of the first seed that launched with critial temperature:%d", no_first_critical_temp);
+			fprintf(out, "\nCritial temperature:%lf", critical_temp);
+		}
+		else
+			fprintf(out, "\nNo seed launches with critial temperature because there are less than %d seeds frozen before all seeds are used", SPECIFIC_HEAT_ONLY_RELEASE_AFTER_NUMBER_CHUNCHS);
+	}
+	
+
+	fprintf(out, "\nOverall Time: %.2lf \n",overall_time_taken);
 
 	fprintf(out, "\n--------------------------------------------------------");
 	fprintf(out, "\nNo.\tSeed used\tstart temp\tnumber of iterations\tK or F\tLength\ttemperature\tTime\tSlave time\tcommu cost\t \n");
@@ -742,7 +754,7 @@ void Master_recv_record_from_Slave(Info_record* record, int nruns)
 }
 
 
-void get_temperature_and_control_process_from_other_process(int num_procs, int n_seeds_to_try, Info_record * record, MPI_Datatype mpi_recv_data, MPI_Datatype mpi_send_data)
+void get_temperature_and_control_process_from_other_process(int num_procs, int n_seeds_to_try, Info_record * record, int* no_first_critical_temp, double* critical_temp, MPI_Datatype mpi_recv_data, MPI_Datatype mpi_send_data)
 {
 
 		int nProcessFinished = 0;
@@ -776,29 +788,7 @@ void get_temperature_and_control_process_from_other_process(int num_procs, int n
 		//memset(pIntFinishedProcess, 0, num_procs * sizeof(int));		/* control if a specific process is finished */
 		for (i = 0; i < num_procs; i++) { *(pIntFinishedProcessChecked + i) = MESSAGE_ANNEAL_IS_RUNNING_OR_WAIT_TO_RUN; } /* all the process start with this state */
 
-		
-		/* structure to use sending temperature and number of interactions to master process */
-		/*
-		int				nItems = 3;
-		int          	blocklengths[3] = {3, 1, 1};
-		MPI_Datatype 	types[3] = {MPI_INT, MPI_LONG, MPI_DOUBLE};
-		MPI_Datatype 	mpi_recv_data;
-		MPI_Aint     	displacements[3];
-		displacements[0] = offsetof(SendInfoToMaster, n_iterations);
-		displacements[1] = offsetof(SendInfoToMaster, l_length);
-		displacements[2] = offsetof(SendInfoToMaster, temperature);
-		MPI_Type_create_struct(nItems, blocklengths, displacements, types, &mpi_recv_data);
-		MPI_Type_commit(&mpi_recv_data);
 
-		nItems = 1;
-		int          	blocklengths_2[1] = {3};
-		MPI_Datatype 	types_2[1] = {MPI_INT};
-		MPI_Datatype 	mpi_send_data;
-		MPI_Aint     	displacements_2[1];
-		displacements_2[0] = offsetof(RecvInfoFromMaster, n_seed);
-		MPI_Type_create_struct(nItems, blocklengths_2, displacements_2, types_2, &mpi_send_data);
-		MPI_Type_commit(&mpi_send_data);
-		*/
 
 		/* structure with temperature and interaction data */
 		SendInfoToMaster **p_info_temperature;
@@ -977,6 +967,12 @@ void get_temperature_and_control_process_from_other_process(int num_procs, int n
 								{
 									sum_sh /= SPECIFIC_HEAT_ONLY_RELEASE_AFTER_NUMBER_CHUNCHS;
 									sum_critical_temp /= SPECIFIC_HEAT_ONLY_RELEASE_AFTER_NUMBER_CHUNCHS;
+
+									if (n_seeds_tried < n_seeds_to_try)//next seed will start with critical temperature
+									{
+										*no_first_critical_temp = n_seeds_tried + 1;
+										*critical_temp = sum_critical_temp;
+									}
 								}
 							}
 

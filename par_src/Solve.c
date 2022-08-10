@@ -1433,11 +1433,13 @@ long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool l
 		//Master start monitoring Slave, and do not need run SA
 		if (rcstruct.parallel_selection != PARALLEL_CLUSTER)
 		{
-			get_temperature_and_control_process_from_other_process(nprocs, rcstruct.nruns, record, MPI_SLAVEtoMASTER, MPI_MASTERtoSLAVE);
+			int no_first_critical_temp = -1;// the number of the first seed that launched with critial temperature, if no seed launch with critical temp, it equals to -1
+			double critical_temp = 0.0;
+			get_temperature_and_control_process_from_other_process(nprocs, rcstruct.nruns, record, &no_first_critical_temp, &critical_temp, MPI_SLAVEtoMASTER, MPI_MASTERtoSLAVE);
 			End= clock();
 	
 			Master_recv_record_from_Slave(record, rcstruct.nruns);
-			write_final_results(record, rcstruct, ((double)(End - Start)) / CLOCKS_PER_SEC);
+			write_final_results(record, rcstruct, no_first_critical_temp, critical_temp, ((double)(End - Start)) / CLOCKS_PER_SEC);
 			free(record);
 			goto finish;
 		}

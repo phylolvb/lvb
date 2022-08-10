@@ -136,9 +136,9 @@ int Slave_after_anneal_once(Dataptr MSA, TREESTACK_TREE_NODES* tree, int n_state
     TREESTACK* best_treestack, int myMPIid, long* l_iterations, long* treelength, long* best_treelength,
     int n_number_tried_seed_next, Parameters rcstruct);
 
-void get_temperature_and_control_process_from_other_process(int num_procs, int n_seeds_to_try, Info_record* record, MPI_Datatype mpi_recv_data, MPI_Datatype mpi_send_data);
+void get_temperature_and_control_process_from_other_process(int num_procs, int n_seeds_to_try, Info_record* record, int *no_first_critical_temp, double *critical_temp, MPI_Datatype mpi_recv_data, MPI_Datatype mpi_send_data);
 
-void write_final_results(Info_record* record, Parameters rcstruct, double overall_time_taken);
+void write_final_results(Info_record* record, Parameters rcstruct, int no_first_critical_temp, double critical_temp, double overall_time_taken);
 
 void Slave_send_record_to_Master(int depth, Slave_record* record_slave);
 void Master_recv_record_from_Slave(Info_record* record, int nruns);
