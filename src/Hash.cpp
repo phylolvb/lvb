@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Hash.h"
 
 long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_NODES *const BranchArray, const long root, Lvb_bool b_with_sitestate) {
-  int searchType = 0;
+  int searchType = 2;
 
   if(searchType == 0) {
     /* LINEAR SEARCH */
@@ -68,7 +68,7 @@ long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE
 
   if(searchType == 2) {
       /* SET SEARCH */
-      if(linearHashSearch(MSA, sp, BranchArray, root, b_with_sitestate)== 0){
+      if(setHashSearch(MSA, sp, BranchArray, root, b_with_sitestate)== 0){
       return 0;
   } else {
       return 1;
@@ -178,6 +178,45 @@ int binaryHashSearch(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_NODES *con
   }
   hashstackvector.push_back(current_site_states_hash);
 
+  lvb_assert(root < MSA->n);
+  PushCurrentTreeToStack(MSA, sp, BranchArray, root, b_with_sitestate);
+
+  return 1;
+}
+
+int setHashSearch(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_NODES *const BranchArray, const long root, Lvb_bool b_with_sitestate) {
+
+  long i = 0, new_root = 0;
+  static TREESTACK_TREE_NODES *copy_2 = NULL;
+  Lvb_bool b_First = LVB_TRUE;
+  std::string current_site_states;
+  unsigned long long current_site_states_hash = 0;
+  static std::vector<unsigned long long> hashstackvector;
+  static std::unordered_set <unsigned long long> hashSet;
+  unsigned long long HashKey = 0;
+
+  /* allocate "local" static heap memory - static - do not free! */
+  if (copy_2 == NULL) copy_2 = treealloc(MSA, b_with_sitestate);
+  treecopy(MSA, copy_2, BranchArray, b_with_sitestate);
+  if (root != 0) {
+    lvb_reroot(MSA, copy_2, root, new_root, b_with_sitestate);
+  }
+
+  /* if treestack is empty, add current config */
+  if (sp->next == 0) {
+    current_site_states = MakeHashSet(MSA, copy_2, new_root);
+    hashSet.clear();
+    HashKey = HashSiteSet(current_site_states);
+  } else {
+    current_site_states = MakeHashSet(MSA, copy_2, 0);
+    HashKey = HashSiteSet(current_site_states);
+    
+    if(hashSet.find(HashKey) != hashSet.end()) 
+        return 0;
+  }    
+  
+  hashSet.insert(HashKey);
+    
   lvb_assert(root < MSA->n);
   PushCurrentTreeToStack(MSA, sp, BranchArray, root, b_with_sitestate);
 
