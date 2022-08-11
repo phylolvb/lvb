@@ -46,15 +46,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Hash.h"
 
 long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_NODES *const BranchArray, const long root, Lvb_bool b_with_sitestate, Parameters rcstruct) {
-
-  if(rcstruct.searchSelection == 0) {
-    /* LINEAR SEARCH */
     long i = 0, new_root = 0;
     static TREESTACK_TREE_NODES *copy_2 = NULL;
     Lvb_bool b_First = LVB_TRUE;
     std::string current_site_states;
     unsigned long long current_site_states_hash = 0;
     static std::vector<unsigned long long> hashstackvector;
+    static std::unordered_set <unsigned long long> hashSet;
+    unsigned long long HashKey = 0;
+
+  if(rcstruct.searchSelection == 0) {
+    /* LINEAR SEARCH */
 
     /* allocate "local" static heap memory - static - do not free! */
     if (copy_2 == NULL) copy_2 = treealloc(MSA, b_with_sitestate);
@@ -77,22 +79,10 @@ long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE
       }
     
     }
-    hashstackvector.push_back(current_site_states_hash);
-
-    lvb_assert(root < MSA->n);
-    PushCurrentTreeToStack(MSA, sp, BranchArray, root, b_with_sitestate);
-
-    return 1;
   }
 
   if(rcstruct.searchSelection == 1) {
     /* BINARY SEARCH */
-    long i = 0, new_root = 0;
-    static TREESTACK_TREE_NODES *copy_2 = NULL;
-    Lvb_bool b_First = LVB_TRUE;
-    std::string current_site_states;
-    unsigned long long current_site_states_hash = 0;
-    static std::vector<unsigned long long> hashstackvector;
 
     /* allocate "local" static heap memory - static - do not free! */
     if (copy_2 == NULL) copy_2 = treealloc(MSA, b_with_sitestate);
@@ -114,25 +104,10 @@ long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE
         return 0;
       }
     }
-    hashstackvector.push_back(current_site_states_hash);
-    std::sort(hashstackvector.begin(), hashstackvector.end());
-
-    lvb_assert(root < MSA->n);
-    PushCurrentTreeToStack(MSA, sp, BranchArray, root, b_with_sitestate);
-
-    return 1;
   }
 
   if(rcstruct.searchSelection == 2) {
-      /* SET SEARCH */
-    long i = 0, new_root = 0;
-    static TREESTACK_TREE_NODES *copy_2 = NULL;
-    Lvb_bool b_First = LVB_TRUE;
-    std::string current_site_states;
-    unsigned long long current_site_states_hash = 0;
-    static std::vector<unsigned long long> hashstackvector;
-    static std::unordered_set <unsigned long long> hashSet;
-    unsigned long long HashKey = 0;
+    /* SET SEARCH */
 
     /* allocate "local" static heap memory - static - do not free! */
     if (copy_2 == NULL) copy_2 = treealloc(MSA, b_with_sitestate);
@@ -153,14 +128,19 @@ long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE
       if(hashSet.find(HashKey) != hashSet.end()) 
         return 0;
     }    
-  
-    hashSet.insert(HashKey);
-    
-    lvb_assert(root < MSA->n);
-    PushCurrentTreeToStack(MSA, sp, BranchArray, root, b_with_sitestate);
-
-    return 1;
   }
+  
+  if(rcstruct.searchSelection == 2) {
+    hashSet.insert(HashKey);
+  } else {
+    hashstackvector.push_back(current_site_states_hash);
+    std::sort(hashstackvector.begin(), hashstackvector.end());
+  }
+  
+  lvb_assert(root < MSA->n);
+  PushCurrentTreeToStack(MSA, sp, BranchArray, root, b_with_sitestate);
+
+  return 1;
 } /* end CompareHashTreeToHashstack() */
 
 long TopologicalHashComparison(Dataptr MSA, unsigned long long stored_hash, const TREESTACK_TREE_NODES *const tree_2, Lvb_bool b_First,
@@ -191,16 +171,3 @@ long CollisionResolution(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_NODES 
     if (TopologyComparison(MSA, sp->stack[i].p_sitestate, copy_2, b_First) == 0) return 0;
   }
 } end CollisionResolution() */
-
-int linearHashSearch(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_NODES *const BranchArray, const long root, Lvb_bool b_with_sitestate) {
-
-  
-}
-
-int binaryHashSearch(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_NODES *const BranchArray, const long root, Lvb_bool b_with_sitestate) {
-
-}
-
-int setHashSearch(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_NODES *const BranchArray, const long root, Lvb_bool b_with_sitestate) {
-
-}
