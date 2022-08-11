@@ -106,7 +106,9 @@ long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE
     hashSet.insert(HashKey);
   } else {
     hashstackvector.push_back(current_site_states_hash);
+    if(rcstruct.searchSelection == 1) {
     std::sort(hashstackvector.begin(), hashstackvector.end());
+    }
   }
 
   lvb_assert(root < MSA->n);
