@@ -62,5 +62,7 @@ std::string ConvertSiteSetToString(Dataptr MSA, Objset *oset_1);
 std::string MakeHashSet(Dataptr restrict, const TREESTACK_TREE_NODES *const tree_2, const long);
 unsigned long long HashSiteSet(std::string);
 long CollisionResolution(Dataptr restrict, TREESTACK *, const TREESTACK_TREE_NODES *const, Lvb_bool);
+int linearHashSearch(Dataptr MSA, TREESTACK *, const TREESTACK_TREE_NODES *const, const long, Lvb_bool);
+int binaryHashSearch(Dataptr MSA, TREESTACK *, const TREESTACK_TREE_NODES *const, const long, Lvb_bool);
 
 #endif  // SRC_HASH_H_
