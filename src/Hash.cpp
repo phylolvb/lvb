@@ -45,10 +45,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Hash.h"
 
-long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_NODES *const BranchArray, const long root, Lvb_bool b_with_sitestate) {
-  int searchType = 2;
+long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_NODES *const BranchArray, const long root, Lvb_bool b_with_sitestate, Parameters rcstruct) {
 
-  if(searchType == 0) {
+  if(rcstruct.searchSelection == 0) {
     /* LINEAR SEARCH */
     if(linearHashSearch(MSA, sp, BranchArray, root, b_with_sitestate)== 0) {
       return 0;
@@ -57,7 +56,7 @@ long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE
     }
   }
 
-  if(searchType == 1) {
+  if(rcstruct.searchSelection == 1) {
     /* BINARY SEARCH */
     if(binaryHashSearch(MSA, sp, BranchArray, root, b_with_sitestate)== 0) {
     return 0;
@@ -66,7 +65,7 @@ long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE
     }
   }
 
-  if(searchType == 2) {
+  if(rcstruct.searchSelection == 2) {
       /* SET SEARCH */
       if(setHashSearch(MSA, sp, BranchArray, root, b_with_sitestate)== 0){
       return 0;

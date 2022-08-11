@@ -111,7 +111,7 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *treestack_ptr, const TREEST
 					current_tree_length = proposed_tree_length;
 				}
 					#ifdef LVB_HASH
-						if (CompareHashTreeToHashstack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE) == 1) 
+						if (CompareHashTreeToHashstack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE, rcstruct) == 1) 
 					#else
 						if (CompareTreeToTreestack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE) == 1) 
 					#endif
@@ -210,7 +210,7 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *treestack_ptr, const TREEST
     best_tree_length = current_tree_length;
 
 	#ifdef LVB_HASH
-		CompareHashTreeToHashstack(MSA, treestack_ptr, inittree, root, LVB_FALSE);	/* init. tree initially best */
+		CompareHashTreeToHashstack(MSA, treestack_ptr, inittree, root, LVB_FALSE, rcstruct);	/* init. tree initially best */
 	#else
 		CompareTreeToTreestack(MSA, treestack_ptr, inittree, root, LVB_FALSE);	/* init. tree initially best */ 
 	#endif
@@ -316,7 +316,7 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *treestack_ptr, const TREEST
 					ClearTreestack(treestack_ptr);	/* discard old bests */
 				}
 					#ifdef LVB_HASH
-						if(CompareHashTreeToHashstack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE) == 1)
+						if(CompareHashTreeToHashstack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE, rcstruct) == 1)
 					#else
 						if(CompareTreeToTreestack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE) == 1)
 					#endif
@@ -568,7 +568,7 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *treestack_ptr, const TREEST
     PullTreefromTreestack(MSA, tree, &initroot, &treestack, LVB_FALSE);
 
 	#ifdef LVB_HASH
-		CompareHashTreeToHashstack(MSA, &treestack, tree, initroot, LVB_FALSE);
+		CompareHashTreeToHashstack(MSA, &treestack, tree, initroot, LVB_FALSE, rcstruct);
 	#else
 		CompareTreeToTreestack(MSA, &treestack, tree, initroot, LVB_FALSE);
 	#endif

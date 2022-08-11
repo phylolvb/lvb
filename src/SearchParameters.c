@@ -79,6 +79,9 @@ void defaults_params(Parameters *const prms)
     prms->seed = get_default_seed();
     /* original branch-swapping algorithm */
     prms->algorithm_selection = 1;
+	/* default hashcomp search */
+	prms->searchSelection = 2;
+
 
     strcpy(prms->file_name_in, "infile");
     strcpy(prms->file_name_out, OUTTREEFNAM);
@@ -144,6 +147,11 @@ void getparam(Parameters *prms, int argc, char **argv)
     if(prms.algorithm_selection == 0) printf("          0 (SN)\n");
     else if(prms.algorithm_selection == 1) printf("          1 (SEQ-TNS)\n");
     else if(prms.algorithm_selection == 2) printf("          2 (PBS)\n");
+
+	printf("  Search: ");
+	if(prms.searchSelection == 0) printf("             0 (Linear)\n");
+    else if(prms.searchSelection == 1) printf("             1 (Binary)\n");
+    else if(prms.searchSelection == 2) printf("             2 (Set)\n");
 
 	#ifdef LVB_MPI
 		printf("\nParallelisation Properties: \n");
