@@ -168,15 +168,15 @@ int binaryHashSearch(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_NODES *con
     hashstackvector.clear();
     current_site_states_hash = HashSiteSet(current_site_states);
   } else {    
-    for (i = sp->next - 1; i >= 0; i--) {
-      if (TopologicalHashComparison(MSA, hashstackvector.at(i), copy_2, b_First, current_site_states, current_site_states_hash) == 0) {
-        return 0; /* if current hash matches stored hash, exit */
-      }
-      b_First = LVB_FALSE;
+    current_site_states = MakeHashSet(MSA, copy_2, 0);
+    current_site_states_hash = HashSiteSet(current_site_states);
+
+    if(std::binary_search(hashstackvector.begin(), hashstackvector.end(), current_site_states_hash)){
+      return 0;
     }
-    
   }
   hashstackvector.push_back(current_site_states_hash);
+  std::sort(hashstackvector.begin(), hashstackvector.end());
 
   lvb_assert(root < MSA->n);
   PushCurrentTreeToStack(MSA, sp, BranchArray, root, b_with_sitestate);
