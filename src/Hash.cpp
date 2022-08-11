@@ -46,88 +46,60 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Hash.h"
 
 long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_NODES *const BranchArray, const long root, Lvb_bool b_with_sitestate, Parameters rcstruct) {
-    long i = 0, new_root = 0;
-    static TREESTACK_TREE_NODES *copy_2 = NULL;
-    Lvb_bool b_First = LVB_TRUE;
-    std::string current_site_states;
-    unsigned long long current_site_states_hash = 0;
-    static std::vector<unsigned long long> hashstackvector;
-    static std::unordered_set <unsigned long long> hashSet;
-    unsigned long long HashKey = 0;
+  long i = 0, new_root = 0;
+  static TREESTACK_TREE_NODES *copy_2 = NULL;
+  Lvb_bool b_First = LVB_TRUE;
+  std::string current_site_states;
+  unsigned long long current_site_states_hash = 0;
+  static std::vector<unsigned long long> hashstackvector;
+  static std::unordered_set <unsigned long long> hashSet;
+  unsigned long long HashKey = 0;
 
-  if(rcstruct.searchSelection == 0) {
-    /* LINEAR SEARCH */
+  /* allocate "local" static heap memory - static - do not free! */
+  if (copy_2 == NULL) copy_2 = treealloc(MSA, b_with_sitestate);
+    treecopy(MSA, copy_2, BranchArray, b_with_sitestate);
+  if (root != 0) {
+    lvb_reroot(MSA, copy_2, root, new_root, b_with_sitestate);
+  }
 
-    /* allocate "local" static heap memory - static - do not free! */
-    if (copy_2 == NULL) copy_2 = treealloc(MSA, b_with_sitestate);
-      treecopy(MSA, copy_2, BranchArray, b_with_sitestate);
-    if (root != 0) {
-      lvb_reroot(MSA, copy_2, root, new_root, b_with_sitestate);
-    }
-
-    /* if treestack is empty, add current config */
-    if (sp->next == 0) {
-      current_site_states = MakeHashSet(MSA, copy_2, new_root);
+  if (sp->next == 0) {
+    current_site_states = MakeHashSet(MSA, copy_2, new_root);
+    current_site_states_hash = HashSiteSet(current_site_states);
+    if(rcstruct.searchSelection == 2) {
+      hashSet.clear();
+      HashKey = HashSiteSet(current_site_states);
+    } else {
       hashstackvector.clear();
-      current_site_states_hash = HashSiteSet(current_site_states);
-    } else {    
+    }
+  } else {
+    if(rcstruct.searchSelection == 0) {
+      /* LINEAR SEARCH */
+    
       for (i = sp->next - 1; i >= 0; i--) {
         if (TopologicalHashComparison(MSA, hashstackvector.at(i), copy_2, b_First, current_site_states, current_site_states_hash) == 0) {
           return 0; /* if current hash matches stored hash, exit */
         }
         b_First = LVB_FALSE;
       }
-    
-    }
-  }
+    } else if(rcstruct.searchSelection == 1) {
+      /* BINARY SEARCH */
 
-  if(rcstruct.searchSelection == 1) {
-    /* BINARY SEARCH */
-
-    /* allocate "local" static heap memory - static - do not free! */
-    if (copy_2 == NULL) copy_2 = treealloc(MSA, b_with_sitestate);
-      treecopy(MSA, copy_2, BranchArray, b_with_sitestate);
-    if (root != 0) {
-      lvb_reroot(MSA, copy_2, root, new_root, b_with_sitestate);
-    }
-
-    /* if treestack is empty, add current config */
-    if (sp->next == 0) {
-      current_site_states = MakeHashSet(MSA, copy_2, new_root);
-      hashstackvector.clear();
-      current_site_states_hash = HashSiteSet(current_site_states);
-    } else {    
       current_site_states = MakeHashSet(MSA, copy_2, 0);
       current_site_states_hash = HashSiteSet(current_site_states);
 
       if(std::binary_search(hashstackvector.begin(), hashstackvector.end(), current_site_states_hash)){
         return 0;
       }
-    }
-  }
-
-  if(rcstruct.searchSelection == 2) {
-    /* SET SEARCH */
-
-    /* allocate "local" static heap memory - static - do not free! */
-    if (copy_2 == NULL) copy_2 = treealloc(MSA, b_with_sitestate);
-      treecopy(MSA, copy_2, BranchArray, b_with_sitestate);
-    if (root != 0) {
-      lvb_reroot(MSA, copy_2, root, new_root, b_with_sitestate);
-    }
-
-    /* if treestack is empty, add current config */
-    if (sp->next == 0) {
-      current_site_states = MakeHashSet(MSA, copy_2, new_root);
-      hashSet.clear();
-      HashKey = HashSiteSet(current_site_states);
     } else {
+      /* SET SEARCH */
+
       current_site_states = MakeHashSet(MSA, copy_2, 0);
       HashKey = HashSiteSet(current_site_states);
     
       if(hashSet.find(HashKey) != hashSet.end()) 
         return 0;
-    }    
+    }
+
   }
   
   if(rcstruct.searchSelection == 2) {
@@ -136,7 +108,7 @@ long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE
     hashstackvector.push_back(current_site_states_hash);
     std::sort(hashstackvector.begin(), hashstackvector.end());
   }
-  
+
   lvb_assert(root < MSA->n);
   PushCurrentTreeToStack(MSA, sp, BranchArray, root, b_with_sitestate);
 
