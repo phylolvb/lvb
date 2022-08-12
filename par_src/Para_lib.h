@@ -64,6 +64,8 @@ typedef struct
         int n_seed;				/* seed for this temperature and iteration */
         int n_finish_message;  //MPI_FINISHED 指代frozen， MPI_IS_TO_CONTINUE指代单纯在每个interval到了，送的
         long l_length;			/* length of the tree */
+        long stack_size;
+        long stack_next;
         double temperature;		/* temperature */
         double start_temperature;
         double Critical_temp;

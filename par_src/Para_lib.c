@@ -31,7 +31,7 @@ void Create_MPI_Datatype(MPI_Datatype *MPI_BRANCH, MPI_Datatype *MPI_SLAVEtoMAST
 
 	/* structure to use sending temperature and number of interactions to master process */
 	nItems = 3;
-	int          	blocklengths_2[3] = { 3, 1, 4 };
+	int          	blocklengths_2[3] = { 3, 3, 4 };
 	MPI_Datatype 	types_2[3] = { MPI_INT, MPI_LONG, MPI_DOUBLE };
 	MPI_Aint     	displacements_2[3];
 	displacements_2[0] = offsetof(SendInfoToMaster, n_iterations);
@@ -623,8 +623,9 @@ int Slave_after_anneal_once(Dataptr MSA, TREESTACK_TREE_NODES *tree, int n_state
 
 void write_final_results(Info_record* record, Parameters rcstruct, int no_first_critical_temp, double critical_temp, double overall_time_taken)
 {
+	/*
 	char statistics_output[200];
-	sprintf(statistics_output, "%s_%d.sta", rcstruct.file_name_in, rcstruct.nruns); /* name of output file for this process */
+	sprintf(statistics_output, "%s_%d.sta", rcstruct.file_name_in, rcstruct.nruns); 
 	char* p = statistics_output;
 	while (*p != '\0')
 	{
@@ -632,9 +633,29 @@ void write_final_results(Info_record* record, Parameters rcstruct, int no_first_
 			*p = '-';
 		p++;
 	}
+	*/
+
+	time_t t;
+	time(&t);
+	struct tm* sttm;
+	sttm = localtime(&t);
+
+	char statistics_output[100];
+	sprintf(statistics_output, "Results_of_parLVB_%02u_%02u_%02u:%02u:%02u.sta", sttm->tm_mon + 1,
+		sttm->tm_mday, sttm->tm_hour, sttm->tm_min, sttm->tm_sec);
+
+
+
 	//printf("\n%s\n", statistics_output);
 	FILE* out = (FILE*)alloc(sizeof(FILE), "alloc statistics output"); 
 	out = fopen(statistics_output, "w");
+
+	fprintf(out, "Input file:%s\nnumer of runs:%d\n", rcstruct.file_name_in, rcstruct.nruns);
+	if (rcstruct.parallel_selection == 0) fprintf(out, "          0 (Static-multiple )\n");
+	else if (rcstruct.parallel_selection == 1) fprintf(out, "          1 (Cluster)\n");
+	else if (rcstruct.parallel_selection == 2) fprintf(out, "          2 (Dynamic-multiple with killing)\n");
+	else if (rcstruct.parallel_selection == 3) fprintf(out, "          3 (Dynamic-multiple with phase transition)\n");
+	else if (rcstruct.parallel_selection == 4) fprintf(out, "          4 (Dynamic-multiple with killing and phase transition)\n");
 
 
 	//calculate average and std and percentage of killing
@@ -684,9 +705,6 @@ void write_final_results(Info_record* record, Parameters rcstruct, int no_first_
 	l_time_std = sqrt(l_time_ss / (double)frozen_count);
 
 
-
-
-
 	fprintf(out, "\nCALC_ITERATION_ONLY_RELEASE_AFTER_NUMBER_CHUNCHS: %d\nCALC_ITERATION_NUMBER_STD_TO_RESTART_PROCESS:%d \n",
 		CALC_ITERATION_ONLY_RELEASE_AFTER_NUMBER_CHUNCHS, CALC_ITERATION_NUMBER_STD_TO_RESTART_PROCESS);
 
@@ -713,7 +731,7 @@ void write_final_results(Info_record* record, Parameters rcstruct, int no_first_
 	fprintf(out, "\nOverall Time: %.2lf \n",overall_time_taken);
 
 	fprintf(out, "\n--------------------------------------------------------");
-	fprintf(out, "\nNo.\tSeed used\tstart temp\tnumber of iterations\tK or F\tLength\ttemperature\tTime\tSlave time\tcommu cost\t \n");
+	fprintf(out, "\nNo.\tSeed used\tstart temp\tnumber of iterations\tK or F\tLength\ttemperature\tTime\tSlave time\tcommu cost\tstack size\tstack next\n");
 	fprintf(out, "--------------------------------------------------------\n");
 
 	for (int i = 0; i < rcstruct.nruns; i++)
@@ -723,8 +741,9 @@ void write_final_results(Info_record* record, Parameters rcstruct, int no_first_
 			fprintf(out, "Killed\t\t");
 		else
 			fprintf(out, "Frozen\t\t");
-		fprintf(out, "%ld\t%lf\t%.2lf\t%.2lf\t\t%.2lf\n", 
-			record[i].result.l_length, record[i].result.temperature,record[i].time_consumed,record[i].slave_time_consumed,record[i].slave_comm_cost);
+		fprintf(out, "%ld\t%lf\t%.2lf\t%.2lf\t\t%.2lf\t%ld\t%ld\n", 
+			record[i].result.l_length, record[i].result.temperature,record[i].time_consumed,record[i].slave_time_consumed,record[i].slave_comm_cost,
+			record[i].result.stack_size,record[i].result.stack_next);
 	}
 	fclose(out);
 }

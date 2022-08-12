@@ -517,7 +517,6 @@ long Anneal(Dataptr MSA, TREESTACK* treestack_ptr, TREESTACK* treevo, const TREE
 #else
 			if (proposed_tree_length <= best_tree_length)	/* store tree if new */
 			{
-				/*printf("%ld\n", *current_iter);*/
 				if (proposed_tree_length < best_tree_length) {
 					ClearTreestack(treestack_ptr);	/* discard old bests */
 				}
@@ -939,6 +938,8 @@ long Slave_Anneal(Dataptr MSA, TREESTACK* treestack_ptr, TREESTACK* treevo, cons
 					p_data_info_to_master->n_iterations = *current_iter;
 					p_data_info_to_master->n_seed = p_rcstruct->seed;
 					p_data_info_to_master->l_length = best_tree_length;
+					p_data_info_to_master->stack_size = treestack_ptr->size;
+					p_data_info_to_master->stack_next = treestack_ptr->next;
 					p_data_info_to_master->temperature = t;
 					p_data_info_to_master->n_finish_message = MPI_IS_TO_CONTINUE;//it means this message is from reaching STAT_LOG_INTERVAL
 					p_data_info_to_master->Critical_temp = Critical_temp;
@@ -1061,10 +1062,11 @@ long Slave_Anneal(Dataptr MSA, TREESTACK* treestack_ptr, TREESTACK* treevo, cons
 #else
 			if (proposed_tree_length <= best_tree_length)	/* store tree if new */
 			{
-				/*printf("%ld\n", *current_iter);*/
+
 				if (proposed_tree_length < best_tree_length) {
 					ClearTreestack(treestack_ptr);	/* discard old bests */
 				}
+
 #ifdef LVB_HASH
 				auto start_timer = high_resolution_clock::now();
 				if (CompareHashTreeToHashstack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE) == 1)
@@ -1289,6 +1291,8 @@ long Slave_Anneal(Dataptr MSA, TREESTACK* treestack_ptr, TREESTACK* treevo, cons
 	p_data_info_to_master->n_iterations = *current_iter;
 	p_data_info_to_master->n_seed = p_rcstruct->seed;
 	p_data_info_to_master->l_length = best_tree_length;
+	p_data_info_to_master->stack_size = treestack_ptr->size;
+	p_data_info_to_master->stack_next = treestack_ptr->next;
 	p_data_info_to_master->temperature = t;
 	p_data_info_to_master->Critical_temp = Critical_temp;
 	p_data_info_to_master->peak_sh = peak_sh;
@@ -1411,6 +1415,9 @@ long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool l
 		clock_t Start, End;
 
 
+		if (rcstruct.parallel_selection != PARALLEL_CLUSTER)
+			if (rcstruct.nruns < (nprocs - 1))
+				crash("number of runs should not be less than number of processes-1\n");
 	
 	if(rank==0)
 	{
@@ -1419,12 +1426,17 @@ long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool l
 		//Overall time taken
 		Start = clock();
 
+		//初始先送给rank 1
+		MPI_Send(&rcstruct.seed, 1, MPI_INT, 1, MPI_TAG_PARAMS, MPI_COMM_WORLD);
+		record[0].start = clock();
+
 		//Rank 0 send initial seed for Slaves
-		for (i = 1; i < nprocs; i++) 
+		for (i = 2; i < nprocs; i++) 
 		{
 			/* send different to each proc */
+			
+			rcstruct.seed = get_other_seed_to_run_a_process();//如果有8个process，7个slave，会导致第七个新的seed不会被送出去，而是master自己留着
 			MPI_Send(&rcstruct.seed, 1, MPI_INT, i, MPI_TAG_PARAMS, MPI_COMM_WORLD); 
-			rcstruct.seed = get_other_seed_to_run_a_process();
 
 			//record start time for each run corresponding to different seed
 			record[i - 1].start = clock();
