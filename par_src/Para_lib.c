@@ -623,26 +623,29 @@ int Slave_after_anneal_once(Dataptr MSA, TREESTACK_TREE_NODES *tree, int n_state
 
 void write_final_results(Info_record* record, Parameters rcstruct, int no_first_critical_temp, double critical_temp, double overall_time_taken)
 {
-	/*
-	char statistics_output[200];
-	sprintf(statistics_output, "%s_%d.sta", rcstruct.file_name_in, rcstruct.nruns); 
-	char* p = statistics_output;
-	while (*p != '\0')
-	{
-		if (*p == '/'|| *p == '.')
-			*p = '-';
-		p++;
-	}
-	*/
+	int nprocs;
+
+	MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
 
 	time_t t;
 	time(&t);
 	struct tm* sttm;
 	sttm = localtime(&t);
 
+	char *ptr_1 = strrchr(rcstruct.file_name_in,'/');
+	char *ptr_2 = strrchr(rcstruct.file_name_in, '.');//assume ending with '.phy'
+	char name_temp[100];
+	int name_end = 0;
+	ptr_1++;
+	for (; ptr_1 < ptr_2; ptr_1++)
+	{
+		name_temp[name_end] = *ptr_1;
+		name_end++;
+	}
+	name_temp[name_end] = '\0';
+
 	char statistics_output[100];
-	sprintf(statistics_output, "Results_of_parLVB_%02u_%02u_%02u:%02u:%02u.sta", sttm->tm_mon + 1,
-		sttm->tm_mday, sttm->tm_hour, sttm->tm_min, sttm->tm_sec);
+	sprintf(statistics_output, "Results_of_parLVB_%dprocs_%s_%02u:%02u:%02u.sta",nprocs, name_temp, sttm->tm_hour, sttm->tm_min, sttm->tm_sec);
 
 
 
@@ -650,7 +653,8 @@ void write_final_results(Info_record* record, Parameters rcstruct, int no_first_
 	FILE* out = (FILE*)alloc(sizeof(FILE), "alloc statistics output"); 
 	out = fopen(statistics_output, "w");
 
-	fprintf(out, "Input file:%s\nnumer of runs:%d\n", rcstruct.file_name_in, rcstruct.nruns);
+	fprintf(out, "Time: %02u_%02u_%02u:%02u:%02u\n", sttm->tm_mon + 1, sttm->tm_mday, sttm->tm_hour, sttm->tm_min, sttm->tm_sec);
+	fprintf(out, "Input file:%s\nNumer of runs:%d\nNumber of processes: %d\nParallel selection:", rcstruct.file_name_in, rcstruct.nruns,nprocs);
 	if (rcstruct.parallel_selection == 0) fprintf(out, "          0 (Static-multiple )\n");
 	else if (rcstruct.parallel_selection == 1) fprintf(out, "          1 (Cluster)\n");
 	else if (rcstruct.parallel_selection == 2) fprintf(out, "          2 (Dynamic-multiple with killing)\n");
@@ -724,10 +728,17 @@ void write_final_results(Info_record* record, Parameters rcstruct, int no_first_
 			fprintf(out, "\nCritial temperature:%lf", critical_temp);
 		}
 		else
-			fprintf(out, "\nNo seed launches with critial temperature because there are less than %d seeds frozen before all seeds are used", SPECIFIC_HEAT_ONLY_RELEASE_AFTER_NUMBER_CHUNCHS);
+			fprintf(out, "\nNo seed launches with critial temperature because there are less than %d seeds frozen before all seeds are used\n", SPECIFIC_HEAT_ONLY_RELEASE_AFTER_NUMBER_CHUNCHS);
 	}
 	
-
+	/*Sum of runtimes of different seeds/runs*/
+	double sum = 0.0;
+	for (int i = 0; i < rcstruct.nruns; i++)
+	{
+		sum += record[i].time_consumed;
+	}
+	
+	fprintf(out, "\nSum of runtimes of all different seeds: %.2lf \n", sum);
 	fprintf(out, "\nOverall Time: %.2lf \n",overall_time_taken);
 
 	fprintf(out, "\n--------------------------------------------------------");

@@ -320,7 +320,7 @@ long Anneal(Dataptr MSA, TREESTACK* treestack_ptr, TREESTACK* treevo, const TREE
 
 #ifndef parallel
 	//Control parameter for parallel_selection==1(cluster SA)
-	long p = STAT_LOG_INTERVAL;//for cluster SA
+	long p = 1000;//for cluster SA
 	double r = 0.05;
 	long iter_cluster = 0;
 
