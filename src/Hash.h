@@ -47,7 +47,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define SRC_HASH_H_
 
 #include <bits/stdc++.h>
-
+#include <chrono>
+#include <ctime>
 #include <fstream>
 #include <iostream>
 #include <string>

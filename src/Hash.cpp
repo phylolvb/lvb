@@ -74,30 +74,59 @@ long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE
   } else {
     if(rcstruct.searchSelection == 0) {
       /* LINEAR SEARCH */
-    
+    auto start = std::chrono::high_resolution_clock::now();
       for (i = sp->next - 1; i >= 0; i--) {
         if (TopologicalHashComparison(MSA, hashstackvector.at(i), copy_2, b_First, current_site_states, current_site_states_hash) == 0) {
           return 0; /* if current hash matches stored hash, exit */
         }
         b_First = LVB_FALSE;
       }
+    auto elapsed = std::chrono::high_resolution_clock::now() - start;
+
+    long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+
+    FILE * efficiency;
+    efficiency = fopen ("efficiencyLINEAR.tsv","a+");
+
+    fprintf (efficiency, "Treestack: %ld, Time: %lld \n", sp->size, microseconds);
+		fclose(efficiency);
     } else if(rcstruct.searchSelection == 1) {
       /* BINARY SEARCH */
-
+    auto start = std::chrono::high_resolution_clock::now();
       current_site_states = MakeHashSet(MSA, copy_2, 0);
       current_site_states_hash = HashSiteSet(current_site_states);
 
       if(std::binary_search(hashstackvector.begin(), hashstackvector.end(), current_site_states_hash)){
         return 0;
       }
+    auto elapsed = std::chrono::high_resolution_clock::now() - start;
+
+    long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+
+    FILE * efficiency;
+    efficiency = fopen ("efficiencyBINARY.tsv","a+");
+
+    fprintf (efficiency, "Treestack: %ld, Time: %lld \n", sp->size, microseconds);
+		fclose(efficiency);
     } else {
       /* SET SEARCH */
 
+    auto start = std::chrono::high_resolution_clock::now();
       current_site_states = MakeHashSet(MSA, copy_2, 0);
       HashKey = HashSiteSet(current_site_states);
     
       if(hashSet.find(HashKey) != hashSet.end()) 
         return 0;
+    auto elapsed = std::chrono::high_resolution_clock::now() - start;
+
+    long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+
+    FILE * efficiency;
+    efficiency = fopen ("efficiencySET.tsv","a+");
+
+    fprintf (efficiency, "Treestack: %ld, Time: %lld \n", sp->size, microseconds);
+		fclose(efficiency);
+
     }
 
   }
@@ -107,7 +136,17 @@ long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE
   } else {
     hashstackvector.push_back(current_site_states_hash);
     if(rcstruct.searchSelection == 1) {
-    std::sort(hashstackvector.begin(), hashstackvector.end());
+      auto start = std::chrono::high_resolution_clock::now();
+      std::sort(hashstackvector.begin(), hashstackvector.end());
+      auto elapsed = std::chrono::high_resolution_clock::now() - start;
+
+    long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+
+    FILE * efficiency;
+    efficiency = fopen ("efficiencySORT.tsv","a+");
+
+    fprintf (efficiency, "Treestack: %ld, Time: %lld \n", sp->size, microseconds);
+		fclose(efficiency);
     }
   }
 
