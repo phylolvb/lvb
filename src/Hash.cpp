@@ -51,7 +51,7 @@ long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE
   Lvb_bool b_First = LVB_TRUE;
   std::string current_site_states;
   unsigned long long current_site_states_hash = 0;
-  static std::vector<unsigned long long> hashstackvector;
+  // static std::vector<unsigned long long> hashstackvector;
   static std::unordered_set <unsigned long long> hashSet;
   unsigned long long HashKey = 0;
 
@@ -66,7 +66,7 @@ long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE
   /* if treestack is empty, add current config */
   if (sp->next == 0) {
     current_site_states = MakeHashSet(MSA, copy_2, new_root);
-    hashstackvector.clear();
+    // hashstackvector.clear();
     current_site_states_hash = HashSiteSet(current_site_states);
     hashSet.clear();
     HashKey = HashSiteSet(current_site_states);
@@ -87,7 +87,7 @@ long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE
 
   }
   hashSet.insert(HashKey);
-  hashstackvector.push_back(current_site_states_hash);
+  // hashstackvector.push_back(current_site_states_hash);
 
   lvb_assert(root < MSA->n);
   PushCurrentTreeToStack(MSA, sp, BranchArray, root, b_with_sitestate);
