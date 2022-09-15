@@ -79,9 +79,6 @@ void defaults_params(Parameters *const prms)
     prms->seed = get_default_seed();
     /* original branch-swapping algorithm */
     prms->algorithm_selection = 1;
-	/* default hashcomp search */
-	prms->searchSelection = 2;
-
 
     strcpy(prms->file_name_in, "infile");
     strcpy(prms->file_name_out, OUTTREEFNAM);
@@ -101,13 +98,7 @@ void getparam(Parameters *prms, int argc, char **argv)
 
 } /* end getparam() */
 
-
-#ifdef LVB_MPI
-	void writeinf(Parameters prms, Dataptr MSA, int argc, char **argv, int clusterSize)
-#else
-	void writeinf(Parameters prms, Dataptr MSA, int argc, char **argv)
-#endif
-
+void writeinf(Parameters prms, Dataptr MSA, int argc, char **argv)
 /* write initial details to standard output */
 {
 	struct utsname buffer;
@@ -148,21 +139,19 @@ void getparam(Parameters *prms, int argc, char **argv)
     else if(prms.algorithm_selection == 1) printf("          1 (SEQ-TNS)\n");
     else if(prms.algorithm_selection == 2) printf("          2 (PBS)\n");
 
-	printf("  Search: ");
-	if(prms.searchSelection == 0) printf("             0 (Linear)\n");
-    else if(prms.searchSelection == 1) printf("             1 (Binary)\n");
-    else if(prms.searchSelection == 2) printf("             2 (Set)\n");
+	printf("\nParallelisation Properties: \n");
 
-	#ifdef LVB_MPI
-		printf("\nParallelisation Properties: \n");
-
-		printf("  Additional MPI Seeds: %d: ", clusterSize - 1);
-
-		for(int i = 1; i < clusterSize; i++) {
-			printf("%d ", prms.seed + i);
+	if(prms.n_processors_available != omp_get_max_threads()) {
+		printf("  PThreads:            %d\n", prms.n_processors_available);
+	} else {
+		printf("  PThreads:  %d\n", omp_get_max_threads());
+		printf("  PThread IDs:         ");
+		#pragma omp parallel
+		{
+			printf("%d ", omp_get_thread_num());
 		}
-	#endif
-
+	}
+		
 	printf("\n================================================================================\n");
 	printf("\nInitialising search: \n");
 }

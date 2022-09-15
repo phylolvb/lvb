@@ -83,7 +83,6 @@ typedef struct {
     int seed;                            /* seed for random number generator */
     int cooling_schedule;                /* cooling schedule: 0 is geometric, 1 is linear */
     int algorithm_selection;             /* algorithm selection: 0 is original, 1 is no SEQ-TNS, and 2 is PBS */
-    int searchSelection;                 /* search selection: 0 is linear, 1 is binary, and 2 is set */
     int n_file_format;                   /* number of file format, must be FORMAT_PHYLIP, FORMAT_FASTA, FORMAT_NEXUS, FORMAT_CLUSTAL*/
     int n_processors_available;          /* number of processors available */
     long verbose;                        /* verboseness level */

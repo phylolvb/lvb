@@ -386,48 +386,6 @@ int PrintTreestack(Dataptr MSA, TREESTACK *sp, FILE *const outfp, Lvb_bool onera
 
 } /* end PrintTreestack() */
 
-#ifdef LVB_MPI
-
-    int PrintMPITreestack(Dataptr MSA, TREESTACK *sp, FILE *const outfp, int rank, Lvb_bool onerandom)
-    {
-        const int d_obj1 = 0L;	/* 1st obj. for output trees */
-        long root;			/* root of current tree */
-        int i;			/* loop counter */
-        int lower;			/* lowest index of trees to print */
-        int upper;			/* 1 + upper index of trees to print */
-        TREESTACK_TREE_NODES *BranchArray;		/* current unpacked tree */
-
-        fprintf(outfp,"\nRank: %d\n", rank);
-
-        /* "local" dynamic heap memory */
-        BranchArray = treealloc(MSA, LVB_FALSE);
-
-        if (onerandom == LVB_TRUE)	/* choose one random tree to print */
-        {
-	    	lower = randpint(sp->next - 1);
-    		upper = lower + 1;
-        } else {
-		    lower = 0;
-		    upper = sp->next;
-        }
-
-        for (i = lower; i < upper; i++) {
-            treecopy(MSA, BranchArray, sp->stack[i].tree, LVB_FALSE);
-            if (sp->stack[i].root != d_obj1) lvb_reroot(MSA, BranchArray, sp->stack[i].root, d_obj1, LVB_FALSE);
-            root = d_obj1;
-            lvb_treeprint(MSA, outfp, BranchArray, root);
-        }
-        if (fflush(outfp) != 0)
-    	    crash("file write error when writing best trees");
-
-        /* deallocate "local" dynamic heap memory */
-        free(BranchArray);
-        return upper - lower;	/* number of trees printed */
-
-    } /* end PrintMPITreestack() */
-
-#endif
-
 /**********
 
 =head1 FreeTreestackMemory - DEALLOCATE TREE STACK

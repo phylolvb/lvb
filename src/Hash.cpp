@@ -45,110 +45,36 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Hash.h"
 
-long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_NODES *const BranchArray, const long root, Lvb_bool b_with_sitestate, Parameters rcstruct) {
+long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_NODES *const BranchArray, const long root, Lvb_bool b_with_sitestate) {
   long i = 0, new_root = 0;
   static TREESTACK_TREE_NODES *copy_2 = NULL;
   Lvb_bool b_First = LVB_TRUE;
   std::string current_site_states;
   unsigned long long current_site_states_hash = 0;
   static std::vector<unsigned long long> hashstackvector;
-  static std::unordered_set <unsigned long long> hashSet;
-  unsigned long long HashKey = 0;
 
   /* allocate "local" static heap memory - static - do not free! */
   if (copy_2 == NULL) copy_2 = treealloc(MSA, b_with_sitestate);
-    treecopy(MSA, copy_2, BranchArray, b_with_sitestate);
+  treecopy(MSA, copy_2, BranchArray, b_with_sitestate);
   if (root != 0) {
     lvb_reroot(MSA, copy_2, root, new_root, b_with_sitestate);
   }
 
+  /* if treestack is empty, add current config */
   if (sp->next == 0) {
     current_site_states = MakeHashSet(MSA, copy_2, new_root);
+    hashstackvector.clear();
     current_site_states_hash = HashSiteSet(current_site_states);
-    if(rcstruct.searchSelection == 2) {
-      hashSet.clear();
-      HashKey = HashSiteSet(current_site_states);
-    } else {
-      hashstackvector.clear();
+  } else {    
+    for (i = sp->next - 1; i >= 0; i--) {
+      if (TopologicalHashComparison(MSA, hashstackvector.at(i), copy_2, b_First, current_site_states, current_site_states_hash) == 0) {
+        return 0; /* if current hash matches stored hash, exit */
+      }
+      b_First = LVB_FALSE;
     }
-  } else {
-    if(rcstruct.searchSelection == 0) {
-      /* LINEAR SEARCH */
-    auto start = std::chrono::high_resolution_clock::now();
-      for (i = sp->next - 1; i >= 0; i--) {
-        if (TopologicalHashComparison(MSA, hashstackvector.at(i), copy_2, b_First, current_site_states, current_site_states_hash) == 0) {
-          return 0; /* if current hash matches stored hash, exit */
-        }
-        b_First = LVB_FALSE;
-      }
-    auto elapsed = std::chrono::high_resolution_clock::now() - start;
-
-    long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
-
-    FILE * efficiency;
-    efficiency = fopen ("efficiencyLINEAR.tsv","a+");
-
-    fprintf (efficiency, "Treestack: %ld, Time: %lld \n", sp->size, microseconds);
-		fclose(efficiency);
-    } else if(rcstruct.searchSelection == 1) {
-      /* BINARY SEARCH */
-    auto start = std::chrono::high_resolution_clock::now();
-      current_site_states = MakeHashSet(MSA, copy_2, 0);
-      current_site_states_hash = HashSiteSet(current_site_states);
-
-      if(std::binary_search(hashstackvector.begin(), hashstackvector.end(), current_site_states_hash)){
-        return 0;
-      }
-    auto elapsed = std::chrono::high_resolution_clock::now() - start;
-
-    long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
-
-    FILE * efficiency;
-    efficiency = fopen ("efficiencyBINARY.tsv","a+");
-
-    fprintf (efficiency, "Treestack: %ld, Time: %lld \n", sp->size, microseconds);
-		fclose(efficiency);
-    } else {
-      /* SET SEARCH */
-
-    auto start = std::chrono::high_resolution_clock::now();
-      current_site_states = MakeHashSet(MSA, copy_2, 0);
-      HashKey = HashSiteSet(current_site_states);
     
-      if(hashSet.find(HashKey) != hashSet.end()) 
-        return 0;
-    auto elapsed = std::chrono::high_resolution_clock::now() - start;
-
-    long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
-
-    FILE * efficiency;
-    efficiency = fopen ("efficiencySET.tsv","a+");
-
-    fprintf (efficiency, "Treestack: %ld, Time: %lld \n", sp->size, microseconds);
-		fclose(efficiency);
-
-    }
-
   }
-  
-  if(rcstruct.searchSelection == 2) {
-    hashSet.insert(HashKey);
-  } else {
-    hashstackvector.push_back(current_site_states_hash);
-    if(rcstruct.searchSelection == 1) {
-      auto start = std::chrono::high_resolution_clock::now();
-      std::sort(hashstackvector.begin(), hashstackvector.end());
-      auto elapsed = std::chrono::high_resolution_clock::now() - start;
-
-    long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
-
-    FILE * efficiency;
-    efficiency = fopen ("efficiencySORT.tsv","a+");
-
-    fprintf (efficiency, "Treestack: %ld, Time: %lld \n", sp->size, microseconds);
-		fclose(efficiency);
-    }
-  }
+  hashstackvector.push_back(current_site_states_hash);
 
   lvb_assert(root < MSA->n);
   PushCurrentTreeToStack(MSA, sp, BranchArray, root, b_with_sitestate);

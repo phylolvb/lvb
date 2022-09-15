@@ -104,22 +104,21 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *treestack_ptr, const TREEST
 				proposed_tree_length = getplen(MSA, p_proposed_tree, rcstruct, proposed_tree_root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 				lvb_assert (proposed_tree_length >= 1L);
 				tree_length_change = proposed_tree_length - current_tree_length;
-				if (tree_length_change <= 0) {
+					if (tree_length_change <= 0) {
 					if (tree_length_change < 0)  /* very best so far */
-				{
-					ClearTreestack(treestack_ptr);
-					current_tree_length = proposed_tree_length;
-				}
-					#ifdef LVB_HASH
-						if (CompareHashTreeToHashstack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE, rcstruct) == 1) 
-					#else
-						if (CompareTreeToTreestack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE) == 1) 
-					#endif
-				{
-					newtree = LVB_TRUE;
-					SwapTrees(&p_current_tree, &root, &p_proposed_tree, &proposed_tree_root);
-				}
-
+					{
+						ClearTreestack(treestack_ptr);
+						current_tree_length = proposed_tree_length;
+					}
+						#ifdef LVB_HASH
+							if (CompareHashTreeToHashstack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE) == 1) 
+						#else
+							if (CompareTreeToTreestack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE) == 1) 
+						#endif
+					{
+						newtree = LVB_TRUE;
+						SwapTrees(&p_current_tree, &root, &p_proposed_tree, &proposed_tree_root);
+					}
 				}
 				if ((log_progress == LVB_TRUE) && ((*current_iter % STAT_LOG_INTERVAL) == 0)) {
 					lenlog(lenfp, treestack_ptr, *current_iter, current_tree_length, 0);
@@ -138,18 +137,10 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *treestack_ptr, const TREEST
     return current_tree_length;
 } /* end deterministic_hillclimb */
 
-
-#ifdef LVB_MPI
-	long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREESTACK_TREE_NODES *const inittree, Parameters rcstruct,
-		long root, const double t0, const long maxaccept, const long maxpropose,
-		const long maxfail, FILE *const lenfp, long *current_iter,
-		Lvb_bool log_progress, int rank)
-#else
-	long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREESTACK_TREE_NODES *const inittree, Parameters rcstruct,
-		long root, const double t0, const long maxaccept, const long maxpropose,
-		const long maxfail, FILE *const lenfp, long *current_iter,
-		Lvb_bool log_progress)
-#endif
+long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREESTACK_TREE_NODES *const inittree, Parameters rcstruct,
+	long root, const double t0, const long maxaccept, const long maxpropose,
+	const long maxfail, FILE *const lenfp, long *current_iter,
+	Lvb_bool log_progress)
 /* seek parsimonious tree from initial tree in inittree (of root root)
  * with initial temperature t0, and subsequent temperatures obtained by
  * multiplying the current temperature by (t1 / t0) ** n * t0 where n is
@@ -210,7 +201,7 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *treestack_ptr, const TREEST
     best_tree_length = current_tree_length;
 
 	#ifdef LVB_HASH
-		CompareHashTreeToHashstack(MSA, treestack_ptr, inittree, root, LVB_FALSE, rcstruct);	/* init. tree initially best */
+		CompareHashTreeToHashstack(MSA, treestack_ptr, inittree, root, LVB_FALSE);	/* init. tree initially best */
 	#else
 		CompareTreeToTreestack(MSA, treestack_ptr, inittree, root, LVB_FALSE);	/* init. tree initially best */ 
 	#endif
@@ -223,17 +214,9 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *treestack_ptr, const TREEST
 
     if ((log_progress == LVB_TRUE) && (*current_iter == 0)) {
 
-	#ifdef LVB_MPI
-		if(rank == 0) {
-			printf("\n--------------------------------------------------------");
-			fprintf(lenfp, "\n  Temperature:   Rearrangement: TreeStack size: Length:\n");
-			printf("--------------------------------------------------------\n");
-		}
-	#else
-		printf("\n--------------------------------------------------------");
-		fprintf(lenfp, "\n  Temperature:   Rearrangement: TreeStack size: Length:\n");
-		printf("--------------------------------------------------------\n");
-	#endif
+	printf("\n--------------------------------------------------------");
+	fprintf(lenfp, "\n  Temperature:   Rearrangement: TreeStack size: Length:\n");
+	printf("--------------------------------------------------------\n");
 	}
 		
 	/*Writing output to table.tsv*/
@@ -316,7 +299,7 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *treestack_ptr, const TREEST
 					ClearTreestack(treestack_ptr);	/* discard old bests */
 				}
 					#ifdef LVB_HASH
-						if(CompareHashTreeToHashstack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE, rcstruct) == 1)
+						if(CompareHashTreeToHashstack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE) == 1)
 					#else
 						if(CompareTreeToTreestack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE) == 1)
 					#endif
@@ -383,6 +366,7 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *treestack_ptr, const TREEST
 			}
 		}
 		proposed++;
+
 		
 		/* decide whether to reduce temperature */
 		if (accepted >= maxaccept){	/* enough new trees */
@@ -473,11 +457,7 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *treestack_ptr, const TREEST
 
 } /* end Anneal() */
 
-#ifdef LVB_MPI
-	long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool log_progress, int rank)
-#else
-	long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool log_progress)
-#endif
+long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool log_progress)
 /* get and output solution(s) according to parameters in rcstruct;
  * return length of shortest tree(s) found */
 {
@@ -555,26 +535,20 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *treestack_ptr, const TREEST
 		free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
 		PrintInitialTree(MSA, tree, start, cyc, initroot);
     }
-	    /* find solution(s) */
 
-	#ifdef LVB_MPI
-    	treelength = Anneal(MSA, &treestack, &stack_treevo, tree, rcstruct, initroot, t0, maxaccept,
-    		maxpropose, maxfail, stdout, iter_p, log_progress, rank);
-	#else
-		treelength = Anneal(MSA, &treestack, &stack_treevo, tree, rcstruct, initroot, t0, maxaccept,
-    		maxpropose, maxfail, stdout, iter_p, log_progress);
-	#endif
-
+    /* find solution(s) */
+    treelength = Anneal(MSA, &treestack, &stack_treevo, tree, rcstruct, initroot, t0, maxaccept,
+    maxpropose, maxfail, stdout, iter_p, log_progress);
     PullTreefromTreestack(MSA, tree, &initroot, &treestack, LVB_FALSE);
 
 	#ifdef LVB_HASH
-		CompareHashTreeToHashstack(MSA, &treestack, tree, initroot, LVB_FALSE, rcstruct);
+		CompareHashTreeToHashstack(MSA, &treestack, tree, initroot, LVB_FALSE);
 	#else
 		CompareTreeToTreestack(MSA, &treestack, tree, initroot, LVB_FALSE);
 	#endif
 
-    treelength = deterministic_hillclimb(MSA, &treestack, tree, rcstruct, initroot, stdout,
-				iter_p, log_progress);
+    /* treelength = deterministic_hillclimb(MSA, &treestack, tree, rcstruct, initroot, stdout,
+				iter_p, log_progress); */
 
 	/* log this cycle's solution and its details
 	 * NOTE: There are no cycles anymore in the current version
