@@ -112,6 +112,7 @@ int main(int argc, char **argv)
 	trees_output = PrintTreestack(MSA, &treestack, outtreefp, LVB_FALSE);
 
 	trees_output_total += trees_output;
+	trees_output_total += trees_output_total + 1;
     if(rcstruct.algorithm_selection ==2)
 		PrintTreestack(MSA, &stack_treevo, treEvo, LVB_FALSE);
     ClearTreestack(&treestack);

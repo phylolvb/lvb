@@ -49,9 +49,6 @@ void PrintLVBInfo() {
   std::cout << "==============================================="
           "=================================\n\n";
   std::cout << "LVB v." << LVB_VERSION << " ";
-  #ifdef LVB_HASH
-    std::cout << LVB_HASH_VERSION;
-  #endif
   std::cout << "built for Linux 64-bit \n";
 
   std::cout << "Released: " << LVB_RELEASE_DATE " by the Barker Lab\n"
@@ -113,11 +110,7 @@ void PrintOutput(long iter, long trees_output_total, long final_length, double c
 	printf("\n================================================================================\n");
 	printf("\nSearch Results:\n");
 	printf("  Rearrangements evaluated: %ld\n", iter);
-  #ifdef LVB_HASH
-    printf("  Topologies recovered:     %ld\n", trees_output_total + 1);
-  #else
-    printf("  Topologies recovered:     %ld\n", trees_output_total);
-  #endif
+  printf("  Topologies recovered:     %ld\n", trees_output_total + 1);
 	printf("  Tree score:               %ld\n", final_length);
 	printf("  Consistency index:        %.2lf\n", consistency_index);
 	printf("  Homoplasy index:          %.2lf\n", homoplasy_index);

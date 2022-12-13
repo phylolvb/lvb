@@ -110,11 +110,7 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *treestack_ptr, const TREEST
 						ClearTreestack(treestack_ptr);
 						current_tree_length = proposed_tree_length;
 					}
-						#ifdef LVB_HASH
 							if (CompareHashTreeToHashstack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE) == 1) 
-						#else
-							if (CompareTreeToTreestack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE) == 1) 
-						#endif
 					{
 						newtree = LVB_TRUE;
 						SwapTrees(&p_current_tree, &root, &p_proposed_tree, &proposed_tree_root);
@@ -200,11 +196,7 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 
     best_tree_length = current_tree_length;
 
-	#ifdef LVB_HASH
-		CompareHashTreeToHashstack(MSA, treestack_ptr, inittree, root, LVB_FALSE);	/* init. tree initially best */
-	#else
-		CompareTreeToTreestack(MSA, treestack_ptr, inittree, root, LVB_FALSE);	/* init. tree initially best */ 
-	#endif
+	CompareHashTreeToHashstack(MSA, treestack_ptr, inittree, root, LVB_FALSE);	/* init. tree initially best */
 
 	double trops_counter[3] = {1,1,1};
 	double trops_probs[3] = {0,0,0};
@@ -298,11 +290,7 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 				if (proposed_tree_length < best_tree_length) {
 					ClearTreestack(treestack_ptr);	/* discard old bests */
 				}
-					#ifdef LVB_HASH
-						if(CompareHashTreeToHashstack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE) == 1)
-					#else
-						if(CompareTreeToTreestack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE) == 1)
-					#endif
+					if(CompareTreeToTreestack(MSA, treestack_ptr, p_proposed_tree, proposed_tree_root, LVB_FALSE) == 1)
 				{
 					accepted++;
 				}
@@ -541,11 +529,7 @@ long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool l
     maxpropose, maxfail, stdout, iter_p, log_progress);
     PullTreefromTreestack(MSA, tree, &initroot, &treestack, LVB_FALSE);
 
-	#ifdef LVB_HASH
-		CompareHashTreeToHashstack(MSA, &treestack, tree, initroot, LVB_FALSE);
-	#else
-		CompareTreeToTreestack(MSA, &treestack, tree, initroot, LVB_FALSE);
-	#endif
+	CompareHashTreeToHashstack(MSA, &treestack, tree, initroot, LVB_FALSE);
 
     /* treelength = deterministic_hillclimb(MSA, &treestack, tree, rcstruct, initroot, stdout,
 				iter_p, log_progress); */

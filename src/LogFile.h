@@ -49,11 +49,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdbool.h>
 #include "LVB.h"
 
-#ifdef LVB_HASH
-  #define LVB_IMPLEMENTATION "HASH"
-#else
-  #define LVB_IMPLEMENTATION "AB  "
-#endif
+#define LVB_IMPLEMENTATION "HASH"
 
 bool LogFileExists(const char *filename);
 void PrintLogFile(long, long, long, double);

@@ -1364,8 +1364,6 @@ void ss_init(Dataptr MSA, TREESTACK_TREE_NODES *tree, Lvb_bit_length **enc_mat)
 
 } /* end ss_init() */
 
-#ifdef LVB_HASH
-
 std::string MakeHashSet(Dataptr MSA, const TREESTACK_TREE_NODES *const tree_2, const long root)
 /* fill static sitestate_2 with arrays of object sets for
  * tree_2, and return sitestate_2 string 
@@ -1396,5 +1394,3 @@ std::string ConvertSiteSetToString(Dataptr MSA, Objset *oset_1)
   std::string sitesetstr(os.str());
   return sitesetstr;
 }
-
-#endif
