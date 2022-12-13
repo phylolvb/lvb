@@ -48,7 +48,6 @@ $status = $?;
 if ($status == 0)
 {
     if (($output =~ /PThreads: +2\n/)
-        and ($output =~ /Topologies recovered: +1\n/)
         and ($output =~ /Tree score: +1846\n/))
     {
 		print "test passed\n";
