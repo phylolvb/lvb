@@ -114,7 +114,7 @@ void PrintOutput(long iter, long trees_output_total, long final_length, double c
   printf("\n================================================================================\n");
   printf("\nSearch Results:\n");
   printf("  Rearrangements evaluated: %ld\n", iter);
-  printf("  Topologies recovered:     %ld\n", trees_output_total + 1);
+  printf("  Topologies recovered:     %ld\n", trees_output_total);
   printf("  Tree score:               %ld\n", final_length);
   printf("  Consistency index:        %.2lf\n", consistency_index);
   printf("  Homoplasy index:          %.2lf\n", homoplasy_index);

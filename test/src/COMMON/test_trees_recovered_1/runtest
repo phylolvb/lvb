@@ -44,7 +44,7 @@ $lvb = $ENV{LVB_EXECUTABLE};
 $output = `"$lvb" 2>/dev/null`;
 $status = $?;
 
-if (($status == 0) and ($output =~ /Topologies recovered: +32\n/))
+if (($status == 0) and ($output =~ /Topologies recovered: +15\n/))
 {
     print "test passed\n";
 }

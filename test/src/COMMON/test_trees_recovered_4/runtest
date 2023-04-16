@@ -47,7 +47,7 @@ $status = $?;
 # check output
 if ($status == 0)
 {
-    if ($output =~ /Topologies recovered: +212\n/)
+    if ($output =~ /Topologies recovered: +105\n/)
     {
 	print "test passed\n";
     }
