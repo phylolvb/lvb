@@ -56,27 +56,30 @@ static char *getstatev(const Dataptr MSA, const long k)
  * of other (partial) ambiguity codes, so can return NULL if these are present;
  * N.B. string is static and will be overwritten by later calls */
 {
-    static char statev[MAXSTATES + 1];	/* array of states */
-    long statec;			/* number of states */
-    long i;				/* loop counter */
+	static char statev[MAXSTATES + 1]; /* array of states */
+	long statec;					   /* number of states */
+	long i;							   /* loop counter */
 
-    /* clear record of states */
-    statev[0] = '\0';
-    statec = 0;
+	/* clear record of states */
+	statev[0] = '\0';
+	statec = 0;
 
-    /* update record of states for column k */
-    for (i = 0; i < MSA->n; ++i){
-	if (strchr(statev, (int) MSA->row[i][k]) == NULL){	/* new state */
-	    if ((MSA->row[i][k] != '-') && (MSA->row[i][k] != '?')
-		&& (MSA->row[i][k] != 'N') && (MSA->row[i][k] != 'X')) {
-		statev[statec++] = MSA->row[i][k];
-	    }
-	    if (statec > MAXSTATES) return NULL;
-	    statev[statec] = '\0';	/* for strchr() */
+	/* update record of states for column k */
+	for (i = 0; i < MSA->n; ++i)
+	{
+		if (strchr(statev, (int)MSA->row[i][k]) == NULL)
+		{ /* new state */
+			if ((MSA->row[i][k] != '-') && (MSA->row[i][k] != '?') && (MSA->row[i][k] != 'N') && (MSA->row[i][k] != 'X'))
+			{
+				statev[statec++] = MSA->row[i][k];
+			}
+			if (statec > MAXSTATES)
+				return NULL;
+			statev[statec] = '\0'; /* for strchr() */
+		}
 	}
-    }
 
-    return statev;
+	return statev;
 
 } /* end getstatev() */
 
@@ -84,16 +87,19 @@ long MinimumTreeLength(const Dataptr MSA)
 /* return minimum length of any tree based on MSA; FIXME not quite right
  * with ambiguity codes */
 {
-    long minlen = 0;	/* return value */
-    char *statev;	/* list of states in current character */
-    long k;		/* loop counter */
+	long minlen = 0; /* return value */
+	char *statev;	 /* list of states in current character */
+	long k;			 /* loop counter */
 
-    for (k = 0; k < MSA->m; ++k) {
-    	statev = getstatev(MSA, k);
-    	if (statev == NULL) minlen += MAXSTATES;
-    	else minlen += strlen(statev) - 1;
-    }
-    return minlen;
+	for (k = 0; k < MSA->m; ++k)
+	{
+		statev = getstatev(MSA, k);
+		if (statev == NULL)
+			minlen += MAXSTATES;
+		else
+			minlen += strlen(statev) - 1;
+	}
+	return minlen;
 
 } /* end MinimumTreeLength() */
 
@@ -103,8 +109,8 @@ long MinimumTreeLength(const Dataptr MSA)
 
 =head2 SYNOPSIS
 
-    void DNAToBinary(const Dataptr mat, Lvb_bool fifthstate,
-     unsigned char **enc_mat);
+	void DNAToBinary(const Dataptr mat, Lvb_bool fifthstate,
+	 unsigned char **enc_mat);
 
 =head2 DESCRIPTION
 
@@ -161,26 +167,26 @@ void DNAToBinary(Dataptr restrict mat, Lvb_bit_length **enc_mat)
  * will not contribute to tree length - allowing the optimization of White and
  * Holland (2011) */
 {
-    long i;		/* loop counter */
-    long j;		/* loop counter */
-    long k;		/* loop counter */
-    long mat_offset;	/* current position within MSA row */
-    char base;		/* current base as text character */
-    Lvb_bit_length sitestate = 0U;	/* binary-encoded single state set */
-    Lvb_bit_length enc_sitestates;	/* set of four binary-encoded state sets */
+	long i;						   /* loop counter */
+	long j;						   /* loop counter */
+	long k;						   /* loop counter */
+	long mat_offset;			   /* current position within MSA row */
+	char base;					   /* current base as text character */
+	Lvb_bit_length sitestate = 0U; /* binary-encoded single state set */
+	Lvb_bit_length enc_sitestates; /* set of four binary-encoded state sets */
 
-    for (i = 0; i < mat->n; i++)
-    {
-        for (j = 0; j < mat->nwords; j++)
+	for (i = 0; i < mat->n; i++)
+	{
+		for (j = 0; j < mat->nwords; j++)
 		{
 			enc_sitestates = 0U;
 			for (k = 0; k < LENGTH_WORD; k++)
 			{
 				mat_offset = (j << LENGTH_WORD_BITS_MULTIPLY) + k;
-				if (mat_offset >= mat->m)	/* padding required */
+				if (mat_offset >= mat->m) /* padding required */
 					base = 'N';
 				else
-					base = mat->row[i][(j << LENGTH_WORD_BITS_MULTIPLY) + k];	/* observed base required */
+					base = mat->row[i][(j << LENGTH_WORD_BITS_MULTIPLY) + k]; /* observed base required */
 
 				/* unambiguous bases */
 				if (base == 'A')
@@ -191,7 +197,7 @@ void DNAToBinary(Dataptr restrict mat, Lvb_bit_length **enc_mat)
 					sitestate = G_BIT;
 				else if (base == 'T')
 					sitestate = T_BIT;
-				else if (base == 'U')	/* treat the same as 'U' */
+				else if (base == 'U') /* treat the same as 'U' */
 					sitestate = T_BIT;
 
 				/* ambiguous bases */
@@ -238,29 +244,29 @@ void DNAToBinary(Dataptr restrict mat, Lvb_bit_length **enc_mat)
 			}
 			enc_mat[i][j] = enc_sitestates;
 		}
-    }
+	}
 } /* end DNAToBinary() */
-
 
 void rowfree(Dataptr MSA)
 /* free memory used for row strings and array of row strings in MSA,
  * and make the array of row title strings NULL;
  * or, if the array of row title strings is already NULL, do nothing */
 {
-    long i;	/* loop counter */
+	long i; /* loop counter */
 
-    if (MSA->row != NULL) {
-    	for(i = 0; i < MSA->n; ++i){
-    		free(MSA->row[i]);
-    		free(MSA->rowtitle[i]);
-    	}
-    	free(MSA->row);
-    	free(MSA->rowtitle);
-    	MSA->row = NULL;
-    }
+	if (MSA->row != NULL)
+	{
+		for (i = 0; i < MSA->n; ++i)
+		{
+			free(MSA->row[i]);
+			free(MSA->rowtitle[i]);
+		}
+		free(MSA->row);
+		free(MSA->rowtitle);
+		MSA->row = NULL;
+	}
 
 } /* end rowfree() */
-
 
 static long constchar(Dataptr restrict MSA, Lvb_bool *const togo, const Lvb_bool verbose)
 /* Make sure MSA->m-element array togo is LVB_TRUE where MSA column
@@ -270,73 +276,85 @@ static long constchar(Dataptr restrict MSA, Lvb_bool *const togo, const Lvb_bool
  * elements or arbitrary (even uninitialised) contents. It will be left with
  * arbitrary contents on return. */
 {
-    long k;		/* loop counter */
-    long i;		/* loop counter */
-    long n_columns = 0;
+	long k; /* loop counter */
+	long i; /* loop counter */
+	long n_columns = 0;
 
-    /* discover variable columns */
-    for (k = 0; k < MSA->m; ++k){
-    	for (i = 1; i < MSA->n; ++i){
-			if (MSA->row[i][k] != MSA->row[0][k]){
+	/* discover variable columns */
+	for (k = 0; k < MSA->m; ++k)
+	{
+		for (i = 1; i < MSA->n; ++i)
+		{
+			if (MSA->row[i][k] != MSA->row[0][k])
+			{
 				togo[k] = LVB_TRUE;
 				n_columns += 1;
 				break;
 			}
 		}
-    }
+	}
 
-    if (verbose == LVB_TRUE){
-    	printf("Constant columns excluded from analysis: ");
-    	if (n_columns == 0) printf(" none found.\n");
-    	else logcut(togo, MSA->m);
-    }
-    return n_columns;
+	if (verbose == LVB_TRUE)
+	{
+		printf("Constant columns excluded from analysis: ");
+		if (n_columns == 0)
+			printf(" none found.\n");
+		else
+			logcut(togo, MSA->m);
+	}
+	return n_columns;
 } /* end constchar() */
 
 void matchange(Dataptr MSA, const Parameters rcstruct)
 /* change and remove columns in MSA, partly in response to rcstruct,
  * verbosely or not according to value of verbose */
 {
-    Lvb_bool *togo;	/* LVB_TRUE where column must go */
-    long n_columns_to_change = 0;
-    /* Allocate memory: this will be free'd just before we return.
-     * Dynamic allocation is used because otherwise, each of the
-     * arrays would have to have MAX_M elements. That would either
-     * limit the program too much, or causes massive waste of
-     * address space. */
+	Lvb_bool *togo; /* LVB_TRUE where column must go */
+	long n_columns_to_change = 0;
+	/* Allocate memory: this will be free'd just before we return.
+	 * Dynamic allocation is used because otherwise, each of the
+	 * arrays would have to have MAX_M elements. That would either
+	 * limit the program too much, or causes massive waste of
+	 * address space. */
 
-    togo = (Lvb_bool *) alloc(MSA->m * sizeof(Lvb_bool), "'togo' array");
+	togo = (Lvb_bool *)alloc(MSA->m * sizeof(Lvb_bool), "'togo' array");
 
-    /* initialize all elements to LVB_FALSE ('don't ignore') */
-    for(n_columns_to_change = 0; n_columns_to_change < MSA->m; n_columns_to_change ++) *(togo + n_columns_to_change) = LVB_FALSE;
+	/* initialize all elements to LVB_FALSE ('don't ignore') */
+	for (n_columns_to_change = 0; n_columns_to_change < MSA->m; n_columns_to_change++)
+		*(togo + n_columns_to_change) = LVB_FALSE;
 
-    n_columns_to_change = constchar(MSA, togo, (Lvb_bool) rcstruct.verbose);	/* compuslory cut */
+	n_columns_to_change = constchar(MSA, togo, (Lvb_bool)rcstruct.verbose); /* compuslory cut */
 
-    /* N.B. a function to mark autapomorphic characters for cutting
-     * could be called at this point. The effect would be more noticeable
-     * with unrealistically small test matrices than with real data */
+	/* N.B. a function to mark autapomorphic characters for cutting
+	 * could be called at this point. The effect would be more noticeable
+	 * with unrealistically small test matrices than with real data */
 
-    /* cut the cols as indicated, and crash verbosely if too few remain */
-    if (n_columns_to_change != MSA->m){
-    	cutcols(MSA, togo, n_columns_to_change);	/* make changes to MSA */
-    }
-    else{
-        MSA->bytes = bytes_per_row(MSA->m);
-        MSA->nwords = words_per_row(MSA->m);
-        MSA->tree_bytes = tree_bytes(MSA);
-        MSA->tree_bytes_without_sitestate = tree_bytes_without_sitestate(MSA);
+	/* cut the cols as indicated, and crash verbosely if too few remain */
+	if (n_columns_to_change != MSA->m)
+	{
+		cutcols(MSA, togo, n_columns_to_change); /* make changes to MSA */
+	}
+	else
+	{
+		MSA->bytes = bytes_per_row(MSA->m);
+		MSA->nwords = words_per_row(MSA->m);
+		MSA->tree_bytes = tree_bytes(MSA);
+		MSA->tree_bytes_without_sitestate = tree_bytes_without_sitestate(MSA);
 		MSA->min_len_tree = MinimumTreeLength(MSA);
-    }
-    if (MSA->m < MIN_M)
-    	crash("after constant columns are ignored, data MSA has\n"
-    			"%ld columns, which is less than LVB's lower limit of\n"
-    			"%ld columns.\n", MSA->m, MIN_M);
-    else{
-    	if (rcstruct.verbose == LVB_TRUE) printf("\nIn total, %ld columns are excluded from the analysis\n\n", MSA->original_m - MSA->m);
-    }
+	}
+	if (MSA->m < MIN_M)
+		crash("after constant columns are ignored, data MSA has\n"
+			  "%ld columns, which is less than LVB's lower limit of\n"
+			  "%ld columns.\n",
+			  MSA->m, MIN_M);
+	else
+	{
+		if (rcstruct.verbose == LVB_TRUE)
+			printf("\nIn total, %ld columns are excluded from the analysis\n\n", MSA->original_m - MSA->m);
+	}
 
-    /* free "local" dynamic heap memory */
-    free(togo);
+	/* free "local" dynamic heap memory */
+	free(togo);
 
 } /* end matchange() */
 
@@ -345,39 +363,43 @@ static void cutcols(Dataptr MSA, const Lvb_bool *const tocut, long n_columns_to_
 MSA->m-element array tocut is LVB_TRUE, and update MSA->m;
 return the number of columns cut */
 {
-    char **newrow;			/* rows of reduced MSA */
-    long i;				/* loop counter */
-    long k;				/* loop counter */
-    long newk;				/* current column of reduced MSA */
+	char **newrow; /* rows of reduced MSA */
+	long i;		   /* loop counter */
+	long k;		   /* loop counter */
+	long newk;	   /* current column of reduced MSA */
 
-    long uun = MSA->n;
-    long uum = MSA->m;
-    /* memory for new MSA row array */
-    newrow = (char **) alloc((size_t) uun * sizeof(char *), "pointers to new row strings");
-    for (i = 0; i < uun; ++i) newrow[i] =  (char*) alloc(sizeof(char) * (n_columns_to_change + 1), "new row strings");
+	long uun = MSA->n;
+	long uum = MSA->m;
+	/* memory for new MSA row array */
+	newrow = (char **)alloc((size_t)uun * sizeof(char *), "pointers to new row strings");
+	for (i = 0; i < uun; ++i)
+		newrow[i] = (char *)alloc(sizeof(char) * (n_columns_to_change + 1), "new row strings");
 
-    newk = 0;
-    for (k = 0; k < uum; ++k){	/* for every column */
-		if (tocut[k] == LVB_TRUE){	/* keep this column */
-			for (i = 0; i < uun; ++i)	/* fill for ea. row */
+	newk = 0;
+	for (k = 0; k < uum; ++k)
+	{ /* for every column */
+		if (tocut[k] == LVB_TRUE)
+		{							  /* keep this column */
+			for (i = 0; i < uun; ++i) /* fill for ea. row */
 				newrow[i][newk] = MSA->row[i][k];
-			++newk;	/* fill next row next time */
+			++newk; /* fill next row next time */
 		}
-    }
+	}
 
-    /* trap impossible condition */
-    lvb_assert(newk == n_columns_to_change);
+	/* trap impossible condition */
+	lvb_assert(newk == n_columns_to_change);
 
-    /* terminate new row strings */
-    for (i = 0; i < uun; ++i) newrow[i][newk] = '\0';
+	/* terminate new row strings */
+	for (i = 0; i < uun; ++i)
+		newrow[i][newk] = '\0';
 
-    /* update MSA structure */
-    MSA->row = newrow;
-    MSA->m = n_columns_to_change;
-    MSA->bytes = bytes_per_row(MSA->m);
-    MSA->nwords = words_per_row(MSA->m);
-    MSA->tree_bytes = tree_bytes(MSA);
-    MSA->tree_bytes_without_sitestate = tree_bytes_without_sitestate(MSA);
+	/* update MSA structure */
+	MSA->row = newrow;
+	MSA->m = n_columns_to_change;
+	MSA->bytes = bytes_per_row(MSA->m);
+	MSA->nwords = words_per_row(MSA->m);
+	MSA->tree_bytes = tree_bytes(MSA);
+	MSA->tree_bytes_without_sitestate = tree_bytes_without_sitestate(MSA);
 	MSA->min_len_tree = MinimumTreeLength(MSA);
 } /* end cutcols() */
 
@@ -385,34 +407,38 @@ static void logcut(const Lvb_bool *const cut, const long m)
 /* log message saying columns for which m-element array cut is LVB_TRUE are
  * being cut */
 {
-    long k;				/* loop counter */
-    long noperln = 0;			/* no. of numbers on current line */
-    const long max_noperln = 8; 	/* max. numbers written per line */
-    Lvb_bool newline = LVB_FALSE;	/* last number followed by '\n' */
+	long k;						  /* loop counter */
+	long noperln = 0;			  /* no. of numbers on current line */
+	const long max_noperln = 8;	  /* max. numbers written per line */
+	Lvb_bool newline = LVB_FALSE; /* last number followed by '\n' */
 
-    printf("\n");
+	printf("\n");
 
-    /* give formatted list of columns to go */
-    for (k = 0; k < m; ++k){
-		if (cut[k] == LVB_FALSE){
+	/* give formatted list of columns to go */
+	for (k = 0; k < m; ++k)
+	{
+		if (cut[k] == LVB_FALSE)
+		{
 			printf("%ld", k + 1L);
 			++noperln;
-			if (noperln == max_noperln){	/* end line */
+			if (noperln == max_noperln)
+			{ /* end line */
 				noperln = 0;
 				printf("\n");
 				newline = LVB_TRUE;
 			}
-			else{	/* just put some space on this line */
+			else
+			{ /* just put some space on this line */
 				printf("\t");
 				newline = LVB_FALSE;
 			}
 		}
-    }
-    if (newline == LVB_FALSE)
-	printf("\n");
+	}
+	if (newline == LVB_FALSE)
+		printf("\n");
 
-    if (fflush(stdout) != 0)
-	crash("write error on standard output"); /* FIXME: helpful? */
+	if (fflush(stdout) != 0)
+		crash("write error on standard output"); /* FIXME: helpful? */
 
 } /* end logcut() */
 
@@ -422,11 +448,12 @@ long words_per_row(const long m)
  * to the nearest 32-bit word, which allows for the optimization of White and
  * Holland (2011, Bioinformatics 27:1359-1367, specifically Section 2.10) */
 {
-    long words;		/* 32-bit words required */
+	long words; /* 32-bit words required */
 
-    words = m >> LENGTH_WORD_BITS_MULTIPLY;
-    if (m % LENGTH_WORD) words += 1;
-    return words;
+	words = m >> LENGTH_WORD_BITS_MULTIPLY;
+	if (m % LENGTH_WORD)
+		words += 1;
+	return words;
 }
 
 long bytes_per_row(const long m)

@@ -13,7 +13,7 @@ and Martyn Winn.
 (c) Copyright 2022 by Joseph Guscott and Daniel Barker.
 
 All rights reserved.
- 
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
@@ -45,7 +45,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Sops.h"
 
-enum { SAME, DIFFERENT };	/* strings same or different */
+enum
+{
+    SAME,
+    DIFFERENT
+}; /* strings same or different */
 
 /**********
 
@@ -90,24 +94,24 @@ Returns 0 if the string are the same or nonzero if different.
 
 long cistrcmp(const char *const s1, const char *const s2)
 {
-    size_t i;		/* loop counter */
-    size_t len1;	/* length of s1 */
-    size_t len2;	/* length of s2 */
-    int character_1;	/* current character of s1 */
-    int character_2;	/* current character of s2 */
+    size_t i;        /* loop counter */
+    size_t len1;     /* length of s1 */
+    size_t len2;     /* length of s2 */
+    int character_1; /* current character of s1 */
+    int character_2; /* current character of s2 */
 
     len1 = strlen(s1);
     len2 = strlen(s2);
 
-    if (len1 != len2)	/* can't be identical */
-	return DIFFERENT;
+    if (len1 != len2) /* can't be identical */
+        return DIFFERENT;
 
     for (i = 0; i < len1; i++)
     {
         character_1 = tolower(s1[i]);
         character_2 = tolower(s2[i]);
-	if (character_1 != character_2)
-	    return DIFFERENT;
+        if (character_1 != character_2)
+            return DIFFERENT;
     }
     return SAME;
 
@@ -149,14 +153,13 @@ C<NULL> if all characters in the string are white space.
 char *nextnonwspc(const char *string)
 {
     while (isspace(*string))
-	string++;
+        string++;
     if (*string)
-	return (char *) string;
+        return (char *)string;
     else
-	return NULL;
+        return NULL;
 
 } /* end nextnonwspc() */
-
 
 /**********
 
@@ -192,14 +195,14 @@ Returns C<s>.
 
 char *supper(char *const s)
 {
-    int character;		/* current character in uppercase */
-    char *elementptr = s;	/* pointer to current character */
+    int character;        /* current character in uppercase */
+    char *elementptr = s; /* pointer to current character */
 
     while (*elementptr)
     {
         character = toupper(*elementptr);
-	*elementptr = (char) character;
-	elementptr++;
+        *elementptr = (char)character;
+        elementptr++;
     }
 
     return s;

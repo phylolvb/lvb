@@ -10,8 +10,8 @@ Current Developers:\
 
 [![](https://img.shields.io/badge/Build-Passing-brightgreen)](https://github.com/phylolvb/lvb/releases/tag/3.5)
 [![](https://img.shields.io/badge/Core%20Tests-Passing-brightgreen)]()
-[![](https://img.shields.io/badge/Current%20Release-3.5-blue)](https://github.com/phylolvb/lvb/releases/tag/3.5)
-[![](https://img.shields.io/badge/Release%20Date-02%2F2019-blue)](https://github.com/phylolvb/lvb/releases/tag/3.5)\
+[![](https://img.shields.io/badge/Current%20Release-4.2-blue)](https://github.com/phylolvb/lvb/releases/tag/3.5)
+[![](https://img.shields.io/badge/Release%20Date-04%2F2023-blue)](https://github.com/phylolvb/lvb/releases/tag/3.5)\
 [![](https://img.shields.io/badge/DOI%3A-https%3A%2F%2Fdoi.org%2F10.1093%2Fbioinformatics%2Fbtg402-blue)](https://doi.org/10.1093/bioinformatics/btg402)
 
 ***Gettting Started***
@@ -23,19 +23,16 @@ git clone https://github.com/phylolvb/lvb
 cd lvb/
 ~~~~
 
-Hash version (recommended):
-~~~~
-make -f Makefile.HASH
-~~~~
+Complie LVB:
 
-Array-based version:
 ~~~~
 make
 ~~~~
 
-MPI version:
+Run tests:
+
 ~~~~
-make -f Makefile.MPI
+make test
 ~~~~
 
 If you use LVB, please cite the following paper:

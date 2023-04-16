@@ -48,9 +48,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 void functionality_check(void)
 {
     if (time(NULL) == -1)
-    	crash("cannot get system time");
+        crash("cannot get system time");
 
-    if ((((long) INT_MAX) < 2147483647L) || ((sizeof(void *) * CHAR_BIT) < 32) || ((sizeof(size_t) * CHAR_BIT) < 32)) {
+    if ((((long)INT_MAX) < 2147483647L) || ((sizeof(void *) * CHAR_BIT) < 32) || ((sizeof(size_t) * CHAR_BIT) < 32))
+    {
         crash("program requires at least a 32-bit system");
     }
 

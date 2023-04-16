@@ -53,14 +53,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Print.h"
 #include "Verbose.h"
 
-static TREESTACK treestack;	/* overall best tree stack */
+static TREESTACK treestack; /* overall best tree stack */
 static TREESTACK stack_treevo;
 
-
-#ifdef LVB_MPI
-    long GetSoln(Dataptr restrict, Parameters, long *, Lvb_bool, int);
-#else
-    long GetSoln(Dataptr restrict, Parameters, long *, Lvb_bool);
-#endif
+long GetSoln(Dataptr restrict, Parameters, long *, Lvb_bool);
 
 #endif

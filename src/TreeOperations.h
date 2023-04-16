@@ -49,10 +49,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "LVB.h"
 #include "Hash.h"
 
-#define CLADESEP ","	/* clade separator for trees */
+#define CLADESEP "," /* clade separator for trees */
 
 /* object sets for tree comparison */
-Objset sitestate_2[MAX_N - 3] = { { NULL, 0 } };
+Objset sitestate_2[MAX_N - 3] = {{NULL, 0}};
 
 void cr_bpnc(const TREESTACK_TREE_NODES *const BranchArray, const long branch);
 void cr_chaf(const TREESTACK_TREE_NODES *const BranchArray, const long destination, const long newchild);
@@ -74,4 +74,4 @@ void dump_objset_to_screen(Dataptr MSA, Objset *oset_1);
 void dump_objset_to_file(Dataptr MSA, Objset *oset_1);
 void dump_objset_to_screen_sitestate_2(Dataptr MSA);
 
-#endif  /* LVB_TREEOPERATIONS_H_ */
+#endif /* LVB_TREEOPERATIONS_H_ */

@@ -13,7 +13,7 @@ and Martyn Winn.
 (c) Copyright 2022 by Joseph Guscott and Daniel Barker.
 
 All rights reserved.
- 
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
@@ -102,53 +102,62 @@ zero-byte allocation was requested.
 
 void *alloc(const size_t bytes, const char *const msg)
 {
-    void *p;	/* pointer to first byte of new memory, if any */
+	void *p; /* pointer to first byte of new memory, if any */
 
-    if ((bytes == 0) || (bytes > MAX_ALLOC))
-        p = NULL;
-    else
-    {
-        p = malloc(bytes);
-        if (p == NULL)
-        crash("out of memory: cannot allocate for %s", msg);
-    }
-    return p;
+	if ((bytes == 0) || (bytes > MAX_ALLOC))
+		p = NULL;
+	else
+	{
+		p = malloc(bytes);
+		if (p == NULL)
+			crash("out of memory: cannot allocate for %s", msg);
+	}
+	return p;
 
-}	/* end alloc() */
+} /* end alloc() */
 
-void alloc_memory_to_getplen(Dataptr MSA, long **p_todo_arr, long **p_todo_arr_sum_changes, int **p_runs) {
-	*p_todo_arr = (long *) alloc((MSA->numberofpossiblebranches - MSA->n) * sizeof(long), "alloc to count runs");
-    *p_todo_arr_sum_changes = (long *) alloc(MSA->n_threads_getplen * (1 + MSA->numberofpossiblebranches - MSA->n) * sizeof(long), "alloc to count runs");
-	*p_runs = (int *) alloc(MSA->n_threads_getplen * (MSA->numberofpossiblebranches - MSA->n) * sizeof(int), "alloc to count runs");
+void alloc_memory_to_getplen(Dataptr MSA, long **p_todo_arr, long **p_todo_arr_sum_changes, int **p_runs)
+{
+	*p_todo_arr = (long *)alloc((MSA->numberofpossiblebranches - MSA->n) * sizeof(long), "alloc to count runs");
+	*p_todo_arr_sum_changes = (long *)alloc(MSA->n_threads_getplen * (1 + MSA->numberofpossiblebranches - MSA->n) * sizeof(long), "alloc to count runs");
+	*p_runs = (int *)alloc(MSA->n_threads_getplen * (MSA->numberofpossiblebranches - MSA->n) * sizeof(int), "alloc to count runs");
 }
 
-void free_memory_to_getplen(long **p_todo_arr, long **p_todo_arr_sum_changes, int **p_runs) {
+void free_memory_to_getplen(long **p_todo_arr, long **p_todo_arr_sum_changes, int **p_runs)
+{
 	free(*p_todo_arr);
 	free(*p_todo_arr_sum_changes);
 	free(*p_runs);
 }
 
 /* set the number of processors to use */
-void calc_distribution_processors(Dataptr MSA, Parameters rcstruct){
+void calc_distribution_processors(Dataptr MSA, Parameters rcstruct)
+{
 	int n_threads_temp = 0;
-	if (MSA->nwords > MINIMUM_SIZE_NUMBER_WORDS_TO_ACTIVATE_THREADING){
-		do{
-			n_threads_temp ++;
+	if (MSA->nwords > MINIMUM_SIZE_NUMBER_WORDS_TO_ACTIVATE_THREADING)
+	{
+		do
+		{
+			n_threads_temp++;
 			MSA->n_slice_size_getplen = MSA->nwords / n_threads_temp;
-		}while (MSA->n_slice_size_getplen > MINIMUM_WORDS_PER_SLICE_GETPLEN && n_threads_temp != rcstruct.n_processors_available);
+		} while (MSA->n_slice_size_getplen > MINIMUM_WORDS_PER_SLICE_GETPLEN && n_threads_temp != rcstruct.n_processors_available);
 
-		if (MSA->n_slice_size_getplen > MINIMUM_WORDS_PER_SLICE_GETPLEN){
+		if (MSA->n_slice_size_getplen > MINIMUM_WORDS_PER_SLICE_GETPLEN)
+		{
 			MSA->n_slice_size_getplen = MSA->nwords / n_threads_temp;
 			MSA->n_threads_getplen = n_threads_temp;
 		}
-		else{
+		else
+		{
 			MSA->n_threads_getplen = n_threads_temp - 1;
 			MSA->n_slice_size_getplen = MSA->nwords / MSA->n_threads_getplen;
 		}
 	}
-	else{
+	else
+	{
 		MSA->n_threads_getplen = 1; /* need to pass for 1 thread because the number of words is to low */
 	}
 	// only to protect
-	if (MSA->n_threads_getplen < 1) MSA->n_threads_getplen = 1;
+	if (MSA->n_threads_getplen < 1)
+		MSA->n_threads_getplen = 1;
 }

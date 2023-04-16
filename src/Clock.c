@@ -45,10 +45,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Clock.h"
 
-void StartTime() {
+void StartTime()
+{
   time_t timer;
   char buffer[26];
-  struct tm* tm_info;
+  struct tm *tm_info;
 
   time(&timer);
   tm_info = localtime(&timer);
@@ -58,10 +59,11 @@ void StartTime() {
   puts(buffer);
 }
 
-void LogTime() {
+void LogTime()
+{
   time_t timer;
   char buffer[26];
-  struct tm* tm_info;
+  struct tm *tm_info;
 
   time(&timer);
   tm_info = localtime(&timer);

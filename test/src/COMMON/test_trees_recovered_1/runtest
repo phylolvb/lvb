@@ -41,25 +41,14 @@
 
 # run LVB
 $lvb = $ENV{LVB_EXECUTABLE};
-$output = `"$lvb" -p 2 -s 509739986`;
+$output = `"$lvb" 2>/dev/null`;
 $status = $?;
 
-# check output
-if ($status == 0)
+if (($status == 0) and ($output =~ /Topologies recovered: +15\n/))
 {
-    if (($output =~ /PThreads: +2\n/)
-        and ($output =~ /Tree score: +1628\n/))
-    {
-	print "test passed\n";
-    }
-    else
-    {
-	print "test failed\n";
-    }
+    print "test passed\n";
 }
 else
 {
     print "test failed\n";
 }
-
-unlink "outtree";

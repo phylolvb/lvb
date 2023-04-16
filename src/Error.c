@@ -13,7 +13,7 @@ and Martyn Winn.
 (c) Copyright 2022 by Joseph Guscott and Daniel Barker.
 
 All rights reserved.
- 
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
@@ -45,9 +45,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Error.h"
 
-void crash(const char *const fmt, ...) {
-    const char *const warning = "\nFATAL ERROR";  /* dire warning */
-    va_list args;  /* arguments */
+void crash(const char *const fmt, ...)
+{
+    const char *const warning = "\nFATAL ERROR"; /* dire warning */
+    va_list args;                                /* arguments */
 
     va_start(args, fmt);
     printf("%s: ", warning);
@@ -57,15 +58,17 @@ void crash(const char *const fmt, ...) {
 
     cleanup();
     exit(EXIT_FAILURE);
-}  /* end crash() */
+} /* end crash() */
 
-void lvb_assertion_fail(const char *test, const char *file, int line) {
+void lvb_assertion_fail(const char *test, const char *file, int line)
+{
     crash("assertion failed at '%s' line %d: %s", file, line, test);
 }
 
-void scream(const char *const format, ...) {
+void scream(const char *const format, ...)
+{
     const char *const warning = "ERROR";
-    va_list args;  /* supplied message */
+    va_list args; /* supplied message */
 
     va_start(args, format);
     printf("%s: ", warning);
@@ -75,5 +78,5 @@ void scream(const char *const format, ...) {
 
     /* flush standard output so the warning is immediately visible */
     if (fflush(stdout) == EOF)
-        crash("write error on log");  /* may not work! */
-}  /* end scream() */
+        crash("write error on log"); /* may not work! */
+} /* end scream() */

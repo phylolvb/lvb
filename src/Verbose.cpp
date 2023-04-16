@@ -48,12 +48,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 void PrintInitialTree(Dataptr MSA, const TREESTACK_TREE_NODES *const BranchArray, const long start, const long cycle, long root)
 /* log initial tree for cycle cycle of start start (in BranchArray) to outfp */
 {
-    static char outfnam[LVB_FNAMSIZE]; 	/* current file name */
-    int fnamlen;			/* length of current file name */
-    FILE *outfp;			/* output file */
+    static char outfnam[LVB_FNAMSIZE]; /* current file name */
+    int fnamlen;                       /* length of current file name */
+    FILE *outfp;                       /* output file */
 
     fnamlen = sprintf(outfnam, "%s_start%ld_cycle%ld", TREE1FNAM, start, cycle);
-    lvb_assert(fnamlen < LVB_FNAMSIZE);	/* shut door if horse bolted */
+    lvb_assert(fnamlen < LVB_FNAMSIZE); /* shut door if horse bolted */
 
     /* create tree file */
     outfp = clnopen(outfnam, "w");
@@ -66,10 +66,10 @@ void CheckStandardOutput(void)
 /* Flush standard output, and crash verbosely on error. */
 {
     if (fflush(stdout) == EOF)
-        crash("write error on standard output");	/* may not work! */
+        crash("write error on standard output"); /* may not work! */
     if (ferror(stdout))
-    	crash("file error on standard output");		/* may not work! */
-}	/* end CheckStandardOutput() */
+        crash("file error on standard output"); /* may not work! */
+} /* end CheckStandardOutput() */
 
 void PrintStartMessage(long start, long cycle)
 /* print cycle start message */

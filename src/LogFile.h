@@ -49,19 +49,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdbool.h>
 #include "LVB.h"
 
-#ifdef LVB_MPI
-  #define LVB_IMPLEMENTATION "MPI"
-#elif LVB_HASH
-  #define LVB_IMPLEMENTATION "HASH"
-#else
-  #define LVB_IMPLEMENTATION "AB  "
-#endif
+#define LVB_IMPLEMENTATION "HASH"
 
 bool LogFileExists(const char *filename);
-void PrintLogFile(long, long, long, double, int);
+void PrintLogFile(long, long, long, double);
 
-#ifdef LVB_MPI
-  void PrintMPILogFile(long, long, long, double, int);
-#endif
-
-#endif  // LVB_LOG_FILE_H_
+#endif // LVB_LOG_FILE_H_

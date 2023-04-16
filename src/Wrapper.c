@@ -47,21 +47,26 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void phylip_dna_matrin(char *p_file_name, int n_file_format, Dataptr lvbmat)
 {
-	read_file(p_file_name, n_file_format, lvbmat);
+    read_file(p_file_name, n_file_format, lvbmat);
 
     /* check number of sequences is in range for LVB */
-    if (lvbmat->n < MIN_N) crash("The data matrix must have at least %ld sequences.", MIN_N);
-    else if (lvbmat->n > MAX_N) crash("The data matrix must have no more than %ld sequences.", MAX_N);
+    if (lvbmat->n < MIN_N)
+        crash("The data matrix must have at least %ld sequences.", MIN_N);
+    else if (lvbmat->n > MAX_N)
+        crash("The data matrix must have no more than %ld sequences.", MAX_N);
     /* check number of sites is in range for LVB */
-    else if (lvbmat->m < MIN_M) crash("The data matrix must have at least %ld sites.", MIN_M);
-    else if (lvbmat->m > MAX_M) crash("The data matrix must have no more than %ld sites.", MAX_M);
+    else if (lvbmat->m < MIN_M)
+        crash("The data matrix must have at least %ld sites.", MIN_M);
+    else if (lvbmat->m > MAX_M)
+        crash("The data matrix must have no more than %ld sites.", MAX_M);
 
     /* maximum number of object sets per tree */
-    lvb_assert (lvbmat->nsets <= (MAX_N - 3));
+    lvb_assert(lvbmat->nsets <= (MAX_N - 3));
 
 } /* end phylip_dna_matrin() */
 
-void phylip_mat_dims_in(char *p_file_name, int n_file_format, long *species_ptr, long *sites_ptr, int *max_length_name){
+void phylip_mat_dims_in(char *p_file_name, int n_file_format, long *species_ptr, long *sites_ptr, int *max_length_name)
+{
 
-	phylip_mat_dims_in_external(p_file_name, n_file_format, species_ptr, sites_ptr, max_length_name);
+    phylip_mat_dims_in_external(p_file_name, n_file_format, species_ptr, sites_ptr, max_length_name);
 }

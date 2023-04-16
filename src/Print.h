@@ -49,18 +49,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <iostream>
 
 #define PROGNAM "LVB "
-#define LVB_VERSION "4.1"
-#define LVB_HASH_VERSION "Hash version "
-#define LVB_MPI_VERSION "MPI version "
-#define LVB_RELEASE_DATE "August 2022"
+#define LVB_VERSION "4.2"
+#define LVB_RELEASE_DATE "December 2022"
 #define LVB_WIKI "github.com/phylolvb/lvb"
 
 void PrintLVBCopyright();
 void PrintLVBInfo();
 void PrintOutput(long, long, long, double, double, double, char *);
 
-#ifdef LVB_MPI
-    void PrintMPIOutput(long, long, long, double, double, double, char *, int, int);
-#endif
-
-#endif  // LVB_INFO_H_
+#endif // LVB_INFO_H_

@@ -1,5 +1,5 @@
 # LVB
-# 
+#
 # (c) Copyright 2003-2012 by Daniel Barker.
 # (c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl.
 # (c) Copyright 2014 by Daniel Barker, Miguel Pinheiro and Maximilian Strobl.
@@ -13,21 +13,21 @@
 # (c) Copyright 2022 by Joseph Guscott and Daniel Barker.
 #
 # All rights reserved.
-#  
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
-# 
+#
 # 1. Redistributions of source code must retain the above copyright notice,
 # this list of conditions and the following disclaimer.
-# 
+#
 # 2. Redistributions in binary form must reproduce the above copyright notice,
 # this list of conditions and the following disclaimer in the documentation
 # and/or other materials provided with the distribution.
-# 
+#
 # 3. Neither the name of the copyright holder nor the names of its contributors
 # may be used to endorse or promote products derived from this software without
 # specific prior written permission.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 # AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 # IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -61,50 +61,32 @@
 #
 # make test
 #
-# For 32-bit AMD or Intel-based hardware or entirely different 32-bit CPUs
-# (e.g. the Raspberry Pi), uncomment the line that adds -DCOMPILE_32_BITS to
-# CFLAGS; also, comment-out the line that adds -msse4.2.
 #
-# For OS X with the Intel C++ compiler, uncomment the definitions of CC,
-# G++ and CFLAGS as instructed below, then compile as for Linux.
-
 # Directories
 TEST_DIR = ./test/src
 DOCS_PROG_DIR = ./docs_programmer
 LVB_SRC_DIR = ./src
 #LVB_READ_FILE_DIR = ./LVB_READ_FILES/src
 
-### define a c++ compiler to your platform 
+### define compilers and compiler options
 G++ = mpic++
 CC = mpic++
 CXX = mpic++
 
-# UNCOMMENT THIS FOR 32-BIT LINUX (E.G. OLD INTEL CPUS OR RASPBERRY PI)
-#CFLAGS += -DCOMPILE_32_BITS
-# COMMENT THIS FOR 32-BIT (E.G. OLD INTEL CPUS OR RASPBERRY PI):
-#CFLAGS += -msse4.2
-
-# FOR OS X WITH THE INTEL C++ COMPILER, UNCOMMENT THE NEXT THREE LINES 
-#G++ = icpc
-#CC = icc
-#CFLAGS += -openmp-link static
-
-# General options
-
 # No warnings
 
-CFLAGS += -O2 -fopenmp -DLVB_NP -std=c++11
-CXXFLAGS += -O2 -fopenmp -DLVB_NP -std=c++11
+CFLAGS += -O2 -fopenmp -std=c++11
+CXXFLAGS += -O2 -fopenmp -std=c++11
 
 # Warnings
 
-# CFLAGS += -Wall -g -O3 -fopenmp -DLVB_NP -std=c++11
-# CXXFLAGS += -Wall -g -O3 -fopenmp -DLVB_NP -std=c++11
+# CFLAGS += -Wall -g -O3 -fopenmp -std=c++11
+# CXXFLAGS += -Wall -g -O3 -fopenmp -std=c++11
 
 # Profiling
 
-# CFLAGS += -g -O3 -fopenmp -DLVB_NP -std=c++11 -ftest-coverage -fprofile-arcs -pg
-# CXXFLAGS += -g -O3 -fopenmp -DLVB_NP -std=c++11 -ftest-coverage -fprofile-arcs -pg
+# CFLAGS += -g -O3 -fopenmp -std=c++11 -ftest-coverage -fprofile-arcs -pg
+# CXXFLAGS += -g -O3 -fopenmp -std=c++11 -ftest-coverage -fprofile-arcs -pg
 
 # System-dependent macros - OK for Linux and UNIX-like systems, for others will
 # require change
@@ -120,7 +102,6 @@ LIB_EXT = a		# UNIX
 # LVB library
 LVB_LIB = libLVB.$(LIB_EXT)
 LIBS += $(LVB_LIB)
-
 LVB_PROG = lvb$(EXE)
 
 # Object files that will go into the LVB library
@@ -133,15 +114,15 @@ LVB_LIB_OBJS = $(LVB_SRC_DIR)/Admin.$(OBJ) \
                $(LVB_SRC_DIR)/DataOperations.$(OBJ) \
                $(LVB_SRC_DIR)/Error.$(OBJ) \
                $(LVB_SRC_DIR)/FileOperations.$(OBJ) \
-               $(LVB_SRC_DIR)/SearchParameters.$(OBJ) \
-               $(LVB_SRC_DIR)/StartingTemperature.$(OBJ) \
 			   $(LVB_SRC_DIR)/LogFile.$(OBJ) \
                $(LVB_SRC_DIR)/MemoryOperations.$(OBJ) \
                $(LVB_SRC_DIR)/MyMaths.$(OBJ) \
                $(LVB_SRC_DIR)/RandomNumberGenerator.$(OBJ) \
                $(LVB_SRC_DIR)/TreeEvaluation.$(OBJ) \
+			   $(LVB_SRC_DIR)/SearchParameters.$(OBJ) \
                $(LVB_SRC_DIR)/Solve.$(OBJ) \
                $(LVB_SRC_DIR)/Sops.$(OBJ) \
+			   $(LVB_SRC_DIR)/StartingTemperature.$(OBJ) \
 			   $(LVB_SRC_DIR)/Treestack.$(OBJ) \
                $(LVB_SRC_DIR)/TreeOperations.$(OBJ) \
                $(LVB_SRC_DIR)/Wrapper.$(OBJ)
@@ -149,6 +130,7 @@ LVB_LIB_OBJS = $(LVB_SRC_DIR)/Admin.$(OBJ) \
 # C++ files
 
 LVB_READ_FILE_OBJS = 	$(LVB_SRC_DIR)/CommandLineParser.$(OBJ) \
+						$(LVB_SRC_DIR)/Hash.$(OBJ) \
 						$(LVB_SRC_DIR)/MSAInput.$(OBJ) \
 						$(LVB_SRC_DIR)/Print.$(OBJ) \
 						$(LVB_SRC_DIR)/Verbose.$(OBJ)
@@ -162,7 +144,7 @@ LVB_PROG_OBJS = $(LVB_SRC_DIR)/Main.$(OBJ)
 
 # Documentation files
 
-# LVB_MANUAL = LVBManual.pdf
+# TEST_MANUAL = $(DOCS_PROG_DIR)/go.html
 
 # All documentation files
 
@@ -187,8 +169,8 @@ lvb : LVB_PROG $(DOCS)
 LVB_PROG : $(LVB_LIB) $(LVB_PROG_OBJS)
 	$(G++) $(CFLAGS) $(LDFLAGS) -o $(LVB_PROG) $(LVB_PROG_OBJS) $(LVB_READ_FILE_OBJS) $(LIBS) $(LM)
 
-$(LVB_LIB) : $(LVB_LIB_OBJS) $(LVB_READ_FILE_OBJS) 
-	ar rv $@ $(LVB_LIB_OBJS_OUTPUT) 
+$(LVB_LIB) : $(LVB_LIB_OBJS) $(LVB_READ_FILE_OBJS)
+	ar rv $@ $(LVB_LIB_OBJS_OUTPUT)
 	$(RANLIB) $(LVB_LIB)
 
 # If the main test script has changed, we should run the tests
@@ -197,7 +179,7 @@ $(TEST_MANUAL) : $(TEST_DIR)/COMMON/go
 
 test : FORCE
 	cd test/src/COMMON ; env LVB_EXECUTABLE="`pwd`/../../../$(LVB_PROG)" LVB_LIBRARY="`pwd`/../../../$(LVB_LIB)" LVB_OTHERLIBS="$(LM)" LVB_HEADER_PATH=".." GPLUSPLUS="$(G++)" LINKERCPLUSPLUS="$(G++)" CFLAGS="$(CFLAGS)" ./go; cd ..;
-
+	
 tests : test	# allow 'make tests' as synonym for 'make test'
 
 # make clean to remove files generated by a previous make, leaving

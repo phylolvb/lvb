@@ -13,7 +13,7 @@ and Martyn Winn.
 (c) Copyright 2022 by Joseph Guscott and Daniel Barker.
 
 All rights reserved.
- 
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
@@ -49,11 +49,13 @@ Lvb_bool cleanup(void)
 /* prevent apparent memory leaks to help debugging, log end time; return
  * LVB_TRUE on write error to stdout, LVB_FALSE otherwise */
 {
-    Lvb_bool val;	/* return value */
+    Lvb_bool val; /* return value */
 
     /* log file won't be used again */
     fflush(stdout);
-    if (ferror(stdout) != 0) val = LVB_TRUE;
-    else val = LVB_FALSE;
+    if (ferror(stdout) != 0)
+        val = LVB_TRUE;
+    else
+        val = LVB_FALSE;
     return val;
 } /* end cleanup() */
