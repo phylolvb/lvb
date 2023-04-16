@@ -45,26 +45,29 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "LogFile.h"
 
-bool LogFileExists(const char *filename) {
+bool LogFileExists(const char *filename)
+{
   struct stat buffer;
-  
-  return (stat (filename, &buffer) == 0);
+
+  return (stat(filename, &buffer) == 0);
 }
 
-void PrintLogFile(long iter, long trees_output_total, long final_length, double overall_time_taken) {
+void PrintLogFile(long iter, long trees_output_total, long final_length, double overall_time_taken)
+{
   Lvb_bool logfile_exists = LVB_FALSE;
 
-  if (LogFileExists ("logfile.tsv")) {
+  if (LogFileExists("logfile.tsv"))
+  {
     logfile_exists = LVB_TRUE;
   }
-  
-  FILE * logfile;
-  logfile = fopen ("logfile.tsv","a+");
-  
+
+  FILE *logfile;
+  logfile = fopen("logfile.tsv", "a+");
+
   if (logfile_exists == LVB_FALSE)
-	{
-    fprintf (logfile, "Implementation\tRearrangements\tTopologies\tScore\tRuntime\n");
+  {
+    fprintf(logfile, "Implementation\tRearrangements\tTopologies\tScore\tRuntime\n");
   }
-		fprintf (logfile, "%s\t%ld\t%ld\t%ld\t%.2lf\n", LVB_IMPLEMENTATION, iter, trees_output_total, final_length, overall_time_taken);
-		fclose(logfile);
+  fprintf(logfile, "%s\t%ld\t%ld\t%ld\t%.2lf\n", LVB_IMPLEMENTATION, iter, trees_output_total, final_length, overall_time_taken);
+  fclose(logfile);
 }

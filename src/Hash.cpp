@@ -45,36 +45,40 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Hash.h"
 
-long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_NODES *const BranchArray, const long root, Lvb_bool b_with_sitestate) {
+long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_NODES *const BranchArray, const long root, Lvb_bool b_with_sitestate)
+{
   long i = 0, new_root = 0;
   static TREESTACK_TREE_NODES *copy_2 = NULL;
   Lvb_bool b_First = LVB_TRUE;
   std::string current_site_states;
   unsigned long long current_site_states_hash = 0;
-  static std::unordered_set <unsigned long long> hashSet;
+  static std::unordered_set<unsigned long long> hashSet;
   unsigned long long HashKey = 0;
 
-
   /* allocate "local" static heap memory - static - do not free! */
-  if (copy_2 == NULL) copy_2 = treealloc(MSA, b_with_sitestate);
-    treecopy(MSA, copy_2, BranchArray, b_with_sitestate);
-  if (root != 0) {
+  if (copy_2 == NULL)
+    copy_2 = treealloc(MSA, b_with_sitestate);
+  treecopy(MSA, copy_2, BranchArray, b_with_sitestate);
+  if (root != 0)
+  {
     lvb_reroot(MSA, copy_2, root, new_root, b_with_sitestate);
   }
 
   /* if treestack is empty, add current config */
-  if (sp->next == 0) {
+  if (sp->next == 0)
+  {
     current_site_states = MakeHashSet(MSA, copy_2, new_root);
     current_site_states_hash = HashSiteSet(current_site_states);
     hashSet.clear();
     HashKey = HashSiteSet(current_site_states);
-  } else {
+  }
+  else
+  {
     current_site_states = MakeHashSet(MSA, copy_2, 0);
     HashKey = HashSiteSet(current_site_states);
-    
-     if(hashSet.find(HashKey) != hashSet.end()) 
-      return 0;
 
+    if (hashSet.find(HashKey) != hashSet.end())
+      return 0;
   }
   hashSet.insert(HashKey);
 
@@ -85,21 +89,26 @@ long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE
 } /* end CompareHashTreeToHashstack() */
 
 long TopologicalHashComparison(Dataptr MSA, unsigned long long stored_hash, const TREESTACK_TREE_NODES *const tree_2, Lvb_bool b_First,
-                                std::string current_site_states, unsigned long long& current_site_states_hash) {
-  if (b_First == LVB_TRUE) {
+                               std::string current_site_states, unsigned long long &current_site_states_hash)
+{
+  if (b_First == LVB_TRUE)
+  {
     current_site_states = MakeHashSet(MSA, tree_2, 0);
     current_site_states_hash = HashSiteSet(current_site_states);
   }
   return HashComparison(stored_hash, current_site_states_hash);
 } /* end TopologicalHashComparison() */
 
-long HashComparison(unsigned long long stored_hash, unsigned long long current_site_states_hash) {
-  if (stored_hash == current_site_states_hash) return 0;
+long HashComparison(unsigned long long stored_hash, unsigned long long current_site_states_hash)
+{
+  if (stored_hash == current_site_states_hash)
+    return 0;
 
   return 1;
 } /* end HashComparison() */
 
-unsigned long long HashSiteSet(std::string currentsiteset) {
+unsigned long long HashSiteSet(std::string currentsiteset)
+{
   unsigned long long str_hash = std::hash<std::string>{}(currentsiteset);
   return str_hash;
 } /* end HashSiteSet() */

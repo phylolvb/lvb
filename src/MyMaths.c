@@ -13,7 +13,7 @@ and Martyn Winn.
 (c) Copyright 2022 by Joseph Guscott and Daniel Barker.
 
 All rights reserved.
- 
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
@@ -90,21 +90,24 @@ Returns I<e>**C<x1>.
 double exp_wrapper(double x)
 /*@globals errno@*/ /*@modifies nothing@*/
 {
-    double val;	/* return value */
+    double val; /* return value */
 
     val = exp(x);
     if (errno == EDOM)
         crash("internal error detected in function exp_wrapper():\n"
-         "domain error. x is %g", x);
-    else if ((val == HUGE_VAL) || (val == - HUGE_VAL))
+              "domain error. x is %g",
+              x);
+    else if ((val == HUGE_VAL) || (val == -HUGE_VAL))
         crash("internal error detected in function exp_wrapper():\n"
-         "range error. x is %g", x);
+              "range error. x is %g",
+              x);
     else if (val == 0.0)
         crash("internal error detected in function exp_wrapper():\n"
-         "underflow. x is %g", x);
+              "underflow. x is %g",
+              x);
     return val;
 
-}	/* end exp_wrapper() */
+} /* end exp_wrapper() */
 
 /**********
 
@@ -142,20 +145,22 @@ Returns I<ln>(C<x2>).
 double log_wrapper(double x)
 /*@globals errno@*/ /*@modifies nothing@*/
 {
-    double val;	/* return value */
+    double val; /* return value */
 
     if (x <= 0.0)
     {
         crash("internal error detected in function log_wrapper():\n"
-         "domain error. x is %g\n", x);
+              "domain error. x is %g\n",
+              x);
     }
     val = log(x);
     if (errno == EDOM)
         crash("internal error detected in function log_wrapper():\n"
-         "domain error. x is %g\n", x);
+              "domain error. x is %g\n",
+              x);
     return val;
 
-}	/* end log_wrapper() */
+} /* end log_wrapper() */
 
 /**********
 
@@ -197,37 +202,42 @@ Returns C<x3>**C<y>.
 double pow_wrapper(double x, double y)
 /*@globals errno@*/ /*@modifies nothing@*/
 {
-    double val = -1;	/* return value, initialized to stop warnings */
+    double val = -1; /* return value, initialized to stop warnings */
 
     if (x < 0)
     {
         if ((ceil(y) != y) || (floor(y) != y))
         {
             crash("internal error detected in function pow_wrapper():\n"
-             "domain error. x is %g, y is %g", x, y);
+                  "domain error. x is %g, y is %g",
+                  x, y);
         }
     }
-    else if (x == 0.0) 
+    else if (x == 0.0)
     {
         if (y > 0.0)
             val = 0.0;
         else if (y == 0.0)
             crash("internal error detected in function pow_wrapper():\n"
-             "domain error. x is %g, y is %g", x, y);
+                  "domain error. x is %g, y is %g",
+                  x, y);
     }
     else
     {
         val = pow(x, y);
         if (errno == EDOM)
             crash("internal error detected in function pow_wrapper():\n"
-             "domain error. x is %g, y is %g", x, y);
-        else if ((val == HUGE_VAL) || (val == - HUGE_VAL))
+                  "domain error. x is %g, y is %g",
+                  x, y);
+        else if ((val == HUGE_VAL) || (val == -HUGE_VAL))
             crash("internal error detected in function pow_wrapper():\n"
-             "range error. x is %g, y is %g", x, y);
+                  "range error. x is %g, y is %g",
+                  x, y);
         else if (val == 0.0)
             crash("internal error detected in function pow_wrapper():\n"
-             "underflow. x is %g, y is %g", x, y);
+                  "underflow. x is %g, y is %g",
+                  x, y);
     }
     return val;
 
-}	/* end pow_wrapper() */
+} /* end pow_wrapper() */

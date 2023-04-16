@@ -54,15 +54,15 @@ using namespace std;
 
 #include "LVB.h"
 
-	#ifdef __cplusplus
-		extern "C" int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat);
-		extern "C" void phylip_mat_dims_in_external(char *file_name, int n_file_type, long *species_ptr, long *sites_ptr, int *max_length_name);
-		extern "C" void read_parameters(Parameters *prms, int argc, char **argv);
-	#endif
+#ifdef __cplusplus
+extern "C" int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat);
+extern "C" void phylip_mat_dims_in_external(char *file_name, int n_file_type, long *species_ptr, long *sites_ptr, int *max_length_name);
+extern "C" void read_parameters(Parameters *prms, int argc, char **argv);
+#endif
 
-	int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat);
-	void free_lvbmat_structure(DataStructure *p_lvbmat);
-	void read_parameters(Parameters *prms, int argc, char **argv);
+int read_file(char *file_name, int n_file_type, Dataptr p_lvbmat);
+void free_lvbmat_structure(DataStructure *p_lvbmat);
+void read_parameters(Parameters *prms, int argc, char **argv);
 
 void phylip_mat_dims_in_external(char *file_name, int n_file_type, long *species_ptr, long *sites_ptr, int *max_length_name);
 long brcnt(long n); /* return number of branches in unrooted binary tree structure containing n tips */

@@ -57,4 +57,4 @@ void PrintLVBCopyright();
 void PrintLVBInfo();
 void PrintOutput(long, long, long, double, double, double, char *);
 
-#endif  // LVB_INFO_H_
+#endif // LVB_INFO_H_

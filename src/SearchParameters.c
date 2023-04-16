@@ -13,7 +13,7 @@ and Martyn Winn.
 (c) Copyright 2022 by Joseph Guscott and Daniel Barker.
 
 All rights reserved.
- 
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
@@ -53,38 +53,37 @@ static int get_default_seed(void)
  * system clock, or exit with an error message if the system time is
  * unavailable */
 {
-    time_t tim;			/* system time */
-    unsigned long ul_seed;	/* seed value obtained from system time */
+	time_t tim;			   /* system time */
+	unsigned long ul_seed; /* seed value obtained from system time */
 
-    tim = time(NULL);
-    lvb_assert(tim != -1);
-    ul_seed = (unsigned long) tim;
-    ul_seed = ul_seed % (1UL + (unsigned long) MAX_SEED);
-    lvb_assert(ul_seed <= MAX_SEED);
-    return (int) ul_seed;
+	tim = time(NULL);
+	lvb_assert(tim != -1);
+	ul_seed = (unsigned long)tim;
+	ul_seed = ul_seed % (1UL + (unsigned long)MAX_SEED);
+	lvb_assert(ul_seed <= MAX_SEED);
+	return (int)ul_seed;
 
 } /* end get_default_seed() */
-
 
 void defaults_params(Parameters *const prms)
 /* set seed in *prms to unacceptable value, and other parameters to their
  * defaults_params from LVB.h */
 {
-    /* meaningful value that is not user-configurable */
-    prms->verbose = LVB_FALSE;
+	/* meaningful value that is not user-configurable */
+	prms->verbose = LVB_FALSE;
 
-    /* cooling schecdule Generic */
-    prms->cooling_schedule = 0;
-    /* default value that will usually be used */
-    prms->seed = get_default_seed();
-    /* original branch-swapping algorithm */
-    prms->algorithm_selection = 1;
+	/* cooling schecdule Generic */
+	prms->cooling_schedule = 0;
+	/* default value that will usually be used */
+	prms->seed = get_default_seed();
+	/* original branch-swapping algorithm */
+	prms->algorithm_selection = 1;
 
-    strcpy(prms->file_name_in, "infile");
-    strcpy(prms->file_name_out, OUTTREEFNAM);
-    prms->n_file_format = FORMAT_PHYLIP;
-    prms->n_processors_available = omp_get_max_threads();
-	prms->n_number_max_trees = 0;			/* default, keep all EPT */
+	strcpy(prms->file_name_in, "infile");
+	strcpy(prms->file_name_out, OUTTREEFNAM);
+	prms->n_file_format = FORMAT_PHYLIP;
+	prms->n_processors_available = omp_get_max_threads();
+	prms->n_number_max_trees = 0; /* default, keep all EPT */
 
 } /* end defaults_params() */
 
@@ -93,7 +92,7 @@ void getparam(Parameters *prms, int argc, char **argv)
  * run-time configuration parameters */
 {
 	defaults_params(prms);
- /*   user_adjust(prms);*/
+	/*   user_adjust(prms);*/
 	read_parameters(prms, argc, argv);
 
 } /* end getparam() */
@@ -103,7 +102,7 @@ void writeinf(Parameters prms, Dataptr MSA, int argc, char **argv)
 {
 	struct utsname buffer;
 	errno = 0;
-	if (uname(&buffer) !=0)
+	if (uname(&buffer) != 0)
 	{
 		perror("uname");
 		exit(EXIT_FAILURE);
@@ -112,7 +111,7 @@ void writeinf(Parameters prms, Dataptr MSA, int argc, char **argv)
 	printf("Executing: ");
 	printf("' ");
 	for (int i = 0; i < argc; ++i)
-	printf("%s ", argv[i]);
+		printf("%s ", argv[i]);
 	printf("' at: ");
 	LogTime();
 	printf("\n");
@@ -120,38 +119,51 @@ void writeinf(Parameters prms, Dataptr MSA, int argc, char **argv)
 	printf("Analysis Properties: \n");
 	printf("  Alignment:          '%s'\n", prms.file_name_in);
 	printf("  MSA format:          ");
-	if (prms.n_file_format == FORMAT_PHYLIP) printf("PHYLIP\n");
-    else if (prms.n_file_format == FORMAT_FASTA) printf("FASTA\n");
-    else if (prms.n_file_format == FORMAT_NEXUS) printf("NEXUS\n");
-    else if (prms.n_file_format == FORMAT_CLUSTAL) printf("CLUSTAL\n");
-    else{
-    	fprintf (stderr, "Error, input format file not recognized\n");
-    	abort();
-    }
+	if (prms.n_file_format == FORMAT_PHYLIP)
+		printf("PHYLIP\n");
+	else if (prms.n_file_format == FORMAT_FASTA)
+		printf("FASTA\n");
+	else if (prms.n_file_format == FORMAT_NEXUS)
+		printf("NEXUS\n");
+	else if (prms.n_file_format == FORMAT_CLUSTAL)
+		printf("CLUSTAL\n");
+	else
+	{
+		fprintf(stderr, "Error, input format file not recognized\n");
+		abort();
+	}
 
 	printf("  MSA size:            %ld x %ld\n", MSA->n, MSA->original_m);
 	printf("  Seed:                %d\n", prms.seed);
 	printf("  Cooling schedule:    ");
-    if(prms.cooling_schedule == 0) printf("GEOMETRIC\n");
-    else printf("LINEAR\n");
+	if (prms.cooling_schedule == 0)
+		printf("GEOMETRIC\n");
+	else
+		printf("LINEAR\n");
 	printf("  Algorithm: ");
-    if(prms.algorithm_selection == 0) printf("          0 (SN)\n");
-    else if(prms.algorithm_selection == 1) printf("          1 (SEQ-TNS)\n");
-    else if(prms.algorithm_selection == 2) printf("          2 (PBS)\n");
+	if (prms.algorithm_selection == 0)
+		printf("          0 (SN)\n");
+	else if (prms.algorithm_selection == 1)
+		printf("          1 (SEQ-TNS)\n");
+	else if (prms.algorithm_selection == 2)
+		printf("          2 (PBS)\n");
 
 	printf("\nParallelisation Properties: \n");
 
-	if(prms.n_processors_available != omp_get_max_threads()) {
+	if (prms.n_processors_available != omp_get_max_threads())
+	{
 		printf("  PThreads:            %d\n", prms.n_processors_available);
-	} else {
+	}
+	else
+	{
 		printf("  PThreads:  %d\n", omp_get_max_threads());
 		printf("  PThread IDs:         ");
-		#pragma omp parallel
+#pragma omp parallel
 		{
 			printf("%d ", omp_get_thread_num());
 		}
 	}
-		
+
 	printf("\n================================================================================\n");
 	printf("\nInitialising search: \n");
 }

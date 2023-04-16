@@ -58,95 +58,98 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 int main(int argc, char **argv)
 {
-	Dataptr MSA;	/* data MSA */
-	int val;			/* return value */
-	Parameters rcstruct;		/* configurable parameters */
-	long iter;			/* iterations of annealing algorithm */
-	long trees_output_total = 0L;	/* number of trees output, overall */
-	long trees_output;		/* number of trees output for current rep. */
-	long final_length;		/* length of shortest tree(s) found */
-	FILE *outtreefp;		/* best trees found overall */
-	outtreefp = (FILE *) alloc (sizeof(FILE), "alloc FILE");
-	Lvb_bool log_progress;	/* whether or not to log Anneal search */
+	Dataptr MSA;				  /* data MSA */
+	int val;					  /* return value */
+	Parameters rcstruct;		  /* configurable parameters */
+	long iter;					  /* iterations of annealing algorithm */
+	long trees_output_total = 0L; /* number of trees output, overall */
+	long trees_output;			  /* number of trees output for current rep. */
+	long final_length;			  /* length of shortest tree(s) found */
+	FILE *outtreefp;			  /* best trees found overall */
+	outtreefp = (FILE *)alloc(sizeof(FILE), "alloc FILE");
+	Lvb_bool log_progress; /* whether or not to log Anneal search */
 
-    /* entitle standard output */
-    PrintLVBCopyright();
+	/* entitle standard output */
+	PrintLVBCopyright();
 	PrintLVBInfo();
 
-    /* start timer */
-    clock_t Start, End;
-    double overall_time_taken;
+	/* start timer */
+	clock_t Start, End;
+	double overall_time_taken;
 
-    Start = clock();
-    lvb_initialize();
+	Start = clock();
+	lvb_initialize();
 
-    getparam(&rcstruct, argc, argv);
-    StartTime();
+	getparam(&rcstruct, argc, argv);
+	StartTime();
 
-    /* read and alloc space to the data structure */
-	MSA = (data *) alloc(sizeof(DataStructure), "alloc data structure");
-    phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, MSA);
+	/* read and alloc space to the data structure */
+	MSA = (data *)alloc(sizeof(DataStructure), "alloc data structure");
+	phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, MSA);
 
-    /* "file-local" dynamic heap memory: set up best tree stacks, need to be by thread */
+	/* "file-local" dynamic heap memory: set up best tree stacks, need to be by thread */
 	treestack = CreateNewTreestack();
-	if(rcstruct.algorithm_selection ==2)
-    stack_treevo = CreateNewTreestack();
+	if (rcstruct.algorithm_selection == 2)
+		stack_treevo = CreateNewTreestack();
 
-    matchange(MSA, rcstruct);	/* cut columns */
+	matchange(MSA, rcstruct); /* cut columns */
 	writeinf(rcstruct, MSA, argc, argv);
-    calc_distribution_processors(MSA, rcstruct);
+	calc_distribution_processors(MSA, rcstruct);
 
-    if (rcstruct.verbose == LVB_TRUE) {
+	if (rcstruct.verbose == LVB_TRUE)
+	{
 		printf("MinimumTreeLength: %ld\n\n", MinimumTreeLength(MSA));
-    }
-    rinit(rcstruct.seed);
+	}
+	rinit(rcstruct.seed);
 	log_progress = LVB_TRUE;
 
-    outtreefp = clnopen(rcstruct.file_name_out, "w");
-    FILE * treEvo;
-	treEvo = (FILE *) alloc(sizeof(FILE), "alloc FILE");
-    if(rcstruct.algorithm_selection ==2)
-    treEvo = fopen ("treEvo.tre","w");
+	outtreefp = clnopen(rcstruct.file_name_out, "w");
+	FILE *treEvo;
+	treEvo = (FILE *)alloc(sizeof(FILE), "alloc FILE");
+	if (rcstruct.algorithm_selection == 2)
+		treEvo = fopen("treEvo.tre", "w");
 	iter = 0;
 	final_length = GetSoln(MSA, rcstruct, &iter, log_progress);
 	trees_output = PrintTreestack(MSA, &treestack, outtreefp, LVB_FALSE);
 
 	trees_output_total += trees_output;
 	trees_output_total += trees_output_total + 1;
-    if(rcstruct.algorithm_selection ==2)
+	if (rcstruct.algorithm_selection == 2)
 		PrintTreestack(MSA, &stack_treevo, treEvo, LVB_FALSE);
-    ClearTreestack(&treestack);
+	ClearTreestack(&treestack);
 	printf("--------------------------------------------------------\n");
 
-	if(rcstruct.algorithm_selection ==2)
-    fclose(treEvo);
-	
+	if (rcstruct.algorithm_selection == 2)
+		fclose(treEvo);
+
 	clnclose(outtreefp, rcstruct.file_name_out);
 
-    End = clock();
+	End = clock();
 
-	overall_time_taken = ((double) (End - Start)) /CLOCKS_PER_SEC;
+	overall_time_taken = ((double)(End - Start)) / CLOCKS_PER_SEC;
 
 	PrintLogFile(iter, trees_output_total, final_length, overall_time_taken);
 
 	double consistency_index = MinimumTreeLength(MSA);
 	double homoplasy_index = 0;
 
-	consistency_index = consistency_index/final_length;
+	consistency_index = consistency_index / final_length;
 	homoplasy_index = 1 - consistency_index;
 
 	PrintOutput(iter, trees_output_total, final_length, consistency_index, homoplasy_index, overall_time_taken, rcstruct.file_name_out);
 
 	/* "file-local" dynamic heap memory */
-    if (rcstruct.algorithm_selection ==2)
-    FreeTreestackMemory(MSA, &stack_treevo);
+	if (rcstruct.algorithm_selection == 2)
+		FreeTreestackMemory(MSA, &stack_treevo);
 	FreeTreestackMemory(MSA, &treestack);
-    rowfree(MSA);
-    free(MSA);
+	rowfree(MSA);
+	free(MSA);
 
-    if (cleanup() == LVB_TRUE) val = EXIT_FAILURE;
-    else val = EXIT_SUCCESS;
+	if (cleanup() == LVB_TRUE)
+		val = EXIT_FAILURE;
+	else
+		val = EXIT_SUCCESS;
 
-    return val;
+	return val;
 
 } /* end main() */

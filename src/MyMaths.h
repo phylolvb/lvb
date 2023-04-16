@@ -13,7 +13,7 @@ and Martyn Winn.
 (c) Copyright 2022 by Joseph Guscott and Daniel Barker.
 
 All rights reserved.
- 
+
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
@@ -48,8 +48,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "LVB.h"
 
-double exp_wrapper(double) /*@globals errno@*/ /*@modifies nothing@*/ ;
-double log_wrapper(double) /*@globals errno@*/ /*@modifies nothing@*/ ;
-double pow_wrapper(double, double) /*@globals errno@*/ /*@modifies nothing@*/ ;
+double exp_wrapper(double) /*@globals errno@*/ /*@modifies nothing@*/;
+double log_wrapper(double) /*@globals errno@*/ /*@modifies nothing@*/;
+double pow_wrapper(double, double) /*@globals errno@*/ /*@modifies nothing@*/;
 
 #endif /* LVB_MYMATHS_H */
