@@ -71,9 +71,9 @@ LVB_SRC_DIR = ./src
 #LVB_READ_FILE_DIR = ./LVB_READ_FILES/src
 
 ### define compilers and compiler options
-G++ = mpic++
-CC = mpic++
-CXX = mpic++
+G++ = g++
+CC = g++
+CXX = g++
 
 # No warnings
 
