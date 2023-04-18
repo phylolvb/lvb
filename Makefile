@@ -77,8 +77,8 @@ CXX = mpic++
 
 # No warnings
 
-CFLAGS += -O2 -fopenmp -std=c++11
-CXXFLAGS += -O2 -fopenmp -std=c++11
+CFLAGS += -O3 -fopenmp -std=c++11
+CXXFLAGS += -O3 -fopenmp -std=c++11
 
 # Warnings
 
