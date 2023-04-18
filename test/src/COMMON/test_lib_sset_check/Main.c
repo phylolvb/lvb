@@ -1,8 +1,7 @@
 /* LVB
 
 (c) Copyright 2003-2012 by Daniel Barker.
-(c) Copyright 2013, 2014 by Daniel Barker and
-Maximilian Strobl.
+(c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl.
 (c) Copyright 2014 by Daniel Barker, Miguel Pinheiro, and Maximilian Strobl
 (c) Copyright 2015 by Daniel Barker, Miguel Pinheiro, Maximilian Strobl,
 and Chris Wood.
