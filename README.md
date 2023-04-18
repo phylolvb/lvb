@@ -39,6 +39,6 @@ If you use LVB, please cite the following paper:
 
 * Barker D (2004) LVB: parsimony and simulated annealing in the search for phylogenetic trees. *Bioinformatics*, **20**, 274-275. https://doi.org/10.1093/bioinformatics/btg402 
 
-The full LVB wiki, is available within the [Wiki](https://github.com/phylolvb/lvb/wiki) tab.
+For further guidance, see the [Wiki](https://github.com/phylolvb/lvb/wiki) tab.
 
 ---
