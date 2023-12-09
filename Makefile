@@ -142,7 +142,7 @@ LVB_LIB_OBJS_OUTPUT = $(LVB_LIB_OBJS)
 
 # Object files that are used directly and will not go into the library
 
-LVB_PROG_OBJS = $(LVB_SRC_DIR)/Main.$(OBJ)
+LVB_PROG_OBJS = $(LVB_SRC_DIR)/main.$(OBJ)
 
 # Documentation files
 

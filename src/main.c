@@ -42,7 +42,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== Main.c ========== */
+/* ========== main.c ========== */
 
 #include "Admin.h"
 #include "Clock.h"
