@@ -56,7 +56,7 @@ int main(void)
     char *copy;		/* copy of string */
     char *value;	/* copy of pointer value */
 
-    lvb_initialize();
+    SystemChecks();
 
     copy = (char *) alloc(strlen(s), "copy of the string");
     strcpy(copy, s);

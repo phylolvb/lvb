@@ -62,7 +62,7 @@ static void lenlog(FILE *lengthfp, TREESTACK *treestack_ptr, long iteration, lon
 } /* end lenlog() */
 
 long deterministic_hillclimb(Dataptr MSA, TREESTACK *treestack_ptr, const TREESTACK_TREE_NODES *const inittree,
-							 Parameters rcstruct, long root, FILE *const lenfp, long *current_iter, Lvb_bool log_progress)
+							 Arguments args, long root, FILE *const lenfp, long *current_iter, Lvb_bool log_progress)
 /* perform a deterministic hill-climbing optimization on the tree in inittree,
  * using NNI on all internal branches until no changes are accepted; return the
  * length of the best tree found; current_iter should give the iteration number
@@ -92,7 +92,7 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *treestack_ptr, const TREEST
 
 	treecopy(MSA, p_current_tree, inittree, LVB_TRUE); /* current configuration */
 	alloc_memory_to_getplen(MSA, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-	current_tree_length = getplen(MSA, p_current_tree, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+	current_tree_length = getplen(MSA, p_current_tree, args, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 
 	/* identify internal branches */
 	for (i = MSA->n; i < MSA->numberofpossiblebranches; i++)
@@ -107,7 +107,7 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *treestack_ptr, const TREEST
 			for (j = 0; j < 2; j++)
 			{
 				mutate_deterministic(MSA, p_proposed_tree, p_current_tree, root, branch_numbers_arr[i], leftright[j]);
-				proposed_tree_length = getplen(MSA, p_proposed_tree, rcstruct, proposed_tree_root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+				proposed_tree_length = getplen(MSA, p_proposed_tree, args, proposed_tree_root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 				lvb_assert(proposed_tree_length >= 1L);
 				tree_length_change = proposed_tree_length - current_tree_length;
 				if (tree_length_change <= 0)
@@ -141,7 +141,7 @@ long deterministic_hillclimb(Dataptr MSA, TREESTACK *treestack_ptr, const TREEST
 	return current_tree_length;
 } /* end deterministic_hillclimb */
 
-long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREESTACK_TREE_NODES *const inittree, Parameters rcstruct,
+long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREESTACK_TREE_NODES *const inittree, Arguments args,
 			long root, const double t0, const long maxaccept, const long maxpropose,
 			const long maxfail, FILE *const lenfp, long *current_iter,
 			Lvb_bool log_progress)
@@ -197,7 +197,7 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 	treecopy(MSA, p_current_tree, inittree, LVB_TRUE); /* current configuration */
 
 	alloc_memory_to_getplen(MSA, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-	current_tree_length = getplen(MSA, p_current_tree, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+	current_tree_length = getplen(MSA, p_current_tree, args, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 	dect = LVB_FALSE; /* made LVB_TRUE as necessary at end of loop */
 
 	lvb_assert(((float)t >= (float)LVB_EPS) && (t <= 1.0) && (grad_geom >= LVB_EPS) && (grad_linear >= LVB_EPS));
@@ -224,7 +224,7 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 	char change[10] = "";
 	if ((log_progress == LVB_TRUE) && (*current_iter == 0))
 	{
-		if (rcstruct.verbose == LVB_TRUE)
+		if (args.verbose == LVB_TRUE)
 		{
 			pFile = fopen("changeAccepted.tsv", "w");
 			fprintf(pFile, "Iteration\tAlgorithm\tAccepted\tLength\tTemperature\tTreestack Size\n");
@@ -250,7 +250,7 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 
 		/* mutation: alternate between the two mutation functions */
 		proposed_tree_root = root;
-		if (rcstruct.algorithm_selection == 2)
+		if (args.algorithm_selection == 2)
 		{
 			trops_total = trops_counter[0] + trops_counter[1] + trops_counter[2];
 			trops_probs[0] = trops_counter[0] / trops_total;
@@ -258,28 +258,28 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 			trops_probs[2] = trops_counter[2] / trops_total;
 		}
 
-		if (rcstruct.algorithm_selection >= 1)
+		if (args.algorithm_selection >= 1)
 		{
 			double random_val = uni();
 			if (random_val < trops_probs[0])
 			{
 				mutate_nni(MSA, p_proposed_tree, p_current_tree, root); /* local change */
 				strcpy(change, "NNI");
-				if (rcstruct.algorithm_selection == 2)
+				if (args.algorithm_selection == 2)
 					trops_id = 0;
 			}
 			else if (random_val < trops_probs[0] + trops_probs[1])
 			{
 				mutate_spr(MSA, p_proposed_tree, p_current_tree, root); /* global change */
 				strcpy(change, "SPR");
-				if (rcstruct.algorithm_selection == 2)
+				if (args.algorithm_selection == 2)
 					trops_id = 1;
 			}
 			else
 			{
 				mutate_tbr(MSA, p_proposed_tree, p_current_tree, root); /* global change */
 				strcpy(change, "TBR");
-				if (rcstruct.algorithm_selection == 2)
+				if (args.algorithm_selection == 2)
 					trops_id = 2;
 			}
 		}
@@ -297,7 +297,7 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 			}
 		}
 
-		proposed_tree_length = getplen(MSA, p_proposed_tree, rcstruct, proposed_tree_root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+		proposed_tree_length = getplen(MSA, p_proposed_tree, args, proposed_tree_root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 		lvb_assert(proposed_tree_length >= 1L);
 		tree_length_change = proposed_tree_length - current_tree_length;
 		deltah = (tree_minimum_length / (double)current_tree_length) - (tree_minimum_length / (double)proposed_tree_length);
@@ -327,12 +327,12 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 			{
 				best_tree_length = proposed_tree_length;
 			}
-			if (rcstruct.algorithm_selection == 1)
+			if (args.algorithm_selection == 1)
 				changeAcc = 1;
 		}
 		else /* poss. accept change for the worse */
 		{
-			if (rcstruct.algorithm_selection == 2)
+			if (args.algorithm_selection == 2)
 				w_changes_prop++;
 			/* Mathematically,
 			 *     Pacc = e ** (-1/T * deltaH)
@@ -368,10 +368,10 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 				if (uni() < pacc) /* do accept the change */
 				{
 					SwapTrees(&p_current_tree, &root, &p_proposed_tree, &proposed_tree_root);
-					if (rcstruct.algorithm_selection == 2)
+					if (args.algorithm_selection == 2)
 						w_changes_acc++;
 					current_tree_length = proposed_tree_length;
-					if (rcstruct.algorithm_selection == 1)
+					if (args.algorithm_selection == 1)
 						changeAcc = 1;
 				}
 			}
@@ -410,7 +410,7 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 		{
 			t_n++; /* originally n is 0 */
 
-			if (rcstruct.cooling_schedule == 0) /* Geometric cooling */
+			if (args.cooling_schedule == 0) /* Geometric cooling */
 			{
 				/* Ensure t doesn't go out of bound */
 				ln_t = ((double)t_n) * log_wrapper_grad_geom + log_wrapper_t0;
@@ -418,7 +418,7 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 					t = LVB_EPS;
 				else
 					t = pow_wrapper(grad_geom, (double)t_n) * t0; /* decrease the temperature */
-				if (rcstruct.algorithm_selection == 1)
+				if (args.algorithm_selection == 1)
 				{
 					trops_probs[2] = t / t0;
 					trops_probs[1] = (1 - trops_probs[2]) / 2;
@@ -435,7 +435,7 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 			proposed = 0;
 			accepted = 0;
 			dect = LVB_FALSE;
-			if (rcstruct.algorithm_selection == 2)
+			if (args.algorithm_selection == 2)
 			{
 				w_changes_prop = 0;
 				w_changes_acc = 0;
@@ -444,12 +444,12 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 
 		iter++;
 
-		if (rcstruct.n_number_max_trees > 0 && treestack_ptr->next >= rcstruct.n_number_max_trees)
+		if (args.n_number_max_trees > 0 && treestack_ptr->next >= args.n_number_max_trees)
 		{
 			break;
 		}
 
-		if (rcstruct.algorithm_selection == 2)
+		if (args.algorithm_selection == 2)
 		{
 			if (changeAcc == 1)
 			{
@@ -464,12 +464,12 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 				}
 			}
 		}
-		if (rcstruct.verbose == LVB_TRUE)
+		if (args.verbose == LVB_TRUE)
 			fprintf(pFile, "%ld\t%s\t%d\t%ld\t%lf\t%ld\n", iter, change, changeAcc, current_tree_length, t * 10000, treestack_ptr->next);
 	}
 
 	/* free "local" dynamic heap memory */
-	if (rcstruct.verbose == LVB_TRUE)
+	if (args.verbose == LVB_TRUE)
 		fclose(pFile);
 	free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
 	free(p_current_tree);
@@ -478,8 +478,8 @@ long Anneal(Dataptr MSA, TREESTACK *treestack_ptr, TREESTACK *treevo, const TREE
 
 } /* end Anneal() */
 
-long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool log_progress)
-/* get and output solution(s) according to parameters in rcstruct;
+long GetSoln(Dataptr restrict MSA, Arguments args, long *iter_p, Lvb_bool log_progress)
+/* get and output solution(s) according to arguments in args;
  * return length of shortest tree(s) found */
 {
 	static char fnam[LVB_FNAMSIZE];	   /* current file name */
@@ -523,7 +523,7 @@ long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool l
 	 * of LVB. The code bellow is purely to keep the output consistent
 	 * with that of previous versions. */
 
-	if (rcstruct.verbose == LVB_TRUE)
+	if (args.verbose == LVB_TRUE)
 	{
 		sumfp = clnopen(SUMFNAM, "w");
 		fprintf(sumfp, "StartNo\tCycleNo\tCycInit\tCycBest\tCycTrees\n");
@@ -538,13 +538,13 @@ long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool l
 	ss_init(MSA, tree, enc_mat);
 	initroot = 0;
 
-	t0 = StartingTemperature(MSA, tree, rcstruct, initroot, log_progress);
+	t0 = StartingTemperature(MSA, tree, args, initroot, log_progress);
 
 	PullRandomTree(MSA, tree); /* begin from scratch */
 	ss_init(MSA, tree, enc_mat);
 	initroot = 0;
 
-	if (rcstruct.verbose)
+	if (args.verbose)
 		PrintStartMessage(start, cyc);
 	CheckStandardOutput();
 
@@ -553,22 +553,22 @@ long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool l
 	 * of LVB. The code bellow is purely to keep the output consistent
 	 * with that of previous versions.  */
 
-	if (rcstruct.verbose == LVB_TRUE)
+	if (args.verbose == LVB_TRUE)
 	{
 		alloc_memory_to_getplen(MSA, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-		fprintf(sumfp, "%ld\t%ld\t%ld\t", start, cyc, getplen(MSA, tree, rcstruct, initroot, p_todo_arr, p_todo_arr_sum_changes, p_runs));
+		fprintf(sumfp, "%ld\t%ld\t%ld\t", start, cyc, getplen(MSA, tree, args, initroot, p_todo_arr, p_todo_arr_sum_changes, p_runs));
 		free_memory_to_getplen(&p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
 		PrintInitialTree(MSA, tree, start, cyc, initroot);
 	}
 
 	/* find solution(s) */
-	treelength = Anneal(MSA, &treestack, &stack_treevo, tree, rcstruct, initroot, t0, maxaccept,
+	treelength = Anneal(MSA, &treestack, &stack_treevo, tree, args, initroot, t0, maxaccept,
 						maxpropose, maxfail, stdout, iter_p, log_progress);
 	PullTreefromTreestack(MSA, tree, &initroot, &treestack, LVB_FALSE);
 
 	CompareHashTreeToHashstack(MSA, &treestack, tree, initroot, LVB_FALSE);
 
-	/* treelength = deterministic_hillclimb(MSA, &treestack, tree, rcstruct, initroot, stdout,
+	/* treelength = deterministic_hillclimb(MSA, &treestack, tree, args, initroot, stdout,
 				iter_p, log_progress); */
 
 	/* log this cycle's solution and its details
@@ -576,7 +576,7 @@ long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool l
 	 * of LVB. The code bellow is purely to keep the output consistent
 	 * with that of previous versions. */
 
-	if (rcstruct.verbose == LVB_TRUE)
+	if (args.verbose == LVB_TRUE)
 	{
 		fnamlen = sprintf(fnam, "%s_start%ld_cycle%ld", RESFNAM, start, cyc);
 		lvb_assert(fnamlen < LVB_FNAMSIZE); /* really too late */
@@ -593,10 +593,10 @@ long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool l
 		}
 	}
 
-	if (rcstruct.verbose == LVB_TRUE) // printf("Ending start %ld cycle %ld\n", start, cyc);
+	if (args.verbose == LVB_TRUE) // printf("Ending start %ld cycle %ld\n", start, cyc);
 		CheckStandardOutput();
 
-	if (rcstruct.verbose == LVB_TRUE)
+	if (args.verbose == LVB_TRUE)
 		clnclose(sumfp, SUMFNAM);
 	/* "local" dynamic heap memory */
 	free(tree);

@@ -48,7 +48,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 int main(void)
 {
-    lvb_initialize();
+    SystemChecks();
 
     log_wrapper(-1);	/* should cause domain error */
 

@@ -52,7 +52,7 @@ int main(void)
     const char *p2 = "\b\a!\"$%^&*()_+NO_SPACE+IN$HERE!@#~'";
     const char *p3 = "\v\t\r\n \f\aHello Goodbye \n";
 
-    lvb_initialize();
+    SystemChecks();
 
     lvb_assert(nextnonwspc(p1) == NULL);
     lvb_assert(nextnonwspc(p2) == p2);

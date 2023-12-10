@@ -48,7 +48,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 int main(void)
 {
-    lvb_initialize();
+    SystemChecks();
 
     scream("%d %d %d %d %d %d %d %s!", 1, 2, 3, 4, 5, 6, 7,
     "TEST%STRING%GOES%d%d%dHERE");

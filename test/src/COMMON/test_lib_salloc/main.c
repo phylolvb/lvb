@@ -60,7 +60,7 @@ int main(void)
     long i;	/* loop counter */
     long j;	/* loop counter */
 
-    lvb_initialize();
+    SystemChecks();
 
     for (i = 0; i < 50000; i++)	/* repeat to check heap seems OK */
     {

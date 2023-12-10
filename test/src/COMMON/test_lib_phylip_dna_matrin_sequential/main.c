@@ -70,13 +70,13 @@ int main(void)
     Dataptr MSA;	/* data MSA as input */
     long i;		/* loop counter */
 
-    Parameters rcstruct;		/* configurable parameters */
-    strcpy(rcstruct.file_name_in, "infile");
-    rcstruct.n_file_format = FORMAT_PHYLIP;
-    lvb_initialize();
+    Arguments args;		/* configurable arguments */
+    strcpy(args.file_name_in, "infile");
+    args.n_file_format = FORMAT_PHYLIP;
+    SystemChecks();
 
     MSA = (data *) malloc(sizeof(DataStructure));
-    phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, MSA);
+    phylip_dna_matrin(args.file_name_in, args.n_file_format, MSA);
     lvb_assert(MSA->m == 42);
     lvb_assert(MSA->n == 5);
 

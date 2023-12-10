@@ -49,13 +49,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <iostream>
 
+#include "LVB.h"
+#include "Clock.h"
+
 #define PROGNAM "LVB "
 #define LVB_VERSION "4.2"
 #define LVB_RELEASE_DATE "April 2023"
 #define LVB_WIKI "github.com/phylolvb/lvb"
 
-void PrintLVBCopyright();
-void PrintLVBInfo();
+void PrintCopyright();
+void PrintVersion();
 void PrintOutput(long, long, long, double, double, double, char *);
+void PrintArguments(Arguments, Dataptr, int, char **);
 
 #endif // LVB_INFO_H_
+ 

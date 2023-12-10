@@ -62,7 +62,7 @@ int main(void)
     unsigned long ul_seed;		/* seed, from system time */
     Lvb_bool all_same = LVB_TRUE;	/* all 'random' values same */
 
-    lvb_initialize();
+    SystemChecks();
 
     /* seed random number generator from system clock */
     tim = time(NULL);

@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Print.h"
 
-void PrintLVBInfo()
+void PrintVersion()
 {
   std::cout << "==============================================="
                "=================================\n\n";
@@ -63,7 +63,7 @@ void PrintLVBInfo()
                "=================================\n\n";
 }
 
-void PrintLVBCopyright()
+void PrintCopyright()
 {
   std::cout << "(c) Copyright 2003-2012 by Daniel Barker\n"
                "(c) Copyright 2013, 2014 by Daniel Barker and Maximilian Strobl\n"
@@ -127,4 +127,75 @@ void PrintOutput(long iter, long trees_output_total, long final_length, double c
   printf("  Homoplasy index:          %.2lf\n", homoplasy_index);
   printf("  Total runtime (seconds):  %.2lf\n", overall_time_taken);
   printf("\nAll topologies written to '%s'\n", file_name_out);
+}
+
+void PrintArguments(Arguments args, Dataptr MSA, int argc, char **argv)
+/* write initial details to standard output */
+{
+	struct utsname buffer;
+	errno = 0;
+	if (uname(&buffer) != 0)
+	{
+		perror("uname");
+		exit(EXIT_FAILURE);
+	}
+
+	printf("Executing: ");
+	printf("' ");
+	for (int i = 0; i < argc; ++i)
+		printf("%s ", argv[i]);
+	printf("' at: ");
+	LogTime();
+	printf("\n");
+
+	printf("Analysis Properties: \n");
+	printf("  Alignment:          '%s'\n", args.file_name_in);
+	printf("  MSA format:          ");
+	if (args.n_file_format == FORMAT_PHYLIP)
+		printf("PHYLIP\n");
+	else if (args.n_file_format == FORMAT_FASTA)
+		printf("FASTA\n");
+	else if (args.n_file_format == FORMAT_NEXUS)
+		printf("NEXUS\n");
+	else if (args.n_file_format == FORMAT_CLUSTAL)
+		printf("CLUSTAL\n");
+	else
+	{
+		fprintf(stderr, "Error, input format file not recognized\n");
+		abort();
+	}
+
+	printf("  MSA size:            %ld x %ld\n", MSA->n, MSA->original_m);
+	printf("  Seed:                %d\n", args.seed);
+	printf("  Cooling schedule:    ");
+	if (args.cooling_schedule == 0)
+		printf("GEOMETRIC\n");
+	else
+		printf("LINEAR\n");
+	printf("  Algorithm: ");
+	if (args.algorithm_selection == 0)
+		printf("          0 (SN)\n");
+	else if (args.algorithm_selection == 1)
+		printf("          1 (SEQ-TNS)\n");
+	else if (args.algorithm_selection == 2)
+		printf("          2 (PBS)\n");
+
+	printf("\nParallelisation Properties: \n");
+
+	if (args.num_threads != omp_get_max_threads())
+	{
+		printf("  PThreads:            %d\n", args.num_threads);
+	}
+	else
+	{
+		printf("  PThreads:  %d\n", omp_get_max_threads());
+		printf("  PThread IDs:         ");
+#pragma omp parallel
+		{
+			printf("%d ", omp_get_thread_num());
+		}
+	}
+
+	printf("\n================================================================================\n");
+	printf("\nInitialising search: \n");
 }

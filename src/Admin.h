@@ -49,7 +49,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "LVB.h"
 
-void functionality_check(void);
-void lvb_initialize(void);
+void SystemChecks(void);
 
 #endif /* LVB_ADMIN_H_ */

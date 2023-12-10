@@ -49,6 +49,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "LVB.h"
 
-void calc_distribution_processors(Dataptr, Parameters rcstruct);
+void SetNumThreads(Dataptr, Arguments args);
 
 #endif

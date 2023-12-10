@@ -89,18 +89,18 @@ int main(void)
     Dataptr matrix1;	/* data MSA as input (interleaved) */
     Dataptr matrix2;	/* data MSA as input (sequential) */
 
-    Parameters rcstruct;		/* configurable parameters */
-    strcpy(rcstruct.file_name_in, "infile");
-    rcstruct.n_file_format = FORMAT_PHYLIP;
+    Arguments args;		/* configurable arguments */
+    strcpy(args.file_name_in, "infile");
+    args.n_file_format = FORMAT_PHYLIP;
 
-    lvb_initialize();
+    SystemChecks();
 
     matrix1 = (data *) malloc(sizeof(DataStructure));
-    phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix1);
+    phylip_dna_matrin(args.file_name_in, args.n_file_format, matrix1);
     check(matrix1);
 
     matrix2 = (data *) malloc(sizeof(DataStructure));
-    phylip_dna_matrin(rcstruct.file_name_in, rcstruct.n_file_format, matrix2);
+    phylip_dna_matrin(args.file_name_in, args.n_file_format, matrix2);
     check(matrix2);
 
     rowfree(matrix1);

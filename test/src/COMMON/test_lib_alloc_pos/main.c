@@ -55,7 +55,7 @@ int main(void)
 {
     long i;	/* loop counter */
 
-    lvb_initialize();
+    SystemChecks();
 
     /* Check that a zero byte allocation returns a NULL pointer. */
     lp = (long *) alloc(0, "zero-byte array");

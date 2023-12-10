@@ -56,19 +56,19 @@ int main(void)
     long n;				/* sequences */
     int max_length_name;		/* mas name length */
     Lvb_bool success = LVB_FALSE;	/* test passed */
-    Parameters rcstruct;		/* configurable parameters */
+    Arguments args;		/* configurable arguments */
 
-    lvb_initialize();
+    SystemChecks();
 
-//    rcstruct.file_name_in = "infile";
-    strcpy(rcstruct.file_name_in, "infile");
-    rcstruct.n_file_format = FORMAT_PHYLIP;
+//    args.file_name_in = "infile";
+    strcpy(args.file_name_in, "infile");
+    args.n_file_format = FORMAT_PHYLIP;
 
-    phylip_mat_dims_in(rcstruct.file_name_in, rcstruct.n_file_format, &n, &m, &max_length_name);
+    phylip_mat_dims_in(args.file_name_in, args.n_file_format, &n, &m, &max_length_name);
     if ((n == EXPECTED_N) && (m == EXPECTED_M))
     {
     	/* try it again and check it still works */
-	phylip_mat_dims_in(rcstruct.file_name_in, rcstruct.n_file_format, &n, &m, &max_length_name);
+	phylip_mat_dims_in(args.file_name_in, args.n_file_format, &n, &m, &max_length_name);
 	if ((n == EXPECTED_N) && (m == EXPECTED_M))
 	    success = LVB_TRUE;
     }

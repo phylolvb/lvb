@@ -306,8 +306,8 @@ static long constchar(Dataptr restrict MSA, Lvb_bool *const togo, const Lvb_bool
 	return n_columns;
 } /* end constchar() */
 
-void matchange(Dataptr MSA, const Parameters rcstruct)
-/* change and remove columns in MSA, partly in response to rcstruct,
+void matchange(Dataptr MSA, const Arguments args)
+/* change and remove columns in MSA, partly in response to args,
  * verbosely or not according to value of verbose */
 {
 	Lvb_bool *togo; /* LVB_TRUE where column must go */
@@ -324,7 +324,7 @@ void matchange(Dataptr MSA, const Parameters rcstruct)
 	for (n_columns_to_change = 0; n_columns_to_change < MSA->m; n_columns_to_change++)
 		*(togo + n_columns_to_change) = LVB_FALSE;
 
-	n_columns_to_change = constchar(MSA, togo, (Lvb_bool)rcstruct.verbose); /* compuslory cut */
+	n_columns_to_change = constchar(MSA, togo, (Lvb_bool)args.verbose); /* compuslory cut */
 
 	/* N.B. a function to mark autapomorphic characters for cutting
 	 * could be called at this point. The effect would be more noticeable
@@ -350,7 +350,7 @@ void matchange(Dataptr MSA, const Parameters rcstruct)
 			  MSA->m, MIN_M);
 	else
 	{
-		if (rcstruct.verbose == LVB_TRUE)
+		if (args.verbose == LVB_TRUE)
 			printf("\nIn total, %ld columns are excluded from the analysis\n\n", MSA->original_m - MSA->m);
 	}
 

@@ -58,7 +58,7 @@ int main(void)
     static char s3[] = "`1234567890-=!\"$%^&*("
      ")_+QWERTYUIOPASDFGHJKLZXCVBNN[]{};'#:@~,./<>? \t\n\r";
 
-    lvb_initialize();
+    SystemChecks();
 
     lvb_assert(cistrcmp(s1, s1) == 0);
     lvb_assert(cistrcmp(s3 + 5, s3) != 0);

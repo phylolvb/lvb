@@ -42,17 +42,57 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== SearchParameters.h - interface for SearchParameters.c ========== */
+/* ========== arguments.c - get and set configurable arguments ========== */
 
-#ifndef LVB_SEARCHPARAMETERS_H_
-#define LVB_SEARCHPARAMETERS_H_
+#include "arguments.h"
 
-#include <unistd.h>
+/* it is in CommandLineParser.cpp library */
+void ParseArguments(Arguments *args, int argc, char **argv);
 
-#include "LVB.h"
-#include "Clock.h"
-#include "CommandLineParser.h"
+static int SetDefaultSeed(void)
+/* return a default integer in the interval [0..MAX_SEED], obtained from the
+ * system clock, or exit with an error message if the system time is
+ * unavailable */
+{
+	time_t tim;			   /* system time */
+	unsigned long ul_seed; /* seed value obtained from system time */
 
-void writeinf(Parameters rcstruct, Dataptr restrict, int, char **);
+	tim = time(NULL);
+	lvb_assert(tim != -1);
+	ul_seed = (unsigned long)tim;
+	ul_seed = ul_seed % (1UL + (unsigned long)MAX_SEED);
+	lvb_assert(ul_seed <= MAX_SEED);
+	return (int)ul_seed;
 
-#endif
+} /* end SetDefaultSeed() */
+
+void SetDefaultArgumentsValues(Arguments *const args)
+/* set seed in *args to unacceptable value, and other arguments to their
+ * SetDefaultArgumentsValues from LVB.h */
+{
+	/* meaningful value that is not user-configurable */
+	args->verbose = LVB_FALSE;
+
+	/* cooling schecdule Generic */
+	args->cooling_schedule = 0;
+	/* default value that will usually be used */
+	args->seed = SetDefaultSeed();
+	/* original branch-swapping algorithm */
+	args->algorithm_selection = 1;
+
+	strcpy(args->file_name_in, "infile");
+	strcpy(args->file_name_out, OUTTREEFNAM);
+	args->n_file_format = FORMAT_PHYLIP;
+	args->num_threads = omp_get_max_threads();
+	args->n_number_max_trees = 0; /* default, keep all EPT */
+
+} /* end SetDefaultArgumentsValues() */
+
+void GetArguments(Arguments *args, int argc, char **argv)
+/* Get configuration arguments. This function fills *args with
+ * run-time configuration arguments */
+{
+	SetDefaultArgumentsValues(args);
+	ParseArguments(args, argc, argv);
+
+} /* end GetArguments() */

@@ -57,6 +57,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static TREESTACK treestack; /* overall best tree stack */
 static TREESTACK stack_treevo;
 
-long GetSoln(Dataptr restrict, Parameters, long *, Lvb_bool);
+long GetSoln(Dataptr restrict, Arguments, long *, Lvb_bool);
 
 #endif

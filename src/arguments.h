@@ -42,21 +42,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== Admin.c - LVB library data and administration ========== */
+/* ========== arguments.h - interface for arguments.c ========== */
 
-#include "Admin.h"
+#ifndef LVB_ARGUMENTS_H_
+#define LVB_ARGUMENTS_H_
 
-void SystemChecks(void)
-{
-    if (time(NULL) == -1)
-        crash("cannot get system time");
+#include <unistd.h>
 
-    if ((((long)INT_MAX) < 2147483647L) || ((sizeof(void *) * CHAR_BIT) < 32) || ((sizeof(size_t) * CHAR_BIT) < 32))
-    {
-        crash("program requires at least a 32-bit system");
-    }
+#include "LVB.h"
+#include "Clock.h"
+#include "CommandLineParser.h"
 
-    if (DBL_EPSILON >= LVB_EPS)
-        crash("program requires greater floating point precision");
-
-} /* end SystemChecks() */
+#endif

@@ -203,7 +203,7 @@ void usage(char *p_file_name)
 	exit(0);
 }
 
-void read_parameters(Parameters *prms, int argc, char **argv)
+void ParseArguments(Arguments *args, int argc, char **argv)
 {
 
 	int c;
@@ -220,9 +220,9 @@ void read_parameters(Parameters *prms, int argc, char **argv)
 				usage(argv[0]);
 			}
 			if (strcmp(optarg, "g") == 0 || strcmp(optarg, "G") == 0)
-				prms->cooling_schedule = 0;
+				args->cooling_schedule = 0;
 			else if (strcmp(optarg, "l") == 0 || strcmp(optarg, "L") == 0)
-				prms->cooling_schedule = 1;
+				args->cooling_schedule = 1;
 			else
 			{
 				fprintf(stderr, "Unknown cooling schedule option\nPlease, choose between Geometric (g) or Linear (l).");
@@ -235,18 +235,18 @@ void read_parameters(Parameters *prms, int argc, char **argv)
 				usage(argv[0]);
 			}
 			if (strcmp(optarg, "0") == 0 || strcmp(optarg, "0") == 0)
-				prms->algorithm_selection = 0;
+				args->algorithm_selection = 0;
 			else if (strcmp(optarg, "1") == 0 || strcmp(optarg, "1") == 0)
-				prms->algorithm_selection = 1;
+				args->algorithm_selection = 1;
 			else if (strcmp(optarg, "2") == 0 || strcmp(optarg, "2") == 0)
-				prms->algorithm_selection = 2;
+				args->algorithm_selection = 2;
 			else
 			{
 				fprintf(stderr, "Unknown algorithm option\nPlease, choose between SN (0), SEQ-TNS (1), or PBS (2).");
 			}
 			break;
 		case 'v': /* verbose */
-			prms->verbose = LVB_TRUE;
+			args->verbose = LVB_TRUE;
 			break;
 		case 's': /* seed */
 			if (optarg == NULL)
@@ -254,7 +254,7 @@ void read_parameters(Parameters *prms, int argc, char **argv)
 				fprintf(stderr, "Option -%c requires an argument -s <int>\n", optopt);
 				usage(argv[0]);
 			}
-			prms->seed = atoi(optarg);
+			args->seed = atoi(optarg);
 			break;
 		case 'i': /* file name in */
 			if (optarg == NULL)
@@ -266,7 +266,7 @@ void read_parameters(Parameters *prms, int argc, char **argv)
 			{
 				fprintf(stderr, "Error, the length file name greater than %d\n", LVB_FNAMSIZE);
 			}
-			strcpy(prms->file_name_in, optarg);
+			strcpy(args->file_name_in, optarg);
 			break;
 		case 'o': /* file name out */
 			if (optarg == NULL)
@@ -278,7 +278,7 @@ void read_parameters(Parameters *prms, int argc, char **argv)
 			{
 				fprintf(stderr, "Error, the length file name greater than %d\n", LVB_FNAMSIZE);
 			}
-			strcpy(prms->file_name_out, optarg);
+			strcpy(args->file_name_out, optarg);
 			break;
 		case 'f': /* format */
 			if (optarg == NULL)
@@ -288,19 +288,19 @@ void read_parameters(Parameters *prms, int argc, char **argv)
 			}
 			if (strcmp(optarg, "phylip") == 0)
 			{
-				prms->n_file_format = FORMAT_PHYLIP;
+				args->n_file_format = FORMAT_PHYLIP;
 			}
 			else if (strcmp(optarg, "fasta") == 0)
 			{
-				prms->n_file_format = FORMAT_FASTA;
+				args->n_file_format = FORMAT_FASTA;
 			}
 			else if (strcmp(optarg, "nexus") == 0)
 			{
-				prms->n_file_format = FORMAT_NEXUS;
+				args->n_file_format = FORMAT_NEXUS;
 			}
 			else if (strcmp(optarg, "clustal") == 0)
 			{
-				prms->n_file_format = FORMAT_CLUSTAL;
+				args->n_file_format = FORMAT_CLUSTAL;
 			}
 			else
 			{
@@ -308,26 +308,26 @@ void read_parameters(Parameters *prms, int argc, char **argv)
 				print_formats_available();
 			}
 			break;
-		case 'p':
+		case 'p': /* threads */
 			if (optarg == NULL)
 			{
 				fprintf(stderr, "Option -%c requires an argument -p <int>\n", optopt);
 				usage(argv[0]);
 			}
-			prms->n_processors_available = atoi(optarg);
-			if (prms->n_processors_available < 1)
-				prms->n_processors_available = 1;
+			args->num_threads = atoi(optarg);
+			if (args->num_threads < 1)
+				args->num_threads = 1;
 			break;
-		case 't':
+		case 't': /* max trees */
 			if (optarg == NULL)
 			{
 				fprintf(stderr, "Option -%c requires an argument -p <file name>\n", optopt);
 				usage(argv[0]);
 				exit(1);
 			}
-			prms->n_number_max_trees = atoi(optarg);
-			if (prms->n_number_max_trees < 1)
-				prms->n_number_max_trees = 0;
+			args->n_number_max_trees = atoi(optarg);
+			if (args->n_number_max_trees < 1)
+				args->n_number_max_trees = 0;
 			break;
 		case '?':
 		case 'h':

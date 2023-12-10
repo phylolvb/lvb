@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "TreeEvaluation.h"
 
-long getplen(Dataptr restrict MSA, TREESTACK_TREE_NODES *BranchArray, Parameters rcstruct, const long root,
+long getplen(Dataptr restrict MSA, TREESTACK_TREE_NODES *BranchArray, Arguments args, const long root,
 			 long *restrict p_todo_arr, long *p_todo_arr_sum_changes, int *p_runs)
 {
 	long branch;						  /* current branch number */

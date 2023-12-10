@@ -50,7 +50,7 @@ int main(void)
 {
     long i = 32447881;
 
-    lvb_initialize();
+    SystemChecks();
 
     crash("%ld is causing trouble", i);
 

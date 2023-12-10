@@ -46,7 +46,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "StartingTemperature.h"
 
-double StartingTemperature(Dataptr MSA, const TREESTACK_TREE_NODES *const inittree, Parameters rcstruct, long root,
+double StartingTemperature(Dataptr MSA, const TREESTACK_TREE_NODES *const inittree, Arguments args, long root,
 						   Lvb_bool log_progress)
 
 /* Determine the starting temperature for the annealing search
@@ -95,7 +95,7 @@ double StartingTemperature(Dataptr MSA, const TREESTACK_TREE_NODES *const inittr
 
 	treecopy(MSA, x, inittree, LVB_TRUE); /* current configuration */
 	alloc_memory_to_getplen(MSA, &p_todo_arr, &p_todo_arr_sum_changes, &p_runs);
-	current_tree_length = getplen(MSA, x, rcstruct, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+	current_tree_length = getplen(MSA, x, args, root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 
 	lenmin = MinimumTreeLength(MSA);
 	tree_minimum_length = (double)lenmin;
@@ -125,7 +125,7 @@ double StartingTemperature(Dataptr MSA, const TREESTACK_TREE_NODES *const inittr
 			else
 				mutate_nni(MSA, xdash, x, root); /* local change */
 
-			proposed_tree_length = getplen(MSA, xdash, rcstruct, proposed_tree_root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
+			proposed_tree_length = getplen(MSA, xdash, args, proposed_tree_root, p_todo_arr, p_todo_arr_sum_changes, p_runs);
 			lvb_assert(proposed_tree_length >= 1L);
 			tree_length_change = proposed_tree_length - current_tree_length;
 			deltah = (tree_minimum_length / (double)current_tree_length) - (tree_minimum_length / (double)proposed_tree_length);

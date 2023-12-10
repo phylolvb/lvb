@@ -49,7 +49,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 int main(void)
 {
-    lvb_initialize();
+    SystemChecks();
 
     pow_wrapper(-3, 1.5);	/* should cause domain error */
 

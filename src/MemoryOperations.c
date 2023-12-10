@@ -131,8 +131,8 @@ void free_memory_to_getplen(long **p_todo_arr, long **p_todo_arr_sum_changes, in
 	free(*p_runs);
 }
 
-/* set the number of processors to use */
-void calc_distribution_processors(Dataptr MSA, Parameters rcstruct)
+/* set the number of threads to use */
+void SetNumThreads(Dataptr MSA, Arguments args)
 {
 	int n_threads_temp = 0;
 	if (MSA->nwords > MINIMUM_SIZE_NUMBER_WORDS_TO_ACTIVATE_THREADING)
@@ -141,7 +141,7 @@ void calc_distribution_processors(Dataptr MSA, Parameters rcstruct)
 		{
 			n_threads_temp++;
 			MSA->n_slice_size_getplen = MSA->nwords / n_threads_temp;
-		} while (MSA->n_slice_size_getplen > MINIMUM_WORDS_PER_SLICE_GETPLEN && n_threads_temp != rcstruct.n_processors_available);
+		} while (MSA->n_slice_size_getplen > MINIMUM_WORDS_PER_SLICE_GETPLEN && n_threads_temp != args.num_threads);
 
 		if (MSA->n_slice_size_getplen > MINIMUM_WORDS_PER_SLICE_GETPLEN)
 		{

@@ -121,7 +121,7 @@ LVB_LIB_OBJS = $(LVB_SRC_DIR)/Admin.$(OBJ) \
                $(LVB_SRC_DIR)/MyMaths.$(OBJ) \
                $(LVB_SRC_DIR)/RandomNumberGenerator.$(OBJ) \
                $(LVB_SRC_DIR)/TreeEvaluation.$(OBJ) \
-			   $(LVB_SRC_DIR)/SearchParameters.$(OBJ) \
+			   $(LVB_SRC_DIR)/arguments.$(OBJ) \
                $(LVB_SRC_DIR)/Solve.$(OBJ) \
                $(LVB_SRC_DIR)/Sops.$(OBJ) \
 			   $(LVB_SRC_DIR)/StartingTemperature.$(OBJ) \

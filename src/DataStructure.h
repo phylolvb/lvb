@@ -82,18 +82,18 @@ typedef struct data
 
 /* unchangeable types */
 
-/* user- or programmer-configurable parameters */
+/* user- or programmer-configurable arguments */
 typedef struct
 {
     int seed;                         /* seed for random number generator */
     int cooling_schedule;             /* cooling schedule: 0 is geometric, 1 is linear */
     int algorithm_selection;          /* algorithm selection: 0 is original, 1 is no SEQ-TNS, and 2 is PBS */
     int n_file_format;                /* number of file format, must be FORMAT_PHYLIP, FORMAT_FASTA, FORMAT_NEXUS, FORMAT_CLUSTAL*/
-    int n_processors_available;       /* number of processors available */
+    int num_threads;                  /* number of threads being used */
     long verbose;                     /* verboseness level */
     char file_name_in[LVB_FNAMSIZE];  /* input file name */
     char file_name_out[LVB_FNAMSIZE]; /* output file name */
     int n_number_max_trees;           /* number of EPT to be saved */
-} Parameters;
+} Arguments;
 
 #endif // SRC_DATASTRUCTURE_H_
