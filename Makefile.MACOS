@@ -2,7 +2,7 @@
 #
 # Homebrew GCC is used because Apple's Clang does not ship with OpenMP support.
 # Override CXX if your installed GCC has a different versioned name, for example:
-#   make -f Makefile.OS CXX=g++-14
+#   make -f Makefile.MACOS CXX=g++-14
 
 CXX = g++-15
 PROJECT_MAKEFILE := Makefile
