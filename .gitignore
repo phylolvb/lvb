@@ -6,4 +6,4 @@
 
 .vscode/
 profiles/
-libs/
+libs/*
