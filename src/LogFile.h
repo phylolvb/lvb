@@ -45,18 +45,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef LVB_LOG_FILE_H_
 #define LVB_LOG_FILE_H_
 
-#include <stdbool.h>
 #include "LVB.h"
+#include <stdbool.h>
 
 #ifdef LVB_MAPREDUCE
-  #define LVB_IMPLEMENTATION "MR  "
+#define LVB_IMPLEMENTATION "MR  "
 #elif LVB_HASH
-  #define LVB_IMPLEMENTATION "HASH"
+#define LVB_IMPLEMENTATION "HASH"
 #else
-  #define LVB_IMPLEMENTATION "NP  "
+#define LVB_IMPLEMENTATION "NP  "
 #endif
 
 bool LogFileExists(const char *filename);
 void PrintLogFile(long, long, long, double);
 
-#endif  // LVB_LOG_FILE_H_
+#endif // LVB_LOG_FILE_H_

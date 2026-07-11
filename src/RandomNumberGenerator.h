@@ -40,7 +40,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== RandomNumberGenerator.h - interface for RandomNumberGenerator.c ========== */
+/* ========== RandomNumberGenerator.h - interface for RandomNumberGenerator.c
+ * ========== */
 
 #ifndef LVB_RANDOMNUMBERGENERATOR_H
 #define LVB_RANDOMNUMBERGENERATOR_H
@@ -55,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #error LVB WARNING: type int not suitable, try with a 32-bit or larger system
 #else
 #define MAX_SEED 900000000
-#endif  /* if 900000001L > INT_MAX */
+#endif /* if 900000001L > INT_MAX */
 
 /* external uni functions */
 double uni(void);

@@ -40,7 +40,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== MemoryOperations.h - interface for MemoryOperations.c ========== */
+/* ========== MemoryOperations.h - interface for MemoryOperations.c ==========
+ */
 
 #ifndef LVB_MEMORYOPERATIONS_H
 #define LVB_MEMORYOPERATIONS_H

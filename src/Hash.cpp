@@ -44,7 +44,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Hash.h"
 
-long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_NODES *const BranchArray, const long root, Lvb_bool b_with_sitestate) {
+long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp,
+                                const TREESTACK_TREE_NODES *const BranchArray,
+                                const long root, Lvb_bool b_with_sitestate) {
   long i = 0, new_root = 0;
   static TREESTACK_TREE_NODES *copy_2 = NULL;
   Lvb_bool b_First = LVB_TRUE;
@@ -53,7 +55,8 @@ long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE
   static std::vector<unsigned long long> hashstackvector;
 
   /* allocate "local" static heap memory - static - do not free! */
-  if (copy_2 == NULL) copy_2 = treealloc(MSA, b_with_sitestate);
+  if (copy_2 == NULL)
+    copy_2 = treealloc(MSA, b_with_sitestate);
   treecopy(MSA, copy_2, BranchArray, b_with_sitestate);
   if (root != 0) {
     lvb_reroot(MSA, copy_2, root, new_root, b_with_sitestate);
@@ -64,14 +67,15 @@ long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE
     current_site_states = MakeHashSet(MSA, copy_2, new_root);
     hashstackvector.clear();
     current_site_states_hash = HashSiteSet(current_site_states);
-  } else {    
+  } else {
     for (i = sp->next - 1; i >= 0; i--) {
-      if (TopologicalHashComparison(MSA, hashstackvector.at(i), copy_2, b_First, current_site_states, current_site_states_hash) == 0) {
+      if (TopologicalHashComparison(MSA, hashstackvector.at(i), copy_2, b_First,
+                                    current_site_states,
+                                    current_site_states_hash) == 0) {
         return 0; /* if current hash matches stored hash, exit */
       }
       b_First = LVB_FALSE;
     }
-    
   }
   hashstackvector.push_back(current_site_states_hash);
 
@@ -81,8 +85,11 @@ long CompareHashTreeToHashstack(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE
   return 1;
 } /* end CompareHashTreeToHashstack() */
 
-long TopologicalHashComparison(Dataptr MSA, unsigned long long stored_hash, const TREESTACK_TREE_NODES *const tree_2, Lvb_bool b_First,
-                                std::string current_site_states, unsigned long long& current_site_states_hash) {
+long TopologicalHashComparison(Dataptr MSA, unsigned long long stored_hash,
+                               const TREESTACK_TREE_NODES *const tree_2,
+                               Lvb_bool b_First,
+                               std::string current_site_states,
+                               unsigned long long &current_site_states_hash) {
   if (b_First == LVB_TRUE) {
     current_site_states = MakeHashSet(MSA, tree_2, 0);
     current_site_states_hash = HashSiteSet(current_site_states);
@@ -90,8 +97,10 @@ long TopologicalHashComparison(Dataptr MSA, unsigned long long stored_hash, cons
   return HashComparison(stored_hash, current_site_states_hash);
 } /* end TopologicalHashComparison() */
 
-long HashComparison(unsigned long long stored_hash, unsigned long long current_site_states_hash) {
-  if (stored_hash == current_site_states_hash) return 0;
+long HashComparison(unsigned long long stored_hash,
+                    unsigned long long current_site_states_hash) {
+  if (stored_hash == current_site_states_hash)
+    return 0;
 
   return 1;
 } /* end HashComparison() */
@@ -102,10 +111,11 @@ unsigned long long HashSiteSet(std::string currentsiteset) {
 } /* end HashSiteSet() */
 
 /*
-long CollisionResolution(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_NODES *const copy_2, Lvb_bool b_First) {
-  b_First = LVB_FALSE;
+long CollisionResolution(Dataptr MSA, TREESTACK *sp, const TREESTACK_TREE_NODES
+*const copy_2, Lvb_bool b_First) { b_First = LVB_FALSE;
 
   for (long i = sp->next - 1; i >= 0; i--) {
-    if (TopologyComparison(MSA, sp->stack[i].p_sitestate, copy_2, b_First) == 0) return 0;
+    if (TopologyComparison(MSA, sp->stack[i].p_sitestate, copy_2, b_First) == 0)
+return 0;
   }
 } end CollisionResolution() */

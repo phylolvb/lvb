@@ -40,22 +40,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-/* ========== SearchParameters.h - interface for SearchParameters.c ========== */
+/* ========== SearchParameters.h - interface for SearchParameters.c ==========
+ */
 
 #ifndef LVB_SEARCHPARAMETERS_H_
 #define LVB_SEARCHPARAMETERS_H_
 
-
 #include <unistd.h>
 
-#include "LVB.h"
 #include "Clock.h"
 #include "CommandLineParser.h"
+#include "LVB.h"
 
 #ifdef LVB_MAPREDUCE
-    void writeinf(Parameters rcstruct, Dataptr restrict, int, char**, int);
+void writeinf(Parameters rcstruct, Dataptr restrict, int, char **, int);
 #else
-	void writeinf(Parameters rcstruct, Dataptr restrict, int, char**);
+void writeinf(Parameters rcstruct, Dataptr restrict, int, char **);
 #endif
 
 #endif

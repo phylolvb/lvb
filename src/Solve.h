@@ -52,12 +52,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "Print.h"
 #include "Verbose.h"
 
-static TREESTACK treestack;	/* overall best tree stack */
+static TREESTACK treestack; /* overall best tree stack */
 static TREESTACK stack_treevo;
 
 #ifdef LVB_MAPREDUCE
-long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p, Lvb_bool log_progress,
-				MISC *misc, MapReduce *mrTreeStack, MapReduce *mrBuffer);
+long GetSoln(Dataptr restrict MSA, Parameters rcstruct, long *iter_p,
+             Lvb_bool log_progress, MISC *misc, MapReduce *mrTreeStack,
+             MapReduce *mrBuffer);
 #else
 long GetSoln(Dataptr restrict, Parameters, long *, Lvb_bool);
 
