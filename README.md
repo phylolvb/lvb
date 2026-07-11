@@ -28,9 +28,14 @@ Hash version (recommended):
 make -f Makefile.HASH
 ~~~~
 
-Array-based version:
+Array-based (Linux) version:
 ~~~~
 make
+~~~~
+
+Array-based (macOS) version:
+~~~~
+make -f Makefile.MACOS
 ~~~~
 
 MapReduce version (requires MPI)  

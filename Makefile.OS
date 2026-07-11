@@ -1,0 +1,29 @@
+# macOS convenience targets for LVB.
+#
+# Homebrew GCC is used because Apple's Clang does not ship with OpenMP support.
+# Override CXX if your installed GCC has a different versioned name, for example:
+#   make -f Makefile.OS CXX=g++-14
+
+CXX = g++-15
+PROJECT_MAKEFILE := Makefile
+PROGRAM := lvb
+INPUT ?= examples/inputs/simulated_matrix_100x1000_fasta.fas
+ARGS ?=
+
+.DEFAULT_GOAL := build
+
+.PHONY: all build run test clean
+
+all: build
+
+build:
+	env 'G++=$(CXX)' CC='$(CXX)' CXX='$(CXX)' $(MAKE) -e -f $(PROJECT_MAKEFILE)
+
+run: build
+	./$(PROGRAM) -i "$(INPUT)" $(ARGS)
+
+test: build
+	env 'G++=$(CXX)' CC='$(CXX)' CXX='$(CXX)' $(MAKE) -e -f $(PROJECT_MAKEFILE) test
+
+clean:
+	env 'G++=$(CXX)' CC='$(CXX)' CXX='$(CXX)' $(MAKE) -e -f $(PROJECT_MAKEFILE) clean
